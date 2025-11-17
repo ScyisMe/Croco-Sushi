@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "croco-sushi"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi==0.104.1",
+    "uvicorn[standard]==0.24.0",
+    "sqlalchemy==2.0.23",
+    "asyncpg==0.29.0",
+    "alembic==1.12.1",
+    "pydantic==2.5.0",
+    "pydantic-settings==2.1.0",
+    "python-jose[cryptography]==3.3.0",
+    "passlib[bcrypt]==1.7.4",
+    "python-multipart==0.0.6",
+    "redis==5.0.1",
+    "celery==5.3.4",
+    "pillow==10.1.0",
+    "aiofiles==23.2.1",
+    "pyotp==2.9.0",
+    "qrcode[pil]==7.4.2",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+
+[tool.setuptools.packages.find]
+# Виключаємо директорії, які не є частиною основного пакету
+exclude = [
+    "alembic*",
+    "frontend*",
+    "versions*",
+]
+# Включаємо тільки backend
+include = ["backend*"]

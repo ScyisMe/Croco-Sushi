@@ -1,0 +1,118 @@
+# Croco Sushi - Сайт доставки суші
+
+Повнофункціональний сайт доставки суші з адмін-панеллю.
+
+## Технології
+
+- **Backend:** FastAPI + PostgreSQL + SQLAlchemy (async)
+- **Frontend:** React/Next.js (в розробці)
+- **Додатково:** Redis, Celery, Alembic
+
+## Структура проекту
+
+```
+.
+├── backend/              # Backend додаток
+│   ├── app/
+│   │   ├── api/         # API endpoints
+│   │   ├── core/        # Конфігурація та безпека
+│   │   ├── models/      # SQLAlchemy моделі
+│   │   ├── schemas/     # Pydantic схеми
+│   │   ├── utils/       # Допоміжні функції
+│   │   ├── database.py  # Підключення до БД
+│   │   └── main.py      # Точка входу FastAPI
+│   ├── alembic/         # Міграції БД
+│   └── .env.example     # Приклад конфігурації
+├── frontend/            # Frontend додаток (в розробці)
+└── docker-compose.yml   # Docker compose для PostgreSQL та Redis
+```
+
+## Швидкий старт
+
+### 1. Встановлення залежностей
+
+```bash
+uv sync
+```
+
+### 2. Налаштування бази даних
+
+Створіть файл `backend/.env` на основі `backend/.env.example`:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Відредагуйте `DATABASE_URL` та інші параметри за потреби.
+
+### 3. Запуск PostgreSQL та Redis
+
+```bash
+docker-compose up -d
+```
+
+### 4. Створення міграцій
+
+```bash
+cd backend
+alembic revision --autogenerate -m "Initial migration"
+alembic upgrade head
+```
+
+### 5. Запуск сервера
+
+```bash
+cd backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+API буде доступне за адресою: http://localhost:8000
+
+Документація API (Swagger): http://localhost:8000/docs
+
+## Розробка
+
+### Створення нової міграції
+
+```bash
+cd backend
+alembic revision --autogenerate -m "Description of changes"
+alembic upgrade head
+```
+
+### Відкат міграції
+
+```bash
+alembic downgrade -1
+```
+
+## API Endpoints
+
+### Публічні
+- `GET /` - інформація про API
+- `GET /health` - перевірка здоров'я сервісу
+- `GET /api/v1/categories` - список категорій
+- `GET /api/v1/products` - список продуктів
+
+### Захищені
+- `POST /api/v1/auth/register` - реєстрація
+- `POST /api/v1/auth/login` - вхід
+- `GET /api/v1/users/me` - мій профіль
+
+### Адмін
+- `POST /api/v1/admin/products` - створити продукт
+- `GET /api/v1/admin/orders` - всі замовлення
+
+## Статус розробки
+
+- ✅ Етап 1: Підготовка та налаштування
+- ✅ Етап 2: База даних (моделі створені)
+- ⏳ Етап 3: Backend API - Базова функціональність
+- ⏳ Етап 4: Аутентифікація
+- ⏳ Етап 5: Кошик та замовлення
+
+## Ліцензія
+
+MIT
+
+
