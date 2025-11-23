@@ -21,7 +21,7 @@ README.md
 TZ_CROCO_SUSHI.md
 frontend/
 versions/
-alembic/
+# alembic/ - залишаємо для Docker контейнера
 croco_sushi.egg-info/
 *.md
 !README.md

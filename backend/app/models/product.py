@@ -2,13 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from sqlalchemy import String, Text, Boolean, Integer, DateTime, Numeric, ForeignKey, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from typing import List, Optional as OptionalType
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.category import Category
+    from app.models.product_size import ProductSize
+    from app.models.review import Review
 
 
 class Product(Base):
@@ -34,6 +39,9 @@ class Product(Base):
     is_available: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_new: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_popular: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # SEO поля
+    meta_title: Mapped[OptionalType[str]] = mapped_column(String(255), nullable=True)
+    meta_description: Mapped[OptionalType[str]] = mapped_column(Text, nullable=True)
     position: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), 

@@ -1,9 +1,10 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
+from app.core.exceptions import NotFoundException
 from app.models.category import Category
 from app.schemas.category import CategoryResponse
 
@@ -39,7 +40,7 @@ async def get_category_by_slug(
     )
     category = result.scalar_one_or_none()
     if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
+        raise NotFoundException("Категорію не знайдено")
     return category
 
 

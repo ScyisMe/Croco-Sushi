@@ -1,11 +1,12 @@
 FROM python:3.13-slim
 
-# Встановлюємо системні залежності
-RUN apt-get update && apt-get install -y \
+# Встановлюємо мінімальні системні залежності (тільки необхідні для компіляції Python пакетів)
+# Використовуємо --no-install-recommends для зменшення розміру
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
-    postgresql-client \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Встановлюємо робочу директорію
 WORKDIR /app
@@ -13,27 +14,17 @@ WORKDIR /app
 # Копіюємо файли залежностей з кореня проєкту
 COPY pyproject.toml uv.lock* ./
 
-# Встановлюємо залежності через pip (pip підтримує pyproject.toml)
-RUN pip install --no-cache-dir \
-    fastapi==0.104.1 \
-    "uvicorn[standard]==0.24.0" \
-    sqlalchemy==2.0.23 \
-    asyncpg==0.29.0 \
-    alembic==1.12.1 \
-    pydantic==2.5.0 \
-    pydantic-settings==2.1.0 \
-    "python-jose[cryptography]==3.3.0" \
-    "passlib[bcrypt]==1.7.4" \
-    python-multipart==0.0.6 \
-    redis==5.0.1 \
-    celery==5.3.4 \
-    pillow==10.1.0 \
-    aiofiles==23.2.1 \
-    pyotp==2.9.0 \
-    "qrcode[pil]==7.4.2"
+# Копіюємо Alembic конфігурацію та скрипти (з кореня проекту)
+COPY alembic.ini ./
+COPY alembic ./alembic
 
-# Копіюємо код backend
-COPY backend/ ./backend/
+# Копіюємо код backend (потрібно для pip install -e .)
+COPY backend ./backend
+
+# Встановлюємо залежності через pip з pyproject.toml
+# pip install -e . автоматично встановлює залежності з pyproject.toml
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -e .
 
 # Встановлюємо робочу директорію в backend
 WORKDIR /app/backend

@@ -17,9 +17,14 @@ def get_engine():
     """Отримання асинхронного движка (створюється при першому виклику)"""
     global _engine
     if _engine is None:
+        # БЕЗПЕКА: echo=False в production для запобігання витоку чутливих даних
+        # Використовуємо змінну оточення або налаштування для контролю логування
+        echo_sql = getattr(settings, 'ECHO_SQL', False)  # За замовчуванням False
+        
         _engine = create_async_engine(
             settings.DATABASE_URL,
-            echo=True,  # Логування SQL запитів (вимкнути в production)
+            echo=echo_sql,  # Логування SQL запитів (тільки для розробки)
+
             pool_pre_ping=True,  # Перевірка з'єднання перед використанням
             pool_size=10,
             max_overflow=20,

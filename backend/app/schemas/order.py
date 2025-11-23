@@ -11,13 +11,20 @@ class OrderItemBase(BaseModel):
     price: Decimal
 
 
-class OrderItemCreate(OrderItemBase):
-    size_id: Optional[int] = None  # ID розміру порції
+class OrderItemCreate(BaseModel):
+    """Схема для створення позиції замовлення - ціна та назва товару завжди беруться з БД"""
+    product_id: int = Field(..., description="ID товару (обов'язкове)")
+    product_name: Optional[str] = Field(None, description="Назва товару (опціональна, завжди береться з БД для безпеки)")
+    quantity: int = Field(..., gt=0, le=100, description="Кількість товару (макс 100)")
+    size_id: Optional[int] = Field(None, description="ID розміру порції")
+    # price не включено - завжди береться з БД для безпеки
 
 
 class OrderItemResponse(OrderItemBase):
     id: int
     order_id: int
+    size_id: Optional[int] = None  # ID розміру порції
+    size_name: Optional[str] = None  # Назва розміру порції
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -61,6 +68,7 @@ class OrderResponse(BaseModel):
     delivery_time: Optional[datetime]
     customer_name: Optional[str]
     customer_phone: str
+    customer_email: Optional[str] = None  # Email для сповіщень
     comment: Optional[str]
     created_at: datetime
     updated_at: datetime
@@ -82,5 +90,10 @@ class OrderTrack(BaseModel):
     total_amount: Decimal
     
     model_config = ConfigDict(from_attributes=True)
+
+
+
+
+
 
 

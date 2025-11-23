@@ -2,12 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional, List
-from sqlalchemy import String, Text, Integer, DateTime, Numeric, ForeignKey, CheckConstraint
+from typing import Optional, List, TYPE_CHECKING
+from sqlalchemy import String, Text, Integer, DateTime, Numeric, ForeignKey, CheckConstraint, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.address import Address
+    from app.models.review import Review
+    from app.models.product import Product
 
 
 class Order(Base):
@@ -40,7 +46,14 @@ class Order(Base):
     delivery_time: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     customer_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     customer_phone: Mapped[str] = mapped_column(String(20), nullable=False)
+    customer_email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # Внутрішній коментар (для адмінів)
+    internal_comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # Кур'єр
+    courier_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    # Історія статусів (JSON зі списком змін)
+    status_history: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), 
         server_default=func.now(), 
@@ -97,7 +110,13 @@ class OrderItem(Base):
         ForeignKey("products.id"), 
         nullable=True
     )
+    size_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        ForeignKey("product_sizes.id"),
+        nullable=True
+    )
     product_name: Mapped[str] = mapped_column(String(255), nullable=False)  # Копія на момент замовлення
+    size_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)  # Копія назви розміру
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)  # Ціна на момент замовлення
 

@@ -18,6 +18,8 @@ class ProductBase(BaseModel):
     category_id: Optional[int] = None
     image_url: Optional[str] = None
     images: Optional[List[str]] = None  # Список URL зображень
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
     is_available: bool = True
     is_new: bool = False
     is_popular: bool = False
@@ -40,6 +42,8 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = None
     image_url: Optional[str] = None
     images: Optional[List[str]] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
     is_available: Optional[bool] = None
     is_new: Optional[bool] = None
     is_popular: Optional[bool] = None

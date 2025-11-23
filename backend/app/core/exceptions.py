@@ -44,3 +44,8 @@ class BadRequestException(CrocoSushiException):
         super().__init__(detail=detail, status_code=status.HTTP_400_BAD_REQUEST)
 
 
+
+
+
+
+

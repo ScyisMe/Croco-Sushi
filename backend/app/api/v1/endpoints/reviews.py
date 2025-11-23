@@ -2,7 +2,8 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, delete
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.core.dependencies import get_current_active_user, get_optional_user
@@ -33,6 +34,8 @@ async def get_reviews(
     if rating:
         query = query.where(Review.rating == rating)
     
+    # Використовуємо selectinload для запобігання N+1 проблеми
+    query = query.options(selectinload(Review.user))
     query = query.order_by(Review.created_at.desc()).offset(skip).limit(limit)
     
     result = await db.execute(query)
@@ -41,11 +44,11 @@ async def get_reviews(
     # Додаємо інформацію про користувачів
     reviews_with_users = []
     for review in reviews:
-        review_dict = {
-            **review.__dict__,
-            "user_name": None,
-            "user_phone": None
-        }
+        # Створюємо dict з даних відгуку через model_validate для безпечної серіалізації
+        review_dict = ReviewResponse.model_validate(review).model_dump()
+        review_dict["user_name"] = None
+        review_dict["user_phone"] = None
+        
         if review.user:
             review_dict["user_name"] = review.user.name
             # Маскуємо телефон для публічності
@@ -53,7 +56,7 @@ async def get_reviews(
                 phone = review.user.phone
                 review_dict["user_phone"] = f"{phone[:3]}***{phone[-2:]}" if len(phone) > 5 else "***"
         
-        reviews_with_users.append(ReviewWithUser(**review_dict))
+        reviews_with_users.append(ReviewWithUser.model_validate(review_dict))
     
     return reviews_with_users
 
@@ -73,10 +76,12 @@ async def get_product_reviews(
     if not product:
         raise NotFoundException("Товар не знайдено")
     
+    # Викликаємо get_reviews з явною передачею всіх параметрів
     return await get_reviews(
         skip=skip,
         limit=limit,
         product_id=product_id,
+        rating=None,  # Явно вказуємо None для rating
         db=db
     )
 
@@ -88,6 +93,10 @@ async def create_review(
     current_user: Optional[User] = Depends(get_optional_user)
 ):
     """Створення відгуку"""
+    # Валідація: має бути або order_id, або product_id
+    if not review_data.order_id and not review_data.product_id:
+        raise BadRequestException("Потрібно вказати order_id або product_id")
+    
     # Перевірка чи існує замовлення або товар
     if review_data.order_id:
         result = await db.execute(select(Order).where(Order.id == review_data.order_id))
@@ -106,36 +115,67 @@ async def create_review(
         if not product:
             raise NotFoundException("Товар не знайдено")
     
-    # Перевірка чи користувач вже залишив відгук
-    if current_user and review_data.order_id:
+    # Перевірка чи користувач вже залишив відгук (для order_id або product_id)
+    if current_user:
+        query_conditions = [Review.user_id == current_user.id]
+        
+        if review_data.order_id:
+            query_conditions.append(Review.order_id == review_data.order_id)
+        
+        if review_data.product_id:
+            query_conditions.append(Review.product_id == review_data.product_id)
+        
         result = await db.execute(
-            select(Review).where(
-                and_(
-                    Review.user_id == current_user.id,
-                    Review.order_id == review_data.order_id
-                )
-            )
+            select(Review).where(and_(*query_conditions))
         )
         existing_review = result.scalar_one_or_none()
         if existing_review:
-            raise BadRequestException("Ви вже залишили відгук на це замовлення")
+            if review_data.order_id:
+                raise BadRequestException("Ви вже залишили відгук на це замовлення")
+            elif review_data.product_id:
+                raise BadRequestException("Ви вже залишили відгук на цей товар")
     
-    # Створення відгуку
-    new_review = Review(
-        user_id=current_user.id if current_user else None,
-        order_id=review_data.order_id,
-        product_id=review_data.product_id,
-        rating=review_data.rating,
-        comment=review_data.comment,
-        images=review_data.images,
-        is_published=False  # Потребує модерації
-    )
+    # Створення відгуку з обробкою race condition
+    from sqlalchemy.exc import IntegrityError
     
-    db.add(new_review)
-    await db.commit()
-    await db.refresh(new_review)
+    try:
+        new_review = Review(
+            user_id=current_user.id if current_user else None,
+            order_id=review_data.order_id,
+            product_id=review_data.product_id,
+            rating=review_data.rating,
+            comment=review_data.comment,
+            images=review_data.images,
+            is_published=False  # Потребує модерації
+        )
+        
+        db.add(new_review)
+        await db.commit()
+        await db.refresh(new_review)
+        
+        return new_review
     
-    return new_review
+    except IntegrityError:
+        await db.rollback()
+        # Можливий race condition - перевіряємо знову
+        if current_user:
+            query_conditions = [Review.user_id == current_user.id]
+            if review_data.order_id:
+                query_conditions.append(Review.order_id == review_data.order_id)
+            if review_data.product_id:
+                query_conditions.append(Review.product_id == review_data.product_id)
+            
+            result = await db.execute(
+                select(Review).where(and_(*query_conditions))
+            )
+            existing_review = result.scalar_one_or_none()
+            if existing_review:
+                if review_data.order_id:
+                    raise BadRequestException("Ви вже залишили відгук на це замовлення")
+                elif review_data.product_id:
+                    raise BadRequestException("Ви вже залишили відгук на цей товар")
+        
+        raise BadRequestException("Помилка створення відгуку")
 
 
 @router.get("/me", response_model=List[ReviewResponse])
@@ -216,9 +256,15 @@ async def delete_my_review(
     if not review:
         raise NotFoundException("Відгук не знайдено")
     
-    await db.delete(review)
+    # Правильний спосіб видалення в SQLAlchemy 2.0 async
+    await db.execute(delete(Review).where(Review.id == review_id))
     await db.commit()
     
     return None
+
+
+
+
+
 
 

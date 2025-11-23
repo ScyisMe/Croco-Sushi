@@ -1,0 +1,41 @@
+2025-11-23 00:44:13 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 403 Forbidden"
+2025-11-23 00:44:14 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-11-23 00:44:14 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 403 Forbidden"
+2025-11-23 00:44:15 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 200 OK"
+2025-11-23 00:44:15 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users/2 "HTTP/1.1 200 OK"
+2025-11-23 00:44:16 - httpx - INFO - HTTP Request: PUT http://test/api/v1/admin/products/1 "HTTP/1.1 200 OK"
+2025-11-23 00:44:16 - httpx - INFO - HTTP Request: DELETE http://test/api/v1/admin/products/1 "HTTP/1.1 204 No Content"
+2025-11-23 00:44:17 - httpx - INFO - HTTP Request: POST http://test/api/v1/admin/users/2/add-bonus "HTTP/1.1 200 OK"
+2025-11-23 00:46:28 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 403 Forbidden"
+2025-11-23 00:46:28 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-11-23 00:46:28 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 403 Forbidden"
+2025-11-23 00:46:29 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 200 OK"
+2025-11-23 00:46:29 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users/2 "HTTP/1.1 200 OK"
+2025-11-23 00:46:30 - httpx - INFO - HTTP Request: POST http://test/api/v1/admin/products "HTTP/1.1 201 Created"
+2025-11-23 00:46:30 - httpx - INFO - HTTP Request: PUT http://test/api/v1/admin/products/1 "HTTP/1.1 200 OK"
+2025-11-23 00:46:30 - httpx - INFO - HTTP Request: DELETE http://test/api/v1/admin/products/1 "HTTP/1.1 204 No Content"
+2025-11-23 00:46:31 - httpx - INFO - HTTP Request: POST http://test/api/v1/admin/users/2/add-bonus "HTTP/1.1 200 OK"
+2025-11-23 00:53:42 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 403 Forbidden"
+2025-11-23 00:53:42 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-11-23 00:53:43 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 403 Forbidden"
+2025-11-23 00:53:43 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users "HTTP/1.1 200 OK"
+2025-11-23 00:53:44 - httpx - INFO - HTTP Request: GET http://test/api/v1/admin/users/2 "HTTP/1.1 200 OK"
+2025-11-23 00:53:44 - httpx - INFO - HTTP Request: POST http://test/api/v1/admin/products "HTTP/1.1 201 Created"
+2025-11-23 00:53:44 - httpx - INFO - HTTP Request: PUT http://test/api/v1/admin/products/1 "HTTP/1.1 200 OK"
+2025-11-23 00:53:45 - httpx - INFO - HTTP Request: DELETE http://test/api/v1/admin/products/1 "HTTP/1.1 204 No Content"
+2025-11-23 00:53:45 - httpx - INFO - HTTP Request: POST http://test/api/v1/admin/users/2/add-bonus "HTTP/1.1 200 OK"

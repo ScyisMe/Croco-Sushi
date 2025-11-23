@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from pydantic import ConfigDict, model_validator
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
@@ -7,6 +8,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Croco Sushi"
     VERSION: str = "0.1.0"
     API_V1_PREFIX: str = "/api/v1"
+    ENVIRONMENT: str = "development"  # development, production, testing
     
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/croco_sushi"
@@ -17,7 +19,19 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"]
+    # Парсимо рядок з комами в список автоматично
+    # Використовуємо str як базовий тип, щоб уникнути JSON парсингу
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+    
+    @model_validator(mode='after')
+    def parse_cors_origins(self) -> 'Settings':
+        """Парсить CORS_ORIGINS з рядка, розділеного комами, в список"""
+        if isinstance(self.CORS_ORIGINS, str):
+            # Розділяємо по комі та очищаємо пробіли
+            cors_list = [origin.strip() for origin in self.CORS_ORIGINS.split(',') if origin.strip()]
+            # Замінюємо рядок на список
+            object.__setattr__(self, 'CORS_ORIGINS', cors_list)
+        return self
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -30,9 +44,29 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    # Logging
+    LOG_LEVEL: str = "INFO"
+    ECHO_SQL: bool = False  # Логування SQL запитів (тільки для розробки, False в production)
+    
+    # Email
+    SMTP_SERVER: Optional[str] = None
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    EMAIL_FROM: Optional[str] = None
+    EMAIL_FROM_NAME: str = "Croco Sushi"
+    
+    # SMS
+    SMS_PROVIDER: Optional[str] = None  # "twilio", "smsru", тощо
+    SMS_API_KEY: Optional[str] = None
+    SMS_API_SECRET: Optional[str] = None
+    SMS_FROM_NUMBER: Optional[str] = None
+    
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra='ignore'  # Ігноруємо додаткові поля з .env (POSTGRES_*, GF_* тощо)
+    )
 
 
 settings = Settings()

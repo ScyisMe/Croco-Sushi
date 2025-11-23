@@ -7,6 +7,10 @@ from app.models.order import Order, OrderItem
 from app.models.product_size import ProductSize
 from app.models.review import Review
 from app.models.promotion import Promotion
+from app.models.delivery_zone import DeliveryZone
+from app.models.promo_code import PromoCode
+from app.models.favorite import Favorite
+from app.models.audit_log import AuditLog
 
 __all__ = [
     "Base",
@@ -18,7 +22,9 @@ __all__ = [
     "OrderItem",
     "ProductSize",
     "Review",
-    "Promotion"
+    "Promotion",
+    "DeliveryZone",
+    "PromoCode",
+    "Favorite",
+    "AuditLog",
 ]
-
-

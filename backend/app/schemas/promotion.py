@@ -60,3 +60,8 @@ class PromotionPublic(PromotionResponse):
     model_config = ConfigDict(from_attributes=True)
 
 
+
+
+
+
+

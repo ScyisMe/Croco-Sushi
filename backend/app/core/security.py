@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -27,9 +27,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """Створення JWT токену"""
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
@@ -37,9 +37,18 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 
 def decode_access_token(token: str) -> Optional[dict]:
-    """Декодування JWT токену"""
+    """Декодування JWT токену з повною валідацією"""
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        # БЕЗПЕКА: Явно вказуємо алгоритм та перевіряємо exp
+        payload = jwt.decode(
+            token, 
+            settings.SECRET_KEY, 
+            algorithms=[settings.ALGORITHM],  # Явно вказуємо алгоритм (захист від алгоритму None)
+            options={"verify_signature": True, "verify_exp": True, "verify_iat": False}
+        )
+        # Додаткова перевірка типу токену (access token не повинен мати type="refresh")
+        if payload.get("type") == "refresh":
+            return None  # Це refresh token, а не access token
         return payload
     except JWTError:
         return None
@@ -48,7 +57,7 @@ def decode_access_token(token: str) -> Optional[dict]:
 def create_refresh_token(data: dict) -> str:
     """Створення refresh токену (30 днів)"""
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=30)
+    expire = datetime.now(timezone.utc) + timedelta(days=30)
     to_encode.update({"exp": expire, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
@@ -110,5 +119,65 @@ def get_token_data(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
+
+
+def validate_password_strength(password: str) -> tuple[bool, str]:
+    """Валідація сили пароля"""
+    if len(password) < 8:
+        return False, "Пароль повинен містити мінімум 8 символів"
+    
+    if len(password) > 128:
+        return False, "Пароль занадто довгий (макс 128 символів)"
+    
+    has_upper = any(c.isupper() for c in password)
+    has_lower = any(c.islower() for c in password)
+    has_digit = any(c.isdigit() for c in password)
+    has_special = any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password)
+    
+    if not (has_upper or has_lower):
+        return False, "Пароль повинен містити літери"
+    
+    if not has_digit:
+        return False, "Пароль повинен містити хоча б одну цифру"
+    
+    # Перевірка на послідовності (123, abc, qwerty)
+    common_sequences = ["123", "abc", "qwerty", "password"]
+    password_lower = password.lower()
+    for seq in common_sequences:
+        if seq in password_lower:
+            return False, "Пароль не повинен містити загальні послідовності"
+    
+    return True, ""
+
+
+def is_password_common(password: str) -> bool:
+    """Перевірка чи пароль є загальним/простим"""
+    common_passwords = [
+        "password", "12345678", "qwerty123", "admin123", "password123",
+        "123456789", "1234567890", "qwerty", "abc123", "monkey",
+        "1234567", "letmein", "trustno1", "dragon", "baseball",
+        "iloveyou", "master", "sunshine", "ashley", "bailey"
+    ]
+    
+    password_lower = password.lower()
+    
+    # Перевірка точкового збігу
+    if password_lower in common_passwords:
+        return True
+    
+    # Перевірка на повторювані символи (aaaa, 1111)
+    if len(set(password)) < 3:
+        return True
+    
+    # Перевірка на послідовні символи (abcd, 1234)
+    if len(password) >= 4:
+        for i in range(len(password) - 3):
+            substr = password[i:i+4].lower()
+            if substr.isdigit() or substr.isalpha():
+                # Перевірка чи це послідовність
+                if all(ord(substr[j+1]) - ord(substr[j]) == 1 for j in range(len(substr)-1)):
+                    return True
+    
+    return False
 
 

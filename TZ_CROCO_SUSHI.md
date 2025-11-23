@@ -596,3 +596,8 @@ backend/
 │   │   ├── __init__.py
 │   │   ├── category.py            # ✅ Існує
 │   │   ├── product.py
+
+
+
+
+
