@@ -24,7 +24,7 @@ async def test_get_reviews_list(client: AsyncClient, db_session: AsyncSession, t
     db_session.add(review)
     await db_session.commit()
     
-    response = await client.get("/api/v1/reviews")
+    response = await client.get("/api/v1/reviews/", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -79,7 +79,7 @@ async def test_get_reviews_by_rating(client: AsyncClient, db_session: AsyncSessi
     db_session.add_all([review5, review4])
     await db_session.commit()
     
-    response = await client.get(f"/api/v1/reviews?rating=5")
+    response = await client.get(f"/api/v1/reviews?rating=5", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -125,7 +125,7 @@ async def test_create_review_authenticated(authenticated_client: AsyncClient, te
     await db_session.commit()
     
     response = await authenticated_client.post(
-        "/api/v1/reviews",
+        "/api/v1/reviews/",
         json={
             "order_id": order.id,
             "product_id": test_product.id,
@@ -195,7 +195,7 @@ async def test_create_review_duplicate(authenticated_client: AsyncClient, test_u
     
     # Спробуємо створити другий відгук на те ж замовлення
     response = await authenticated_client.post(
-        "/api/v1/reviews",
+        "/api/v1/reviews/",
         json={
             "order_id": order.id,
             "product_id": test_product.id,
@@ -213,7 +213,7 @@ async def test_create_review_duplicate(authenticated_client: AsyncClient, test_u
 async def test_create_review_invalid_rating(authenticated_client: AsyncClient, test_product):
     """Тест створення відгуку з невалідним рейтингом"""
     response = await authenticated_client.post(
-        "/api/v1/reviews",
+        "/api/v1/reviews/",
         json={
             "product_id": test_product.id,
             "rating": 10,  # Більше 5
@@ -371,7 +371,7 @@ async def test_delete_others_review(authenticated_client: AsyncClient, db_sessio
 async def test_create_review_without_order_or_product(authenticated_client: AsyncClient):
     """Тест створення відгуку без order_id і product_id"""
     response = await authenticated_client.post(
-        "/api/v1/reviews",
+        "/api/v1/reviews/",
         json={
             "rating": 5,
             "comment": "Review without order or product"
@@ -398,7 +398,7 @@ async def test_reviews_pagination(client: AsyncClient, db_session: AsyncSession,
         db_session.add(review)
     await db_session.commit()
     
-    response = await client.get("/api/v1/reviews?skip=0&limit=2")
+    response = await client.get("/api/v1/reviews?skip=0&limit=2", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert len(data) <= 2

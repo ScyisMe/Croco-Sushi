@@ -10,17 +10,43 @@ import base64
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Використовуємо bcrypt з обмеженням довжини пароля
+# bcrypt має обмеження 72 байти, тому обмежуємо паролі до 72 символів
+# Вимикаємо автоматичне визначення версії bcrypt, щоб уникнути помилок
+import os
+# Вимкнути автоматичне визначення версії bcrypt
+os.environ.setdefault('PASSLIB_DISABLE_BCRYPT_VERSION_DETECTION', '1')
+# Створюємо CryptContext з простими налаштуваннями
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto",
+)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Перевірка пароля"""
-    return pwd_context.verify(plain_password, hashed_password)
+    # Використовуємо bcrypt напряму, щоб уникнути проблем з passlib
+    import bcrypt
+    password_bytes = plain_password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    try:
+        return bcrypt.checkpw(password_bytes, hashed_password.encode('utf-8'))
+    except Exception:
+        # Fallback на passlib для старих хешів
+        return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
     """Хешування пароля"""
-    return pwd_context.hash(password)
+    # Використовуємо bcrypt напряму, щоб уникнути проблем з passlib
+    import bcrypt
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

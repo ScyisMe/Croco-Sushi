@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 @pytest.mark.api
 async def test_get_categories_list(client: AsyncClient, test_category):
     """Тест отримання списку категорій"""
-    response = await client.get("/api/v1/categories")
+    response = await client.get("/api/v1/categories/", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -56,7 +56,7 @@ async def test_get_categories_only_active(client: AsyncClient, db_session: Async
     db_session.add(inactive_category)
     await db_session.commit()
     
-    response = await client.get("/api/v1/categories")
+    response = await client.get("/api/v1/categories/", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     # Перевіряємо що неактивна категорія не повертається
@@ -89,7 +89,7 @@ async def test_get_categories_ordered_by_position(client: AsyncClient, db_sessio
     db_session.add_all([cat1, cat2, cat3])
     await db_session.commit()
     
-    response = await client.get("/api/v1/categories")
+    response = await client.get("/api/v1/categories/", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     
@@ -120,7 +120,7 @@ async def test_get_categories_pagination(client: AsyncClient, db_session: AsyncS
     await db_session.commit()
     
     # Тест першої сторінки
-    response = await client.get("/api/v1/categories?skip=0&limit=2")
+    response = await client.get("/api/v1/categories?skip=0&limit=2", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert len(data) <= 2

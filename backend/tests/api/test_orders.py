@@ -25,8 +25,10 @@ async def test_create_order_authenticated(authenticated_client: AsyncClient, tes
     await db_session.refresh(address)
     
     response = await authenticated_client.post(
-        "/api/v1/orders",
+        "/api/v1/orders/",
         json={
+            "customer_name": "Test User",
+            "customer_phone": "+380501234567",
             "items": [
                 {
                     "product_id": test_product.id,
@@ -54,8 +56,10 @@ async def test_create_order_authenticated(authenticated_client: AsyncClient, tes
 async def test_create_order_empty_cart(authenticated_client: AsyncClient):
     """Тест створення замовлення з порожнім кошиком"""
     response = await authenticated_client.post(
-        "/api/v1/orders",
+        "/api/v1/orders/",
         json={
+            "customer_name": "Test User",
+            "customer_phone": "+380501234567",
             "items": [],
             "payment_method": "cash"
         }
@@ -70,8 +74,10 @@ async def test_create_order_empty_cart(authenticated_client: AsyncClient):
 async def test_create_order_invalid_product(authenticated_client: AsyncClient):
     """Тест створення замовлення з неіснуючим продуктом"""
     response = await authenticated_client.post(
-        "/api/v1/orders",
+        "/api/v1/orders/",
         json={
+            "customer_name": "Test User",
+            "customer_phone": "+380501234567",
             "items": [
                 {
                     "product_id": 99999,
@@ -103,8 +109,10 @@ async def test_create_order_unavailable_product(authenticated_client: AsyncClien
     await db_session.refresh(unavailable_product)
     
     response = await authenticated_client.post(
-        "/api/v1/orders",
+        "/api/v1/orders/",
         json={
+            "customer_name": "Test User",
+            "customer_phone": "+380501234567",
             "items": [
                 {
                     "product_id": unavailable_product.id,
@@ -146,8 +154,10 @@ async def test_create_order_with_size(authenticated_client: AsyncClient, test_pr
     await db_session.refresh(product_size)
     
     response = await authenticated_client.post(
-        "/api/v1/orders",
+        "/api/v1/orders/",
         json={
+            "customer_name": "Test User",
+            "customer_phone": "+380501234567",
             "items": [
                 {
                     "product_id": test_product.id,
@@ -185,8 +195,10 @@ async def test_create_order_free_delivery(authenticated_client: AsyncClient, tes
     
     # Створюємо замовлення на суму >= 500
     response = await authenticated_client.post(
-        "/api/v1/orders",
+        "/api/v1/orders/",
         json={
+            "customer_name": "Test User",
+            "customer_phone": "+380501234567",
             "items": [
                 {
                     "product_id": test_product.id,
@@ -514,7 +526,7 @@ async def test_create_order_min_amount(client: AsyncClient, db_session: AsyncSes
     
     # Спробуємо створити замовлення менше мінімальної суми
     response = await client.post(
-        "/api/v1/orders",
+        "/api/v1/orders/",
         json={
             "items": [
                 {

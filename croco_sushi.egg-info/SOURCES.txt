@@ -1,5 +1,6 @@
 README.md
 pyproject.toml
+backend/fix_all_tests_final.py
 backend/fix_tests.py
 backend/run.py
 backend/app/__init__.py

@@ -1,6 +1,8 @@
 from pydantic_settings import BaseSettings
-from pydantic import ConfigDict, model_validator
+from pydantic import ConfigDict, field_validator
 from typing import List, Optional
+import json
+import os
 
 
 class Settings(BaseSettings):
@@ -19,19 +21,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    # Парсимо рядок з комами в список автоматично
-    # Використовуємо str як базовий тип, щоб уникнути JSON парсингу
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
-    
-    @model_validator(mode='after')
-    def parse_cors_origins(self) -> 'Settings':
-        """Парсить CORS_ORIGINS з рядка, розділеного комами, в список"""
-        if isinstance(self.CORS_ORIGINS, str):
-            # Розділяємо по комі та очищаємо пробіли
-            cors_list = [origin.strip() for origin in self.CORS_ORIGINS.split(',') if origin.strip()]
-            # Замінюємо рядок на список
-            object.__setattr__(self, 'CORS_ORIGINS', cors_list)
-        return self
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"]
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -63,10 +53,24 @@ class Settings(BaseSettings):
     SMS_FROM_NUMBER: Optional[str] = None
     
     model_config = ConfigDict(
-        env_file=".env",
+        env_file=".env" if os.getenv("ENVIRONMENT") != "test" else None,
+        env_file_encoding="utf-8",
         case_sensitive=True,
-        extra='ignore'  # Ігноруємо додаткові поля з .env (POSTGRES_*, GF_* тощо)
+        env_ignore_empty=True,
+        extra="ignore"  # Ігноруємо додаткові змінні середовища, які не визначені в класі (наприклад, POSTGRES_USER, GF_SECURITY_ADMIN_USER тощо)
     )
+    
+    @field_validator('CORS_ORIGINS', mode='before')
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            # Спробуємо розпарсити як JSON
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                # Якщо не JSON, розділимо по комі
+                return [origin.strip() for origin in v.split(',') if origin.strip()]
+        return v
 
 
 settings = Settings()

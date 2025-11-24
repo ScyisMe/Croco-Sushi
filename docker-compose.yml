@@ -3,38 +3,18 @@ services:
     image: postgres:17-alpine
     container_name: croco_sushi_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Lavanda1488
-      POSTGRES_DB: croco_sushi
-      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: ${POSTGRES_USER:-postgres} 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-Lavanda1488}
+      POSTGRES_DB: ${POSTGRES_DB:-croco_sushi}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres-init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - croco_sushi_network
-    restart: unless-stopped
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: croco_sushi_pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@crocosushi.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      - postgres
     networks:
       - croco_sushi_network
     restart: unless-stopped
@@ -56,32 +36,7 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
 
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    container_name: croco_sushi_backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    volumes:
-      - ./backend:/app/backend
-      - ./alembic:/app/alembic
-      - ./alembic.ini:/app/alembic.ini
-      - backend_uploads:/app/backend/uploads
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:Lavanda1488@postgres:5432/croco_sushi
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-8c813325fd4655711d6d41785a1e0e622de6ba653aa5d0a87716a40462818da8}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - croco_sushi_network
-    restart: unless-stopped
+
 
   celery_worker:
     build:
@@ -93,7 +48,7 @@ services:
       - ./backend:/app/backend
       - backend_uploads:/app/backend/uploads
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:Lavanda1488@postgres:5432/croco_sushi
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/croco_sushi
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -115,7 +70,7 @@ services:
     volumes:
       - ./backend:/app/backend
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:Lavanda1488@postgres:5432/croco_sushi
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/croco_sushi
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -163,6 +118,31 @@ services:
       - croco_sushi_network
     restart: unless-stopped
 
+  tests:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: croco_sushi_tests
+    command: pytest tests/ -v --tb=short
+    volumes:
+      - ./backend:/app/backend
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/croco_sushi
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=test-secret-key-for-testing-only
+      - ENVIRONMENT=test
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - croco_sushi_network
+    profiles:
+      - test
+
 volumes:
   postgres_data:
   redis_data:
@@ -170,7 +150,6 @@ volumes:
   backend_static:
   prometheus_data:
   grafana_data:
-  pgadmin_data:
 
 networks:
   croco_sushi_network:

@@ -9,7 +9,7 @@ from decimal import Decimal
 @pytest.mark.api
 async def test_get_products_list(client: AsyncClient, test_product):
     """Тест отримання списку продуктів"""
-    response = await client.get("/api/v1/products")
+    response = await client.get("/api/v1/products/", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -25,7 +25,7 @@ async def test_get_products_list(client: AsyncClient, test_product):
 @pytest.mark.api
 async def test_get_products_with_category_filter(client: AsyncClient, test_product, test_category):
     """Тест отримання продуктів з фільтром по категорії"""
-    response = await client.get(f"/api/v1/products?category_id={test_category.id}")
+    response = await client.get(f"/api/v1/products?category_id={test_category.id}", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -39,7 +39,7 @@ async def test_get_products_with_category_filter(client: AsyncClient, test_produ
 async def test_get_products_with_search(client: AsyncClient, test_product):
     """Тест отримання продуктів з пошуком"""
     search_term = test_product.name[:5]
-    response = await client.get(f"/api/v1/products?search={search_term}")
+    response = await client.get(f"/api/v1/products?search={search_term}", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -69,13 +69,13 @@ async def test_get_products_pagination(client: AsyncClient, db_session: AsyncSes
     await db_session.commit()
     
     # Тест першої сторінки
-    response = await client.get("/api/v1/products?skip=0&limit=2")
+    response = await client.get("/api/v1/products?skip=0&limit=2", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert len(data) <= 2
     
     # Тест другої сторінки
-    response = await client.get("/api/v1/products?skip=2&limit=2")
+    response = await client.get("/api/v1/products?skip=2&limit=2", follow_redirects=True)
     assert response.status_code == 200
     data2 = response.json()
     assert len(data2) <= 2
@@ -123,7 +123,7 @@ async def test_get_unavailable_product_in_list(client: AsyncClient, db_session: 
     db_session.add(unavailable_product)
     await db_session.commit()
     
-    response = await client.get("/api/v1/products")
+    response = await client.get("/api/v1/products/", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     # Перевіряємо що недоступний продукт не в списку
@@ -179,7 +179,7 @@ async def test_get_new_products(client: AsyncClient, db_session: AsyncSession, t
     db_session.add(new_product)
     await db_session.commit()
     
-    response = await client.get("/api/v1/products?is_new=true")
+    response = await client.get("/api/v1/products?is_new=true", follow_redirects=True)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -245,7 +245,8 @@ async def test_get_products_with_multiple_filters(client: AsyncClient, db_sessio
     await db_session.commit()
     
     response = await client.get(
-        f"/api/v1/products?category_id={test_category.id}&is_new=true&is_popular=true"
+        f"/api/v1/products?category_id={test_category.id}&is_new=true&is_popular=true",
+        follow_redirects=True
     )
     assert response.status_code == 200
     data = response.json()
@@ -257,7 +258,7 @@ async def test_get_products_with_multiple_filters(client: AsyncClient, db_sessio
 async def test_get_products_limit_validation(client: AsyncClient):
     """Тест валідації ліміту продуктів"""
     # Занадто великий ліміт
-    response = await client.get("/api/v1/products?limit=1000")
+    response = await client.get("/api/v1/products?limit=1000/", follow_redirects=True)
     assert response.status_code == 422  # Validation error
 
 
@@ -265,7 +266,7 @@ async def test_get_products_limit_validation(client: AsyncClient):
 @pytest.mark.api
 async def test_get_products_negative_skip(client: AsyncClient):
     """Тест негативного skip"""
-    response = await client.get("/api/v1/products?skip=-1")
+    response = await client.get("/api/v1/products?skip=-1/", follow_redirects=True)
     assert response.status_code == 422  # Validation error
 
 

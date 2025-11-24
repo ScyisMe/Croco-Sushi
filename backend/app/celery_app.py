@@ -2,18 +2,26 @@
 from celery import Celery
 from celery.schedules import crontab
 from app.core.config import settings
+import os
 
-# Створюємо Celery app
-celery_app = Celery(
-    "croco_sushi",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND,
-    include=[
-        "app.tasks.image_processing",
-        "app.tasks.email",
-        "app.tasks.sms",
-    ]
-)
+# У тестовому середовищі вимикаємо Celery
+if os.getenv("ENVIRONMENT") == "test":
+    # Створюємо заглушку Celery app для тестів
+    celery_app = Celery("croco_sushi")
+    celery_app.conf.task_always_eager = True  # Виконуємо задачі синхронно
+    celery_app.conf.task_eager_propagates = True
+else:
+    # Створюємо Celery app
+    celery_app = Celery(
+        "croco_sushi",
+        broker=settings.CELERY_BROKER_URL,
+        backend=settings.CELERY_RESULT_BACKEND,
+        include=[
+            "app.tasks.image_processing",
+            "app.tasks.email",
+            "app.tasks.sms",
+        ]
+    )
 
 # Конфігурація Celery
 celery_app.conf.update(

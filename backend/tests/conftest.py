@@ -1,4 +1,8 @@
 """Pytest configuration and shared fixtures"""
+import os
+# Вимкнути автоматичне визначення версії bcrypt ПЕРЕД імпортом passlib
+os.environ.setdefault('PASSLIB_DISABLE_BCRYPT_VERSION_DETECTION', '1')
+
 import pytest
 import asyncio
 from typing import AsyncGenerator, Generator

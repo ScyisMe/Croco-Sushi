@@ -73,49 +73,11 @@ from app.models import (
 # Встановлюємо метадату для автогенерації міграцій
 target_metadata = Base.metadata
 
-
-def get_url():
-    """Отримання URL БД з налаштувань"""
-    # Конвертуємо async URL в sync URL для міграцій
-    # postgresql+asyncpg:// -> postgresql+psycopg2://
-    db_url = settings.DATABASE_URL
-    
-    # Замінюємо asyncpg на psycopg2
-    if db_url.startswith("postgresql+asyncpg://"):
-        db_url = db_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
-    elif db_url.startswith("postgresql://"):
-        db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
-    
-    # Для локального запуску Alembic (не в Docker) замінюємо 'postgres' на '127.0.0.1'
-    # Перевіряємо, чи запускаємося в Docker контейнері
-    import re
-    import os
-    
-    # Якщо запускаємося в Docker контейнері, не замінюємо 'postgres' на '127.0.0.1'
-    # Перевіряємо наявність файлу, який зазвичай є в Docker контейнері
-    is_docker = os.path.exists('/.dockerenv') or os.path.exists('/proc/self/cgroup')
-    
-    if not is_docker:
-        # Використовуємо IPv4 замість localhost, щоб уникнути проблем з IPv6
-        # Формат URL: postgresql+psycopg2://user:password@host:port/database
-        # Замінюємо @postgres:PORT на @127.0.0.1:PORT (тільки хост після @)
-        db_url = re.sub(r'@postgres:(\d+)', r'@127.0.0.1:\1', db_url)
-        # Також замінюємо localhost на 127.0.0.1 для уникнення проблем з IPv6
-        db_url = re.sub(r'@localhost:(\d+)', r'@127.0.0.1:\1', db_url)
-    
-    # Якщо є змінна середовища POSTGRES_PASSWORD, замінюємо пароль в URL
-    # Це дозволяє використовувати новий пароль без редагування .env файлу
-    postgres_password = os.environ.get('POSTGRES_PASSWORD')
-    if postgres_password:
-        # Замінюємо пароль в URL: user:old_password@ -> user:new_password@
-        # Використовуємо регулярний вираз для заміни пароля
-        db_url = re.sub(r'://([^:]+):[^@]+@', rf'://\1:{postgres_password}@', db_url)
-    
-    return db_url
-
-
-# Отримуємо URL для міграцій
-database_url = get_url()
+# Конвертуємо async URL в sync URL для міграцій
+# postgresql+asyncpg:// -> postgresql+psycopg2://
+# ВАЖЛИВО: Створюємо URL через байти, щоб гарантувати правильне кодування
+database_url_bytes = b"postgresql+psycopg2://postgres:postgres@localhost:5432/croco_sushi"
+database_url = database_url_bytes.decode('ascii')
 
 
 def run_migrations_offline() -> None:
@@ -165,31 +127,63 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    # Встановлюємо змінні середовища PostgreSQL для psycopg2
-    # щоб уникнути читання файлів конфігурації з не-ASCII шляхів
-    # Це має бути зроблено ДО створення engine
-    if sys.platform == 'win32':
-        # Парсимо URL для отримання параметрів підключення
-        from urllib.parse import urlparse
-        parsed_url = urlparse(database_url.replace('postgresql+psycopg2://', 'postgresql://'))
-        
-        if parsed_url.hostname:
-            os.environ['PGHOST'] = parsed_url.hostname
-        if parsed_url.port:
-            os.environ['PGPORT'] = str(parsed_url.port)
-        if parsed_url.username:
-            os.environ['PGUSER'] = parsed_url.username
-        if parsed_url.password:
-            os.environ['PGPASSWORD'] = parsed_url.password
-        if parsed_url.path and parsed_url.path.startswith('/'):
-            os.environ['PGDATABASE'] = parsed_url.path[1:]  # Прибираємо початковий /
-        
-        # Вимкнути читання .pgpass файлу (може містити не-ASCII символи)
-        os.environ['PGPASSFILE'] = ''
-        
-        # Вимкнути читання інших конфігураційних файлів
-        os.environ['PGSERVICEFILE'] = ''
+    import os
+    import sys
+    import locale
     
+    # Встановлюємо UTF-8 кодування для Python на Windows
+    # Це вирішує проблему з UnicodeDecodeError в psycopg2
+    # Див: https://stackoverflow.com/questions/42339876/error-unicodedecodeerror-utf-8-codec-cant-decode-byte-0xff-in-position-0-in
+    # Див: https://github.com/apache/superset/issues/29457
+    if sys.platform == 'win32':
+        # Встановлюємо UTF-8 для stdout/stderr
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8')
+        if hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8')
+        # Встановлюємо змінну середовища для Python
+        os.environ['PYTHONIOENCODING'] = 'utf-8'
+        
+        # ВАЖЛИВО: Встановлюємо локаль на C (ASCII) або UTF-8
+        # Windows за замовчуванням використовує Windows-1251 для української локалі,
+        # що викликає UnicodeDecodeError в psycopg2
+        try:
+            locale.setlocale(locale.LC_ALL, 'C')
+        except locale.Error:
+            try:
+                locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+            except locale.Error:
+                pass  # Якщо не вдалося встановити, продовжуємо
+        
+        # Очищаємо PATH від шляхів з не-ASCII символами
+        # psycopg2 може намагатися читати файли з PATH, що викликає помилку кодування
+        old_path = os.environ.get('PATH', '')
+        clean_path_items = []
+        for item in old_path.split(os.pathsep):
+            if item and all(ord(c) < 128 for c in item):
+                clean_path_items.append(item)
+        os.environ['PATH'] = os.pathsep.join(clean_path_items)
+        
+        # Очищаємо sys.path від шляхів з не-ASCII символами
+        # psycopg2 може намагатися читати модулі з sys.path, що викликає помилку кодування
+        clean_sys_path = []
+        for item in sys.path:
+            if item and all(ord(c) < 128 for c in item):
+                clean_sys_path.append(item)
+        sys.path = clean_sys_path
+        
+        # Встановлюємо змінні середовища PostgreSQL для psycopg2
+        # щоб уникнути читання файлів конфігурації з не-ASCII шляхів
+        os.environ['PGHOST'] = '127.0.0.1'
+        os.environ['PGPORT'] = '5432'
+        os.environ['PGUSER'] = 'postgres'
+        os.environ['PGPASSWORD'] = 'postgres'
+        os.environ['PGDATABASE'] = 'croco_sushi'
+        os.environ['PGPASSFILE'] = ''  # Вимкнути читання .pgpass файлу
+    
+    # Використовуємо SQLAlchemy URL напряму без creator функції
+    # SQLAlchemy сам створить підключення через psycopg2
+    # Це уникає проблем з викликом psycopg2.connect() напряму на Windows
     connectable = create_engine(
         database_url,
         poolclass=pool.NullPool,
@@ -216,73 +210,14 @@ def run_migrations_online() -> None:
         print("=" * 80)
         raise
     except Exception as e:
-        error_msg = str(e)
-        print("=" * 80)
-        print("ПОМИЛКА ПІДКЛЮЧЕННЯ ДО БАЗИ ДАНИХ")
-        print("=" * 80)
-        print(f"Помилка: {error_msg}")
-        print(f"\nURL: {database_url}")
-        
-        # Перевірка типу помилки
-        if "не пройшов автентифікацію" in error_msg or "password authentication failed" in error_msg.lower():
-            print("\n🔐 ПРОБЛЕМА З АВТЕНТИФІКАЦІЄЮ:")
-            print("   Користувач 'postgres' не може підключитися з вказаним паролем.")
-            print("\n💡 РІШЕННЯ:")
-            print("   1. Запустіть PostgreSQL через Docker:")
-            print("      docker-compose up -d postgres")
-            print("\n   2. Або налаштуйте локальний PostgreSQL:")
-            print("      - Створіть користувача: CREATE USER postgres WITH PASSWORD 'postgres';")
-            print("      - Або змініть пароль: ALTER USER postgres WITH PASSWORD 'postgres';")
-            print("\n   3. Або створіть файл .env в backend/ з правильним DATABASE_URL:")
-            print("      DATABASE_URL=postgresql+asyncpg://postgres:ВАШ_ПАРОЛЬ@localhost:5432/croco_sushi")
-        elif "could not connect" in error_msg.lower() or "connection refused" in error_msg.lower():
-            print("\n🔌 ПРОБЛЕМА З ПІДКЛЮЧЕННЯМ:")
-            print("   PostgreSQL не запущений або недоступний.")
-            print("\n💡 РІШЕННЯ:")
-            print("   1. Запустіть PostgreSQL через Docker:")
-            print("      docker-compose up -d postgres")
-            print("\n   2. Або запустіть локальний PostgreSQL сервіс")
-            print("\n   3. Перевірте, чи порт 5432 не заблокований файрволом")
-        else:
-            print("\n💡 РІШЕННЯ:")
-            print("   1. Переконайтеся, що PostgreSQL запущений")
-            print("   2. Перевірте правильність DATABASE_URL в .env файлі")
-            print("   3. Перевірте, чи порт 5432 не заблокований файрволом")
-        
-        print("\n📝 Для запуску через Docker використайте:")
-        print("   docker-compose up -d postgres redis")
-        print("=" * 80)
+        print(f"Помилка підключення до бази даних: {e}")
+        print(f"URL: {database_url}")
+        print("Переконайтеся, що PostgreSQL запущений і доступний.")
+        print("Перевірте, чи порт 5432 не заблокований файрволом.")
         raise
     finally:
         connectable.dispose()
 
-
-# ВАЖЛИВО: Встановлюємо локаль та кодування ПЕРЕД виконанням міграцій
-# Це вирішує проблему з UnicodeDecodeError в psycopg2 на Windows
-if sys.platform == 'win32':
-    # Встановлюємо UTF-8 для stdout/stderr
-    if hasattr(sys.stdout, 'reconfigure'):
-        try:
-            sys.stdout.reconfigure(encoding='utf-8')
-        except Exception:
-            pass
-    if hasattr(sys.stderr, 'reconfigure'):
-        try:
-            sys.stderr.reconfigure(encoding='utf-8')
-        except Exception:
-            pass
-    
-    # Встановлюємо змінну середовища для Python
-    os.environ['PYTHONIOENCODING'] = 'utf-8'
-    
-    # Встановлюємо локаль на C (ASCII) або UTF-8
-    try:
-        locale.setlocale(locale.LC_ALL, 'C')
-    except locale.Error:
-        try:
-            locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-        except locale.Error:
-            pass  # Якщо не вдалося встановити, продовжуємо
 
 if context.is_offline_mode():
     run_migrations_offline()
