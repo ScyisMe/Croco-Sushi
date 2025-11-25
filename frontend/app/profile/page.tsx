@@ -44,7 +44,7 @@ export default function ProfilePage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <p className="text-lg mb-2">Телефон: {userQuery.data.phone}</p>
             {userQuery.data.email && <p className="text-lg mb-2">Email: {userQuery.data.email}</p>}
-            {userQuery.data.name && <p className="text-lg mb-2">Ім'я: {userQuery.data.name}</p>}
+            {userQuery.data.name && <p className="text-lg mb-2">Ім&apos;я: {userQuery.data.name}</p>}
             <p className="text-lg mb-2">Бонусні бали: {userQuery.data.bonus_balance}</p>
             <p className="text-lg mb-2">Статус лояльності: {userQuery.data.loyalty_status}</p>
           </div>

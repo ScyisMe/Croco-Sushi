@@ -10,6 +10,7 @@ import { uk } from "date-fns/locale";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import DOMPurify from "dompurify";
 
 export default function PromotionDetailPage() {
   const params = useParams();
@@ -99,7 +100,18 @@ export default function PromotionDetailPage() {
                 {promotion.conditions && (
                   <div className="mb-6">
                     <h3 className="font-semibold text-gray-800 mb-2">Умови акції:</h3>
-                    <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: promotion.conditions }} />
+                    {/* БЕЗПЕКА: Санітизуємо HTML щоб запобігти XSS атакам */}
+                    <div 
+                      className="prose max-w-none" 
+                      dangerouslySetInnerHTML={{ 
+                        __html: typeof window !== 'undefined' 
+                          ? DOMPurify.sanitize(promotion.conditions, {
+                              ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'h3', 'h4'],
+                              ALLOWED_ATTR: []
+                            })
+                          : promotion.conditions 
+                      }} 
+                    />
                   </div>
                 )}
               </div>

@@ -48,7 +48,7 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ім'я</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Ім&apos;я</label>
               <input
                 type="text"
                 value={name}
