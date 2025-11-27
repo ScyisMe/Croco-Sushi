@@ -154,25 +154,77 @@ async def register(
 @router.post("/login", response_model=Token)
 async def login(
     credentials: UserLogin,
+    request: Request,
     db: AsyncSession = Depends(get_db)
 ):
-    """Вхід користувача"""
+    """Вхід користувача з rate limiting та захистом від brute force"""
+    client_ip = get_client_ip(request)
+    phone = credentials.phone
+    
+    # БЕЗПЕКА: Rate limiting для захисту від brute force атак
+    if redis_client:
+        # Перевірка блокування IP
+        ip_block_key = f"login_blocked_ip:{client_ip}"
+        if redis_client.get(ip_block_key):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Занадто багато спроб входу. Спробуйте через 15 хвилин"
+            )
+        
+        # Перевірка блокування номера телефону
+        phone_block_key = f"login_blocked_phone:{phone}"
+        if redis_client.get(phone_block_key):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Занадто багато спроб входу. Спробуйте через 15 хвилин"
+            )
+    
     # Пошук користувача
-    result = await db.execute(select(User).where(User.phone == credentials.phone))
+    result = await db.execute(select(User).where(User.phone == phone))
     user = result.scalar_one_or_none()
     
+    # БЕЗПЕКА: Однакова відповідь для неіснуючого користувача та невірного пароля
+    # щоб не дати зрозуміти чи існує користувач
+    login_failed = False
+    
     if not user:
-        raise UnauthorizedException("Невірний телефон або пароль")
-    
-    if not user.is_active:
+        login_failed = True
+    elif not user.is_active:
+        # Для неактивних користувачів показуємо конкретну помилку
         raise ForbiddenException("Користувач неактивний")
-    
-    # Перевірка пароля
-    if not user.hashed_password:
+    elif not user.hashed_password:
         raise UnauthorizedException("Пароль не встановлено. Відновіть пароль")
+    elif not verify_password(credentials.password, user.hashed_password):
+        login_failed = True
     
-    if not verify_password(credentials.password, user.hashed_password):
+    if login_failed:
+        # БЕЗПЕКА: Інкрементуємо лічильник невдалих спроб
+        if redis_client:
+            # Лічильник для IP
+            ip_attempts_key = f"login_attempts_ip:{client_ip}"
+            ip_attempts = redis_client.incr(ip_attempts_key)
+            if ip_attempts == 1:
+                redis_client.expire(ip_attempts_key, 900)  # 15 хвилин
+            
+            # Лічильник для номера телефону
+            phone_attempts_key = f"login_attempts_phone:{phone}"
+            phone_attempts = redis_client.incr(phone_attempts_key)
+            if phone_attempts == 1:
+                redis_client.expire(phone_attempts_key, 900)  # 15 хвилин
+            
+            # Блокування після 5 невдалих спроб
+            max_attempts = settings.MAX_LOGIN_ATTEMPTS
+            if ip_attempts >= max_attempts:
+                redis_client.setex(ip_block_key, 900, "blocked")  # 15 хвилин блокування
+            if phone_attempts >= max_attempts:
+                redis_client.setex(phone_block_key, 900, "blocked")  # 15 хвилин блокування
+        
         raise UnauthorizedException("Невірний телефон або пароль")
+    
+    # БЕЗПЕКА: Скидаємо лічильники після успішного входу
+    if redis_client:
+        redis_client.delete(f"login_attempts_ip:{client_ip}")
+        redis_client.delete(f"login_attempts_phone:{phone}")
     
     # Перевірка 2FA
     if user.two_factor_enabled:
@@ -183,8 +235,8 @@ async def login(
         )
     
     # Створення токенів
-    access_token = create_access_token(data={"sub": user.id})
-    refresh_token = create_refresh_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
     
     return {
         "access_token": access_token,
@@ -204,8 +256,13 @@ async def refresh_token(
     if payload is None:
         raise UnauthorizedException("Невірний refresh токен")
     
-    user_id: Optional[int] = payload.get("sub")
-    if user_id is None:
+    user_id_str = payload.get("sub")
+    if user_id_str is None:
+        raise UnauthorizedException("Невірний refresh токен")
+    
+    try:
+        user_id = int(user_id_str)
+    except (ValueError, TypeError):
         raise UnauthorizedException("Невірний refresh токен")
     
     result = await db.execute(select(User).where(User.id == user_id))
@@ -218,8 +275,8 @@ async def refresh_token(
         raise ForbiddenException("Користувач неактивний")
     
     # Створення нових токенів
-    access_token = create_access_token(data={"sub": user.id})
-    new_refresh_token = create_refresh_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
+    new_refresh_token = create_refresh_token(data={"sub": str(user.id)})
     
     return {
         "access_token": access_token,
@@ -443,8 +500,8 @@ async def verify_sms_code(
         )
     
     # Створення токенів
-    access_token = create_access_token(data={"sub": user.id})
-    refresh_token = create_refresh_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
     
     return {
         "access_token": access_token,

@@ -60,15 +60,14 @@ async def create_category(
     if existing:
         raise BadRequestException("Категорія з таким slug вже існує")
     
-    # Отримання максимальної позиції
-    result = await db.execute(select(func.max(Category.position)))
-    max_position = result.scalar_one_or_none()
-    position = (max_position + 1) if max_position is not None else 0
+    # Отримання максимальної позиції якщо не вказано
+    category_dict = category_data.model_dump(exclude_unset=True)
+    if "position" not in category_dict or category_dict.get("position") == 0:
+        result = await db.execute(select(func.max(Category.position)))
+        max_position = result.scalar_one_or_none()
+        category_dict["position"] = (max_position + 1) if max_position is not None else 0
     
-    new_category = Category(
-        **category_data.model_dump(),
-        position=position
-    )
+    new_category = Category(**category_dict)
     
     db.add(new_category)
     await db.commit()

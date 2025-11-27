@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { PhoneIcon, EnvelopeIcon, MapPinIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/store/localeStore";
 
 // Іконки соціальних мереж (SVG)
 const InstagramIcon = () => (
@@ -35,37 +36,40 @@ const SOCIAL_LINKS = [
   { name: "Telegram", href: "https://t.me/Croco_Sushi", icon: TelegramIcon },
 ];
 
+// Навігаційні посилання з ключами локалізації
 const NAV_LINKS = [
-  { href: "/menu", label: "Меню" },
-  { href: "/promotions", label: "Акції" },
-  { href: "/reviews", label: "Відгуки" },
-  { href: "/delivery", label: "Доставка та оплата" },
+  { href: "/menu", labelKey: "header.menu" },
+  { href: "/promotions", labelKey: "header.promotions" },
+  { href: "/reviews", labelKey: "header.reviews" },
+  { href: "/delivery", labelKey: "footer.deliveryAndPayment" },
 ];
 
+// Інформаційні посилання з ключами локалізації
 const INFO_LINKS = [
-  { href: "/about", label: "Про нас" },
-  { href: "/privacy", label: "Політика конфіденційності" },
-  { href: "/terms", label: "Публічна оферта" },
+  { href: "/about", labelKey: "footer.aboutUs" },
+  { href: "/privacy", labelKey: "footer.privacy" },
+  { href: "/terms", labelKey: "footer.publicOffer" },
 ];
 
 export default function Footer() {
+  const { t } = useTranslation();
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-secondary text-white">
-      {/* Основний контент */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Логотип та опис */}
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-4">
-              <span className="text-4xl">🐊</span>
-              <span className="text-2xl font-bold text-primary">Croco Sushi</span>
+              <span className="text-3xl">🐊</span>
+              <span className="text-xl font-bold text-primary">Croco Sushi</span>
             </Link>
-            <p className="text-gray-400 mb-6">
-              Сервіс швидкої кухні. Смачні суші з доставкою додому. 
-              Свіжі інгредієнти та найкращі ціни в місті.
+            <p className="text-gray-400 text-sm mb-4">
+              {t("footer.description")}
             </p>
             {/* Соціальні мережі */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               {SOCIAL_LINKS.map((social) => (
                 <a
                   key={social.name}
@@ -83,15 +87,15 @@ export default function Footer() {
 
           {/* Навігація */}
           <div>
-            <h4 className="font-semibold text-lg mb-4">Навігація</h4>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-semibold mb-4">{t("footer.navigation")}</h3>
+            <ul className="space-y-2">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition"
+                    className="text-gray-400 hover:text-primary transition"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -100,15 +104,15 @@ export default function Footer() {
 
           {/* Інформація */}
           <div>
-            <h4 className="font-semibold text-lg mb-4">Інформація</h4>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-semibold mb-4">{t("footer.info")}</h3>
+            <ul className="space-y-2">
               {INFO_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-white transition"
+                    className="text-gray-400 hover:text-primary transition"
                   >
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 </li>
               ))}
@@ -117,87 +121,62 @@ export default function Footer() {
 
           {/* Контакти */}
           <div>
-            <h4 className="font-semibold text-lg mb-4">Контакти</h4>
-            <ul className="space-y-4">
-              {/* Телефони */}
-              <li>
-                <div className="flex items-start space-x-3">
-                  <PhoneIcon className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div className="space-y-1">
-                    {CONTACT_INFO.phones.map((phone, index) => (
-                      <a
-                        key={index}
-                        href={`tel:${phone.number}`}
-                        className="block text-gray-400 hover:text-white transition"
-                      >
-                        {phone.display}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </li>
-
-              {/* Email */}
+            <h3 className="text-lg font-semibold mb-4">{t("footer.contacts")}</h3>
+            <ul className="space-y-3">
+              {CONTACT_INFO.phones.map((phone, index) => (
+                <li key={index}>
+                  <a
+                    href={`tel:${phone.number}`}
+                    className="flex items-center text-gray-400 hover:text-primary transition"
+                  >
+                    <PhoneIcon className="w-5 h-5 mr-2" />
+                    {phone.display}
+                  </a>
+                </li>
+              ))}
               <li>
                 <a
                   href={`mailto:${CONTACT_INFO.email}`}
-                  className="flex items-center space-x-3 text-gray-400 hover:text-white transition"
+                  className="flex items-center text-gray-400 hover:text-primary transition"
                 >
-                  <EnvelopeIcon className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span>{CONTACT_INFO.email}</span>
+                  <EnvelopeIcon className="w-5 h-5 mr-2" />
+                  {CONTACT_INFO.email}
                 </a>
               </li>
-
-              {/* Адреса */}
-              <li className="flex items-start space-x-3">
-                <MapPinIcon className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-gray-400">{CONTACT_INFO.address}</span>
+              <li className="flex items-start text-gray-400">
+                <MapPinIcon className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" />
+                <span>{CONTACT_INFO.address}</span>
               </li>
-
-              {/* Графік роботи */}
-              <li className="flex items-start space-x-3">
-                <ClockIcon className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="text-gray-400">
-                  <p>Щодня: {CONTACT_INFO.workingHours.weekdays}</p>
-                </div>
+              <li className="flex items-center text-gray-400">
+                <ClockIcon className="w-5 h-5 mr-2" />
+                <span>{t("footer.daily")}: {CONTACT_INFO.workingHours.weekdays}</span>
               </li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Нижня частина */}
-      <div className="border-t border-gray-800">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-            {/* Копірайт */}
-            <p className="text-gray-400 text-sm text-center md:text-left">
-              © {new Date().getFullYear()} Croco Sushi - сервіс швидкої кухні. Всі права захищені.
-            </p>
-
-            {/* Способи оплати */}
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-500 text-sm">Приймаємо:</span>
-              <div className="flex items-center space-x-2">
-                {/* Visa */}
+      {/* Copyright */}
+      <div className="border-t border-gray-700">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between text-sm text-gray-400">
+            <p>{t("footer.copyright", { year: currentYear.toString() })}</p>
+            <div className="flex items-center space-x-4 mt-2 md:mt-0">
+              <span>{t("footer.accept")}:</span>
+              <div className="flex space-x-2">
+                {/* VISA */}
                 <div className="bg-white rounded px-2 py-1">
-                  <svg className="h-4" viewBox="0 0 50 16" fill="none">
-                    <path d="M19.5 1L16.5 15H13L16 1H19.5Z" fill="#00579F"/>
-                    <path d="M32 1L28.5 15H25L27.5 5L25 15H21.5L25 1H28.5L29 3L32 1Z" fill="#00579F"/>
-                    <path d="M35 1C33.5 1 32.5 1.5 32 2L30 15H33.5L34 12H37L37.5 15H41L38 1H35ZM34.5 9L35.5 4L36.5 9H34.5Z" fill="#00579F"/>
-                    <path d="M11 1L7 10L6.5 8L5 2C5 1.5 4.5 1 4 1H0V1.5C1.5 2 3 2.5 4 3.5L7 15H10.5L15 1H11Z" fill="#00579F"/>
-                  </svg>
+                  <span className="text-blue-600 font-bold text-xs">VISA</span>
                 </div>
-                {/* Mastercard */}
+                {/* MasterCard */}
                 <div className="bg-white rounded px-2 py-1">
-                  <svg className="h-4" viewBox="0 0 40 24" fill="none">
-                    <circle cx="14" cy="12" r="10" fill="#EB001B"/>
-                    <circle cx="26" cy="12" r="10" fill="#F79E1B"/>
-                    <path d="M20 4.5C22.5 6.5 24 9 24 12C24 15 22.5 17.5 20 19.5C17.5 17.5 16 15 16 12C16 9 17.5 6.5 20 4.5Z" fill="#FF5F00"/>
-                  </svg>
+                  <div className="flex">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full -ml-1"></div>
+                  </div>
                 </div>
                 {/* Готівка */}
-                <span className="text-gray-400 text-sm">Готівка</span>
+                <span>{t("footer.cash")}</span>
               </div>
             </div>
           </div>

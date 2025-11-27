@@ -90,3 +90,72 @@ Retry limit exceeded while trying to reconnect to the Celery redis result store 
 2025-11-23 19:14:07 - celery.backends.redis - CRITICAL - 
 Retry limit exceeded while trying to reconnect to the Celery redis result store backend. The Celery application must be restarted.
 
+2025-11-26 13:44:43 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (0/20) now.
+2025-11-26 13:44:45 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (1/20) in 1.00 second.
+2025-11-26 13:44:49 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (2/20) in 1.00 second.
+2025-11-26 13:44:53 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (3/20) in 1.00 second.
+2025-11-26 13:44:56 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (4/20) in 1.00 second.
+2025-11-26 13:45:00 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (5/20) in 1.00 second.
+2025-11-26 13:45:04 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (6/20) in 1.00 second.
+2025-11-26 13:45:08 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (7/20) in 1.00 second.
+2025-11-26 13:45:11 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (8/20) in 1.00 second.
+2025-11-26 13:45:15 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (9/20) in 1.00 second.
+2025-11-26 13:45:19 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (10/20) in 1.00 second.
+2025-11-26 13:45:22 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (11/20) in 1.00 second.
+2025-11-26 13:45:26 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (12/20) in 1.00 second.
+2025-11-26 13:45:30 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (13/20) in 1.00 second.
+2025-11-26 13:45:33 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (14/20) in 1.00 second.
+2025-11-26 13:45:37 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (15/20) in 1.00 second.
+2025-11-26 13:45:41 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (16/20) in 1.00 second.
+2025-11-26 13:45:45 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (17/20) in 1.00 second.
+2025-11-26 13:45:48 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (18/20) in 1.00 second.
+2025-11-26 13:45:52 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (19/20) in 1.00 second.
+2025-11-26 13:45:56 - celery.backends.redis - CRITICAL - 
+Retry limit exceeded while trying to reconnect to the Celery redis result store backend. The Celery application must be restarted.
+
+2025-11-26 13:47:00 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (0/20) now.
+2025-11-26 13:47:02 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (1/20) in 1.00 second.
+2025-11-26 13:47:06 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (2/20) in 1.00 second.
+2025-11-26 13:47:10 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (3/20) in 1.00 second.
+2025-11-26 13:47:14 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (4/20) in 1.00 second.
+2025-11-26 13:47:17 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (5/20) in 1.00 second.
+2025-11-26 13:47:21 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (6/20) in 1.00 second.
+2025-11-26 13:47:25 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (7/20) in 1.00 second.
+2025-11-26 13:47:28 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (8/20) in 1.00 second.
+2025-11-26 13:47:32 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (9/20) in 1.00 second.
+2025-11-26 13:47:36 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (10/20) in 1.00 second.
+2025-11-26 13:47:40 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (11/20) in 1.00 second.
+2025-11-26 13:47:43 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (12/20) in 1.00 second.
+2025-11-26 13:47:47 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (13/20) in 1.00 second.
+2025-11-26 13:47:51 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (14/20) in 1.00 second.
+2025-11-26 13:47:54 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (15/20) in 1.00 second.
+2025-11-26 13:47:58 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (16/20) in 1.00 second.
+2025-11-26 13:48:02 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (17/20) in 1.00 second.
+2025-11-26 13:48:06 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (18/20) in 1.00 second.
+2025-11-26 13:48:09 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (19/20) in 1.00 second.
+2025-11-26 13:48:13 - celery.backends.redis - CRITICAL - 
+Retry limit exceeded while trying to reconnect to the Celery redis result store backend. The Celery application must be restarted.
+
+2025-11-26 14:11:48 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (0/20) now.
+2025-11-26 14:11:50 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (1/20) in 1.00 second.
+2025-11-26 14:11:54 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (2/20) in 1.00 second.
+2025-11-26 14:11:58 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (3/20) in 1.00 second.
+2025-11-26 14:12:01 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (4/20) in 1.00 second.
+2025-11-26 14:12:05 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (5/20) in 1.00 second.
+2025-11-26 14:12:09 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (6/20) in 1.00 second.
+2025-11-26 14:12:12 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (7/20) in 1.00 second.
+2025-11-26 14:12:16 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (8/20) in 1.00 second.
+2025-11-26 14:12:20 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (9/20) in 1.00 second.
+2025-11-26 14:12:24 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (10/20) in 1.00 second.
+2025-11-26 14:12:27 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (11/20) in 1.00 second.
+2025-11-26 14:12:31 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (12/20) in 1.00 second.
+2025-11-26 14:12:35 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (13/20) in 1.00 second.
+2025-11-26 14:12:38 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (14/20) in 1.00 second.
+2025-11-26 14:12:42 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (15/20) in 1.00 second.
+2025-11-26 14:12:46 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (16/20) in 1.00 second.
+2025-11-26 14:12:50 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (17/20) in 1.00 second.
+2025-11-26 14:12:53 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (18/20) in 1.00 second.
+2025-11-26 14:12:57 - celery.backends.redis - ERROR - Connection to Redis lost: Retry (19/20) in 1.00 second.
+2025-11-26 14:13:01 - celery.backends.redis - CRITICAL - 
+Retry limit exceeded while trying to reconnect to the Celery redis result store backend. The Celery application must be restarted.
+

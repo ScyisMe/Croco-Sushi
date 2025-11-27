@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { PlusIcon, HeartIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, HeartIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore, MAX_CART_ITEMS } from "@/store/cartStore";
+import { useTranslation } from "@/store/localeStore";
 import { Product, ProductSize } from "@/lib/types";
 import toast from "react-hot-toast";
 
@@ -13,14 +14,25 @@ interface ProductCardProps {
   product: Product;
   onFavoriteToggle?: (productId: number) => void;
   isFavorite?: boolean;
+  onQuickView?: (product: Product) => void;
 }
 
-export default function ProductCard({ product, onFavoriteToggle, isFavorite = false }: ProductCardProps) {
+export default function ProductCard({ product, onFavoriteToggle, isFavorite = false, onQuickView }: ProductCardProps) {
+  const { t } = useTranslation();
   const addItem = useCartStore((state) => state.addItem);
+  const itemsCount = useCartStore((state) => state.items.length);
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(
     product.sizes && product.sizes.length > 0 ? product.sizes[0] : null
   );
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onQuickView) {
+      onQuickView(product);
+    }
+  };
 
   // Визначаємо ціну
   const currentPrice = selectedSize?.price || product.price;
@@ -37,12 +49,19 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
     e.preventDefault();
     e.stopPropagation();
     
+    // Перевірка на максимум товарів
+    if (itemsCount >= MAX_CART_ITEMS) {
+      toast.error(`Максимум ${MAX_CART_ITEMS} різних товарів у кошику`);
+      return;
+    }
+    
     addItem({
       id: product.id,
       name: product.name,
       price: currentPrice,
       image_url: product.image_url,
       size: selectedSize?.name,
+      sizeId: selectedSize?.id,
       quantity: 1,
     });
     
@@ -97,23 +116,36 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             </div>
           )}
 
-          {/* Кнопка обране */}
-          {onFavoriteToggle && (
-            <button
-              onClick={handleFavoriteClick}
-              className={`absolute top-3 right-3 p-2 rounded-full transition ${
-                isFavorite
-                  ? "bg-accent-red text-white"
-                  : "bg-white/80 text-gray-600 hover:bg-white hover:text-accent-red"
-              }`}
-            >
-              {isFavorite ? (
-                <HeartSolidIcon className="w-5 h-5" />
-              ) : (
-                <HeartIcon className="w-5 h-5" />
-              )}
-            </button>
-          )}
+          {/* Кнопки дій */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            {onFavoriteToggle && (
+              <button
+                onClick={handleFavoriteClick}
+                className={`p-2 rounded-full transition ${
+                  isFavorite
+                    ? "bg-accent-red text-white"
+                    : "bg-white/80 text-gray-600 hover:bg-white hover:text-accent-red"
+                }`}
+              >
+                {isFavorite ? (
+                  <HeartSolidIcon className="w-5 h-5" />
+                ) : (
+                  <HeartIcon className="w-5 h-5" />
+                )}
+              </button>
+            )}
+            {onQuickView && (
+              <button
+                onClick={handleQuickView}
+                className={`p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white hover:text-primary transition ${
+                  isHovered ? "opacity-100" : "opacity-0"
+                }`}
+                title="Швидкий перегляд"
+              >
+                <EyeIcon className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Контент */}
@@ -165,7 +197,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             <button
               onClick={handleAddToCart}
               className="w-10 h-10 flex items-center justify-center bg-primary hover:bg-primary-600 text-white rounded-full transition transform hover:scale-110"
-              aria-label="Додати в кошик"
+              aria-label={t("product.addToCart")}
             >
               <PlusIcon className="w-5 h-5" />
             </button>

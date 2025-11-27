@@ -13,22 +13,46 @@ export interface CartItem {
   quantity: number;
 }
 
+// Інформація про доставку
+export interface DeliveryInfo {
+  zone_id?: number;
+  zone_name?: string;
+  delivery_cost: number;
+  free_delivery_from: number;
+  min_order_amount: number;
+  estimated_time?: string;
+}
+
+// Значення за замовчуванням для доставки
+const DEFAULT_DELIVERY: DeliveryInfo = {
+  delivery_cost: 50,
+  free_delivery_from: 500,
+  min_order_amount: 200,
+};
+
 interface CartState {
   items: CartItem[];
   totalItems: number;
   totalAmount: number;
+  delivery: DeliveryInfo;
+  lastValidated: number | null; // Час останньої перевірки
   
   // Actions
   addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
   removeItem: (id: number, sizeId?: number) => void;
   updateQuantity: (id: number, quantity: number, sizeId?: number) => void;
   clearCart: () => void;
+  setDelivery: (delivery: DeliveryInfo) => void;
+  removeUnavailableItems: (unavailableIds: number[]) => string[]; // Повертає імена видалених товарів
+  setLastValidated: (timestamp: number) => void;
   
   // Helpers
   getItemCount: (id: number, sizeId?: number) => number;
+  getFinalAmount: () => number;
+  getDeliveryCost: () => number;
 }
 
-const MAX_ITEMS = 20; // Максимум 20 товарів у кошику
+export const MAX_CART_ITEMS = 20; // Максимум 20 товарів у кошику
 
 export const useCartStore = create<CartState>()(
   persist(
@@ -36,12 +60,13 @@ export const useCartStore = create<CartState>()(
       items: [],
       totalItems: 0,
       totalAmount: 0,
+      delivery: DEFAULT_DELIVERY,
+      lastValidated: null,
 
       addItem: (newItem) => {
         set((state) => {
           // Перевірка на максимум товарів
-          if (state.items.length >= MAX_ITEMS) {
-            console.warn("Досягнуто максимальну кількість товарів у кошику");
+          if (state.items.length >= MAX_CART_ITEMS) {
             return state;
           }
 
@@ -141,6 +166,42 @@ export const useCartStore = create<CartState>()(
 
       clearCart: () => set({ items: [], totalItems: 0, totalAmount: 0 }),
 
+      setDelivery: (delivery) => set({ delivery }),
+
+      setLastValidated: (timestamp) => set({ lastValidated: timestamp }),
+
+      removeUnavailableItems: (unavailableIds) => {
+        const state = get();
+        const removedNames: string[] = [];
+        
+        // Знаходимо товари для видалення
+        state.items.forEach((item) => {
+          if (unavailableIds.includes(item.id)) {
+            removedNames.push(item.name);
+          }
+        });
+        
+        if (removedNames.length === 0) {
+          return [];
+        }
+        
+        // Фільтруємо недоступні товари
+        const updatedItems = state.items.filter(
+          (item) => !unavailableIds.includes(item.id)
+        );
+        
+        // Перераховуємо totals
+        const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalAmount = updatedItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+        
+        set({ items: updatedItems, totalItems, totalAmount });
+        
+        return removedNames;
+      },
+
       getItemCount: (id, sizeId) => {
         const itemKey = `${id}-${sizeId || "default"}`;
         const item = get().items.find(
@@ -148,18 +209,34 @@ export const useCartStore = create<CartState>()(
         );
         return item?.quantity || 0;
       },
+
+      getDeliveryCost: () => {
+        const state = get();
+        if (state.totalAmount >= state.delivery.free_delivery_from) {
+          return 0;
+        }
+        return state.delivery.delivery_cost;
+      },
+
+      getFinalAmount: () => {
+        const state = get();
+        return state.totalAmount + state.getDeliveryCost();
+      },
     }),
     {
       name: "croco-sushi-cart",
       storage: createJSONStorage(() => localStorage),
-      version: 2, // Версія для міграції
+      version: 4, // Версія для міграції (оновлено для підтримки lastValidated)
       migrate: (persistedState, version) => {
         // Міграція старих даних
-        if (version === 1) {
+        if (version < 4) {
+          const state = persistedState as Partial<CartState>;
           return {
-            items: [],
-            totalItems: 0,
-            totalAmount: 0,
+            items: state.items || [],
+            totalItems: state.totalItems || 0,
+            totalAmount: state.totalAmount || 0,
+            delivery: state.delivery || DEFAULT_DELIVERY,
+            lastValidated: null,
           };
         }
         return persistedState as CartState;

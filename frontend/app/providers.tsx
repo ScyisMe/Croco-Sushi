@@ -1,8 +1,17 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import { useCartSync } from "@/hooks/useCartSync";
+
+// Компонент для синхронізації кошика
+function CartSyncProvider({ children }: { children: React.ReactNode }) {
+  // Використовуємо хук для синхронізації
+  useCartSync();
+  
+  return <>{children}</>;
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -19,7 +28,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <CartSyncProvider>
+        {children}
+      </CartSyncProvider>
       <Toaster position="top-right" />
     </QueryClientProvider>
   );

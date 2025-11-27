@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useEffect, useState, useCallback } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import {
   XMarkIcon,
@@ -8,32 +8,140 @@ import {
   PlusIcon,
   TrashIcon,
   ShoppingBagIcon,
+  MapPinIcon,
+  TruckIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore, MAX_CART_ITEMS } from "@/store/cartStore";
+import { useTranslation } from "@/store/localeStore";
+import apiClient from "@/lib/api/client";
 import Image from "next/image";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 interface CartProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-// Мінімальна сума замовлення
-const MIN_ORDER_AMOUNT = 200;
-// Безкоштовна доставка від
-const FREE_DELIVERY_FROM = 500;
-// Вартість доставки
-const DELIVERY_COST = 50;
+// Інтервал валідації кошика (5 хвилин)
+const VALIDATION_INTERVAL = 5 * 60 * 1000;
 
 export default function Cart({ isOpen, setIsOpen }: CartProps) {
-  const { items, totalAmount, totalItems, removeItem, updateQuantity, clearCart } = useCartStore();
+  const { t } = useTranslation();
+  const { 
+    items, 
+    totalAmount, 
+    totalItems, 
+    delivery,
+    lastValidated,
+    removeItem, 
+    updateQuantity, 
+    clearCart,
+    getDeliveryCost,
+    getFinalAmount,
+    removeUnavailableItems,
+    setLastValidated,
+  } = useCartStore();
 
-  // Розрахунок доставки
-  const deliveryCost = totalAmount >= FREE_DELIVERY_FROM ? 0 : DELIVERY_COST;
-  const finalAmount = totalAmount + deliveryCost;
-  const isMinOrderReached = totalAmount >= MIN_ORDER_AMOUNT;
-  const amountToMinOrder = MIN_ORDER_AMOUNT - totalAmount;
-  const amountToFreeDelivery = FREE_DELIVERY_FROM - totalAmount;
+  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Функція валідації товарів у кошику
+  const validateCartItems = useCallback(async () => {
+    if (items.length === 0) return;
+    
+    // Перевіряємо чи потрібно валідувати (раз на 5 хвилин)
+    const now = Date.now();
+    if (lastValidated && now - lastValidated < VALIDATION_INTERVAL) {
+      return;
+    }
+    
+    setIsValidating(true);
+    
+    try {
+      // Отримуємо актуальну інформацію про товари
+      const productIds = [...new Set(items.map((item) => item.id))];
+      const unavailableIds: number[] = [];
+      
+      // Перевіряємо кожен товар (можна оптимізувати через batch endpoint)
+      await Promise.all(
+        productIds.map(async (id) => {
+          try {
+            const item = items.find((i) => i.id === id);
+            if (!item?.slug) return;
+            
+            const response = await apiClient.get(`/products/${item.slug}`);
+            const product = response.data;
+            
+            if (!product.is_available) {
+              unavailableIds.push(id);
+            }
+          } catch {
+            // Якщо товар не знайдено, вважаємо його недоступним
+            unavailableIds.push(id);
+          }
+        })
+      );
+      
+      // Видаляємо недоступні товари
+      if (unavailableIds.length > 0) {
+        const removedNames = removeUnavailableItems(unavailableIds);
+        if (removedNames.length > 0) {
+          toast.error(
+            `Видалено з кошика (немає в наявності): ${removedNames.join(", ")}`,
+            { duration: 5000 }
+          );
+        }
+      }
+      
+      setLastValidated(now);
+    } catch (error) {
+      console.error("Помилка валідації кошика:", error);
+    } finally {
+      setIsValidating(false);
+    }
+  }, [items, lastValidated, removeUnavailableItems, setLastValidated]);
+
+  // Валідуємо кошик при відкритті
+  useEffect(() => {
+    if (isOpen && items.length > 0) {
+      validateCartItems();
+    }
+  }, [isOpen, validateCartItems, items.length]);
+
+  // Використовуємо значення з delivery з store
+  const deliveryCost = getDeliveryCost();
+  const finalAmount = getFinalAmount();
+  const isMinOrderReached = totalAmount >= delivery.min_order_amount;
+  const amountToMinOrder = delivery.min_order_amount - totalAmount;
+  const amountToFreeDelivery = delivery.free_delivery_from - totalAmount;
+  const isMaxItemsReached = items.length >= MAX_CART_ITEMS;
+
+  // Зони доставки для вибору
+  const deliveryZones = [
+    { id: "center", name: "Центр Львова", cost: 50, freeFrom: 500, minOrder: 200, time: "30-45 хв" },
+    { id: "suburbs", name: "Околиці", cost: 70, freeFrom: 700, minOrder: 200, time: "45-60 хв" },
+    { id: "remote", name: "Віддалені райони", cost: 100, freeFrom: 1000, minOrder: 300, time: "60-90 хв" },
+  ];
+
+  // Оновлюємо доставку при виборі зони
+  useEffect(() => {
+    if (selectedZone) {
+      const zone = deliveryZones.find(z => z.id === selectedZone);
+      if (zone) {
+        useCartStore.getState().setDelivery({
+          zone_id: deliveryZones.indexOf(zone),
+          zone_name: zone.name,
+          delivery_cost: zone.cost,
+          free_delivery_from: zone.freeFrom,
+          min_order_amount: zone.minOrder,
+          estimated_time: zone.time,
+        });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedZone]);
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -68,11 +176,14 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                       <Dialog.Title className="text-xl font-bold text-secondary">
-                        Ваш кошик
+                        {t("cart.title")}
                         {totalItems > 0 && (
                           <span className="ml-2 text-sm font-normal text-secondary-light">
                             ({totalItems} {totalItems === 1 ? "товар" : totalItems < 5 ? "товари" : "товарів"})
                           </span>
+                        )}
+                        {isValidating && (
+                          <span className="ml-2 inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                         )}
                       </Dialog.Title>
                       <button
@@ -93,7 +204,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             <ShoppingBagIcon className="w-12 h-12 text-gray-400" />
                           </div>
                           <h3 className="text-lg font-semibold text-secondary mb-2">
-                            Кошик порожній
+                            {t("cart.empty")}
                           </h3>
                           <p className="text-secondary-light text-center mb-6">
                             Додайте смачні страви з нашого меню
@@ -102,13 +213,22 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             onClick={() => setIsOpen(false)}
                             className="btn-primary"
                           >
-                            Перейти до меню
+                            {t("cart.goToMenu")}
                           </button>
                         </div>
                       ) : (
                         <div className="px-6 py-4">
+                          {/* Попередження про максимум товарів */}
+                          {isMaxItemsReached && (
+                            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                              <p className="text-sm text-yellow-800">
+                                ⚠️ Досягнуто максимум {MAX_CART_ITEMS} різних товарів у кошику
+                              </p>
+                            </div>
+                          )}
+
                           {/* Прогрес до безкоштовної доставки */}
-                          {totalAmount < FREE_DELIVERY_FROM && (
+                          {totalAmount < delivery.free_delivery_from && (
                             <div className="mb-4 p-3 bg-primary/5 rounded-lg">
                               <p className="text-sm text-secondary mb-2">
                                 До безкоштовної доставки залишилось{" "}
@@ -120,7 +240,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                 <div
                                   className="bg-primary h-2 rounded-full transition-all"
                                   style={{
-                                    width: `${Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100)}%`,
+                                    width: `${Math.min((totalAmount / delivery.free_delivery_from) * 100, 100)}%`,
                                   }}
                                 />
                               </div>
@@ -215,6 +335,35 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                     {/* Footer */}
                     {items.length > 0 && (
                       <div className="border-t border-border px-6 py-4 space-y-4">
+                        {/* Вибір зони доставки */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <TruckIcon className="w-4 h-4 text-secondary-light" />
+                            <span className="text-sm font-medium text-secondary">Зона доставки</span>
+                          </div>
+                          <select
+                            value={selectedZone || ""}
+                            onChange={(e) => setSelectedZone(e.target.value || null)}
+                            className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:border-primary"
+                          >
+                            <option value="">Оберіть зону доставки</option>
+                            {deliveryZones.map((zone) => (
+                              <option key={zone.id} value={zone.id}>
+                                {zone.name} • {zone.time} • {totalAmount >= zone.freeFrom ? "Безкоштовно" : `${zone.cost} ₴`}
+                              </option>
+                            ))}
+                          </select>
+                          {delivery.zone_name && (
+                            <div className="flex items-center gap-1 mt-1.5 text-xs text-secondary-light">
+                              <MapPinIcon className="w-3 h-3" />
+                              <span>{delivery.zone_name}</span>
+                              {delivery.estimated_time && (
+                                <span className="text-primary"> • {delivery.estimated_time}</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
                         {/* Підсумок */}
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
@@ -227,8 +376,13 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                               {deliveryCost === 0 ? "Безкоштовно" : `${deliveryCost} ₴`}
                             </span>
                           </div>
+                          {deliveryCost > 0 && totalAmount > 0 && (
+                            <div className="text-xs text-secondary-light">
+                              До безкоштовної доставки: {amountToFreeDelivery.toFixed(0)} ₴
+                            </div>
+                          )}
                           <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
-                            <span>Разом</span>
+                            <span>{t("cart.total")}</span>
                             <span className="text-primary">{finalAmount.toFixed(0)} ₴</span>
                           </div>
                         </div>
@@ -236,7 +390,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                         {/* Попередження про мінімальну суму */}
                         {!isMinOrderReached && (
                           <p className="text-sm text-accent-red text-center">
-                            Мінімальна сума замовлення {MIN_ORDER_AMOUNT} ₴.
+                            Мінімальна сума замовлення {delivery.min_order_amount} ₴.
                             Додайте ще {amountToMinOrder.toFixed(0)} ₴
                           </p>
                         )}
@@ -251,7 +405,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                               : "bg-gray-200 text-gray-500 cursor-not-allowed pointer-events-none"
                           }`}
                         >
-                          Оформити замовлення
+                          {t("cart.checkout")}
                         </Link>
                       </div>
                     )}

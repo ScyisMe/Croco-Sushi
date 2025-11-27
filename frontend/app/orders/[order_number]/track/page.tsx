@@ -21,6 +21,9 @@ export default function OrderTrackPage() {
       return response.data;
     },
     enabled: !!orderNumber,
+    staleTime: 30 * 1000, // 30 секунд - для свіжості даних відстеження
+    refetchInterval: 60 * 1000, // Автооновлення кожну хвилину
+    retry: 2, // Менше повторів для швидкої відповіді
   });
 
   const order = orderQuery.data;

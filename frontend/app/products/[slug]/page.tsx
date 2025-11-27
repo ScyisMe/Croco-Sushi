@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
 import apiClient from "@/lib/api/client";
-import { Product, ProductSize } from "@/lib/types";
+import { Product, ProductSize, Review, Favorite } from "@/lib/types";
 import {
   ShoppingCartIcon,
   MinusIcon,
@@ -14,23 +14,33 @@ import {
   ChevronRightIcon,
   HeartIcon,
   ShareIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
 import { useCartStore } from "@/store/cartStore";
 import toast from "react-hot-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
+import { JsonLd, getProductSchema, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const slug = params.slug as string;
   const addItem = useCartStore((state) => state.addItem);
 
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Перевірка авторизації
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsAuthenticated(!!token);
+  }, []);
 
   // Завантаження товару
   const productQuery = useQuery<Product>({
@@ -39,7 +49,52 @@ export default function ProductDetailPage() {
       const response = await apiClient.get(`/products/${slug}`);
       return response.data;
     },
+    staleTime: 5 * 60 * 1000, // 5 хвилин - товари рідко змінюються
   });
+
+  // Завантаження обраного
+  const favoritesQuery = useQuery<Favorite[]>({
+    queryKey: ["favorites"],
+    queryFn: async () => {
+      const response = await apiClient.get("/users/me/favorites");
+      return response.data;
+    },
+    enabled: isAuthenticated,
+  });
+
+  // Перевіряємо чи товар в обраному
+  const isFavorite = favoritesQuery.data?.some((f) => f.product_id === productQuery.data?.id) || false;
+
+  // Мутація для обраного
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      if (isFavorite) {
+        await apiClient.delete(`/users/me/favorites/${productId}`);
+        return "removed";
+      } else {
+        await apiClient.post(`/users/me/favorites/${productId}`);
+        return "added";
+      }
+    },
+    onSuccess: (action) => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      toast.success(action === "added" ? "Додано в обране" : "Видалено з обраного");
+    },
+    onError: () => {
+      toast.error("Помилка. Спробуйте ще раз");
+    },
+  });
+
+  const handleFavoriteToggle = () => {
+    if (!isAuthenticated) {
+      toast.error("Увійдіть, щоб додати в обране");
+      router.push("/login");
+      return;
+    }
+    if (productQuery.data?.id) {
+      toggleFavoriteMutation.mutate(productQuery.data.id);
+    }
+  };
 
   // Завантаження схожих товарів
   const relatedQuery = useQuery<Product[]>({
@@ -58,6 +113,18 @@ export default function ProductDetailPage() {
       return products.filter((p: Product) => p.id !== productQuery.data?.id);
     },
     enabled: !!productQuery.data?.category_id,
+    staleTime: 5 * 60 * 1000, // 5 хвилин
+  });
+
+  // Завантаження відгуків про товар
+  const reviewsQuery = useQuery<Review[]>({
+    queryKey: ["reviews", "product", productQuery.data?.id],
+    queryFn: async () => {
+      const response = await apiClient.get(`/reviews/product/${productQuery.data?.id}`);
+      return response.data;
+    },
+    enabled: !!productQuery.data?.id,
+    staleTime: 2 * 60 * 1000, // 2 хвилини - відгуки можуть оновлюватися частіше
   });
 
   const product = productQuery.data;
@@ -162,8 +229,37 @@ export default function ProductDetailPage() {
     );
   }
 
+  // Розрахунок середнього рейтингу для схеми
+  const averageRating = reviewsQuery.data?.length
+    ? reviewsQuery.data.reduce((sum, r) => sum + r.rating, 0) / reviewsQuery.data.length
+    : 0;
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Schema.org markup для SEO */}
+      <JsonLd
+        schema={getProductSchema({
+          name: product.name,
+          description: product.description || "",
+          image: product.image_url || `${BUSINESS_INFO.url}/logo.jpg`,
+          price: currentPrice,
+          url: `${BUSINESS_INFO.url}/products/${product.slug}`,
+          sku: product.slug,
+          category: product.category?.name,
+          rating: reviewsQuery.data?.length
+            ? { value: averageRating, count: reviewsQuery.data.length }
+            : undefined,
+          inStock: product.is_available,
+        })}
+      />
+      <JsonLd
+        schema={getBreadcrumbSchema([
+          { name: "Головна", url: BUSINESS_INFO.url },
+          { name: "Меню", url: `${BUSINESS_INFO.url}/menu` },
+          { name: product.name, url: `${BUSINESS_INFO.url}/products/${product.slug}` },
+        ])}
+      />
+      
       <Header />
 
       <main className="flex-grow">
@@ -226,7 +322,8 @@ export default function ProductDetailPage() {
                   {/* Кнопки дій */}
                   <div className="absolute top-4 right-4 flex flex-col gap-2">
                     <button
-                      onClick={() => setIsFavorite(!isFavorite)}
+                      onClick={handleFavoriteToggle}
+                      disabled={toggleFavoriteMutation.isPending}
                       className={`p-2 rounded-full transition ${
                         isFavorite
                           ? "bg-accent-red text-white"
@@ -390,6 +487,113 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Відгуки */}
+          <section className="mt-12">
+            <div className="bg-white rounded-xl shadow-card p-6 md:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-secondary">
+                  Відгуки {reviewsQuery.data && reviewsQuery.data.length > 0 && (
+                    <span className="text-secondary-light font-normal">
+                      ({reviewsQuery.data.length})
+                    </span>
+                  )}
+                </h2>
+              </div>
+
+              {reviewsQuery.isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="p-4 border border-border rounded-lg animate-pulse">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                        <div className="space-y-2">
+                          <div className="h-4 w-24 bg-gray-200 rounded" />
+                          <div className="h-3 w-32 bg-gray-200 rounded" />
+                        </div>
+                      </div>
+                      <div className="h-4 w-full bg-gray-200 rounded" />
+                    </div>
+                  ))}
+                </div>
+              ) : reviewsQuery.data && reviewsQuery.data.length > 0 ? (
+                <div className="space-y-4">
+                  {reviewsQuery.data.map((review) => (
+                    <div
+                      key={review.id}
+                      className="p-4 border border-border rounded-xl hover:border-primary/30 transition"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                          {review.user_name?.charAt(0).toUpperCase() || "К"}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-semibold text-secondary">
+                              {review.user_name || "Клієнт"}
+                            </p>
+                            <span className="text-sm text-secondary-light">
+                              {new Date(review.created_at).toLocaleDateString("uk-UA", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </span>
+                          </div>
+                          {/* Рейтинг */}
+                          <div className="flex items-center gap-1 mt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              star <= review.rating ? (
+                                <StarSolidIcon key={star} className="w-4 h-4 text-yellow-400" />
+                              ) : (
+                                <StarIcon key={star} className="w-4 h-4 text-gray-300" />
+                              )
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-secondary-light">{review.comment}</p>
+                      
+                      {/* Відповідь адміністрації */}
+                      {review.reply_text && (
+                        <div className="mt-3 ml-4 p-3 bg-gray-50 rounded-lg border-l-4 border-primary">
+                          <p className="text-sm font-semibold text-secondary mb-1">
+                            Відповідь Croco Sushi
+                          </p>
+                          <p className="text-sm text-secondary-light">{review.reply_text}</p>
+                        </div>
+                      )}
+
+                      {/* Фото відгуку */}
+                      {review.images && review.images.length > 0 && (
+                        <div className="flex gap-2 mt-3 overflow-x-auto">
+                          {review.images.map((img, index) => (
+                            <div key={index} className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
+                              <Image
+                                src={img}
+                                alt={`Фото відгуку ${index + 1}`}
+                                width={80}
+                                height={80}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <StarIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-secondary-light mb-2">Поки немає відгуків</p>
+                  <p className="text-sm text-secondary-light">
+                    Будьте першим, хто залишить відгук про цю страву!
+                  </p>
+                </div>
+              )}
+            </div>
+          </section>
 
           {/* Схожі товари */}
           {relatedQuery.data && relatedQuery.data.length > 0 && (

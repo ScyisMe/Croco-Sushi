@@ -1,16 +1,20 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api/client";
 import { Review } from "@/lib/types";
 import { StarIcon as StarSolidIcon } from "@heroicons/react/20/solid";
-import { StarIcon as StarOutlineIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { StarIcon as StarOutlineIcon, ChevronRightIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ReviewForm, { ReviewFormData } from "@/components/ReviewForm";
+import toast from "react-hot-toast";
+import { JsonLd, getBreadcrumbSchema, getAggregateReviewSchema, BUSINESS_INFO } from "@/lib/schema";
 
 // Фільтри рейтингу
 const RATING_FILTERS = [
@@ -119,7 +123,17 @@ function ReviewSkeleton() {
 }
 
 export default function ReviewsPage() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const [ratingFilter, setRatingFilter] = useState(0);
+  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Перевірка авторизації
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsAuthenticated(!!token);
+  }, []);
 
   const reviewsQuery = useQuery<Review[]>({
     queryKey: ["reviews"],
@@ -128,6 +142,40 @@ export default function ReviewsPage() {
       return response.data.items || response.data;
     },
   });
+
+  // Мутація для створення відгуку
+  const createReviewMutation = useMutation({
+    mutationFn: async (data: ReviewFormData) => {
+      const formData = new FormData();
+      formData.append("rating", data.rating.toString());
+      formData.append("comment", data.comment);
+      if (data.images) {
+        data.images.forEach((file) => {
+          formData.append("images", file);
+        });
+      }
+      const response = await apiClient.post("/users/me/reviews", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
+    },
+  });
+
+  const handleOpenReviewForm = () => {
+    if (!isAuthenticated) {
+      toast.error("Увійдіть, щоб залишити відгук");
+      router.push("/login");
+      return;
+    }
+    setIsReviewFormOpen(true);
+  };
+
+  const handleSubmitReview = async (data: ReviewFormData) => {
+    await createReviewMutation.mutateAsync(data);
+  };
 
   const reviews = reviewsQuery.data || [];
 
@@ -154,6 +202,24 @@ export default function ReviewsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Schema.org markup для SEO */}
+      <JsonLd
+        schema={getBreadcrumbSchema([
+          { name: "Головна", url: BUSINESS_INFO.url },
+          { name: "Відгуки", url: `${BUSINESS_INFO.url}/reviews` },
+        ])}
+      />
+      {stats && (
+        <JsonLd
+          schema={getAggregateReviewSchema({
+            itemName: BUSINESS_INFO.name,
+            itemType: "Restaurant",
+            ratingValue: stats.avgRating,
+            reviewCount: stats.total,
+          })}
+        />
+      )}
+      
       <Header />
 
       <main className="flex-grow">
@@ -306,11 +372,15 @@ export default function ReviewsPage() {
                 щоб допомогти іншим клієнтам зробити вибір.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/menu" className="btn-primary">
-                  Зробити замовлення
-                </Link>
-                <Link href="/login" className="btn-outline">
-                  Увійти в акаунт
+                <button
+                  onClick={handleOpenReviewForm}
+                  className="btn-primary flex items-center justify-center gap-2"
+                >
+                  <PencilSquareIcon className="w-5 h-5" />
+                  Залишити відгук
+                </button>
+                <Link href="/menu" className="btn-outline">
+                  Перейти до меню
                 </Link>
               </div>
             </div>
@@ -319,6 +389,13 @@ export default function ReviewsPage() {
       </main>
 
       <Footer />
+
+      {/* Форма відгуку */}
+      <ReviewForm
+        isOpen={isReviewFormOpen}
+        onClose={() => setIsReviewFormOpen(false)}
+        onSubmit={handleSubmitReview}
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon, PhoneIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/store/localeStore";
 
 interface CallbackModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface CallbackModalProps {
 }
 
 export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
+  const { t } = useTranslation();
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);

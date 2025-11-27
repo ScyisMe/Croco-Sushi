@@ -12,6 +12,7 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import { useCartStore } from "@/store/cartStore";
+import { useTranslation, Locale } from "@/store/localeStore";
 import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
 
@@ -29,11 +30,12 @@ const CONTACT_INFO = {
   },
 };
 
+// Навігаційні посилання з ключами локалізації
 const NAV_LINKS = [
-  { href: "/menu", label: "Меню" },
-  { href: "/delivery", label: "Доставка" },
-  { href: "/promotions", label: "Акції" },
-  { href: "/reviews", label: "Відгуки" },
+  { href: "/menu", labelKey: "header.menu" },
+  { href: "/delivery", labelKey: "header.delivery" },
+  { href: "/promotions", labelKey: "header.promotions" },
+  { href: "/reviews", labelKey: "header.reviews" },
 ];
 
 export default function Header() {
@@ -42,8 +44,36 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCallbackOpen, setIsCallbackOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentLang, setCurrentLang] = useState<"UA" | "RU">("UA");
+  const [isMounted, setIsMounted] = useState(false); // Для уникнення hydration mismatch
+  const [isOpen, setIsOpen] = useState<boolean | null>(null); // Статус роботи
   const getItemCount = useCartStore((state) => state.totalItems);
+  
+  // Використовуємо локалізацію
+  const { locale, setLocale, t } = useTranslation();
+
+  // Позначаємо компонент як змонтований після першого рендеру на клієнті
+  useEffect(() => {
+    setIsMounted(true);
+    // Перевіряємо робочий час тільки на клієнті
+    const checkWorkingHours = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      // Відкрито з 10:00 до 21:45
+      if (hours < 10) return false;
+      if (hours > 21) return false;
+      if (hours === 21 && minutes > 45) return false;
+      return true;
+    };
+    setIsOpen(checkWorkingHours());
+    
+    // Оновлюємо статус кожну хвилину
+    const interval = setInterval(() => {
+      setIsOpen(checkWorkingHours());
+    }, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Sticky header при прокрутці
   useEffect(() => {
@@ -62,16 +92,9 @@ export default function Header() {
     }
   }, []);
 
-  // Перевірка чи зараз робочий час (10:00 - 21:45)
-  const isWorkingHours = () => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    // Відкрито з 10:00 до 21:45
-    if (hours < 10) return false;
-    if (hours > 21) return false;
-    if (hours === 21 && minutes > 45) return false;
-    return true;
+  // Функція для зміни мови
+  const handleLanguageChange = (lang: Locale) => {
+    setLocale(lang);
   };
 
   return (
@@ -97,43 +120,49 @@ export default function Header() {
 
               {/* Час роботи та мова */}
               <div className="flex items-center space-x-4">
-                {/* Індикатор робочого часу */}
+                {/* Індикатор робочого часу - показуємо тільки після монтування */}
                 <div className="flex items-center text-secondary-light">
                   <ClockIcon className="w-4 h-4 mr-1" />
                   <span>
-                    {isWorkingHours() ? (
-                      <span className="text-primary font-medium">Відкрито</span>
+                    {isMounted ? (
+                      isOpen ? (
+                        <span className="text-primary font-medium">{t("header.open")}</span>
+                      ) : (
+                        <span className="text-accent-red font-medium">{t("header.closed")}</span>
+                      )
                     ) : (
-                      <span className="text-accent-red font-medium">Зачинено</span>
+                      <span className="text-secondary-light">...</span>
                     )}
-                    {" "}з {CONTACT_INFO.workingHours}
+                    {" "}з 10:00 - 21:45
                   </span>
                 </div>
 
-                {/* Вибір мови */}
-                <div className="flex items-center border-l border-border pl-4">
-                  <button
-                    onClick={() => setCurrentLang("UA")}
-                    className={`px-2 py-1 rounded transition ${
-                      currentLang === "UA"
-                        ? "bg-primary text-white"
-                        : "text-secondary hover:text-primary"
-                    }`}
-                  >
-                    UA
-                  </button>
-                  <span className="text-border mx-1">/</span>
-                  <button
-                    onClick={() => setCurrentLang("RU")}
-                    className={`px-2 py-1 rounded transition ${
-                      currentLang === "RU"
-                        ? "bg-primary text-white"
-                        : "text-secondary hover:text-primary"
-                    }`}
-                  >
-                    RU
-                  </button>
-                </div>
+                {/* Вибір мови - показуємо тільки після монтування */}
+                {isMounted && (
+                  <div className="flex items-center border-l border-border pl-4">
+                    <button
+                      onClick={() => handleLanguageChange("ua")}
+                      className={`px-2 py-1 rounded transition ${
+                        locale === "ua"
+                          ? "bg-primary text-white"
+                          : "text-secondary hover:text-primary"
+                      }`}
+                    >
+                      UA
+                    </button>
+                    <span className="text-border mx-1">/</span>
+                    <button
+                      onClick={() => handleLanguageChange("ru")}
+                      className={`px-2 py-1 rounded transition ${
+                        locale === "ru"
+                          ? "bg-primary text-white"
+                          : "text-secondary hover:text-primary"
+                      }`}
+                    >
+                      RU
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -158,7 +187,7 @@ export default function Header() {
                   href={link.href}
                   className="text-secondary font-medium hover:text-primary transition relative group"
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
                 </Link>
               ))}
@@ -172,7 +201,7 @@ export default function Header() {
                 className="hidden md:flex items-center space-x-2 text-secondary hover:text-primary transition"
               >
                 <PhoneIcon className="w-5 h-5" />
-                <span className="text-sm">Передзвонити</span>
+                <span className="text-sm">{t("header.callback")}</span>
               </button>
 
               {/* Кнопка "Оформити замовлення" (Desktop) */}
@@ -180,26 +209,34 @@ export default function Header() {
                 href="/checkout"
                 className="hidden lg:block bg-primary hover:bg-primary-600 text-white font-semibold px-6 py-2.5 rounded-lg transition"
               >
-                Оформити замовлення
+                {t("header.order")}
               </Link>
 
-              {/* Профіль / Вхід */}
+              {/* Профіль / Вхід / Реєстрація */}
               {isAuthenticated ? (
                 <Link
                   href="/profile"
                   className="flex items-center space-x-1 text-secondary hover:text-primary transition"
                 >
                   <UserIcon className="w-6 h-6" />
-                  <span className="hidden md:inline text-sm">Профіль</span>
+                  <span className="hidden md:inline text-sm">{t("header.profile")}</span>
                 </Link>
               ) : (
-                <Link
-                  href="/login"
-                  className="flex items-center space-x-1 text-secondary hover:text-primary transition"
-                >
-                  <UserIcon className="w-6 h-6" />
-                  <span className="hidden md:inline text-sm">Вхід</span>
-                </Link>
+                <div className="flex items-center space-x-3">
+                  <Link
+                    href="/login"
+                    className="flex items-center space-x-1 text-secondary hover:text-primary transition"
+                  >
+                    <UserIcon className="w-6 h-6" />
+                    <span className="hidden md:inline text-sm">{t("header.login")}</span>
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="hidden md:block text-sm text-primary hover:text-primary-600 font-medium transition"
+                  >
+                    {t("header.register")}
+                  </Link>
+                </div>
               )}
 
               {/* Кошик */}
@@ -278,25 +315,65 @@ export default function Header() {
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="block py-3 px-4 text-lg text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition"
                           >
-                            {link.label}
+                            {t(link.labelKey)}
                           </Link>
                         </li>
                       ))}
+                      
+                      {/* Авторизація для мобільних */}
+                      {!isAuthenticated && (
+                        <>
+                          <li className="border-t border-border pt-2 mt-2">
+                            <Link
+                              href="/login"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="block py-3 px-4 text-lg text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition"
+                            >
+                              {t("header.login")}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              href="/register"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="block py-3 px-4 text-lg text-primary font-medium hover:bg-primary/5 rounded-lg transition"
+                            >
+                              {t("header.register")}
+                            </Link>
+                          </li>
+                        </>
+                      )}
+                      
+                      {isAuthenticated && (
+                        <li className="border-t border-border pt-2 mt-2">
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block py-3 px-4 text-lg text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition"
+                          >
+                            {t("header.profile")}
+                          </Link>
+                        </li>
+                      )}
                     </ul>
                   </nav>
 
                   {/* Bottom section */}
                   <div className="p-4 border-t border-border space-y-4">
-                    {/* Робочий час */}
+                    {/* Робочий час - показуємо тільки після монтування */}
                     <div className="flex items-center text-secondary-light">
                       <ClockIcon className="w-5 h-5 mr-2" />
                       <span>
-                        {isWorkingHours() ? (
-                          <span className="text-primary font-medium">Відкрито</span>
+                        {isMounted ? (
+                          isOpen ? (
+                            <span className="text-primary font-medium">{t("header.open")}</span>
+                          ) : (
+                            <span className="text-accent-red font-medium">{t("header.closed")}</span>
+                          )
                         ) : (
-                          <span className="text-accent-red font-medium">Зачинено</span>
+                          <span className="text-secondary-light">...</span>
                         )}{" "}
-                        з {CONTACT_INFO.workingHours}
+                        з 10:00 - 21:45
                       </span>
                     </div>
 
@@ -322,32 +399,34 @@ export default function Header() {
                       }}
                       className="w-full bg-primary hover:bg-primary-600 text-white font-semibold py-3 rounded-lg transition"
                     >
-                      Передзвонити мені
+                      {t("callback.submit")}
                     </button>
 
-                    {/* Вибір мови */}
-                    <div className="flex items-center justify-center space-x-2">
-                      <button
-                        onClick={() => setCurrentLang("UA")}
-                        className={`px-4 py-2 rounded-lg transition ${
-                          currentLang === "UA"
-                            ? "bg-primary text-white"
-                            : "bg-gray-100 text-secondary hover:bg-gray-200"
-                        }`}
-                      >
-                        UA
-                      </button>
-                      <button
-                        onClick={() => setCurrentLang("RU")}
-                        className={`px-4 py-2 rounded-lg transition ${
-                          currentLang === "RU"
-                            ? "bg-primary text-white"
-                            : "bg-gray-100 text-secondary hover:bg-gray-200"
-                        }`}
-                      >
-                        RU
-                      </button>
-                    </div>
+                    {/* Вибір мови - показуємо тільки після монтування */}
+                    {isMounted && (
+                      <div className="flex items-center justify-center space-x-2">
+                        <button
+                          onClick={() => handleLanguageChange("ua")}
+                          className={`px-4 py-2 rounded-lg transition ${
+                            locale === "ua"
+                              ? "bg-primary text-white"
+                              : "bg-gray-100 text-secondary hover:bg-gray-200"
+                          }`}
+                        >
+                          UA
+                        </button>
+                        <button
+                          onClick={() => handleLanguageChange("ru")}
+                          className={`px-4 py-2 rounded-lg transition ${
+                            locale === "ru"
+                              ? "bg-primary text-white"
+                              : "bg-gray-100 text-secondary hover:bg-gray-200"
+                          }`}
+                        >
+                          RU
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Dialog.Panel>

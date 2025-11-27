@@ -25,6 +25,11 @@ Requires-Dist: aiofiles>=23.2.1
 Requires-Dist: pyotp>=2.9.0
 Requires-Dist: qrcode[pil]>=7.4.2
 Requires-Dist: psycopg2-binary>=2.9.0
+Requires-Dist: pytest>=7.4.0
+Requires-Dist: pytest-asyncio>=0.21.0
+Requires-Dist: httpx>=0.24.0
+Requires-Dist: aiosqlite>=0.19.0
+Requires-Dist: pyjwt>=2.10.1
 
 # Croco Sushi - Сайт доставки суші
 

@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
+import { JsonLd, getOrganizationSchema, getWebsiteSchema } from "@/lib/schema";
 
 const inter = Inter({ 
   subsets: ["latin", "cyrillic"],
@@ -47,6 +48,10 @@ export default function RootLayout({
   return (
     <html lang="uk" className={inter.variable}>
       <body className={`${inter.className} antialiased`}>
+        {/* Schema.org markup для SEO */}
+        <JsonLd schema={getOrganizationSchema()} />
+        <JsonLd schema={getWebsiteSchema()} />
+        
         <Providers>
           {children}
           <Toaster

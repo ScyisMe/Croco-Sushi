@@ -23,7 +23,8 @@ COPY backend ./backend
 
 # Встановлюємо залежності через pip з pyproject.toml
 # pip install -e . автоматично встановлює залежності з pyproject.toml
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+# Закріплюємо setuptools<81 для сумісності з passlib (pkg_resources deprecated)
+RUN pip install --no-cache-dir --upgrade pip "setuptools>=61.0,<81" wheel && \
     pip install --no-cache-dir -e .
 
 # Встановлюємо робочу директорію в backend

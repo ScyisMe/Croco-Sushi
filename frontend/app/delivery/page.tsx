@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { JsonLd, getLocalBusinessSchema, getFAQSchema, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 
 // Контактна інформація
 const CONTACT_INFO = {
@@ -93,6 +94,23 @@ export default function DeliveryPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Schema.org markup для SEO */}
+      <JsonLd schema={getLocalBusinessSchema()} />
+      <JsonLd
+        schema={getFAQSchema(
+          FAQ_ITEMS.map((item) => ({
+            question: item.question,
+            answer: item.answer,
+          }))
+        )}
+      />
+      <JsonLd
+        schema={getBreadcrumbSchema([
+          { name: "Головна", url: BUSINESS_INFO.url },
+          { name: "Доставка та оплата", url: `${BUSINESS_INFO.url}/delivery` },
+        ])}
+      />
+      
       <Header />
 
       <main className="flex-grow">
@@ -258,6 +276,108 @@ export default function DeliveryPage() {
             </div>
           </div>
 
+          {/* Зони доставки */}
+          <div className="mt-8 bg-white rounded-xl shadow-card p-6 md:p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <TruckIcon className="w-6 h-6 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold text-secondary">Зони доставки</h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Карта зон */}
+              <div className="h-80 bg-gray-100 rounded-xl overflow-hidden relative">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d41177.76236547741!2d23.9770856!3d49.8427392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473add7c09109a57%3A0x4223c517012378e2!2z0JvRjNCy0ZbQsiwg0JvRjNCy0ZbQstGB0YzQutCwINC-0LHQu9Cw0YHRgtGMLCA3OTAwMA!5e0!3m2!1suk!2sua!4v1700000000000!5m2!1suk!2sua"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Карта зон доставки"
+                />
+                {/* Легенда */}
+                <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+                  <p className="text-xs font-semibold text-secondary mb-2">Зони доставки:</p>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="text-xs text-secondary">Центр - 30-45 хв</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <span className="text-xs text-secondary">Околиці - 45-60 хв</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                      <span className="text-xs text-secondary">Віддалені - 60-90 хв</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Список зон */}
+              <div className="space-y-4">
+                {/* Зона 1 */}
+                <div className="p-4 border border-green-200 bg-green-50 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      <span className="font-semibold text-secondary">Центр Львова</span>
+                    </div>
+                    <span className="font-bold text-green-600">50 ₴</span>
+                  </div>
+                  <p className="text-sm text-secondary-light">
+                    Площа Ринок, Личаківська, Франка, Городоцька та прилеглі вулиці. Час доставки: 30-45 хв.
+                  </p>
+                  <p className="text-xs text-green-600 mt-2">
+                    ✓ Безкоштовно від 500 ₴
+                  </p>
+                </div>
+
+                {/* Зона 2 */}
+                <div className="p-4 border border-yellow-200 bg-yellow-50 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <span className="font-semibold text-secondary">Околиці</span>
+                    </div>
+                    <span className="font-bold text-yellow-600">70 ₴</span>
+                  </div>
+                  <p className="text-sm text-secondary-light">
+                    Сихів, Рясне, Левандівка, Новий Львів. Час доставки: 45-60 хв.
+                  </p>
+                  <p className="text-xs text-yellow-600 mt-2">
+                    ✓ Безкоштовно від 700 ₴
+                  </p>
+                </div>
+
+                {/* Зона 3 */}
+                <div className="p-4 border border-orange-200 bg-orange-50 rounded-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                      <span className="font-semibold text-secondary">Віддалені райони</span>
+                    </div>
+                    <span className="font-bold text-orange-600">100 ₴</span>
+                  </div>
+                  <p className="text-sm text-secondary-light">
+                    Брюховичі, Винники, Рудно, Малехів. Час доставки: 60-90 хв.
+                  </p>
+                  <p className="text-xs text-orange-600 mt-2">
+                    ✓ Безкоштовно від 1000 ₴
+                  </p>
+                </div>
+
+                <p className="text-xs text-secondary-light text-center pt-2">
+                  * Якщо ваш район не вказано, зателефонуйте нам — ми уточнимо умови доставки
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Адреса самовивозу */}
           <div className="mt-8 bg-white rounded-xl shadow-card p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
@@ -285,6 +405,16 @@ export default function DeliveryPage() {
                   <PhoneIcon className="w-5 h-5" />
                   {CONTACT_INFO.phoneDisplay}
                 </a>
+                
+                {/* Переваги самовивозу */}
+                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                  <p className="text-sm font-semibold text-green-800 mb-2">
+                    🎁 Бонус за самовивіз
+                  </p>
+                  <p className="text-sm text-green-700">
+                    При самовивозі отримуйте додатково +5% бонусних балів на ваш рахунок!
+                  </p>
+                </div>
               </div>
 
               {/* Карта */}

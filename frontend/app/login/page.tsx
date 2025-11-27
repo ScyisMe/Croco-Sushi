@@ -21,6 +21,10 @@ export default function LoginPage() {
       if (response.data.access_token) {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
+        
+        // Сповіщаємо про зміну авторизації для синхронізації кошика
+        window.dispatchEvent(new Event("auth-change"));
+        
         toast.success("Вхід успішний!");
         router.push("/profile");
       }
@@ -67,6 +71,21 @@ export default function LoginPage() {
               {isLoading ? "Вхід..." : "Увійти"}
             </button>
           </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Немає акаунту?{" "}
+              <a href="/register" className="text-green-600 hover:text-green-700 font-medium">
+                Зареєструватися
+              </a>
+            </p>
+          </div>
+
+          <div className="mt-4 text-center">
+            <a href="/reset-password" className="text-sm text-gray-500 hover:text-green-600">
+              Забули пароль?
+            </a>
+          </div>
         </div>
       </main>
       <Footer />

@@ -6,8 +6,11 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import apiClient from "@/lib/api/client";
 import { Product } from "@/lib/types";
 import ProductCard, { ProductCardSkeleton } from "./ProductCard";
+import { useTranslation } from "@/store/localeStore";
 
 export default function PopularProducts() {
+  const { t } = useTranslation();
+  
   const productsQuery = useQuery<Product[]>({
     queryKey: ["products", "popular"],
     queryFn: async () => {
@@ -30,13 +33,13 @@ export default function PopularProducts() {
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-secondary">
-            🔥 Популярні страви
+            🔥 {t("menu.popular")}
           </h2>
           <Link
             href="/menu?sort=popular"
             className="hidden md:inline-flex items-center gap-2 text-primary hover:text-primary-600 font-semibold transition"
           >
-            Всі страви
+            {t("menu.viewAll")}
             <ArrowRightIcon className="w-5 h-5" />
           </Link>
         </div>
@@ -63,18 +66,18 @@ export default function PopularProducts() {
         {!productsQuery.isLoading && products.length === 0 && (
           <div className="text-center py-12">
             <p className="text-secondary-light">
-              Поки що немає популярних страв
+              {t("menu.noPopular")}
             </p>
           </div>
         )}
 
-        {/* Кнопка "Всі страви" для мобільних */}
-        <div className="text-center mt-8 md:hidden">
+        {/* Мобільна кнопка */}
+        <div className="mt-8 text-center md:hidden">
           <Link
-            href="/menu"
-            className="btn-primary inline-flex items-center gap-2"
+            href="/menu?sort=popular"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary-600 font-semibold transition"
           >
-            Всі страви
+            {t("menu.viewAll")}
             <ArrowRightIcon className="w-5 h-5" />
           </Link>
         </div>
@@ -82,4 +85,3 @@ export default function PopularProducts() {
     </section>
   );
 }
-

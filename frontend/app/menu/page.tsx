@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
-import { Category, Product } from "@/lib/types";
+import { Category, Product, Favorite } from "@/lib/types";
 import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
@@ -15,6 +15,12 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
+import QuickViewModal from "@/components/QuickViewModal";
+import toast from "react-hot-toast";
+import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
+
+// Кількість товарів на сторінку
+const PRODUCTS_PER_PAGE = 12;
 
 // Опції сортування
 const SORT_OPTIONS = [
@@ -27,6 +33,7 @@ const SORT_OPTIONS = [
 
 export default function MenuPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const categorySlug = searchParams.get("category");
   const sortParam = searchParams.get("sort");
@@ -36,6 +43,18 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categorySlug);
   const [sortBy, setSortBy] = useState<string>(sortParam || "position");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  
+  // Ref для Intersection Observer (infinite scroll)
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Перевірка авторизації
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsAuthenticated(!!token);
+  }, []);
 
   // Debounce для пошуку
   useEffect(() => {
@@ -59,13 +78,13 @@ export default function MenuPage() {
     },
   });
 
-  // Завантаження товарів
-  const productsQuery = useQuery<Product[]>({
+  // Завантаження товарів з infinite scroll
+  const productsQuery = useInfiniteQuery({
     queryKey: ["products", selectedCategory, debouncedSearch],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 0 }) => {
       const params: Record<string, unknown> = {
-        skip: 0,
-        limit: 100,
+        skip: pageParam,
+        limit: PRODUCTS_PER_PAGE,
         is_available: true,
       };
       if (selectedCategory) {
@@ -75,16 +94,111 @@ export default function MenuPage() {
         params.search = debouncedSearch;
       }
       const response = await apiClient.get("/products", { params });
-      // API може повертати { items: [...] } або просто [...]
-      return response.data.items || response.data;
+      // API може повертати { items: [...], total: ... } або просто [...]
+      const items = response.data.items || response.data;
+      const total = response.data.total ?? items.length;
+      return {
+        items: items as Product[],
+        nextOffset: pageParam + PRODUCTS_PER_PAGE,
+        hasMore: pageParam + PRODUCTS_PER_PAGE < total,
+        total,
+      };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasMore ? lastPage.nextOffset : undefined;
+    },
+  });
+  
+  // Всі завантажені товари
+  const allProducts = useMemo(() => {
+    return productsQuery.data?.pages.flatMap((page) => page.items) || [];
+  }, [productsQuery.data]);
+
+  // Intersection Observer для infinite scroll
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && productsQuery.hasNextPage && !productsQuery.isFetchingNextPage) {
+        productsQuery.fetchNextPage();
+      }
+    },
+    [productsQuery]
+  );
+
+  useEffect(() => {
+    const element = loadMoreRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0,
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [handleObserver]);
+
+  // Завантаження обраного (якщо авторизований)
+  const favoritesQuery = useQuery<Favorite[]>({
+    queryKey: ["favorites"],
+    queryFn: async () => {
+      const response = await apiClient.get("/users/me/favorites");
+      return response.data;
+    },
+    enabled: isAuthenticated,
+  });
+
+  // Множина ID обраних товарів для швидкого пошуку
+  const favoriteIds = useMemo(() => {
+    return new Set(favoritesQuery.data?.map((f) => f.product_id) || []);
+  }, [favoritesQuery.data]);
+
+  // Мутація для додавання/видалення з обраного
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      if (favoriteIds.has(productId)) {
+        await apiClient.delete(`/users/me/favorites/${productId}`);
+        return { action: "removed", productId };
+      } else {
+        await apiClient.post(`/users/me/favorites/${productId}`);
+        return { action: "added", productId };
+      }
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
+    },
+    onError: () => {
+      toast.error("Помилка. Спробуйте ще раз");
     },
   });
 
+  // Обробник перемикання обраного
+  const handleFavoriteToggle = (productId: number) => {
+    if (!isAuthenticated) {
+      toast.error("Увійдіть, щоб додати в обране");
+      router.push("/login");
+      return;
+    }
+    toggleFavoriteMutation.mutate(productId);
+  };
+
+  // Обробник швидкого перегляду
+  const handleQuickView = (product: Product) => {
+    setQuickViewProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
   const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
+  
+  // Загальна кількість товарів
+  const totalProducts = productsQuery.data?.pages[0]?.total ?? 0;
   
   // Сортування товарів
   const sortedProducts = useMemo(() => {
-    const products = productsQuery.data || [];
+    const products = allProducts;
     const sorted = [...products];
     
     switch (sortBy) {
@@ -105,7 +219,7 @@ export default function MenuPage() {
       default:
         return sorted.sort((a, b) => a.position - b.position);
     }
-  }, [productsQuery.data, sortBy]);
+  }, [allProducts, sortBy]);
 
   // Зміна категорії
   const handleCategoryChange = (slug: string | null) => {
@@ -123,8 +237,23 @@ export default function MenuPage() {
     ? categories.find((c) => c.slug === selectedCategory)?.name || "Меню"
     : "Все меню";
 
+  // Схема хлібних крихт для SEO
+  const breadcrumbItems = [
+    { name: "Головна", url: BUSINESS_INFO.url },
+    { name: "Меню", url: `${BUSINESS_INFO.url}/menu` },
+  ];
+  if (selectedCategory && currentCategoryName !== "Меню") {
+    breadcrumbItems.push({
+      name: currentCategoryName,
+      url: `${BUSINESS_INFO.url}/menu?category=${selectedCategory}`,
+    });
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Schema.org markup для SEO */}
+      <JsonLd schema={getBreadcrumbSchema(breadcrumbItems)} />
+      
       <Header />
       
       <main className="flex-grow">
@@ -271,17 +400,21 @@ export default function MenuPage() {
                 </div>
               </div>
 
-              {/* Результати пошуку */}
-              {debouncedSearch && (
+              {/* Результати пошуку та кількість */}
+              {debouncedSearch ? (
                 <p className="text-secondary-light mb-4">
-                  Результати пошуку для "{debouncedSearch}": {sortedProducts.length} страв
+                  Результати пошуку для "{debouncedSearch}": {totalProducts} страв
+                </p>
+              ) : totalProducts > 0 && (
+                <p className="text-secondary-light mb-4">
+                  Показано {sortedProducts.length} з {totalProducts} страв
                 </p>
               )}
 
-              {/* Skeleton loader */}
+              {/* Skeleton loader для початкового завантаження */}
               {productsQuery.isLoading && (
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                  {[...Array(8)].map((_, i) => (
+                  {[...Array(PRODUCTS_PER_PAGE)].map((_, i) => (
                     <ProductCardSkeleton key={i} />
                   ))}
                 </div>
@@ -313,11 +446,34 @@ export default function MenuPage() {
 
               {/* Список товарів */}
               {!productsQuery.isLoading && sortedProducts.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                  {sortedProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {sortedProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        onFavoriteToggle={handleFavoriteToggle}
+                        isFavorite={favoriteIds.has(product.id)}
+                        onQuickView={handleQuickView}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Елемент для спостереження (infinite scroll) */}
+                  <div ref={loadMoreRef} className="py-8">
+                    {productsQuery.isFetchingNextPage && (
+                      <div className="flex flex-col items-center justify-center gap-3">
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+                        <p className="text-secondary-light text-sm">Завантаження...</p>
+                      </div>
+                    )}
+                    {!productsQuery.hasNextPage && sortedProducts.length > PRODUCTS_PER_PAGE && (
+                      <p className="text-center text-secondary-light text-sm">
+                        Ви переглянули всі страви 🎉
+                      </p>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -408,6 +564,18 @@ export default function MenuPage() {
           </div>
         </div>
       )}
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => {
+          setIsQuickViewOpen(false);
+          setQuickViewProduct(null);
+        }}
+        onFavoriteToggle={handleFavoriteToggle}
+        isFavorite={quickViewProduct ? favoriteIds.has(quickViewProduct.id) : false}
+      />
     </div>
   );
 }
