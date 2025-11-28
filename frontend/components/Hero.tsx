@@ -103,20 +103,29 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="max-w-xl text-white"
+          className="max-w-xl"
         >
-          {/* Responsive typography з clamp() */}
-          <h1 className="text-responsive-2xl sm:text-responsive-3xl font-bold mb-3 md:mb-4 leading-tight">
+          {/* Заголовок - великий та помітний */}
+          <h1 
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 md:mb-5 leading-tight text-white"
+            style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.7)' }}
+          >
             {t(slide.titleKey)}
           </h1>
-          <p className="text-responsive-base text-gray-200 mb-6 md:mb-8 leading-relaxed">
+          
+          {/* Підзаголовок - яскравий та читабельний */}
+          <p 
+            className="text-lg sm:text-xl md:text-2xl text-white font-medium mb-8 md:mb-10 leading-relaxed"
+            style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}
+          >
             {t(slide.subtitleKey)}
           </p>
           
           {/* Одна головна CTA кнопка - велика та помітна */}
           <Link
             href="/menu"
-            className="inline-flex items-center justify-center bg-primary hover:bg-primary-600 text-white font-bold text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-5 rounded-xl active:scale-[0.98] transition-all shadow-lg min-h-[56px] sm:min-h-[64px] touch-target group max-w-md"
+            className="inline-flex items-center justify-center bg-primary hover:bg-primary-600 text-white font-bold text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-5 rounded-xl active:scale-[0.98] transition-all shadow-xl hover:shadow-2xl min-h-[56px] sm:min-h-[64px] touch-target group max-w-md"
+            style={{ boxShadow: '0 8px 30px rgba(0, 168, 89, 0.4)' }}
           >
             🍣 {t("header.order")}
             <ArrowRightIcon className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />

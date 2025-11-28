@@ -8,9 +8,11 @@ import toast from "react-hot-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/store/localeStore";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -36,10 +38,8 @@ export default function RegisterPage() {
   }, [router]);
 
   const formatPhoneNumber = (value: string) => {
-    // Видаляємо все крім цифр
     const digits = value.replace(/\D/g, "");
     
-    // Форматуємо номер
     if (digits.length === 0) return "";
     if (digits.length <= 3) return `+${digits}`;
     if (digits.length <= 5) return `+${digits.slice(0, 3)} ${digits.slice(3)}`;
@@ -58,65 +58,63 @@ export default function RegisterPage() {
   const validatePhone = useCallback((): boolean => {
     const digits = phone.replace(/\D/g, "");
     if (digits.length === 0) {
-      setPhoneError("Введіть номер телефону");
+      setPhoneError(t("validation.required"));
       return false;
     }
     if (digits.length !== 12) {
-      setPhoneError("Номер телефону має містити 12 цифр");
+      setPhoneError(t("validation.invalidPhone"));
       return false;
     }
     if (!digits.startsWith("380")) {
-      setPhoneError("Номер має починатися з +380");
+      setPhoneError(t("validation.phoneFormat"));
       return false;
     }
     return true;
-  }, [phone]);
+  }, [phone, t]);
 
   // Валідація email
   const validateEmail = useCallback((): boolean => {
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailError("Введіть коректний email");
+      setEmailError(t("validation.invalidEmail"));
       return false;
     }
     return true;
-  }, [email]);
+  }, [email, t]);
 
   // Валідація імені
   const validateName = useCallback((): boolean => {
     if (name && name.trim().length < 2) {
-      setNameError("Ім'я має містити мінімум 2 символи");
+      setNameError(t("validation.minLength", { min: "2" }));
       return false;
     }
     if (name && !/^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s'-]+$/.test(name)) {
-      setNameError("Ім'я може містити лише літери");
+      setNameError(t("validation.invalidCharacters"));
       return false;
     }
     return true;
-  }, [name]);
+  }, [name, t]);
 
   // Валідація пароля
   const validatePassword = useCallback((): boolean => {
     if (password.length < 8) {
-      setPasswordError("Пароль має містити мінімум 8 символів");
+      setPasswordError(t("validation.minLength", { min: "8" }));
       return false;
     }
     if (password !== confirmPassword) {
-      setPasswordError("Паролі не співпадають");
+      setPasswordError(t("validation.passwordsNotMatch"));
       return false;
     }
     return true;
-  }, [password, confirmPassword]);
+  }, [password, confirmPassword, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Очищуємо всі помилки
     setPhoneError("");
     setEmailError("");
     setNameError("");
     setPasswordError("");
     
-    // Валідація всіх полів
     const isPhoneValid = validatePhone();
     const isEmailValid = validateEmail();
     const isNameValid = validateName();
@@ -127,13 +125,12 @@ export default function RegisterPage() {
     }
 
     if (!acceptTerms) {
-      toast.error("Потрібно прийняти умови використання");
+      toast.error(t("auth.acceptTermsRequired") || "Потрібно прийняти умови використання");
       return;
     }
 
     setIsLoading(true);
     try {
-      // Видаляємо пробіли з номера телефону для відправки
       const cleanPhone = phone.replace(/\s/g, "");
       await apiClient.post("/auth/register", { 
         phone: cleanPhone, 
@@ -141,18 +138,17 @@ export default function RegisterPage() {
         name: name.trim() || undefined, 
         password 
       });
-      toast.success("Реєстрація успішна! Тепер увійдіть.");
+      toast.success(t("auth.registerSuccess"));
       router.push("/login");
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
-      const message = err.response?.data?.detail || "Помилка реєстрації";
+      const message = err.response?.data?.detail || t("auth.registerError");
       toast.error(message);
       
-      // Показуємо специфічні помилки
       if (message.toLowerCase().includes("телефон") || message.toLowerCase().includes("phone")) {
-        setPhoneError("Цей номер вже зареєстровано");
+        setPhoneError(t("auth.phoneAlreadyRegistered") || "Цей номер вже зареєстровано");
       } else if (message.toLowerCase().includes("email")) {
-        setEmailError("Цей email вже використовується");
+        setEmailError(t("auth.emailAlreadyUsed") || "Цей email вже використовується");
       }
     } finally {
       setIsLoading(false);
@@ -172,10 +168,16 @@ export default function RegisterPage() {
   const passwordStrength = getPasswordStrength(password);
 
   const strengthColors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-lime-500", "bg-green-500"];
-  const strengthLabels = ["Дуже слабкий", "Слабкий", "Середній", "Хороший", "Надійний"];
+  const strengthLabels = [
+    t("auth.passwordStrength.veryWeak"),
+    t("auth.passwordStrength.weak"),
+    t("auth.passwordStrength.medium"),
+    t("auth.passwordStrength.good"),
+    t("auth.passwordStrength.strong")
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
+    <div className="min-h-screen flex flex-col bg-background-secondary transition-colors">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-md mx-auto">
@@ -184,17 +186,17 @@ export default function RegisterPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
               <span className="text-3xl">🐊</span>
             </div>
-            <h1 className="text-3xl font-bold text-secondary mb-2">Створити акаунт</h1>
-            <p className="text-secondary-light">Приєднуйтесь до Croco Sushi</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">{t("auth.createAccount")}</h1>
+            <p className="text-foreground-secondary">{t("auth.joinUs")}</p>
           </div>
 
           {/* Форма */}
-          <div className="bg-theme-surface rounded-2xl shadow-card p-8">
+          <div className="bg-surface rounded-2xl shadow-card p-8 border border-border">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Телефон */}
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-secondary mb-2">
-                  Номер телефону <span className="text-accent-red">*</span>
+                <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
+                  {t("auth.phone")} <span className="text-accent-red">*</span>
                 </label>
                 <input
                   id="phone"
@@ -217,8 +219,8 @@ export default function RegisterPage() {
 
               {/* Ім'я */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-secondary mb-2">
-                  Ваше ім&apos;я
+                <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                  {t("auth.name")}
                 </label>
                 <input
                   id="name"
@@ -232,7 +234,7 @@ export default function RegisterPage() {
                   aria-describedby={nameError ? "name-error" : undefined}
                   aria-invalid={!!nameError}
                   className={`input ${nameError ? "input-error" : ""}`}
-                  placeholder="Як до вас звертатися?"
+                  placeholder={t("auth.howToCall")}
                 />
                 {nameError && (
                   <p id="name-error" className="mt-1 text-sm text-accent-red" role="alert">
@@ -243,8 +245,8 @@ export default function RegisterPage() {
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-secondary mb-2">
-                  Email
+                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                  {t("auth.email")}
                 </label>
                 <input
                   id="email"
@@ -265,16 +267,16 @@ export default function RegisterPage() {
                     {emailError}
                   </p>
                 ) : (
-                  <p id="email-hint" className="mt-1 text-xs text-secondary-light">
-                    Для отримання акцій та спеціальних пропозицій
+                  <p id="email-hint" className="mt-1 text-xs text-foreground-muted">
+                    {t("auth.emailHint")}
                   </p>
                 )}
               </div>
 
               {/* Пароль */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-secondary mb-2">
-                  Пароль <span className="text-accent-red">*</span>
+                <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+                  {t("auth.password")} <span className="text-accent-red">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -290,13 +292,13 @@ export default function RegisterPage() {
                     autoComplete="new-password"
                     aria-describedby="password-strength"
                     className="input pr-12"
-                    placeholder="Мінімум 8 символів"
+                    placeholder={t("auth.minPassword")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-light hover:text-secondary transition"
-                    aria-label={showPassword ? "Приховати пароль" : "Показати пароль"}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground-muted hover:text-foreground transition"
+                    aria-label={showPassword ? t("auth.hidePassword") || "Приховати пароль" : t("auth.showPassword") || "Показати пароль"}
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="w-5 h-5" />
@@ -314,13 +316,13 @@ export default function RegisterPage() {
                         <div
                           key={i}
                           className={`h-1 flex-1 rounded-full transition ${
-                            i < passwordStrength ? strengthColors[Math.max(0, passwordStrength - 1)] : "bg-theme-tertiary"
+                            i < passwordStrength ? strengthColors[Math.max(0, passwordStrength - 1)] : "bg-background-tertiary"
                           }`}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-secondary-light mt-1">
-                      Надійність: {passwordStrength > 0 ? strengthLabels[passwordStrength - 1] : "Дуже слабкий"}
+                    <p className="text-xs text-foreground-muted mt-1">
+                      {t("auth.passwordStrength.label")}: {passwordStrength > 0 ? strengthLabels[passwordStrength - 1] : strengthLabels[0]}
                     </p>
                   </div>
                 )}
@@ -328,8 +330,8 @@ export default function RegisterPage() {
 
               {/* Підтвердження пароля */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-secondary mb-2">
-                  Підтвердіть пароль <span className="text-accent-red">*</span>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
+                  {t("auth.confirmPassword")} <span className="text-accent-red">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -346,13 +348,13 @@ export default function RegisterPage() {
                     aria-describedby={passwordError ? "confirm-password-error" : undefined}
                     aria-invalid={!!(confirmPassword && password !== confirmPassword)}
                     className={`input pr-12 ${confirmPassword && password !== confirmPassword ? "input-error" : ""}`}
-                    placeholder="Повторіть пароль"
+                    placeholder={t("auth.repeatPassword")}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-light hover:text-secondary transition"
-                    aria-label={showConfirmPassword ? "Приховати пароль" : "Показати пароль"}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground-muted hover:text-foreground transition"
+                    aria-label={showConfirmPassword ? t("auth.hidePassword") || "Приховати пароль" : t("auth.showPassword") || "Показати пароль"}
                   >
                     {showConfirmPassword ? (
                       <EyeSlashIcon className="w-5 h-5" />
@@ -363,7 +365,7 @@ export default function RegisterPage() {
                 </div>
                 {confirmPassword && password !== confirmPassword && (
                   <p id="confirm-password-error" className="mt-1 text-xs text-accent-red" role="alert">
-                    Паролі не співпадають
+                    {t("auth.passwordMismatch")}
                   </p>
                 )}
                 {passwordError && (
@@ -380,16 +382,16 @@ export default function RegisterPage() {
                   id="terms"
                   checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
-                  className="w-4 h-4 mt-1 text-primary border-theme rounded focus:ring-primary"
+                  className="w-4 h-4 mt-1 text-primary border-border rounded focus:ring-primary"
                 />
-                <label htmlFor="terms" className="ml-3 text-sm text-secondary-light">
-                  Я погоджуюсь з{" "}
+                <label htmlFor="terms" className="ml-3 text-sm text-foreground-secondary">
+                  {t("auth.acceptTerms")}{" "}
                   <Link href="/terms" className="text-primary hover:text-primary-600 underline">
-                    умовами використання
+                    {t("auth.terms")}
                   </Link>{" "}
-                  та{" "}
+                  {t("auth.and")}{" "}
                   <Link href="/privacy" className="text-primary hover:text-primary-600 underline">
-                    політикою конфіденційності
+                    {t("auth.privacy")}
                   </Link>
                 </label>
               </div>
@@ -406,44 +408,44 @@ export default function RegisterPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Реєстрація...
+                    {t("auth.registering") || "Реєстрація..."}
                   </>
                 ) : (
-                  "Зареєструватися"
+                  t("auth.signUp")
                 )}
               </button>
             </form>
 
             {/* Посилання на вхід */}
             <div className="mt-6 text-center">
-              <p className="text-secondary-light">
-                Вже маєте акаунт?{" "}
+              <p className="text-foreground-secondary">
+                {t("auth.hasAccount")}{" "}
                 <Link href="/login" className="text-primary hover:text-primary-600 font-semibold transition">
-                  Увійти
+                  {t("auth.signIn")}
                 </Link>
               </p>
             </div>
           </div>
 
           {/* Переваги реєстрації */}
-          <div className="mt-8 bg-theme-surface rounded-2xl shadow-card p-6">
-            <h3 className="font-semibold text-secondary mb-4">Переваги реєстрації:</h3>
+          <div className="mt-8 bg-surface rounded-2xl shadow-card p-6 border border-border">
+            <h3 className="font-semibold text-foreground mb-4">{t("auth.benefits.title")}</h3>
             <ul className="space-y-3">
-              <li className="flex items-center text-secondary-light">
+              <li className="flex items-center text-foreground-secondary">
                 <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
-                Швидке оформлення замовлень
+                {t("auth.benefits.fast")}
               </li>
-              <li className="flex items-center text-secondary-light">
+              <li className="flex items-center text-foreground-secondary">
                 <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
-                Історія ваших замовлень
+                {t("auth.benefits.history")}
               </li>
-              <li className="flex items-center text-secondary-light">
+              <li className="flex items-center text-foreground-secondary">
                 <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
-                Бонусна програма лояльності
+                {t("auth.benefits.loyalty")}
               </li>
-              <li className="flex items-center text-secondary-light">
+              <li className="flex items-center text-foreground-secondary">
                 <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
-                Ексклюзивні акції та знижки
+                {t("auth.benefits.exclusive")}
               </li>
             </ul>
           </div>
@@ -453,5 +455,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-

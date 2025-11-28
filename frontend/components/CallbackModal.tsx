@@ -46,7 +46,7 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
     e.preventDefault();
     
     if (!validatePhone(phone)) {
-      setError("Введіть коректний номер телефону");
+      setError(t("validation.invalidPhone"));
       return;
     }
 
@@ -73,10 +73,10 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
         }, 2000);
       } else {
         const data = await response.json();
-        setError(data.detail || "Помилка при відправці. Спробуйте пізніше.");
+        setError(data.detail || t("callback.error"));
       }
     } catch {
-      setError("Помилка з'єднання. Спробуйте пізніше.");
+      setError(t("callback.error"));
     } finally {
       setIsLoading(false);
     }
@@ -131,10 +131,10 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                   <div className="text-center py-8">
                     <CheckCircleIcon className="w-16 h-16 text-primary mx-auto mb-4" />
                     <Dialog.Title className="text-2xl font-bold text-secondary mb-2">
-                      Дякуємо!
+                      {t("callback.thankYou") || "Дякуємо!"}
                     </Dialog.Title>
                     <p className="text-secondary-light">
-                      Ми зателефонуємо вам найближчим часом
+                      {t("callback.success")}
                     </p>
                   </div>
                 ) : (
@@ -145,10 +145,10 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                         <PhoneIcon className="w-8 h-8 text-primary" />
                       </div>
                       <Dialog.Title className="text-2xl font-bold text-secondary">
-                        Передзвонити
+                        {t("callback.title")}
                       </Dialog.Title>
                       <p className="text-secondary-light mt-2">
-                        Залиште свій номер і ми зателефонуємо вам
+                        {t("callback.description")}
                       </p>
                     </div>
 
@@ -156,7 +156,7 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                     <form onSubmit={handleSubmit}>
                       <div className="mb-4">
                         <label htmlFor="phone" className="block text-sm font-medium text-secondary mb-2">
-                          Номер телефону
+                          {t("callback.phone")}
                         </label>
                         <input
                           type="tel"
@@ -183,18 +183,18 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Відправка...
+                            {t("common.loading")}
                           </span>
                         ) : (
-                          "Передзвонити мені"
+                          t("callback.submit")
                         )}
                       </button>
                     </form>
 
                     <p className="text-xs text-center text-secondary-light mt-4">
-                      Натискаючи кнопку, ви погоджуєтесь з{" "}
+                      {t("callback.privacyNote")}{" "}
                       <a href="/privacy" className="text-primary hover:underline">
-                        політикою конфіденційності
+                        {t("auth.privacy")}
                       </a>
                     </p>
                   </>

@@ -92,7 +92,71 @@
 }
 
 /* === ТЕМНА ТЕМА - ВИРАЗНА === */
-[data-theme="dark"] {
+/* Застосовується на мобільних автоматично */
+@media (max-width: 768px) {
+  :root {
+    /* Основні кольори бренду - яскравіший зелений */
+    --color-primary: #34D399;
+    --color-primary-hover: #10B981;
+    --color-primary-light: #064E3B;
+    --color-primary-dark: #059669;
+    
+    /* Фони - глибокий контраст */
+    --color-background: #0F0F10;
+    --color-background-secondary: #161618;
+    --color-background-tertiary: #1C1C1F;
+    --color-background-elevated: #1A1A1D;
+    
+    /* Поверхні (картки) - ВИРАЗНІШІ */
+    --color-surface: #222226;
+    --color-surface-hover: #2A2A2F;
+    
+    /* Текст - максимальний контраст */
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #C0C0C5;
+    --color-text-muted: #808085;
+    --color-text-inverted: #0F0F10;
+    
+    /* Рамки - видиміші */
+    --color-border: #333338;
+    --color-border-hover: #444449;
+    --color-divider: #252528;
+    
+    /* Акценти (яскравіші для темної теми) */
+    --color-accent-red: #F87171;
+    --color-accent-red-light: #451515;
+    --color-accent-orange: #FB923C;
+    --color-accent-orange-light: #451D0A;
+    --color-accent-blue: #60A5FA;
+    --color-accent-blue-light: #1A2747;
+    --color-accent-yellow: #FBBF24;
+    --color-accent-yellow-light: #452D08;
+    --color-accent-green: #4ADE80;
+    --color-accent-green-light: #153D20;
+    
+    /* Тіні - з легким світінням */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.7);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.7);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.8);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.9);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    --shadow-header: 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 16px rgba(0, 0, 0, 0.6);
+    --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.95);
+    
+    /* Overlay */
+    --color-overlay: rgba(0, 0, 0, 0.9);
+    --color-overlay-light: rgba(0, 0, 0, 0.75);
+    
+    /* Градієнти */
+    --gradient-primary: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+    --gradient-hero: linear-gradient(to right, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7), transparent);
+  }
+}
+
+/* Також можна активувати вручну через data-theme або .dark клас */
+[data-theme="dark"],
+html.dark {
   /* Основні кольори бренду - яскравіший зелений */
   --color-primary: #34D399;
   --color-primary-hover: #10B981;
@@ -315,9 +379,17 @@ body {
     -webkit-backdrop-filter: blur(var(--blur-md));
   }
   
-  [data-theme="dark"] .glass {
+  [data-theme="dark"] .glass,
+  html.dark .glass {
     background: rgba(30, 30, 34, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  @media (max-width: 768px) {
+    .glass {
+      background: rgba(30, 30, 34, 0.9) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
   }
   
   /* No select */
@@ -346,6 +418,26 @@ body {
   .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 168, 89, 0.4);
+  }
+
+  /* Анімована градієнтна кнопка */
+  .btn-fancy {
+    @apply inline-flex items-center justify-center gap-3 px-8 py-4 font-bold text-lg rounded-2xl;
+    background: linear-gradient(90deg, var(--color-primary) 0%, #10b981 50%, var(--color-primary) 100%);
+    background-size: 200% 100%;
+    color: white;
+    box-shadow: 0 10px 25px -5px rgba(0, 168, 89, 0.3);
+    animation: shimmer 2s ease-in-out infinite;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-fancy:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px rgba(0, 168, 89, 0.4);
+  }
+  
+  .btn-fancy:active {
+    transform: translateY(-2px);
   }
   
   .btn-secondary {
@@ -581,6 +673,171 @@ body {
 @media screen and (max-width: 768px) {
   input, select, textarea {
     font-size: 16px !important;
+  }
+  
+  /* === ТЕМНА ТЕМА МОБІЛЬНИХ - СПЕЦИФІЧНІ ВИПРАВЛЕННЯ === */
+  
+  /* Header */
+  header {
+    background-color: var(--color-surface) !important;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  /* Картки товарів */
+  .card, 
+  article.card {
+    background-color: var(--color-surface) !important;
+    border: 1px solid var(--color-border) !important;
+  }
+  
+  /* Заголовки - максимальний контраст */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text-primary) !important;
+  }
+  
+  /* Вторинний текст */
+  .text-secondary,
+  .text-secondary-light,
+  p {
+    color: var(--color-text-secondary);
+  }
+  
+  /* Ціна - зелена та помітна */
+  .text-primary {
+    color: var(--color-primary) !important;
+  }
+  
+  /* Фони секцій */
+  .bg-white {
+    background-color: var(--color-surface) !important;
+  }
+  
+  .bg-gray-50,
+  .bg-gray-100 {
+    background-color: var(--color-background-secondary) !important;
+  }
+  
+  /* Форми та інпути */
+  input, select, textarea {
+    background-color: var(--color-background-tertiary) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+  }
+  
+  input::placeholder, textarea::placeholder {
+    color: var(--color-text-muted) !important;
+  }
+  
+  /* Модалки та сайдбари */
+  [role="dialog"],
+  .modal,
+  .sidebar {
+    background-color: var(--color-surface) !important;
+  }
+  
+  /* Рамки */
+  .border-border,
+  .border-gray-200,
+  .border-gray-300 {
+    border-color: var(--color-border) !important;
+  }
+  
+  /* Бейджі */
+  .badge-new { 
+    background-color: var(--color-accent-blue-light) !important;
+    color: var(--color-accent-blue) !important;
+  }
+  
+  .badge-hit { 
+    background-color: var(--color-accent-red-light) !important;
+    color: var(--color-accent-red) !important;
+  }
+  
+  .badge-sale { 
+    background-color: var(--color-accent-orange-light) !important;
+    color: var(--color-accent-orange) !important;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: var(--color-background) !important;
+  }
+  
+  /* Кнопки */
+  .btn-primary,
+  .bg-primary {
+    background: var(--gradient-primary) !important;
+    color: var(--color-text-inverted) !important;
+  }
+  
+  .btn-secondary,
+  .bg-secondary {
+    background-color: var(--color-background-tertiary) !important;
+    color: var(--color-text-primary) !important;
+  }
+  
+  /* Dropdown/Select */
+  select option {
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+  }
+  
+  /* Dialog/Modal панелі */
+  [role="dialog"] > div,
+  .Dialog-panel {
+    background-color: var(--color-surface) !important;
+  }
+  
+  /* Посилання */
+  a {
+    color: var(--color-text-primary);
+  }
+  
+  a:hover {
+    color: var(--color-primary);
+  }
+  
+  /* Зображення placeholder */
+  .bg-gray-100,
+  .bg-gray-200 {
+    background-color: var(--color-background-tertiary) !important;
+  }
+  
+  /* Тексти з gray кольорами */
+  .text-gray-200 {
+    color: var(--color-text-secondary) !important;
+  }
+  
+  .text-gray-300,
+  .text-gray-400 {
+    color: var(--color-text-muted) !important;
+  }
+  
+  .text-gray-500,
+  .text-gray-600 {
+    color: var(--color-text-secondary) !important;
+  }
+  
+  .text-gray-700,
+  .text-gray-800,
+  .text-gray-900 {
+    color: var(--color-text-primary) !important;
+  }
+  
+  /* Toast notifications */
+  [role="status"] {
+    background-color: var(--color-surface) !important;
+  }
+  
+  /* Навігаційне меню - вже у мобільній темній темі */
+  nav a,
+  nav button {
+    color: var(--color-text-primary);
+  }
+  
+  nav a:hover,
+  nav button:hover {
+    color: var(--color-primary);
   }
 }
 

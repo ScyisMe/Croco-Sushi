@@ -437,9 +437,10 @@ export default function MenuPage() {
                       setSearchQuery("");
                       handleCategoryChange(null);
                     }}
-                    className="btn-primary"
+                    className="btn-fancy group"
                   >
-                    Показати все меню
+                    <span>Показати все меню</span>
+                    <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
               )}

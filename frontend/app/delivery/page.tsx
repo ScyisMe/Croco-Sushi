@@ -14,6 +14,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { JsonLd, getLocalBusinessSchema, getFAQSchema, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
+import { useTranslation } from "@/store/localeStore";
 
 // Контактна інформація
 const CONTACT_INFO = {
@@ -92,11 +93,47 @@ const DELIVERY_FEATURES = [
 ];
 
 export default function DeliveryPage() {
+  const { t } = useTranslation();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
+
+  // Локалізовані переваги
+  const LOCALIZED_FEATURES = [
+    {
+      icon: "🚀",
+      title: t("delivery.fastDelivery"),
+      description: t("delivery.fastDeliveryDesc"),
+    },
+    {
+      icon: "🎁",
+      title: t("delivery.freeDelivery"),
+      description: t("delivery.freeDeliveryFromShort", { amount: "1000" }),
+    },
+    {
+      icon: "🍣",
+      title: t("delivery.freshDishes"),
+      description: t("delivery.freshDishesDesc"),
+    },
+    {
+      icon: "💳",
+      title: t("delivery.convenientPayment"),
+      description: t("delivery.convenientPaymentDesc"),
+    },
+  ];
+
+  // Локалізовані FAQ
+  const LOCALIZED_FAQ = [
+    { question: t("delivery.faq1q"), answer: t("delivery.faq1a") },
+    { question: t("delivery.faq2q"), answer: t("delivery.faq2a") },
+    { question: t("delivery.faq3q"), answer: t("delivery.faq3a") },
+    { question: t("delivery.faq4q"), answer: t("delivery.faq4a") },
+    { question: t("delivery.faq5q"), answer: t("delivery.faq5a") },
+    { question: t("delivery.faq6q"), answer: t("delivery.faq6a") },
+    { question: t("delivery.faq7q"), answer: t("delivery.faq7a") },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
@@ -104,7 +141,7 @@ export default function DeliveryPage() {
       <JsonLd schema={getLocalBusinessSchema()} />
       <JsonLd
         schema={getFAQSchema(
-          FAQ_ITEMS.map((item) => ({
+          LOCALIZED_FAQ.map((item) => ({
             question: item.question,
             answer: item.answer,
           }))
@@ -112,8 +149,8 @@ export default function DeliveryPage() {
       />
       <JsonLd
         schema={getBreadcrumbSchema([
-          { name: "Головна", url: BUSINESS_INFO.url },
-          { name: "Доставка та оплата", url: `${BUSINESS_INFO.url}/delivery` },
+          { name: t("common.home"), url: BUSINESS_INFO.url },
+          { name: t("delivery.title"), url: `${BUSINESS_INFO.url}/delivery` },
         ])}
       />
       
@@ -125,10 +162,10 @@ export default function DeliveryPage() {
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
-                Головна
+                {t("common.home")}
               </Link>
               <ChevronRightIcon className="w-4 h-4 mx-2 text-secondary-light" />
-              <span className="text-secondary font-medium">Доставка та оплата</span>
+              <span className="text-secondary font-medium">{t("delivery.title")}</span>
             </nav>
           </div>
         </div>
@@ -136,9 +173,9 @@ export default function DeliveryPage() {
         {/* Hero секція */}
         <section className="bg-primary text-white py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Доставка та оплата</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">{t("delivery.title")}</h1>
             <p className="text-lg text-white/80 max-w-2xl mx-auto">
-              Швидка доставка смачних суші прямо до ваших дверей. Працюємо щодня!
+              {t("delivery.subtitle")}
             </p>
           </div>
         </section>
@@ -147,7 +184,7 @@ export default function DeliveryPage() {
         <section className="py-12 -mt-8">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {DELIVERY_FEATURES.map((feature, index) => (
+              {LOCALIZED_FEATURES.map((feature, index) => (
                 <div
                   key={index}
                   className="bg-theme-surface rounded-xl shadow-card p-6 text-center"
@@ -169,7 +206,7 @@ export default function DeliveryPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                   <TruckIcon className="w-6 h-6 text-primary" />
                 </div>
-                <h2 className="text-xl font-bold text-secondary">Умови доставки</h2>
+                <h2 className="text-xl font-bold text-secondary">{t("delivery.deliveryConditions")}</h2>
               </div>
 
               <div className="space-y-4">
@@ -178,9 +215,7 @@ export default function DeliveryPage() {
                     <span className="text-primary text-sm font-bold">1</span>
                   </div>
                   <div>
-                    <p className="text-secondary">
-                      Доставка здійснюється по <strong>Львову та околицях</strong>
-                    </p>
+                    <p className="text-secondary" dangerouslySetInnerHTML={{ __html: t("delivery.deliveryToLviv") }} />
                   </div>
                 </div>
 
@@ -190,7 +225,7 @@ export default function DeliveryPage() {
                   </div>
                   <div>
                     <p className="text-secondary">
-                      Мінімальна сума замовлення: <strong className="text-primary">200 ₴</strong>
+                      {t("delivery.minOrder")}: <strong className="text-primary">{t("delivery.minOrderValue")}</strong>
                     </p>
                   </div>
                 </div>
@@ -201,7 +236,7 @@ export default function DeliveryPage() {
                   </div>
                   <div>
                     <p className="text-secondary">
-                      Безкоштовна доставка від <strong className="text-primary">1000 ₴</strong>
+                      {t("delivery.freeDelivery")}: <strong className="text-primary">1000 ₴</strong>
                     </p>
                   </div>
                 </div>
@@ -212,7 +247,7 @@ export default function DeliveryPage() {
                   </div>
                   <div>
                     <p className="text-secondary">
-                      Вартість доставки: <strong>90-300 ₴</strong> (залежно від зони)
+                      {t("delivery.deliveryCost")}: <strong>90-300 ₴</strong>
                     </p>
                   </div>
                 </div>
@@ -223,7 +258,7 @@ export default function DeliveryPage() {
                   </div>
                   <div>
                     <p className="text-secondary">
-                      Час доставки: <strong>40-105 хв</strong> (залежно від зони)
+                      {t("delivery.deliveryTime")}: <strong>40-105 {t("delivery.minutes")}</strong>
                     </p>
                   </div>
                 </div>
@@ -238,16 +273,16 @@ export default function DeliveryPage() {
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                     <ClockIcon className="w-6 h-6 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-secondary">Графік роботи</h2>
+                  <h2 className="text-xl font-bold text-secondary">{t("delivery.workingHours")}</h2>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center py-2 border-b border-border">
-                    <span className="text-secondary">Понеділок - Неділя</span>
+                    <span className="text-secondary">{t("delivery.everyDay")}</span>
                     <span className="font-bold text-primary">{CONTACT_INFO.workingHours}</span>
                   </div>
                   <p className="text-sm text-secondary-light">
-                    Приймаємо замовлення щодня. Останнє замовлення приймається за 45 хвилин до закриття.
+                    {t("delivery.lastOrder")}
                   </p>
                 </div>
               </div>
@@ -258,23 +293,23 @@ export default function DeliveryPage() {
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                     <CurrencyDollarIcon className="w-6 h-6 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-secondary">Способи оплати</h2>
+                  <h2 className="text-xl font-bold text-secondary">{t("delivery.paymentMethods")}</h2>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 p-3 bg-theme-tertiary rounded-lg">
                     <span className="text-2xl">💵</span>
-                    <span className="text-theme-secondary">Готівкою кур'єру</span>
+                    <span className="text-theme-secondary">{t("delivery.cashPayment")}</span>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-theme-tertiary rounded-lg">
                     <span className="text-2xl">💳</span>
-                    <span className="text-theme-secondary">Карткою кур'єру (термінал)</span>
+                    <span className="text-theme-secondary">{t("delivery.cardPaymentCourier")}</span>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-theme-tertiary rounded-lg opacity-50">
                     <span className="text-2xl">🌐</span>
-                    <span className="text-theme-secondary">Онлайн оплата</span>
+                    <span className="text-theme-secondary">{t("delivery.onlinePayment")}</span>
                     <span className="ml-auto text-xs text-theme-muted bg-theme-surface px-2 py-1 rounded border border-theme">
-                      Скоро
+                      {t("delivery.comingSoon")}
                     </span>
                   </div>
                 </div>
@@ -288,7 +323,7 @@ export default function DeliveryPage() {
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                 <TruckIcon className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-secondary">Зони доставки</h2>
+              <h2 className="text-xl font-bold text-secondary">{t("delivery.zones")}</h2>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -302,34 +337,34 @@ export default function DeliveryPage() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Карта зон доставки Croco Sushi"
+                  title={t("delivery.zones")}
                 />
                 {/* Кнопка відкриття в Google Maps */}
                 <a
                   href={CONTACT_INFO.addressUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute top-4 right-4 bg-theme-surface/95 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg text-sm font-medium text-primary hover:bg-theme-surface transition flex items-center gap-2"
+                  className="absolute top-4 right-4 bg-white dark:bg-gray-900 px-3 py-2 rounded-lg shadow-lg text-sm font-medium text-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition flex items-center gap-2 border border-gray-200 dark:border-gray-700"
                 >
                   <MapPinIcon className="w-4 h-4" />
-                  Переглянути збільшену карту
+                  {t("delivery.viewLargerMap")}
                 </a>
 
                 {/* Легенда - внизу зліва, вище кнопок Google Maps */}
-                <div className="absolute bottom-16 left-2 bg-theme-surface/95 backdrop-blur-sm rounded-lg p-2.5 shadow-lg">
-                  <p className="text-xs font-semibold text-secondary mb-1.5">Зони доставки:</p>
+                <div className="absolute bottom-16 left-2 bg-white dark:bg-gray-900 rounded-lg p-2.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-100 mb-1.5">{t("delivery.zones")}:</p>
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                      <span className="text-[11px] text-secondary">Центр - 40-60 хв</span>
+                      <span className="text-[11px] text-gray-700 dark:text-gray-200">{t("delivery.zone1")} - {t("delivery.zone1Time")}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                      <span className="text-[11px] text-secondary">Околиці - 55-75 хв</span>
+                      <span className="text-[11px] text-gray-700 dark:text-gray-200">{t("delivery.zone2")} - {t("delivery.zone2Time")}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                      <span className="text-[11px] text-secondary">Віддалені - 70-105 хв</span>
+                      <span className="text-[11px] text-gray-700 dark:text-gray-200">{t("delivery.zone3")} - {t("delivery.zone3Time")}</span>
                     </div>
                   </div>
                 </div>
@@ -338,93 +373,93 @@ export default function DeliveryPage() {
               {/* Список зон */}
               <div className="space-y-4">
                 {/* Зона 1 - Центр */}
-                <div className="p-4 border border-green-200 bg-green-50 rounded-xl">
+                <div className="p-4 border-2 border-green-500/30 bg-green-500/10 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <span className="font-semibold text-secondary">Центр</span>
-                      <span className="text-xs text-secondary-light">(5-8 км)</span>
+                      <span className="font-semibold text-foreground">{t("delivery.zone1")}</span>
+                      <span className="text-xs text-foreground-muted">(5-8 км)</span>
                     </div>
-                    <span className="font-bold text-green-600">90-130 ₴</span>
+                    <span className="font-bold text-green-500">{t("delivery.zone1Price")}</span>
                   </div>
-                  <p className="text-sm text-secondary-light mb-1">
-                    Франківський, Сихів, Центр (Площа Ринок), ближні частини Залізничного району.
+                  <p className="text-sm text-foreground-secondary mb-1">
+                    {t("delivery.zone1Desc")}
                   </p>
-                  <p className="text-sm text-secondary">
-                    <strong>Час доставки: 40-60 хв</strong>
+                  <p className="text-sm text-foreground font-medium">
+                    {t("delivery.deliveryTime")}: {t("delivery.zone1Time")}
                   </p>
-                  <p className="text-xs text-secondary-light mt-1">
-                    🚗 Швидка зона • ~15-25 хв у дорозі
+                  <p className="text-xs text-foreground-muted mt-1">
+                    🚗 {t("delivery.fastZone")} • ~15-25 {t("delivery.timeInRoad")}
                   </p>
-                  <p className="text-xs text-green-600 mt-2">
-                    ✓ Безкоштовно від 1000 ₴
+                  <p className="text-xs text-green-500 font-medium mt-2">
+                    ✓ {t("delivery.freeFrom")} 1000 ₴
                   </p>
                 </div>
 
                 {/* Зона 2 - Околиці */}
-                <div className="p-4 border border-yellow-200 bg-yellow-50 rounded-xl">
+                <div className="p-4 border-2 border-yellow-500/30 bg-yellow-500/10 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <span className="font-semibold text-secondary">Околиці</span>
-                      <span className="text-xs text-secondary-light">(10-15 км)</span>
+                      <span className="font-semibold text-foreground">{t("delivery.zone2")}</span>
+                      <span className="text-xs text-foreground-muted">(10-15 км)</span>
                     </div>
-                    <span className="font-bold text-yellow-600">140-200 ₴</span>
+                    <span className="font-bold text-yellow-500">{t("delivery.zone2Price")}</span>
                   </div>
-                  <p className="text-sm text-secondary-light mb-1">
-                    Рясне-1, Винники, більша частина Шевченківського та Личаківського районів.
+                  <p className="text-sm text-foreground-secondary mb-1">
+                    {t("delivery.zone2Desc")}
                   </p>
-                  <p className="text-sm text-secondary">
-                    <strong>Час доставки: 55-75 хв</strong>
+                  <p className="text-sm text-foreground font-medium">
+                    {t("delivery.deliveryTime")}: {t("delivery.zone2Time")}
                   </p>
-                  <p className="text-xs text-secondary-light mt-1">
-                    🚗 Середня зона • ~25-40 хв у дорозі
+                  <p className="text-xs text-foreground-muted mt-1">
+                    🚗 {t("delivery.middleZone")} • ~25-40 {t("delivery.timeInRoad")}
                   </p>
-                  <p className="text-xs text-yellow-600 mt-2">
-                    ✓ Безкоштовно від 1000 ₴
+                  <p className="text-xs text-yellow-500 font-medium mt-2">
+                    ✓ {t("delivery.freeFrom")} 1000 ₴
                   </p>
                 </div>
 
                 {/* Зона 3 - Віддалені */}
-                <div className="p-4 border border-red-200 bg-red-50 rounded-xl">
+                <div className="p-4 border-2 border-red-500/30 bg-red-500/10 rounded-xl">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <span className="font-semibold text-secondary">Віддалені райони</span>
-                      <span className="text-xs text-secondary-light">(15-25+ км)</span>
+                      <span className="font-semibold text-foreground">{t("delivery.zone3")}</span>
+                      <span className="text-xs text-foreground-muted">(15-25+ км)</span>
                     </div>
-                    <span className="font-bold text-red-600">220-300 ₴</span>
+                    <span className="font-bold text-red-500">{t("delivery.zone3Price")}</span>
                   </div>
-                  <p className="text-sm text-secondary-light mb-1">
-                    Брюховичі, Рясне-2, найбільш віддалені точки Львівської ОТГ.
+                  <p className="text-sm text-foreground-secondary mb-1">
+                    {t("delivery.zone3Desc")}
                   </p>
-                  <p className="text-sm text-secondary">
-                    <strong>Час доставки: 70-105 хв</strong>
+                  <p className="text-sm text-foreground font-medium">
+                    {t("delivery.deliveryTime")}: {t("delivery.zone3Time")}
                   </p>
-                  <p className="text-xs text-secondary-light mt-1">
-                    🚗 Розширена зона • понад 40 хв у дорозі
+                  <p className="text-xs text-foreground-muted mt-1">
+                    🚗 {t("delivery.extendedZone")} • &gt;40 {t("delivery.timeInRoad")}
                   </p>
-                  <p className="text-xs text-red-600 mt-2">
-                    ✓ Безкоштовно від 1000 ₴
+                  <p className="text-xs text-red-500 font-medium mt-2">
+                    ✓ {t("delivery.freeFrom")} 1000 ₴
                   </p>
                 </div>
 
                 {/* Примітка про буфер */}
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-xs text-blue-800">
-                    💡 <strong>Зверніть увагу:</strong> Всі часи включають буферний запас 10-15 хв для врахування заторів, погодних умов та завантаженості кухні.
+                <div className="p-3 bg-accent-blue/10 border-2 border-accent-blue/30 rounded-lg">
+                  <p className="text-xs text-foreground-secondary">
+                    💡 <strong className="text-foreground">{t("delivery.bufferNote")}</strong>
                   </p>
                 </div>
 
                 {/* Фактори ціноутворення */}
-                <div className="p-3 bg-theme-tertiary border border-theme rounded-lg">
-                  <p className="text-xs text-secondary-light">
-                    📊 <strong>Вартість доставки розраховується:</strong> ~10 грн/км + базова подача авто (50-70 грн). У години пік або погану погоду вартість може зростати.
+                <div className="p-3 bg-surface border border-border rounded-lg">
+                  <p className="text-xs text-foreground-secondary">
+                    📊 <strong className="text-foreground">{t("delivery.priceCalcNote")}</strong>
                   </p>
                 </div>
 
                 <p className="text-xs text-secondary-light text-center pt-2">
-                  * Якщо ваш район не вказано, зателефонуйте нам — ми уточнимо умови доставки
+                  * {t("delivery.notInList")}
                 </p>
               </div>
             </div>
@@ -436,13 +471,13 @@ export default function DeliveryPage() {
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                 <MapPinIcon className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-secondary">Самовивіз</h2>
+              <h2 className="text-xl font-bold text-secondary">{t("delivery.pickup")}</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-secondary mb-4">
-                  Ви можете забрати замовлення самостійно за адресою:
+                  {t("delivery.pickupInfo")}
                 </p>
                 <a 
                   href={CONTACT_INFO.addressUrl}
@@ -453,7 +488,7 @@ export default function DeliveryPage() {
                   📍 {CONTACT_INFO.address}
                 </a>
                 <p className="text-secondary-light mb-4">
-                  Графік роботи: {CONTACT_INFO.workingHours}
+                  {t("delivery.workingHours")}: {CONTACT_INFO.workingHours}
                 </p>
                 <a
                   href={`tel:${CONTACT_INFO.phone}`}
@@ -464,12 +499,12 @@ export default function DeliveryPage() {
                 </a>
                 
                 {/* Переваги самовивозу */}
-                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
-                  <p className="text-sm font-semibold text-green-800 mb-2">
-                    🎁 Бонус за самовивіз
+                <div className="mt-6 p-4 bg-primary/10 border-2 border-primary/30 rounded-xl">
+                  <p className="text-sm font-semibold text-primary mb-2">
+                    🎁 {t("delivery.pickupBonus")}
                   </p>
-                  <p className="text-sm text-green-700">
-                    При самовивозі отримуйте додатково +5% бонусних балів на ваш рахунок!
+                  <p className="text-sm text-foreground-secondary">
+                    {t("delivery.pickupBonusDesc")}
                   </p>
                 </div>
               </div>
@@ -484,16 +519,16 @@ export default function DeliveryPage() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Карта розташування Croco Sushi"
+                  title={t("delivery.pickupAddress")}
                 />
                 {/* Кнопка збільшення */}
                 <a
                   href={CONTACT_INFO.addressUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute top-3 right-3 bg-theme-surface/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow text-sm font-medium text-primary hover:bg-theme-surface transition"
+                  className="absolute top-3 right-3 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg shadow text-sm font-medium text-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition border border-gray-200 dark:border-gray-700"
                 >
-                  Увеличить карту
+                  {t("delivery.enlargeMap")}
                 </a>
               </div>
             </div>
@@ -502,11 +537,11 @@ export default function DeliveryPage() {
           {/* FAQ */}
           <div className="mt-8 bg-theme-surface rounded-xl shadow-card p-6 md:p-8">
             <h2 className="text-xl font-bold text-theme mb-6">
-              Часті питання
+              {t("delivery.faq")}
             </h2>
 
             <div className="space-y-3">
-              {FAQ_ITEMS.map((item, index) => (
+              {LOCALIZED_FAQ.map((item, index) => (
                 <div key={index} className="border border-border rounded-xl overflow-hidden">
                   <button
                     onClick={() => toggleFaq(index)}
@@ -531,23 +566,23 @@ export default function DeliveryPage() {
 
           {/* CTA */}
           <div className="mt-8 bg-primary rounded-xl p-8 text-center text-white">
-            <h2 className="text-2xl font-bold mb-4">Готові замовити?</h2>
+            <h2 className="text-2xl font-bold mb-4">{t("delivery.readyToOrder")}</h2>
             <p className="text-white/80 mb-6 max-w-xl mx-auto">
-              Оберіть смачні суші з нашого меню та насолоджуйтесь швидкою доставкою!
+              {t("delivery.readyToOrderDesc")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/menu"
                 className="inline-flex items-center justify-center gap-2 bg-theme-surface text-primary font-bold px-8 py-3 rounded-lg hover:bg-theme-secondary transition"
               >
-                Перейти до меню
+                {t("delivery.goToMenu")}
               </Link>
               <a
                 href={`tel:${CONTACT_INFO.phone}`}
                 className="inline-flex items-center justify-center gap-2 border-2 border-white text-white font-bold px-8 py-3 rounded-lg hover:bg-white/10 transition"
               >
                 <PhoneIcon className="w-5 h-5" />
-                Зателефонувати
+                {t("delivery.callUs")}
               </a>
             </div>
           </div>

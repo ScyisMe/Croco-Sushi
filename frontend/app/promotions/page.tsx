@@ -10,8 +10,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CountdownTimerCompact } from "@/components/CountdownTimer";
 import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
+import { useTranslation } from "@/store/localeStore";
 
 export default function PromotionsPage() {
+  const { t } = useTranslation();
   const promotionsQuery = useQuery<Promotion[]>({
     queryKey: ["promotions"],
     queryFn: async () => {
@@ -27,8 +29,8 @@ export default function PromotionsPage() {
       {/* Schema.org markup для SEO */}
       <JsonLd
         schema={getBreadcrumbSchema([
-          { name: "Головна", url: BUSINESS_INFO.url },
-          { name: "Акції", url: `${BUSINESS_INFO.url}/promotions` },
+          { name: t("common.home"), url: BUSINESS_INFO.url },
+          { name: t("promotions.title"), url: `${BUSINESS_INFO.url}/promotions` },
         ])}
       />
       
@@ -40,10 +42,10 @@ export default function PromotionsPage() {
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
-                Головна
+                {t("common.home")}
               </Link>
               <ChevronRightIcon className="w-4 h-4 mx-2 text-secondary-light" />
-              <span className="text-secondary font-medium">Акції</span>
+              <span className="text-secondary font-medium">{t("promotions.title")}</span>
             </nav>
           </div>
         </div>
@@ -52,11 +54,10 @@ export default function PromotionsPage() {
         <section className="bg-gradient-to-r from-primary to-primary-600 text-white py-12 md:py-16">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              🔥 Акції та спеціальні пропозиції
+              🔥 {t("promotions.pageTitle")}
             </h1>
             <p className="text-lg text-white/80 max-w-2xl mx-auto">
-              Вигідні пропозиції для справжніх поціновувачів японської кухні. 
-              Встигніть скористатись!
+              {t("promotions.subtitle")}
             </p>
           </div>
         </section>
@@ -79,16 +80,16 @@ export default function PromotionsPage() {
             <div className="text-center py-16">
               <div className="text-6xl mb-4">😢</div>
               <h3 className="text-xl font-semibold text-secondary mb-2">
-                Не вдалося завантажити акції
+                {t("promotions.loadError")}
               </h3>
               <p className="text-secondary-light mb-6">
-                Спробуйте оновити сторінку
+                {t("promotions.tryRefresh")}
               </p>
               <button
                 onClick={() => window.location.reload()}
                 className="btn-primary"
               >
-                Оновити
+                {t("promotions.refresh")}
               </button>
             </div>
           ) : promotions.length > 0 ? (
@@ -149,7 +150,7 @@ export default function PromotionsPage() {
                     <div className="flex items-center justify-between text-sm">
                       {promo.min_order_amount && (
                         <span className="text-secondary-light">
-                          Від {promo.min_order_amount} ₴
+                          {t("promotions.fromAmount", { amount: promo.min_order_amount })}
                         </span>
                       )}
                       
@@ -158,7 +159,7 @@ export default function PromotionsPage() {
                           ? "text-primary"
                           : "text-accent-red"
                       }`}>
-                        {promo.is_available || promo.is_active ? "Активна" : "Завершена"}
+                        {promo.is_available || promo.is_active ? t("promotions.active") : t("promotions.ended")}
                       </span>
                     </div>
 
@@ -166,7 +167,7 @@ export default function PromotionsPage() {
                     {promo.max_uses && promo.current_uses !== undefined && (
                       <div className="mt-4">
                         <div className="flex justify-between text-xs text-secondary-light mb-1">
-                          <span>Використано</span>
+                          <span>{t("promotions.used")}</span>
                           <span>{promo.current_uses} / {promo.max_uses}</span>
                         </div>
                         <div className="w-full bg-theme-tertiary rounded-full h-2">
@@ -183,7 +184,7 @@ export default function PromotionsPage() {
                         </div>
                         {promo.current_uses / promo.max_uses > 0.8 && (
                           <p className="text-xs text-accent-red mt-1">
-                            ⚡ Залишилось мало!
+                            ⚡ {t("promotions.fewLeft")}
                           </p>
                         )}
                       </div>
@@ -196,13 +197,17 @@ export default function PromotionsPage() {
             <div className="text-center py-16">
               <div className="text-6xl mb-4">🎁</div>
               <h3 className="text-xl font-semibold text-secondary mb-2">
-                Наразі немає активних акцій
+                {t("promotions.noPromotions")}
               </h3>
               <p className="text-secondary-light mb-6">
-                Слідкуйте за оновленнями — нові акції з'являться скоро!
+                {t("promotions.noPromotionsDesc")}
               </p>
-              <Link href="/menu" className="btn-primary">
-                Перейти до меню
+              <Link 
+                href="/menu" 
+                className="btn-fancy group"
+              >
+                <span>{t("promotions.goToMenu")}</span>
+                <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           )}
@@ -213,10 +218,10 @@ export default function PromotionsPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-xl mx-auto text-center">
               <h2 className="text-2xl font-bold text-secondary mb-4">
-                Не пропустіть нові акції!
+                {t("promotions.dontMiss")}
               </h2>
               <p className="text-secondary-light mb-6">
-                Підпишіться на наші соцмережі та дізнавайтесь про вигідні пропозиції першими
+                {t("promotions.subscribeDesc")}
               </p>
               <div className="flex justify-center gap-4">
                 <a

@@ -11,6 +11,7 @@ import {
   MapPinIcon,
   TruckIcon,
   ExclamationTriangleIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import { useCartStore, MAX_CART_ITEMS } from "@/store/cartStore";
 import { useTranslation } from "@/store/localeStore";
@@ -209,12 +210,14 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           <p className="text-secondary-light text-center mb-6">
                             Додайте смачні страви з нашого меню
                           </p>
-                          <button
+                          <Link
+                            href="/menu"
                             onClick={() => setIsOpen(false)}
-                            className="btn-primary"
+                            className="btn-fancy group"
                           >
-                            {t("cart.goToMenu")}
-                          </button>
+                            <span>{t("cart.goToMenu")}</span>
+                            <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          </Link>
                         </div>
                       ) : (
                         <div className="px-6 py-4">

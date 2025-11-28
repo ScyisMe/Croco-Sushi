@@ -7,10 +7,12 @@ import apiClient from "@/lib/api/client";
 import toast from "react-hot-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { EnvelopeIcon, LockClosedIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import { LockClosedIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "@/store/localeStore";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,18 +29,18 @@ export default function LoginPage() {
         // Сповіщаємо про зміну авторизації для синхронізації кошика
         window.dispatchEvent(new Event("auth-change"));
         
-        toast.success("Вхід успішний!");
+        toast.success(t("auth.loginSuccess"));
         router.push("/profile");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Помилка входу");
+      toast.error(error.response?.data?.detail || t("auth.loginError"));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
+    <div className="min-h-screen flex flex-col bg-background-secondary transition-colors">
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
@@ -48,24 +50,24 @@ export default function LoginPage() {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
               <span className="text-3xl">🐊</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-2">
-              Вхід в акаунт
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              {t("auth.login")}
             </h1>
-            <p className="text-secondary-light">
-              Увійдіть, щоб переглянути замовлення та бонуси
+            <p className="text-foreground-secondary">
+              {t("auth.loginDescription") || "Увійдіть, щоб переглянути замовлення та бонуси"}
             </p>
           </div>
 
           {/* Форма */}
-          <div className="bg-theme-surface rounded-2xl shadow-card p-6 md:p-8">
+          <div className="bg-surface rounded-2xl shadow-card p-6 md:p-8 border border-border">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Телефон */}
               <div>
-                <label className="block text-sm font-medium text-secondary mb-2">
-                  Номер телефону
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  {t("auth.phone")}
                 </label>
                 <div className="relative">
-                  <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-light" />
+                  <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
                   <input
                     type="tel"
                     value={phone}
@@ -79,18 +81,18 @@ export default function LoginPage() {
 
               {/* Пароль */}
               <div>
-                <label className="block text-sm font-medium text-secondary mb-2">
-                  Пароль
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  {t("auth.password")}
                 </label>
                 <div className="relative">
-                  <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-light" />
+                  <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="input pl-12"
-                    placeholder="Введіть пароль"
+                    placeholder={t("auth.enterPassword") || "Введіть пароль"}
                   />
                 </div>
               </div>
@@ -101,7 +103,7 @@ export default function LoginPage() {
                   href="/reset-password" 
                   className="text-sm text-primary hover:text-primary-600 transition"
                 >
-                  Забули пароль?
+                  {t("auth.forgotPassword")}
                 </Link>
               </div>
 
@@ -114,10 +116,10 @@ export default function LoginPage() {
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Входимо...
+                    {t("auth.loggingIn") || "Входимо..."}
                   </span>
                 ) : (
-                  "Увійти"
+                  t("auth.signIn")
                 )}
               </button>
             </form>
@@ -125,24 +127,24 @@ export default function LoginPage() {
             {/* Роздільник */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-theme" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-theme-surface text-secondary-light">
-                  або
+                <span className="px-4 bg-surface text-foreground-muted">
+                  {t("common.or")}
                 </span>
               </div>
             </div>
 
             {/* Реєстрація */}
             <div className="text-center">
-              <p className="text-secondary-light">
-                Ще немає акаунту?{" "}
+              <p className="text-foreground-secondary">
+                {t("auth.noAccount")}{" "}
                 <Link 
                   href="/register" 
                   className="text-primary hover:text-primary-600 font-semibold transition"
                 >
-                  Зареєструватися
+                  {t("auth.signUp")}
                 </Link>
               </p>
             </div>
@@ -150,13 +152,13 @@ export default function LoginPage() {
 
           {/* Переваги */}
           <div className="mt-8 grid grid-cols-2 gap-4 text-center">
-            <div className="p-4 bg-theme-surface rounded-xl">
+            <div className="p-4 bg-surface rounded-xl border border-border">
               <div className="text-2xl mb-2">🎁</div>
-              <p className="text-sm text-secondary-light">Бонуси за замовлення</p>
+              <p className="text-sm text-foreground-secondary">{t("auth.benefits.loyalty") || "Бонуси за замовлення"}</p>
             </div>
-            <div className="p-4 bg-theme-surface rounded-xl">
+            <div className="p-4 bg-surface rounded-xl border border-border">
               <div className="text-2xl mb-2">📦</div>
-              <p className="text-sm text-secondary-light">Історія замовлень</p>
+              <p className="text-sm text-foreground-secondary">{t("auth.benefits.history")}</p>
             </div>
           </div>
         </div>
