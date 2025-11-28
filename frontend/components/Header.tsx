@@ -15,6 +15,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useTranslation, Locale } from "@/store/localeStore";
 import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
+import ThemeToggle, { ThemeToggleMobile } from "./ThemeToggle";
 
 // Контактна інформація Croco Sushi
 const CONTACT_INFO = {
@@ -24,6 +25,7 @@ const CONTACT_INFO = {
   workingHours: "10:00 - 21:45",
   email: "crocosushi0003@gmail.com",
   address: "м. Львів, вул. Володимира Янева, 31",
+  addressUrl: "https://maps.app.goo.gl/JksKK3KqdouctZ6UJ",
   social: {
     telegram: "https://t.me/Croco_Sushi",
     instagram: "https://www.instagram.com/crocosushi/",
@@ -99,9 +101,9 @@ export default function Header() {
 
   return (
     <>
-      <header className={`bg-white ${isSticky ? "sticky top-0 z-40 shadow-header" : ""}`}>
+      <header className={`bg-surface transition-colors ${isSticky ? "sticky top-0 z-40 shadow-header" : ""}`}>
         {/* Top Bar */}
-        <div className="bg-gray-50 border-b border-border hidden md:block">
+        <div className="bg-background-secondary border-b border-border hidden md:block">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-10 text-sm">
               {/* Телефони */}
@@ -168,13 +170,13 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Main Header */}
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
-            {/* Логотип */}
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="text-4xl">🐊</span>
-              <span className="text-2xl font-bold text-primary">
+        {/* Main Header - адаптивна висота */}
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            {/* Логотип - адаптивний розмір */}
+            <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
+              <span className="text-2xl sm:text-4xl">🐊</span>
+              <span className="text-lg sm:text-2xl font-bold text-primary">
                 Croco Sushi
               </span>
             </Link>
@@ -239,10 +241,16 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Кошик */}
+              {/* Перемикач теми (Desktop) */}
+              <div className="hidden md:block">
+                <ThemeToggle variant="icon-only" />
+              </div>
+
+              {/* Кошик - touch target 44px */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative flex items-center text-secondary hover:text-primary transition"
+                className="relative flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] text-foreground hover:text-primary hover:bg-surface-hover rounded-full transition active:scale-95"
+                aria-label="Відкрити кошик"
               >
                 <ShoppingCartIcon className="w-6 h-6" />
                 {getItemCount > 0 && (
@@ -252,10 +260,11 @@ export default function Header() {
                 )}
               </button>
 
-              {/* Hamburger меню (Mobile) */}
+              {/* Hamburger меню (Mobile) - touch target 44px */}
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="lg:hidden text-secondary hover:text-primary transition"
+                className="lg:hidden flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] text-secondary hover:text-primary hover:bg-theme-secondary rounded-full transition active:scale-95"
+                aria-label="Відкрити меню"
               >
                 <Bars3Icon className="w-7 h-7" />
               </button>
@@ -289,7 +298,7 @@ export default function Header() {
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
             >
-              <Dialog.Panel className="fixed inset-y-0 left-0 w-full max-w-xs bg-white shadow-xl">
+              <Dialog.Panel className="fixed inset-y-0 left-0 w-full max-w-xs bg-surface shadow-xl">
                 <div className="flex flex-col h-full">
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 border-b border-border">
@@ -410,7 +419,7 @@ export default function Header() {
                           className={`px-4 py-2 rounded-lg transition ${
                             locale === "ua"
                               ? "bg-primary text-white"
-                              : "bg-gray-100 text-secondary hover:bg-gray-200"
+                              : "bg-surface text-foreground-secondary hover:bg-surface-hover"
                           }`}
                         >
                           UA
@@ -420,11 +429,19 @@ export default function Header() {
                           className={`px-4 py-2 rounded-lg transition ${
                             locale === "ru"
                               ? "bg-primary text-white"
-                              : "bg-gray-100 text-secondary hover:bg-gray-200"
+                              : "bg-surface text-foreground-secondary hover:bg-surface-hover"
                           }`}
                         >
                           RU
                         </button>
+                      </div>
+                    )}
+
+                    {/* Перемикач теми - показуємо тільки після монтування */}
+                    {isMounted && (
+                      <div className="pt-4 border-t border-border">
+                        <p className="text-sm text-foreground-muted mb-3 text-center">Тема оформлення</p>
+                        <ThemeToggleMobile />
                       </div>
                     )}
                   </div>

@@ -696,49 +696,75 @@ export default function ProfilePage() {
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {favoritesQuery.data?.map((favorite) => (
-                          <div
-                            key={favorite.id}
-                            className="flex gap-4 p-4 border border-border rounded-xl hover:border-primary/50 transition"
-                          >
-                            <Link
-                              href={`/products/${favorite.product?.slug}`}
-                              className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
-                            >
-                              {favorite.product?.image_url ? (
-                                <Image
-                                  src={favorite.product.image_url}
-                                  alt={favorite.product.name}
-                                  width={96}
-                                  height={96}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-3xl">
+                        {favoritesQuery.data?.map((favorite) => {
+                          // Перевіряємо чи product існує
+                          if (!favorite.product) {
+                            return (
+                              <div
+                                key={favorite.id}
+                                className="flex gap-4 p-4 border border-border rounded-xl bg-gray-50"
+                              >
+                                <div className="w-24 h-24 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center text-3xl">
                                   🍣
                                 </div>
-                              )}
-                            </Link>
-                            <div className="flex-1 min-w-0">
-                              <Link
-                                href={`/products/${favorite.product?.slug}`}
-                                className="font-medium text-secondary hover:text-primary transition line-clamp-2"
-                              >
-                                {favorite.product?.name}
-                              </Link>
-                              <p className="text-lg font-bold text-primary mt-2">
-                                {favorite.product?.price} ₴
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => removeFavoriteMutation.mutate(favorite.product_id)}
-                              className="p-2 text-accent-red hover:bg-red-50 rounded-lg transition self-start"
-                              title="Видалити з обраного"
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <p className="text-secondary-light">Товар недоступний</p>
+                                </div>
+                                <button
+                                  onClick={() => removeFavoriteMutation.mutate(favorite.product_id)}
+                                  className="p-2 text-accent-red hover:bg-red-50 rounded-lg transition self-start"
+                                  title="Видалити з обраного"
+                                >
+                                  <HeartSolid className="w-6 h-6" />
+                                </button>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div
+                              key={favorite.id}
+                              className="flex gap-4 p-4 border border-border rounded-xl hover:border-primary/50 transition"
                             >
-                              <HeartSolid className="w-6 h-6" />
-                            </button>
-                          </div>
-                        ))}
+                              <Link
+                                href={`/products/${favorite.product.slug}`}
+                                className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100"
+                              >
+                                {favorite.product.image_url ? (
+                                  <Image
+                                    src={favorite.product.image_url}
+                                    alt={favorite.product.name}
+                                    width={96}
+                                    height={96}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-3xl">
+                                    🍣
+                                  </div>
+                                )}
+                              </Link>
+                              <div className="flex-1 min-w-0">
+                                <Link
+                                  href={`/products/${favorite.product.slug}`}
+                                  className="font-medium text-secondary hover:text-primary transition line-clamp-2"
+                                >
+                                  {favorite.product.name}
+                                </Link>
+                                <p className="text-lg font-bold text-primary mt-2">
+                                  {favorite.product.price} ₴
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => removeFavoriteMutation.mutate(favorite.product_id)}
+                                className="p-2 text-accent-red hover:bg-red-50 rounded-lg transition self-start"
+                                title="Видалити з обраного"
+                              >
+                                <HeartSolid className="w-6 h-6" />
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

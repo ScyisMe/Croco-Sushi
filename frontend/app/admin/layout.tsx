@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api/client";
@@ -13,6 +13,15 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+
+// Типи
+interface User {
+  id: number;
+  phone: string;
+  email?: string;
+  name?: string;
+  role: "user" | "admin";
+}
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Дашборд", icon: HomeIcon },
@@ -31,8 +40,20 @@ export default function AdminLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Ref для відстеження mounted стану (запобігає memory leak)
+  const isMountedRef = useRef(true);
+
+  // Очищення токенів
+  const clearAuth = useCallback(() => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+  }, []);
 
   useEffect(() => {
+    // Встановлюємо mounted стан
+    isMountedRef.current = true;
+    
     // Сторінка логіну не потребує перевірки авторизації
     if (pathname === "/admin/login") {
       setIsLoading(false);
@@ -46,41 +67,52 @@ export default function AdminLayout({
       
       if (!token) {
         router.push("/admin/login");
-        setIsLoading(false);
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
         return;
       }
 
       try {
         // Перевіряємо роль користувача через API
-        const response = await apiClient.get("/auth/me");
+        const response = await apiClient.get<User>("/auth/me");
         const user = response.data;
+        
+        // Перевірка чи компонент ще mounted
+        if (!isMountedRef.current) return;
         
         if (user.role !== "admin") {
           // Якщо не адмін - видаляємо токен і перенаправляємо
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
+          clearAuth();
           router.push("/admin/login");
         } else {
           setIsAuthenticated(true);
         }
-      } catch (error) {
+      } catch {
         // Якщо помилка (невалідний токен) - перенаправляємо на логін
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
+        if (!isMountedRef.current) return;
+        
+        clearAuth();
         router.push("/admin/login");
       } finally {
-        setIsLoading(false);
+        if (isMountedRef.current) {
+          setIsLoading(false);
+        }
       }
     };
 
     verifyAdmin();
-  }, [router, pathname]);
+    
+    // Cleanup функція для запобігання memory leak
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [router, pathname, clearAuth]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+  const handleLogout = useCallback(() => {
+    clearAuth();
     router.push("/admin/login");
-  };
+  }, [clearAuth, router]);
 
   // Показуємо завантаження
   if (isLoading) {

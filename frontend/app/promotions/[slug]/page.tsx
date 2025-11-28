@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import apiClient from "@/lib/api/client";
 import { Promotion } from "@/lib/types";
 import Image from "next/image";
@@ -10,11 +11,11 @@ import { ChevronRightIcon, TagIcon, CalendarIcon, ClockIcon } from "@heroicons/r
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CountdownTimer from "@/components/CountdownTimer";
-import DOMPurify from "dompurify";
 
 export default function PromotionDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const [sanitizedConditions, setSanitizedConditions] = useState<string>("");
 
   const promotionQuery = useQuery<Promotion>({
     queryKey: ["promotion", slug],
@@ -26,16 +27,29 @@ export default function PromotionDetailPage() {
   });
 
   const promotion = promotionQuery.data;
-  const isActive = promotion?.is_available || promotion?.is_active;
+  const isActive = promotion?.is_available === true || promotion?.is_active === true;
   const hasEndDate = promotion?.end_date && new Date(promotion.end_date) > new Date();
 
+  // Санітизація HTML на клієнті (DOMPurify потребує window)
+  useEffect(() => {
+    if (promotion?.conditions && typeof window !== "undefined") {
+      import("dompurify").then((DOMPurify) => {
+        const sanitized = DOMPurify.default.sanitize(promotion.conditions!, {
+          ALLOWED_TAGS: ["p", "br", "strong", "em", "ul", "ol", "li", "h3", "h4"],
+          ALLOWED_ATTR: [],
+        });
+        setSanitizedConditions(sanitized);
+      });
+    }
+  }, [promotion?.conditions]);
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       <Header />
       
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-white border-b border-border">
+        <div className="bg-theme-surface border-b border-theme">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -56,7 +70,7 @@ export default function PromotionDetailPage() {
         <div className="container mx-auto px-4 py-8">
           {promotionQuery.isLoading ? (
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-xl shadow-card overflow-hidden">
+              <div className="bg-theme-surface rounded-xl shadow-card overflow-hidden">
                 <div className="aspect-video skeleton" />
                 <div className="p-8 space-y-4">
                   <div className="h-8 skeleton w-3/4" />
@@ -78,9 +92,9 @@ export default function PromotionDetailPage() {
             </div>
           ) : (
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-xl shadow-card overflow-hidden">
+              <div className="bg-theme-surface rounded-xl shadow-card overflow-hidden">
                 {/* Зображення */}
-                <div className="relative aspect-video bg-gray-100">
+                <div className="relative aspect-video bg-theme-tertiary">
                   {promotion.image_url ? (
                     <Image
                       src={promotion.image_url}
@@ -142,7 +156,7 @@ export default function PromotionDetailPage() {
                   {/* Інформація */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {/* Знижка */}
-                    <div className="p-4 bg-gray-50 rounded-xl">
+                    <div className="p-4 bg-theme-tertiary rounded-xl">
                       <div className="flex items-center gap-2 text-secondary-light mb-1">
                         <TagIcon className="w-5 h-5" />
                         <span>Знижка</span>
@@ -156,7 +170,7 @@ export default function PromotionDetailPage() {
 
                     {/* Мінімальна сума */}
                     {promotion.min_order_amount && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
+                      <div className="p-4 bg-theme-tertiary rounded-xl">
                         <div className="flex items-center gap-2 text-secondary-light mb-1">
                           <span>💰</span>
                           <span>Мінімальна сума</span>
@@ -169,7 +183,7 @@ export default function PromotionDetailPage() {
 
                     {/* Дати */}
                     {promotion.start_date && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
+                      <div className="p-4 bg-theme-tertiary rounded-xl">
                         <div className="flex items-center gap-2 text-secondary-light mb-1">
                           <CalendarIcon className="w-5 h-5" />
                           <span>Початок</span>
@@ -184,7 +198,7 @@ export default function PromotionDetailPage() {
                     )}
 
                     {promotion.end_date && (
-                      <div className="p-4 bg-gray-50 rounded-xl">
+                      <div className="p-4 bg-theme-tertiary rounded-xl">
                         <div className="flex items-center gap-2 text-secondary-light mb-1">
                           <CalendarIcon className="w-5 h-5" />
                           <span>Закінчення</span>
@@ -201,14 +215,14 @@ export default function PromotionDetailPage() {
 
                   {/* Прогрес-бар використання */}
                   {promotion.max_uses && promotion.current_uses !== undefined && (
-                    <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+                    <div className="mb-6 p-4 bg-theme-tertiary rounded-xl">
                       <div className="flex justify-between text-sm text-secondary-light mb-2">
                         <span>Використано пропозицій</span>
                         <span className="font-semibold">
                           {promotion.current_uses} / {promotion.max_uses}
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="w-full bg-theme-secondary rounded-full h-3">
                         <div
                           className={`h-3 rounded-full transition-all ${
                             promotion.current_uses / promotion.max_uses > 0.8
@@ -232,17 +246,14 @@ export default function PromotionDetailPage() {
                   {promotion.conditions && (
                     <div className="mb-6">
                       <h2 className="font-bold text-secondary text-lg mb-3">Умови акції:</h2>
-                      <div 
-                        className="prose prose-sm max-w-none text-secondary-light" 
-                        dangerouslySetInnerHTML={{ 
-                          __html: typeof window !== 'undefined' 
-                            ? DOMPurify.sanitize(promotion.conditions, {
-                                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'h3', 'h4'],
-                                ALLOWED_ATTR: []
-                              })
-                            : promotion.conditions 
-                        }} 
-                      />
+                      {sanitizedConditions ? (
+                        <div 
+                          className="prose prose-sm max-w-none text-secondary-light" 
+                          dangerouslySetInnerHTML={{ __html: sanitizedConditions }} 
+                        />
+                      ) : (
+                        <p className="text-secondary-light">{promotion.conditions}</p>
+                      )}
                     </div>
                   )}
 

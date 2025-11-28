@@ -117,11 +117,11 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white p-6 shadow-modal transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-theme-surface p-6 shadow-modal transition-all">
                 {/* Кнопка закриття */}
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+                  className="absolute top-4 right-4 text-secondary-light hover:text-secondary transition"
                 >
                   <XMarkIcon className="w-6 h-6" />
                 </button>
@@ -164,11 +164,7 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                           value={phone}
                           onChange={handlePhoneChange}
                           placeholder="+38 (0__) ___-__-__"
-                          className={`w-full px-4 py-3 border rounded-lg text-lg focus:outline-none focus:ring-2 transition ${
-                            error
-                              ? "border-accent-red focus:ring-accent-red/20"
-                              : "border-border focus:ring-primary/20 focus:border-primary"
-                          }`}
+                          className={`input text-lg ${error ? "input-error" : ""}`}
                           autoFocus
                         />
                         {error && (

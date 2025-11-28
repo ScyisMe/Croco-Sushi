@@ -60,7 +60,7 @@ function ReviewCard({ review }: { review: Review }) {
     : "АК";
 
   return (
-    <div className="bg-white rounded-xl shadow-card p-6">
+    <div className="bg-theme-surface rounded-xl shadow-card p-6">
       {/* Заголовок */}
       <div className="flex items-start gap-4 mb-4">
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">
@@ -106,7 +106,7 @@ function ReviewCard({ review }: { review: Review }) {
 // Skeleton для відгуку
 function ReviewSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-card p-6">
+    <div className="bg-theme-surface rounded-xl shadow-card p-6">
       <div className="flex items-start gap-4 mb-4">
         <div className="w-12 h-12 rounded-full skeleton" />
         <div className="flex-1">
@@ -201,7 +201,7 @@ export default function ReviewsPage() {
   }, [reviews]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       {/* Schema.org markup для SEO */}
       <JsonLd
         schema={getBreadcrumbSchema([
@@ -224,7 +224,7 @@ export default function ReviewsPage() {
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-white border-b border-border">
+        <div className="bg-theme-surface border-b border-theme">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -243,7 +243,7 @@ export default function ReviewsPage() {
 
           {/* Статистика */}
           {stats && (
-            <div className="bg-white rounded-xl shadow-card p-6 md:p-8 mb-8">
+            <div className="bg-theme-surface rounded-xl shadow-card p-6 md:p-8 mb-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Середній рейтинг */}
                 <div className="text-center md:border-r md:border-border">
@@ -266,13 +266,13 @@ export default function ReviewsPage() {
                         className={`w-full flex items-center gap-3 p-2 rounded-lg transition ${
                           ratingFilter === item.rating
                             ? "bg-primary/10"
-                            : "hover:bg-gray-50"
+                            : "hover:bg-theme-secondary"
                         }`}
                       >
                         <span className="text-sm font-medium text-secondary w-16 text-left">
                           {item.rating} {item.rating === 1 ? "зірка" : item.rating < 5 ? "зірки" : "зірок"}
                         </span>
-                        <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="flex-1 h-3 bg-theme-tertiary rounded-full overflow-hidden">
                           <div
                             className="h-full bg-yellow-400 rounded-full transition-all"
                             style={{ width: `${item.percentage}%` }}
@@ -298,7 +298,7 @@ export default function ReviewsPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium transition ${
                   ratingFilter === filter.value
                     ? "bg-primary text-white"
-                    : "bg-white text-secondary border border-border hover:border-primary"
+                    : "bg-theme-surface text-theme-secondary border border-theme hover:border-primary"
                 }`}
               >
                 {filter.label}
@@ -357,7 +357,7 @@ export default function ReviewsPage() {
           )}
 
           {/* CTA для залишення відгуку */}
-          <div className="mt-12 bg-white rounded-xl shadow-card p-8 text-center">
+          <div className="mt-12 bg-theme-surface rounded-xl shadow-card p-8 text-center">
             <div className="max-w-xl mx-auto">
               <div className="flex justify-center mb-4">
                 {[1, 2, 3, 4, 5].map((star) => (

@@ -2,69 +2,284 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== СИСТЕМА ТЕМ - CSS ЗМІННІ ===== */
+
 :root {
-  /* Основна кольорова палітра */
-  --color-primary: #00A859;
-  --color-primary-dark: #009150;
-  --color-secondary: #333333;
-  --color-secondary-light: #666666;
-  --color-accent-red: #EF4444;
-  --color-accent-orange: #F97316;
-  --color-accent-blue: #3B82F6;
-  --color-border: #E5E5E5;
-  --color-background: #FFFFFF;
+  /* === СВІТЛА ТЕМА (за замовчуванням) === */
   
-  /* Шрифти */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Основні кольори бренду */
+  --color-primary: #00A859;
+  --color-primary-hover: #009150;
+  --color-primary-light: #E8F5E9;
+  --color-primary-dark: #007a44;
+  
+  /* Фони - ТЕПЛІ відтінки */
+  --color-background: #FDFBF8;
+  --color-background-secondary: #F9F6F2;
+  --color-background-tertiary: #F3EDE6;
+  --color-background-elevated: #FFFFFF;
+  
+  /* Поверхні (картки, модалки) */
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #FAF8F5;
+  
+  /* Текст - теплі відтінки */
+  --color-text-primary: #2C2825;
+  --color-text-secondary: #5C5650;
+  --color-text-muted: #8C857C;
+  --color-text-inverted: #FFFFFF;
+  
+  /* Рамки та розділювачі - теплий беж */
+  --color-border: #E8E2D9;
+  --color-border-hover: #D4CCC0;
+  --color-divider: #F0EBE3;
+  
+  /* Акценти */
+  --color-accent-red: #EF4444;
+  --color-accent-red-light: #FEE2E2;
+  --color-accent-orange: #F97316;
+  --color-accent-orange-light: #FFEDD5;
+  --color-accent-blue: #3B82F6;
+  --color-accent-blue-light: #DBEAFE;
+  --color-accent-yellow: #EAB308;
+  --color-accent-yellow-light: #FEF9C3;
+  --color-accent-green: #22C55E;
+  --color-accent-green-light: #DCFCE7;
+  
+  /* Тіні - м'які та теплі */
+  --shadow-xs: 0 1px 2px rgba(45, 40, 37, 0.04);
+  --shadow-sm: 0 1px 3px rgba(45, 40, 37, 0.06), 0 1px 2px rgba(45, 40, 37, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(45, 40, 37, 0.06), 0 2px 4px -1px rgba(45, 40, 37, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(45, 40, 37, 0.08), 0 4px 6px -2px rgba(45, 40, 37, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(45, 40, 37, 0.08), 0 10px 10px -5px rgba(45, 40, 37, 0.04);
+  --shadow-card: 0 2px 16px rgba(45, 40, 37, 0.06);
+  --shadow-header: 0 1px 8px rgba(45, 40, 37, 0.06);
+  --shadow-modal: 0 25px 50px -12px rgba(45, 40, 37, 0.2);
+  
+  /* Overlay */
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-overlay-light: rgba(0, 0, 0, 0.3);
+  
+  /* Градієнти */
+  --gradient-primary: linear-gradient(135deg, #00A859 0%, #007a44 100%);
+  --gradient-hero: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3), transparent);
+  
+  /* Blur */
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 16px;
+  
+  /* Радіуси */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+  
+  /* Safe area */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  
+  /* Touch targets */
+  --touch-target-min: 44px;
 }
 
-/* Базові стилі */
-body {
-  font-family: var(--font-family);
-  color: var(--color-secondary);
-  background-color: var(--color-background);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* === ТЕМНА ТЕМА - ВИРАЗНА === */
+[data-theme="dark"] {
+  /* Основні кольори бренду - яскравіший зелений */
+  --color-primary: #34D399;
+  --color-primary-hover: #10B981;
+  --color-primary-light: #064E3B;
+  --color-primary-dark: #059669;
+  
+  /* Фони - глибокий контраст */
+  --color-background: #0A0A0B; /* Майже чорний */
+  --color-background-secondary: #111113; /* Дуже темний */
+  --color-background-tertiary: #1A1A1D; /* Трохи світліший */
+  --color-background-elevated: #161618;
+  
+  /* Поверхні - ВИРАЗНІШІ картки з більшим контрастом */
+  --color-surface: #1E1E22; /* Помітно світліший для карток */
+  --color-surface-hover: #28282D; /* Ще світліший при наведенні */
+  
+  /* Текст - максимальний контраст */
+  --color-text-primary: #FAFAFA;
+  --color-text-secondary: #B8B8BD;
+  --color-text-muted: #76767A;
+  --color-text-inverted: #0A0A0B;
+  
+  /* Рамки - видиміші з легким світінням */
+  --color-border: #2D2D32;
+  --color-border-hover: #3D3D44;
+  --color-divider: #1A1A1D;
+  
+  /* Акценти (яскравіші для темної теми) */
+  --color-accent-red: #F87171;
+  --color-accent-red-light: #3F1515;
+  --color-accent-orange: #FB923C;
+  --color-accent-orange-light: #3F1D0A;
+  --color-accent-blue: #60A5FA;
+  --color-accent-blue-light: #152747;
+  --color-accent-yellow: #FBBF24;
+  --color-accent-yellow-light: #3F2D08;
+  --color-accent-green: #4ADE80;
+  --color-accent-green-light: #0F3D20;
+  
+  /* Тіні - з легким світінням для глибини */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --shadow-header: 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 24px 64px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  
+  /* Overlay */
+  --color-overlay: rgba(0, 0, 0, 0.85);
+  --color-overlay-light: rgba(0, 0, 0, 0.7);
+  
+  /* Градієнти */
+  --gradient-primary: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+  --gradient-hero: linear-gradient(to right, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.65), transparent);
 }
 
-/* Плавна прокрутка */
+/* ===== БАЗОВІ СТИЛІ ===== */
+
+* {
+  box-sizing: border-box;
+}
+
 html {
+  touch-action: manipulation;
   scroll-behavior: smooth;
 }
 
-/* Приховати скролбар але залишити функціональність */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+
+/* ===== СКРОЛБАР ===== */
+
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-/* Кастомний скролбар */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-background-secondary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--color-border-hover);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: var(--color-text-muted);
 }
 
-/* Утиліти */
+/* ===== УТИЛІТИ ===== */
+
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* Тема-aware кольори */
+  .bg-theme {
+    background-color: var(--color-background);
+  }
+  
+  .bg-theme-secondary {
+    background-color: var(--color-background-secondary);
+  }
+  
+  .bg-theme-surface {
+    background-color: var(--color-surface);
+  }
+  
+  .bg-theme-tertiary {
+    background-color: var(--color-background-tertiary);
+  }
+  
+  .text-theme {
+    color: var(--color-text-primary);
+  }
+  
+  .text-theme-secondary {
+    color: var(--color-text-secondary);
+  }
+  
+  .text-theme-muted {
+    color: var(--color-text-muted);
+  }
+  
+  /* === Tailwind text-secondary використовує кольори з конфігу === */
+  /* text-secondary = --color-text-primary (основний текст) */
+  /* text-secondary-light = --color-text-secondary (вторинний текст) */
+  
+  .text-foreground {
+    color: var(--color-text-primary);
+  }
+  
+  .text-foreground-secondary {
+    color: var(--color-text-secondary);
+  }
+  
+  .text-foreground-muted {
+    color: var(--color-text-muted);
+  }
+  
+  .border-theme {
+    border-color: var(--color-border);
+  }
+  
+  /* Touch targets */
+  .touch-target {
+    min-height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+  }
+  
+  /* Safe area */
+  .pb-safe {
+    padding-bottom: max(1rem, var(--safe-area-inset-bottom));
+  }
+  
+  .pt-safe {
+    padding-top: max(0.5rem, var(--safe-area-inset-top));
   }
   
   /* Line clamp */
@@ -81,85 +296,309 @@ html {
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  
+  /* Text balance */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* GPU acceleration */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  /* Glassmorphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+  }
+  
+  [data-theme="dark"] .glass {
+    background: rgba(30, 30, 34, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  /* No select */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 
-/* Компоненти */
+/* ===== КОМПОНЕНТИ ===== */
+
 @layer components {
   /* Кнопки */
+  .btn {
+    @apply inline-flex items-center justify-center font-semibold rounded-lg 
+           transition-all duration-200 min-h-[44px] px-6 py-3
+           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
   .btn-primary {
-    @apply bg-primary hover:bg-primary-600 text-white font-semibold px-6 py-3 rounded-lg transition duration-200;
+    background: var(--gradient-primary);
+    color: var(--color-text-inverted);
+    box-shadow: 0 4px 14px rgba(0, 168, 89, 0.3);
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 168, 89, 0.4);
   }
   
   .btn-secondary {
-    @apply bg-secondary hover:bg-gray-800 text-white font-semibold px-6 py-3 rounded-lg transition duration-200;
+    background-color: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-border);
   }
   
   .btn-outline {
-    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold px-6 py-3 rounded-lg transition duration-200;
+    background: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+  }
+  
+  .btn-outline:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverted);
+  }
+  
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+  }
+  
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-primary);
   }
   
   /* Картки */
   .card {
-    @apply bg-white rounded-xl shadow-card hover:shadow-card-hover transition duration-300;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-slow);
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .card-flat {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
   }
   
   /* Інпути */
   .input {
-    @apply w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition;
+    @apply w-full px-4 py-3 rounded-xl transition-all duration-200 min-h-[44px] text-base;
+    background-color: var(--color-background-secondary);
+    border: 2px solid transparent;
+    color: var(--color-text-primary);
+  }
+  
+  .input::placeholder {
+    color: var(--color-text-muted);
+  }
+  
+  .input:focus {
+    background-color: var(--color-background);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(0, 168, 89, 0.1);
+    outline: none;
   }
   
   .input-error {
-    @apply border-accent-red focus:ring-accent-red/20 focus:border-accent-red;
+    border-color: var(--color-accent-red);
+  }
+  
+  .input-error:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
   }
   
   /* Бейджі */
   .badge {
-    @apply inline-flex items-center px-2 py-1 text-xs font-semibold rounded;
+    @apply inline-flex items-center px-2.5 py-1 text-xs font-bold rounded-full;
   }
   
   .badge-new {
-    @apply bg-accent-blue text-white;
+    background-color: var(--color-accent-blue-light);
+    color: var(--color-accent-blue);
   }
   
   .badge-hit {
-    @apply bg-accent-red text-white;
+    background-color: var(--color-accent-red-light);
+    color: var(--color-accent-red);
   }
   
   .badge-sale {
-    @apply bg-accent-orange text-white;
+    background-color: var(--color-accent-orange-light);
+    color: var(--color-accent-orange);
   }
   
-  /* Skeleton loader */
+  .badge-success {
+    background-color: var(--color-accent-green-light);
+    color: var(--color-accent-green);
+  }
+  
+  /* Skeleton */
   .skeleton {
-    @apply animate-pulse bg-gray-200 rounded;
+    @apply rounded-lg;
+    background: linear-gradient(
+      90deg,
+      var(--color-background-secondary) 25%,
+      var(--color-background-tertiary) 50%,
+      var(--color-background-secondary) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  /* Mobile bottom bar */
+  .mobile-bottom-bar {
+    @apply fixed bottom-0 left-0 right-0 z-40;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    padding-bottom: max(0.75rem, var(--safe-area-inset-bottom));
+  }
+  
+  /* Overlay */
+  .overlay {
+    background-color: var(--color-overlay);
+  }
+  
+  .overlay-light {
+    background-color: var(--color-overlay-light);
   }
 }
 
-/* Анімації */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
+/* ===== АНІМАЦІЇ ===== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  100% {
-    background-position: 200% 0;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.skeleton-shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-/* Toast notifications */
-.toast-success {
-  @apply bg-primary text-white;
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.toast-error {
-  @apply bg-accent-red text-white;
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.toast-info {
-  @apply bg-accent-blue text-white;
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fadeIn { animation: fadeIn var(--transition-normal); }
+.animate-fadeInUp { animation: fadeInUp var(--transition-slow); }
+.animate-slideInRight { animation: slideInRight var(--transition-slow); }
+.animate-slideInLeft { animation: slideInLeft var(--transition-slow); }
+.animate-slideInUp { animation: slideInUp var(--transition-slow); }
+.animate-scaleIn { animation: scaleIn var(--transition-normal); }
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-bounce { animation: bounce 1s infinite; }
+
+/* ===== МОБІЛЬНА ОПТИМІЗАЦІЯ ===== */
+
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+@media (pointer: coarse) {
+  a, button, [role="button"] {
+    min-height: 44px;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
 }

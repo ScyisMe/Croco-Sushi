@@ -29,8 +29,8 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: croco-backend
     restart: unless-stopped
     expose:
@@ -41,8 +41,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=false
     volumes:
-      - ./uploads:/app/uploads
-      - ./backend/logs:/app/logs
+      - ./uploads:/app/backend/uploads
+      - ./backend/logs:/app/backend/logs
     depends_on:
       - postgres
       - redis
@@ -91,17 +91,18 @@ services:
 
   celery:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: croco-celery
     restart: unless-stopped
     command: celery -A app.celery_app worker --loglevel=info
+    working_dir: /app/backend
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
       - SECRET_KEY=${SECRET_KEY}
     volumes:
-      - ./uploads:/app/uploads
+      - ./uploads:/app/backend/uploads
     depends_on:
       - postgres
       - redis

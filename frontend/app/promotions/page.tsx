@@ -20,10 +20,10 @@ export default function PromotionsPage() {
     },
   });
 
-  const promotions = promotionsQuery.data?.filter((p) => p.is_active || p.is_available) || [];
+  const promotions = promotionsQuery.data?.filter((p) => p.is_active === true || p.is_available === true) || [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       {/* Schema.org markup для SEO */}
       <JsonLd
         schema={getBreadcrumbSchema([
@@ -36,7 +36,7 @@ export default function PromotionsPage() {
       
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-white border-b border-border">
+        <div className="bg-theme-surface border-b border-theme">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -65,7 +65,7 @@ export default function PromotionsPage() {
           {promotionsQuery.isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="bg-white rounded-xl shadow-card overflow-hidden">
+                <div key={i} className="bg-theme-surface rounded-xl shadow-card overflow-hidden">
                   <div className="aspect-video skeleton" />
                   <div className="p-6 space-y-3">
                     <div className="h-6 skeleton w-3/4" />
@@ -97,7 +97,7 @@ export default function PromotionsPage() {
                 <Link
                   href={`/promotions/${promo.slug}`}
                   key={promo.id}
-                  className="group bg-white rounded-xl shadow-card hover:shadow-lg transition-all duration-300 overflow-hidden"
+                  className="group bg-theme-surface rounded-xl shadow-card hover:shadow-lg transition-all duration-300 overflow-hidden"
                 >
                   {/* Зображення */}
                   <div className="relative aspect-video overflow-hidden">
@@ -124,7 +124,7 @@ export default function PromotionsPage() {
 
                     {/* Таймер */}
                     {promo.end_date && new Date(promo.end_date) > new Date() && (
-                      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm">
+                      <div className="absolute top-3 right-3 bg-theme-surface/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm">
                         <div className="flex items-center gap-1.5">
                           <ClockIcon className="w-4 h-4 text-accent-red" />
                           <CountdownTimerCompact endDate={promo.end_date} />
@@ -169,7 +169,7 @@ export default function PromotionsPage() {
                           <span>Використано</span>
                           <span>{promo.current_uses} / {promo.max_uses}</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-theme-tertiary rounded-full h-2">
                           <div
                             className={`h-2 rounded-full transition-all ${
                               promo.current_uses / promo.max_uses > 0.8
@@ -209,7 +209,7 @@ export default function PromotionsPage() {
         </div>
 
         {/* Підписка на новини */}
-        <section className="bg-white py-12">
+        <section className="bg-theme-surface py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-xl mx-auto text-center">
               <h2 className="text-2xl font-bold text-secondary mb-4">

@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import apiClient from "@/lib/api/client";
 import toast from "react-hot-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { EnvelopeIcon, LockClosedIcon, PhoneIcon } from "@heroicons/react/24/outline";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,61 +38,131 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold mb-6 text-center">Вхід</h1>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Телефон</label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                placeholder="+380XXXXXXXXX"
-              />
+      
+      <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          {/* Заголовок */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+              <span className="text-3xl">🐊</span>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Пароль</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-            >
-              {isLoading ? "Вхід..." : "Увійти"}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Немає акаунту?{" "}
-              <a href="/register" className="text-green-600 hover:text-green-700 font-medium">
-                Зареєструватися
-              </a>
+            <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-2">
+              Вхід в акаунт
+            </h1>
+            <p className="text-secondary-light">
+              Увійдіть, щоб переглянути замовлення та бонуси
             </p>
           </div>
 
-          <div className="mt-4 text-center">
-            <a href="/reset-password" className="text-sm text-gray-500 hover:text-green-600">
-              Забули пароль?
-            </a>
+          {/* Форма */}
+          <div className="bg-theme-surface rounded-2xl shadow-card p-6 md:p-8">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Телефон */}
+              <div>
+                <label className="block text-sm font-medium text-secondary mb-2">
+                  Номер телефону
+                </label>
+                <div className="relative">
+                  <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-light" />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    className="input pl-12"
+                    placeholder="+380XXXXXXXXX"
+                  />
+                </div>
+              </div>
+
+              {/* Пароль */}
+              <div>
+                <label className="block text-sm font-medium text-secondary mb-2">
+                  Пароль
+                </label>
+                <div className="relative">
+                  <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-light" />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="input pl-12"
+                    placeholder="Введіть пароль"
+                  />
+                </div>
+              </div>
+
+              {/* Забули пароль */}
+              <div className="flex justify-end">
+                <Link 
+                  href="/reset-password" 
+                  className="text-sm text-primary hover:text-primary-600 transition"
+                >
+                  Забули пароль?
+                </Link>
+              </div>
+
+              {/* Кнопка входу */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Входимо...
+                  </span>
+                ) : (
+                  "Увійти"
+                )}
+              </button>
+            </form>
+
+            {/* Роздільник */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-theme" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-theme-surface text-secondary-light">
+                  або
+                </span>
+              </div>
+            </div>
+
+            {/* Реєстрація */}
+            <div className="text-center">
+              <p className="text-secondary-light">
+                Ще немає акаунту?{" "}
+                <Link 
+                  href="/register" 
+                  className="text-primary hover:text-primary-600 font-semibold transition"
+                >
+                  Зареєструватися
+                </Link>
+              </p>
+            </div>
+          </div>
+
+          {/* Переваги */}
+          <div className="mt-8 grid grid-cols-2 gap-4 text-center">
+            <div className="p-4 bg-theme-surface rounded-xl">
+              <div className="text-2xl mb-2">🎁</div>
+              <p className="text-sm text-secondary-light">Бонуси за замовлення</p>
+            </div>
+            <div className="p-4 bg-theme-surface rounded-xl">
+              <div className="text-2xl mb-2">📦</div>
+              <p className="text-sm text-secondary-light">Історія замовлень</p>
+            </div>
           </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );
 }
-
-

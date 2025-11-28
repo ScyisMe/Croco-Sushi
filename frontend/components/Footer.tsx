@@ -24,6 +24,7 @@ const CONTACT_INFO = {
   ],
   email: "crocosushi0003@gmail.com",
   address: "м. Львів, вул. Володимира Янева, 31",
+  addressUrl: "https://maps.app.goo.gl/JksKK3KqdouctZ6UJ",
   workingHours: {
     weekdays: "10:00 - 21:45",
     weekend: "10:00 - 21:45",
@@ -56,27 +57,27 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-secondary text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Логотип та опис */}
-          <div>
-            <Link href="/" className="flex items-center space-x-2 mb-4">
-              <span className="text-3xl">🐊</span>
-              <span className="text-xl font-bold text-primary">Croco Sushi</span>
+    <footer className="bg-background-tertiary text-foreground transition-colors">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {/* Логотип та опис - на всю ширину на мобільних */}
+          <div className="col-span-2 sm:col-span-2 lg:col-span-1">
+            <Link href="/" className="flex items-center space-x-2 mb-3 sm:mb-4">
+              <span className="text-2xl sm:text-3xl">🐊</span>
+              <span className="text-lg sm:text-xl font-bold text-primary">Croco Sushi</span>
             </Link>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-foreground-secondary text-xs sm:text-sm mb-3 sm:mb-4 max-w-xs">
               {t("footer.description")}
             </p>
-            {/* Соціальні мережі */}
-            <div className="flex space-x-3">
+            {/* Соціальні мережі - збільшені touch targets */}
+            <div className="flex space-x-2">
               {SOCIAL_LINKS.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-primary transition"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface hover:bg-primary hover:text-white text-foreground-muted transition-colors"
                   aria-label={social.name}
                 >
                   <social.icon />
@@ -87,13 +88,13 @@ export default function Footer() {
 
           {/* Навігація */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">{t("footer.navigation")}</h3>
+            <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4">{t("footer.navigation")}</h3>
             <ul className="space-y-2">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-primary transition"
+                    className="text-xs sm:text-sm text-foreground-secondary hover:text-primary transition-colors"
                   >
                     {t(link.labelKey)}
                   </Link>
@@ -104,13 +105,13 @@ export default function Footer() {
 
           {/* Інформація */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">{t("footer.info")}</h3>
+            <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4">{t("footer.info")}</h3>
             <ul className="space-y-2">
               {INFO_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-primary transition"
+                    className="text-xs sm:text-sm text-foreground-secondary hover:text-primary transition-colors"
                   >
                     {t(link.labelKey)}
                   </Link>
@@ -119,17 +120,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Контакти */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t("footer.contacts")}</h3>
-            <ul className="space-y-3">
+          {/* Контакти - на всю ширину на мобільних */}
+          <div className="col-span-2 sm:col-span-2 lg:col-span-1">
+            <h3 className="text-sm sm:text-lg font-semibold mb-3 sm:mb-4">{t("footer.contacts")}</h3>
+            <ul className="space-y-2 sm:space-y-3">
               {CONTACT_INFO.phones.map((phone, index) => (
                 <li key={index}>
                   <a
                     href={`tel:${phone.number}`}
-                    className="flex items-center text-gray-400 hover:text-primary transition"
+                    className="flex items-center text-xs sm:text-sm text-foreground-secondary hover:text-primary transition-colors"
                   >
-                    <PhoneIcon className="w-5 h-5 mr-2" />
+                    <PhoneIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
                     {phone.display}
                   </a>
                 </li>
@@ -137,18 +138,25 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${CONTACT_INFO.email}`}
-                  className="flex items-center text-gray-400 hover:text-primary transition"
+                  className="flex items-center text-xs sm:text-sm text-foreground-secondary hover:text-primary transition-colors"
                 >
-                  <EnvelopeIcon className="w-5 h-5 mr-2" />
-                  {CONTACT_INFO.email}
+                  <EnvelopeIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
+                  <span className="truncate">{CONTACT_INFO.email}</span>
                 </a>
               </li>
-              <li className="flex items-start text-gray-400">
-                <MapPinIcon className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" />
-                <span>{CONTACT_INFO.address}</span>
+              <li>
+                <a
+                  href={CONTACT_INFO.addressUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start text-xs sm:text-sm text-foreground-secondary hover:text-primary transition-colors"
+                >
+                  <MapPinIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0 mt-0.5" />
+                  <span>{CONTACT_INFO.address}</span>
+                </a>
               </li>
-              <li className="flex items-center text-gray-400">
-                <ClockIcon className="w-5 h-5 mr-2" />
+              <li className="flex items-center text-xs sm:text-sm text-foreground-secondary">
+                <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" />
                 <span>{t("footer.daily")}: {CONTACT_INFO.workingHours.weekdays}</span>
               </li>
             </ul>
@@ -156,27 +164,27 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Copyright */}
-      <div className="border-t border-gray-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between text-sm text-gray-400">
-            <p>{t("footer.copyright", { year: currentYear.toString() })}</p>
-            <div className="flex items-center space-x-4 mt-2 md:mt-0">
-              <span>{t("footer.accept")}:</span>
-              <div className="flex space-x-2">
+      {/* Copyright - з safe area для мобільних */}
+      <div className="border-t border-border">
+        <div className="container mx-auto px-4 py-3 sm:py-4 pb-safe">
+          <div className="flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm text-foreground-muted gap-2">
+            <p className="text-center sm:text-left">{t("footer.copyright", { year: currentYear.toString() })}</p>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="hidden sm:inline">{t("footer.accept")}:</span>
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
                 {/* VISA */}
-                <div className="bg-white rounded px-2 py-1">
-                  <span className="text-blue-600 font-bold text-xs">VISA</span>
+                <div className="bg-surface rounded px-1.5 sm:px-2 py-0.5 sm:py-1">
+                  <span className="text-blue-600 font-bold text-[10px] sm:text-xs">VISA</span>
                 </div>
                 {/* MasterCard */}
-                <div className="bg-white rounded px-2 py-1">
+                <div className="bg-surface rounded px-1.5 sm:px-2 py-0.5 sm:py-1">
                   <div className="flex">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full -ml-1"></div>
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-yellow-500 rounded-full -ml-1"></div>
                   </div>
                 </div>
                 {/* Готівка */}
-                <span>{t("footer.cash")}</span>
+                <span className="text-[10px] sm:text-xs">{t("footer.cash")}</span>
               </div>
             </div>
           </div>

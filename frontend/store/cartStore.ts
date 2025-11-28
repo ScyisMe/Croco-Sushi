@@ -26,7 +26,7 @@ export interface DeliveryInfo {
 // Значення за замовчуванням для доставки
 const DEFAULT_DELIVERY: DeliveryInfo = {
   delivery_cost: 50,
-  free_delivery_from: 500,
+  free_delivery_from: 1000,
   min_order_amount: 200,
 };
 

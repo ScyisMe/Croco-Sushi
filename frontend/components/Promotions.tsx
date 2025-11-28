@@ -40,7 +40,7 @@ export default function Promotions() {
   // Skeleton loader
   if (promotionsQuery.isLoading) {
     return (
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-theme-secondary">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-10">
             <div className="h-8 w-64 skeleton rounded" />
@@ -68,7 +68,7 @@ export default function Promotions() {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-theme-secondary">
       <div className="container mx-auto px-4">
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-10">

@@ -28,7 +28,7 @@ export default function PopularProducts() {
   const products = productsQuery.data || [];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-theme-surface">
       <div className="container mx-auto px-4">
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-10">

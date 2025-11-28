@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api/client";
@@ -20,6 +20,20 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  
+  // Стани для помилок валідації
+  const [phoneError, setPhoneError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  // Перевірка чи користувач вже авторизований
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      router.replace("/profile");
+    }
+  }, [router]);
 
   const formatPhoneNumber = (value: string) => {
     // Видаляємо все крім цифр
@@ -37,13 +51,78 @@ export default function RegisterPage() {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatPhoneNumber(e.target.value);
     setPhone(formatted);
+    setPhoneError("");
   };
+
+  // Валідація телефону
+  const validatePhone = useCallback((): boolean => {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 0) {
+      setPhoneError("Введіть номер телефону");
+      return false;
+    }
+    if (digits.length !== 12) {
+      setPhoneError("Номер телефону має містити 12 цифр");
+      return false;
+    }
+    if (!digits.startsWith("380")) {
+      setPhoneError("Номер має починатися з +380");
+      return false;
+    }
+    return true;
+  }, [phone]);
+
+  // Валідація email
+  const validateEmail = useCallback((): boolean => {
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Введіть коректний email");
+      return false;
+    }
+    return true;
+  }, [email]);
+
+  // Валідація імені
+  const validateName = useCallback((): boolean => {
+    if (name && name.trim().length < 2) {
+      setNameError("Ім'я має містити мінімум 2 символи");
+      return false;
+    }
+    if (name && !/^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s'-]+$/.test(name)) {
+      setNameError("Ім'я може містити лише літери");
+      return false;
+    }
+    return true;
+  }, [name]);
+
+  // Валідація пароля
+  const validatePassword = useCallback((): boolean => {
+    if (password.length < 8) {
+      setPasswordError("Пароль має містити мінімум 8 символів");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      setPasswordError("Паролі не співпадають");
+      return false;
+    }
+    return true;
+  }, [password, confirmPassword]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
-      toast.error("Паролі не співпадають");
+    // Очищуємо всі помилки
+    setPhoneError("");
+    setEmailError("");
+    setNameError("");
+    setPasswordError("");
+    
+    // Валідація всіх полів
+    const isPhoneValid = validatePhone();
+    const isEmailValid = validateEmail();
+    const isNameValid = validateName();
+    const isPasswordValid = validatePassword();
+    
+    if (!isPhoneValid || !isEmailValid || !isNameValid || !isPasswordValid) {
       return;
     }
 
@@ -59,13 +138,22 @@ export default function RegisterPage() {
       await apiClient.post("/auth/register", { 
         phone: cleanPhone, 
         email: email || undefined, 
-        name: name || undefined, 
+        name: name.trim() || undefined, 
         password 
       });
       toast.success("Реєстрація успішна! Тепер увійдіть.");
       router.push("/login");
-    } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Помилка реєстрації");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      const message = err.response?.data?.detail || "Помилка реєстрації";
+      toast.error(message);
+      
+      // Показуємо специфічні помилки
+      if (message.toLowerCase().includes("телефон") || message.toLowerCase().includes("phone")) {
+        setPhoneError("Цей номер вже зареєстровано");
+      } else if (message.toLowerCase().includes("email")) {
+        setEmailError("Цей email вже використовується");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -87,85 +175,128 @@ export default function RegisterPage() {
   const strengthLabels = ["Дуже слабкий", "Слабкий", "Середній", "Хороший", "Надійний"];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-md mx-auto">
           {/* Заголовок */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
               <span className="text-3xl">🐊</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Створити акаунт</h1>
-            <p className="text-gray-600">Приєднуйтесь до Croco Sushi</p>
+            <h1 className="text-3xl font-bold text-secondary mb-2">Створити акаунт</h1>
+            <p className="text-secondary-light">Приєднуйтесь до Croco Sushi</p>
           </div>
 
           {/* Форма */}
-          <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="bg-theme-surface rounded-2xl shadow-card p-8">
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Телефон */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Номер телефону <span className="text-red-500">*</span>
+                <label htmlFor="phone" className="block text-sm font-medium text-secondary mb-2">
+                  Номер телефону <span className="text-accent-red">*</span>
                 </label>
                 <input
+                  id="phone"
                   type="tel"
                   value={phone}
                   onChange={handlePhoneChange}
+                  onBlur={validatePhone}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                  aria-describedby={phoneError ? "phone-error" : undefined}
+                  aria-invalid={!!phoneError}
+                  className={`input ${phoneError ? "input-error" : ""}`}
                   placeholder="+380 XX XXX XX XX"
                 />
+                {phoneError && (
+                  <p id="phone-error" className="mt-1 text-sm text-accent-red" role="alert">
+                    {phoneError}
+                  </p>
+                )}
               </div>
 
               {/* Ім'я */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-secondary mb-2">
                   Ваше ім&apos;я
                 </label>
                 <input
+                  id="name"
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setNameError("");
+                  }}
+                  onBlur={validateName}
+                  aria-describedby={nameError ? "name-error" : undefined}
+                  aria-invalid={!!nameError}
+                  className={`input ${nameError ? "input-error" : ""}`}
                   placeholder="Як до вас звертатися?"
                 />
+                {nameError && (
+                  <p id="name-error" className="mt-1 text-sm text-accent-red" role="alert">
+                    {nameError}
+                  </p>
+                )}
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-secondary mb-2">
                   Email
                 </label>
                 <input
+                  id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError("");
+                  }}
+                  onBlur={validateEmail}
+                  aria-describedby={emailError ? "email-error" : "email-hint"}
+                  aria-invalid={!!emailError}
+                  className={`input ${emailError ? "input-error" : ""}`}
                   placeholder="email@example.com"
                 />
-                <p className="mt-1 text-xs text-gray-500">Для отримання акцій та спеціальних пропозицій</p>
+                {emailError ? (
+                  <p id="email-error" className="mt-1 text-sm text-accent-red" role="alert">
+                    {emailError}
+                  </p>
+                ) : (
+                  <p id="email-hint" className="mt-1 text-xs text-secondary-light">
+                    Для отримання акцій та спеціальних пропозицій
+                  </p>
+                )}
               </div>
 
               {/* Пароль */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Пароль <span className="text-red-500">*</span>
+                <label htmlFor="password" className="block text-sm font-medium text-secondary mb-2">
+                  Пароль <span className="text-accent-red">*</span>
                 </label>
                 <div className="relative">
                   <input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPasswordError("");
+                    }}
                     required
                     minLength={8}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition"
+                    autoComplete="new-password"
+                    aria-describedby="password-strength"
+                    className="input pr-12"
                     placeholder="Мінімум 8 символів"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-light hover:text-secondary transition"
+                    aria-label={showPassword ? "Приховати пароль" : "Показати пароль"}
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="w-5 h-5" />
@@ -177,19 +308,19 @@ export default function RegisterPage() {
                 
                 {/* Індикатор сили пароля */}
                 {password && (
-                  <div className="mt-2">
-                    <div className="flex gap-1">
+                  <div className="mt-2" id="password-strength">
+                    <div className="flex gap-1" role="progressbar" aria-valuenow={passwordStrength} aria-valuemin={0} aria-valuemax={5}>
                       {[...Array(5)].map((_, i) => (
                         <div
                           key={i}
                           className={`h-1 flex-1 rounded-full transition ${
-                            i < passwordStrength ? strengthColors[passwordStrength - 1] : "bg-gray-200"
+                            i < passwordStrength ? strengthColors[Math.max(0, passwordStrength - 1)] : "bg-theme-tertiary"
                           }`}
                         />
                       ))}
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Надійність: {strengthLabels[passwordStrength - 1] || "Введіть пароль"}
+                    <p className="text-xs text-secondary-light mt-1">
+                      Надійність: {passwordStrength > 0 ? strengthLabels[passwordStrength - 1] : "Дуже слабкий"}
                     </p>
                   </div>
                 )}
@@ -197,27 +328,31 @@ export default function RegisterPage() {
 
               {/* Підтвердження пароля */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Підтвердіть пароль <span className="text-red-500">*</span>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-secondary mb-2">
+                  Підтвердіть пароль <span className="text-accent-red">*</span>
                 </label>
                 <div className="relative">
                   <input
+                    id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      setPasswordError("");
+                    }}
                     required
                     minLength={8}
-                    className={`w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-green-500 transition ${
-                      confirmPassword && password !== confirmPassword 
-                        ? "border-red-500 focus:border-red-500" 
-                        : "border-gray-300 focus:border-green-500"
-                    }`}
+                    autoComplete="new-password"
+                    aria-describedby={passwordError ? "confirm-password-error" : undefined}
+                    aria-invalid={!!(confirmPassword && password !== confirmPassword)}
+                    className={`input pr-12 ${confirmPassword && password !== confirmPassword ? "input-error" : ""}`}
                     placeholder="Повторіть пароль"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-light hover:text-secondary transition"
+                    aria-label={showConfirmPassword ? "Приховати пароль" : "Показати пароль"}
                   >
                     {showConfirmPassword ? (
                       <EyeSlashIcon className="w-5 h-5" />
@@ -227,7 +362,14 @@ export default function RegisterPage() {
                   </button>
                 </div>
                 {confirmPassword && password !== confirmPassword && (
-                  <p className="mt-1 text-xs text-red-500">Паролі не співпадають</p>
+                  <p id="confirm-password-error" className="mt-1 text-xs text-accent-red" role="alert">
+                    Паролі не співпадають
+                  </p>
+                )}
+                {passwordError && (
+                  <p className="mt-1 text-xs text-accent-red" role="alert">
+                    {passwordError}
+                  </p>
                 )}
               </div>
 
@@ -238,15 +380,15 @@ export default function RegisterPage() {
                   id="terms"
                   checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
-                  className="w-4 h-4 mt-1 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  className="w-4 h-4 mt-1 text-primary border-theme rounded focus:ring-primary"
                 />
-                <label htmlFor="terms" className="ml-3 text-sm text-gray-600">
+                <label htmlFor="terms" className="ml-3 text-sm text-secondary-light">
                   Я погоджуюсь з{" "}
-                  <Link href="/terms" className="text-green-600 hover:text-green-700 underline">
+                  <Link href="/terms" className="text-primary hover:text-primary-600 underline">
                     умовами використання
                   </Link>{" "}
                   та{" "}
-                  <Link href="/privacy" className="text-green-600 hover:text-green-700 underline">
+                  <Link href="/privacy" className="text-primary hover:text-primary-600 underline">
                     політикою конфіденційності
                   </Link>
                 </label>
@@ -256,7 +398,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading || !acceptTerms || password !== confirmPassword}
-                className="w-full bg-green-600 text-white py-3.5 px-6 rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -274,9 +416,9 @@ export default function RegisterPage() {
 
             {/* Посилання на вхід */}
             <div className="mt-6 text-center">
-              <p className="text-gray-600">
+              <p className="text-secondary-light">
                 Вже маєте акаунт?{" "}
-                <Link href="/login" className="text-green-600 hover:text-green-700 font-medium">
+                <Link href="/login" className="text-primary hover:text-primary-600 font-semibold transition">
                   Увійти
                 </Link>
               </p>
@@ -284,23 +426,23 @@ export default function RegisterPage() {
           </div>
 
           {/* Переваги реєстрації */}
-          <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Переваги реєстрації:</h3>
+          <div className="mt-8 bg-theme-surface rounded-2xl shadow-card p-6">
+            <h3 className="font-semibold text-secondary mb-4">Переваги реєстрації:</h3>
             <ul className="space-y-3">
-              <li className="flex items-center text-gray-600">
-                <span className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 text-green-600 text-sm">✓</span>
+              <li className="flex items-center text-secondary-light">
+                <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
                 Швидке оформлення замовлень
               </li>
-              <li className="flex items-center text-gray-600">
-                <span className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 text-green-600 text-sm">✓</span>
+              <li className="flex items-center text-secondary-light">
+                <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
                 Історія ваших замовлень
               </li>
-              <li className="flex items-center text-gray-600">
-                <span className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 text-green-600 text-sm">✓</span>
+              <li className="flex items-center text-secondary-light">
+                <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
                 Бонусна програма лояльності
               </li>
-              <li className="flex items-center text-gray-600">
-                <span className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 text-green-600 text-sm">✓</span>
+              <li className="flex items-center text-secondary-light">
+                <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>
                 Ексклюзивні акції та знижки
               </li>
             </ul>

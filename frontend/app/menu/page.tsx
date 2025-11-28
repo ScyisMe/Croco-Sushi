@@ -250,7 +250,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       {/* Schema.org markup для SEO */}
       <JsonLd schema={getBreadcrumbSchema(breadcrumbItems)} />
       
@@ -258,7 +258,7 @@ export default function MenuPage() {
       
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-white border-b border-border">
+        <div className="bg-theme-surface border-b border-theme">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -336,7 +336,7 @@ export default function MenuPage() {
           <div className="flex gap-8">
             {/* Сайдбар з категоріями (desktop) */}
             <aside className="hidden lg:block w-64 flex-shrink-0">
-              <div className="bg-white rounded-xl shadow-card p-4 sticky top-24">
+              <div className="bg-theme-surface rounded-xl shadow-card p-4 sticky top-24">
                 <h3 className="font-bold text-lg text-secondary mb-4">Категорії</h3>
                 <ul className="space-y-1">
                   <li>
@@ -345,7 +345,7 @@ export default function MenuPage() {
                       className={`w-full text-left px-3 py-2 rounded-lg transition ${
                         !selectedCategory
                           ? "bg-primary text-white"
-                          : "text-secondary hover:bg-gray-100"
+                          : "text-secondary hover:bg-theme-secondary"
                       }`}
                     >
                       Все меню
@@ -358,7 +358,7 @@ export default function MenuPage() {
                         className={`w-full text-left px-3 py-2 rounded-lg transition ${
                           selectedCategory === category.slug
                             ? "bg-primary text-white"
-                            : "text-secondary hover:bg-gray-100"
+                            : "text-secondary hover:bg-theme-secondary"
                         }`}
                       >
                         {category.name}
@@ -379,7 +379,7 @@ export default function MenuPage() {
                     className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${
                       !selectedCategory
                         ? "bg-primary text-white"
-                        : "bg-white text-secondary border border-border hover:border-primary"
+                        : "bg-theme-surface text-secondary border border-theme hover:border-primary"
                     }`}
                   >
                     Все
@@ -391,7 +391,7 @@ export default function MenuPage() {
                       className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${
                         selectedCategory === category.slug
                           ? "bg-primary text-white"
-                          : "bg-white text-secondary border border-border hover:border-primary"
+                          : "bg-theme-surface text-secondary border border-theme hover:border-primary"
                       }`}
                     >
                       {category.name}
@@ -489,8 +489,8 @@ export default function MenuPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setIsMobileFilterOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
-            <div className="sticky top-0 bg-white border-b border-border p-4 flex items-center justify-between">
+          <div className="absolute bottom-0 left-0 right-0 bg-theme-surface rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
+            <div className="sticky top-0 bg-theme-surface border-b border-theme p-4 flex items-center justify-between">
               <h3 className="font-bold text-lg">Фільтри</h3>
               <button
                 onClick={() => setIsMobileFilterOpen(false)}
@@ -512,7 +512,7 @@ export default function MenuPage() {
                       className={`w-full text-left px-4 py-3 rounded-lg transition ${
                         sortBy === option.value
                           ? "bg-primary text-white"
-                          : "bg-gray-50 text-secondary hover:bg-gray-100"
+                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
                       }`}
                     >
                       {option.label}
@@ -530,7 +530,7 @@ export default function MenuPage() {
                     className={`w-full text-left px-4 py-3 rounded-lg transition ${
                       !selectedCategory
                         ? "bg-primary text-white"
-                        : "bg-gray-50 text-secondary hover:bg-gray-100"
+                        : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
                     }`}
                   >
                     Все меню
@@ -542,7 +542,7 @@ export default function MenuPage() {
                       className={`w-full text-left px-4 py-3 rounded-lg transition ${
                         selectedCategory === category.slug
                           ? "bg-primary text-white"
-                          : "bg-gray-50 text-secondary hover:bg-gray-100"
+                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
                       }`}
                     >
                       {category.name}
@@ -553,7 +553,7 @@ export default function MenuPage() {
             </div>
 
             {/* Кнопка застосувати */}
-            <div className="sticky bottom-0 bg-white border-t border-border p-4">
+            <div className="sticky bottom-0 bg-theme-surface border-t border-theme p-4">
               <button
                 onClick={() => setIsMobileFilterOpen(false)}
                 className="w-full btn-primary"

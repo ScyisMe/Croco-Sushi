@@ -118,10 +118,10 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
   const amountToFreeDelivery = delivery.free_delivery_from - totalAmount;
   const isMaxItemsReached = items.length >= MAX_CART_ITEMS;
 
-  // Зони доставки для вибору
+  // Зони доставки для вибору - всі безкоштовно від 1000₴
   const deliveryZones = [
-    { id: "center", name: "Центр Львова", cost: 50, freeFrom: 500, minOrder: 200, time: "30-45 хв" },
-    { id: "suburbs", name: "Околиці", cost: 70, freeFrom: 700, minOrder: 200, time: "45-60 хв" },
+    { id: "center", name: "Центр Львова", cost: 50, freeFrom: 1000, minOrder: 200, time: "30-45 хв" },
+    { id: "suburbs", name: "Околиці", cost: 70, freeFrom: 1000, minOrder: 200, time: "45-60 хв" },
     { id: "remote", name: "Віддалені райони", cost: 100, freeFrom: 1000, minOrder: 300, time: "60-90 хв" },
   ];
 
@@ -172,7 +172,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                 leaveTo="translate-x-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                  <div className="flex h-full flex-col bg-white shadow-xl">
+                  <div className="flex h-full flex-col bg-theme-surface shadow-xl">
                     {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                       <Dialog.Title className="text-xl font-bold text-secondary">
@@ -188,7 +188,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                       </Dialog.Title>
                       <button
                         type="button"
-                        className="p-2 text-secondary-light hover:text-secondary transition rounded-full hover:bg-gray-100"
+                        className="p-2 text-secondary-light hover:text-secondary transition rounded-full hover:bg-theme-secondary"
                         onClick={() => setIsOpen(false)}
                       >
                         <XMarkIcon className="h-6 w-6" />
@@ -200,7 +200,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                       {items.length === 0 ? (
                         // Порожній кошик
                         <div className="flex flex-col items-center justify-center h-full px-6 py-12">
-                          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                          <div className="w-24 h-24 bg-theme-secondary rounded-full flex items-center justify-center mb-4">
                             <ShoppingBagIcon className="w-12 h-12 text-gray-400" />
                           </div>
                           <h3 className="text-lg font-semibold text-secondary mb-2">
@@ -236,7 +236,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                   {amountToFreeDelivery.toFixed(0)} ₴
                                 </span>
                               </p>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div className="w-full bg-theme-tertiary rounded-full h-2">
                                 <div
                                   className="bg-primary h-2 rounded-full transition-all"
                                   style={{
@@ -252,10 +252,10 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             {items.map((item) => (
                               <li
                                 key={`${item.id}-${item.sizeId || "default"}`}
-                                className="flex gap-4 p-3 bg-gray-50 rounded-lg"
+                                className="flex gap-4 p-3 bg-theme-secondary rounded-lg"
                               >
                                 {/* Зображення */}
-                                <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-white">
+                                <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-theme-surface">
                                   {item.image_url ? (
                                     <Image
                                       src={item.image_url}
@@ -285,25 +285,27 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                     {item.price} ₴
                                   </p>
 
-                                  {/* Кількість та видалення */}
+                                  {/* Кількість та видалення - збільшені touch targets */}
                                   <div className="flex items-center justify-between mt-2">
                                     <div className="flex items-center border border-border rounded-lg">
                                       <button
                                         onClick={() =>
                                           updateQuantity(item.id, item.quantity - 1, item.sizeId)
                                         }
-                                        className="p-1.5 text-secondary-light hover:text-secondary transition"
+                                        className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-l-lg active:scale-95"
+                                        aria-label="Зменшити кількість"
                                       >
                                         <MinusIcon className="w-4 h-4" />
                                       </button>
-                                      <span className="px-3 font-medium text-sm">
+                                      <span className="px-4 font-medium text-sm min-w-[40px] text-center">
                                         {item.quantity}
                                       </span>
                                       <button
                                         onClick={() =>
                                           updateQuantity(item.id, item.quantity + 1, item.sizeId)
                                         }
-                                        className="p-1.5 text-secondary-light hover:text-secondary transition"
+                                        className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-r-lg active:scale-95"
+                                        aria-label="Збільшити кількість"
                                       >
                                         <PlusIcon className="w-4 h-4" />
                                       </button>
@@ -311,7 +313,8 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
                                     <button
                                       onClick={() => removeItem(item.id, item.sizeId)}
-                                      className="p-1.5 text-secondary-light hover:text-accent-red transition"
+                                      className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-accent-red hover:bg-accent-red/10 transition rounded-lg active:scale-95"
+                                      aria-label="Видалити товар"
                                     >
                                       <TrashIcon className="w-5 h-5" />
                                     </button>
@@ -332,9 +335,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                       )}
                     </div>
 
-                    {/* Footer */}
+                    {/* Footer - з safe area для мобільних */}
                     {items.length > 0 && (
-                      <div className="border-t border-border px-6 py-4 space-y-4">
+                      <div className="border-t border-border px-4 sm:px-6 py-4 pb-safe space-y-4">
                         {/* Вибір зони доставки */}
                         <div>
                           <div className="flex items-center gap-2 mb-2">
@@ -402,7 +405,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           className={`block w-full text-center py-4 rounded-lg font-bold text-lg transition ${
                             isMinOrderReached
                               ? "bg-primary hover:bg-primary-600 text-white"
-                              : "bg-gray-200 text-gray-500 cursor-not-allowed pointer-events-none"
+                              : "bg-theme-tertiary text-theme-muted cursor-not-allowed pointer-events-none"
                           }`}
                         >
                           {t("cart.checkout")}

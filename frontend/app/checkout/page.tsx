@@ -75,7 +75,7 @@ const PAYMENT_METHODS = [
 // Мінімальна сума замовлення
 const MIN_ORDER_AMOUNT = 200;
 const DELIVERY_COST = 50;
-const FREE_DELIVERY_FROM = 500;
+const FREE_DELIVERY_FROM = 1000;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -240,11 +240,11 @@ export default function CheckoutPage() {
   // Якщо кошик порожній
   if (items.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-16 text-center">
           <div className="max-w-md mx-auto">
-            <ShoppingBagIcon className="w-24 h-24 text-gray-300 mx-auto mb-6" />
+            <ShoppingBagIcon className="w-24 h-24 text-secondary-light mx-auto mb-6" />
             <h1 className="text-2xl font-bold text-secondary mb-4">Кошик порожній</h1>
             <p className="text-secondary-light mb-8">
               Додайте страви з меню, щоб оформити замовлення
@@ -260,12 +260,12 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       <Header />
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-white border-b border-border">
+        <div className="bg-theme-surface border-b border-theme">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -277,42 +277,42 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-secondary mb-8">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-secondary mb-4 sm:mb-8">
             Оформлення замовлення
           </h1>
 
-          {/* Індикатор прогресу */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between max-w-2xl mx-auto">
+          {/* Індикатор прогресу - оптимізований для мобільних */}
+          <div className="mb-4 sm:mb-8 overflow-x-auto hide-scrollbar">
+            <div className="flex items-center justify-between max-w-2xl mx-auto min-w-max px-2">
               {STEPS.map((step, index) => (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition ${
+                    className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition ${
                       currentStep > step.id
                         ? "bg-primary border-primary text-white"
                         : currentStep === step.id
-                        ? "border-primary text-primary"
-                        : "border-gray-300 text-gray-300"
+                        ? "border-primary text-primary bg-primary/10"
+                        : "border-theme text-secondary-light"
                     }`}
                   >
                     {currentStep > step.id ? (
-                      <CheckIcon className="w-5 h-5" />
+                      <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
-                      <step.icon className="w-5 h-5" />
+                      <step.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     )}
                   </div>
                   <span
-                    className={`hidden sm:block ml-2 text-sm font-medium ${
-                      currentStep >= step.id ? "text-secondary" : "text-gray-400"
+                    className={`hidden xs:block ml-1.5 sm:ml-2 text-xs sm:text-sm font-medium whitespace-nowrap ${
+                      currentStep >= step.id ? "text-secondary" : "text-secondary-light"
                     }`}
                   >
                     {step.name}
                   </span>
                   {index < STEPS.length - 1 && (
                     <div
-                      className={`w-8 sm:w-16 h-0.5 mx-2 sm:mx-4 ${
-                        currentStep > step.id ? "bg-primary" : "bg-gray-300"
+                      className={`w-4 xs:w-6 sm:w-12 lg:w-16 h-0.5 mx-1 sm:mx-2 lg:mx-4 transition-colors ${
+                        currentStep > step.id ? "bg-primary" : "bg-theme-tertiary"
                       }`}
                     />
                   )}
@@ -321,10 +321,10 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
             {/* Форма */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-card p-6 md:p-8">
+            <div className="lg:col-span-2 order-2 lg:order-1">
+              <div className="bg-theme-surface rounded-xl shadow-card p-4 sm:p-6 md:p-8">
                 {/* Крок 1: Контактні дані */}
                 {currentStep === 1 && (
                   <div className="space-y-6">
@@ -536,7 +536,7 @@ export default function CheckoutPage() {
 
                     {/* Перегляд даних */}
                     <div className="space-y-4">
-                      <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="p-4 bg-theme-secondary rounded-lg">
                         <h3 className="font-semibold text-secondary mb-2">Контактні дані</h3>
                         <p className="text-secondary-light">{formData.customer_name}</p>
                         <p className="text-secondary-light">{formData.customer_phone}</p>
@@ -545,7 +545,7 @@ export default function CheckoutPage() {
                         )}
                       </div>
 
-                      <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="p-4 bg-theme-secondary rounded-lg">
                         <h3 className="font-semibold text-secondary mb-2">Адреса доставки</h3>
                         <p className="text-secondary-light">
                           {formData.city}, вул. {formData.street}, буд. {formData.building}
@@ -558,7 +558,7 @@ export default function CheckoutPage() {
                         )}
                       </div>
 
-                      <div className="p-4 bg-gray-50 rounded-lg">
+                      <div className="p-4 bg-theme-secondary rounded-lg">
                         <h3 className="font-semibold text-secondary mb-2">Спосіб оплати</h3>
                         <p className="text-secondary-light">
                           {PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.label}
@@ -609,36 +609,36 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* Кнопки навігації */}
-                <div className="flex justify-between mt-8 pt-6 border-t border-border">
+                {/* Кнопки навігації - адаптивні */}
+                <div className="flex justify-between mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border gap-2">
                   {currentStep > 1 ? (
                     <button
                       onClick={prevStep}
-                      className="flex items-center gap-2 px-6 py-3 text-secondary hover:text-primary transition"
+                      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-secondary hover:text-primary transition min-h-[44px]"
                     >
-                      <ChevronLeftIcon className="w-5 h-5" />
-                      Назад
+                      <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="hidden xs:inline">Назад</span>
                     </button>
                   ) : (
                     <Link
                       href="/menu"
-                      className="flex items-center gap-2 px-6 py-3 text-secondary hover:text-primary transition"
+                      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-secondary hover:text-primary transition min-h-[44px]"
                     >
-                      <ChevronLeftIcon className="w-5 h-5" />
-                      До меню
+                      <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="hidden xs:inline">До меню</span>
                     </Link>
                   )}
 
                   {currentStep < 4 ? (
-                    <button onClick={nextStep} className="btn-primary">
+                    <button onClick={nextStep} className="btn-primary text-sm sm:text-base flex-1 sm:flex-none sm:min-w-[140px]">
                       Далі
-                      <ChevronRightIcon className="w-5 h-5 ml-2" />
+                      <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
                     </button>
                   ) : (
                     <button
                       onClick={handleSubmit}
                       disabled={isLoading}
-                      className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-primary text-sm sm:text-base flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? (
                         <>
@@ -673,19 +673,19 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Бокова панель - Замовлення */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-card p-6 sticky top-24">
-                <h3 className="text-lg font-bold text-secondary mb-4">Ваше замовлення</h3>
+            {/* Бокова панель - Замовлення (зверху на мобільних) */}
+            <div className="lg:col-span-1 order-1 lg:order-2">
+              <div className="bg-theme-surface rounded-xl shadow-card p-4 sm:p-6 lg:sticky lg:top-24">
+                <h3 className="text-base sm:text-lg font-bold text-secondary mb-3 sm:mb-4">Ваше замовлення</h3>
 
-                {/* Список товарів */}
-                <ul className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                {/* Список товарів - компактний на мобільних */}
+                <ul className="space-y-2 sm:space-y-3 mb-3 sm:mb-4 max-h-48 sm:max-h-64 overflow-y-auto">
                   {items.map((item) => (
                     <li
                       key={`${item.id}-${item.sizeId || "default"}`}
-                      className="flex gap-3"
+                      className="flex gap-2 sm:gap-3"
                     >
-                      <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden bg-theme-secondary">
                         {item.image_url ? (
                           <Image
                             src={item.image_url}
@@ -695,21 +695,21 @@ export default function CheckoutPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xl">
+                          <div className="w-full h-full flex items-center justify-center text-lg sm:text-xl">
                             🍣
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-secondary truncate">
+                        <p className="text-xs sm:text-sm font-medium text-secondary truncate">
                           {item.name}
                         </p>
-                        <p className="text-xs text-secondary-light">
+                        <p className="text-[10px] sm:text-xs text-secondary-light">
                           {item.size && `${item.size} • `}
                           {item.quantity} шт.
                         </p>
                       </div>
-                      <p className="text-sm font-semibold text-secondary">
+                      <p className="text-xs sm:text-sm font-semibold text-secondary whitespace-nowrap">
                         {item.price * item.quantity} ₴
                       </p>
                     </li>
@@ -717,23 +717,23 @@ export default function CheckoutPage() {
                 </ul>
 
                 {/* Підсумок */}
-                <div className="border-t border-border pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
+                <div className="border-t border-border pt-3 sm:pt-4 space-y-1.5 sm:space-y-2">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-secondary-light">Підсумок</span>
                     <span className="font-medium">{totalAmount} ₴</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-secondary-light">Доставка</span>
                     <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
                       {deliveryCost === 0 ? "Безкоштовно" : `${deliveryCost} ₴`}
                     </span>
                   </div>
                   {deliveryCost > 0 && (
-                    <p className="text-xs text-secondary-light">
+                    <p className="text-[10px] sm:text-xs text-secondary-light">
                       Безкоштовна доставка від {FREE_DELIVERY_FROM} ₴
                     </p>
                   )}
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
+                  <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-border">
                     <span>Разом</span>
                     <span className="text-primary">{finalAmount} ₴</span>
                   </div>

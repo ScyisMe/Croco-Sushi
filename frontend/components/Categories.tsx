@@ -49,7 +49,7 @@ export default function Categories() {
   // Skeleton loader
   if (categoriesQuery.isLoading) {
     return (
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-theme-surface">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-secondary mb-8">Категорії меню</h2>
           <div className="flex gap-4 overflow-hidden">
@@ -70,7 +70,7 @@ export default function Categories() {
   }
 
   return (
-    <section className="py-12 bg-white">
+    <section className="py-12 bg-theme-surface">
       <div className="container mx-auto px-4">
         {/* Заголовок */}
         <div className="flex items-center justify-between mb-8">
@@ -125,7 +125,7 @@ export default function Categories() {
                 href={`/menu?category=${category.slug}`}
                 className="flex-shrink-0 group"
               >
-                <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full overflow-hidden bg-gray-100 flex items-center justify-center mb-3 transition group-hover:ring-4 group-hover:ring-primary/30 group-hover:scale-105">
+                <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full overflow-hidden bg-theme-secondary flex items-center justify-center mb-3 transition group-hover:ring-4 group-hover:ring-primary/30 group-hover:scale-105">
                   {category.image_url ? (
                     <Image
                       src={category.image_url}
@@ -147,9 +147,9 @@ export default function Categories() {
             ))}
           </div>
 
-          {/* Градієнти для індикації прокрутки */}
-          <div className="absolute top-0 left-0 w-8 h-full bg-gradient-to-r from-white to-transparent pointer-events-none md:hidden" />
-          <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden" />
+          {/* Градієнти для індикації прокрутки - адаптовані до теми */}
+          <div className="absolute top-0 left-0 w-8 h-full bg-gradient-to-r from-surface to-transparent pointer-events-none md:hidden" />
+          <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-surface to-transparent pointer-events-none md:hidden" />
         </div>
       </div>
     </section>

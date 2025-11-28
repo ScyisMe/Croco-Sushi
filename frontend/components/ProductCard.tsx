@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, startTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PlusIcon, HeartIcon, EyeIcon } from "@heroicons/react/24/outline";
@@ -45,6 +45,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   if (product.is_hit) badges.push({ label: "Хіт", className: "badge-hit" });
   if (product.is_promotion || hasDiscount) badges.push({ label: "Акція", className: "badge-sale" });
 
+  // INP optimization - використовуємо startTransition для некритичних оновлень
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -55,14 +56,17 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       return;
     }
     
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: currentPrice,
-      image_url: product.image_url,
-      size: selectedSize?.name,
-      sizeId: selectedSize?.id,
-      quantity: 1,
+    // Використовуємо startTransition для некритичного оновлення стану
+    startTransition(() => {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: currentPrice,
+        image_url: product.image_url,
+        size: selectedSize?.name,
+        sizeId: selectedSize?.id,
+        quantity: 1,
+      });
     });
     
     toast.success(`${product.name} додано в кошик`);
@@ -100,7 +104,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ) : (
-            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+            <div className="w-full h-full bg-theme-secondary flex items-center justify-center">
               <span className="text-6xl">🍣</span>
             </div>
           )}
@@ -116,16 +120,17 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             </div>
           )}
 
-          {/* Кнопки дій */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2">
+          {/* Кнопки дій - touch targets 44px */}
+          <div className="absolute top-2 right-2 flex flex-col gap-1">
             {onFavoriteToggle && (
               <button
                 onClick={handleFavoriteClick}
-                className={`p-2 rounded-full transition ${
+                className={`p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition active:scale-95 ${
                   isFavorite
                     ? "bg-accent-red text-white"
-                    : "bg-white/80 text-gray-600 hover:bg-white hover:text-accent-red"
+                    : "bg-surface/90 text-secondary-light hover:bg-surface hover:text-accent-red"
                 }`}
+                aria-label={isFavorite ? "Видалити з обраного" : "Додати в обране"}
               >
                 {isFavorite ? (
                   <HeartSolidIcon className="w-5 h-5" />
@@ -137,10 +142,11 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             {onQuickView && (
               <button
                 onClick={handleQuickView}
-                className={`p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white hover:text-primary transition ${
-                  isHovered ? "opacity-100" : "opacity-0"
+                className={`p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-surface/90 text-secondary-light hover:bg-surface hover:text-primary transition active:scale-95 ${
+                  isHovered ? "opacity-100" : "opacity-0 sm:opacity-100"
                 }`}
                 title="Швидкий перегляд"
+                aria-label="Швидкий перегляд"
               >
                 <EyeIcon className="w-5 h-5" />
               </button>
@@ -162,17 +168,17 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             </p>
           )}
 
-          {/* Вибір розміру */}
+          {/* Вибір розміру - touch targets */}
           {product.sizes && product.sizes.length > 1 && (
-            <div className="flex gap-2 mb-3">
+            <div className="flex flex-wrap gap-2 mb-3">
               {product.sizes.map((size) => (
                 <button
                   key={size.id}
                   onClick={(e) => handleSizeSelect(e, size)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition ${
+                  className={`px-3 py-2 min-h-[40px] text-sm font-medium rounded-lg border transition active:scale-95 ${
                     selectedSize?.id === size.id
                       ? "bg-primary text-white border-primary"
-                      : "bg-white text-secondary border-border hover:border-primary"
+                      : "bg-surface text-secondary border-border hover:border-primary active:bg-surface-hover"
                   }`}
                 >
                   {size.name}
@@ -196,7 +202,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
             <button
               onClick={handleAddToCart}
-              className="w-10 h-10 flex items-center justify-center bg-primary hover:bg-primary-600 text-white rounded-full transition transform hover:scale-110"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-primary hover:bg-primary-600 text-white rounded-full transition transform hover:scale-105 active:scale-95"
               aria-label={t("product.addToCart")}
             >
               <PlusIcon className="w-5 h-5" />
