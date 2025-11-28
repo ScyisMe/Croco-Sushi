@@ -3,6 +3,7 @@ from pydantic import ConfigDict, field_validator
 from typing import List, Optional
 import json
 import os
+import secrets
 
 
 class Settings(BaseSettings):
@@ -19,6 +20,13 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "your-secret-key-change-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+    
+    # Security - додаткові налаштування
+    PASSWORD_MIN_LENGTH: int = 8
+    PASSWORD_MAX_LENGTH: int = 128
+    MAX_LOGIN_ATTEMPTS: int = 5
+    LOGIN_LOCKOUT_MINUTES: int = 15
     
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"]
@@ -70,6 +78,17 @@ class Settings(BaseSettings):
             except json.JSONDecodeError:
                 # Якщо не JSON, розділимо по комі
                 return [origin.strip() for origin in v.split(',') if origin.strip()]
+        return v
+    
+    @field_validator('SECRET_KEY', mode='after')
+    @classmethod
+    def validate_secret_key(cls, v, info):
+        """Перевірка що SECRET_KEY не є дефолтним в production"""
+        env = info.data.get('ENVIRONMENT', 'development')
+        if env == 'production' and v == "your-secret-key-change-in-production":
+            raise ValueError("SECRET_KEY повинен бути змінений в production!")
+        if len(v) < 32:
+            raise ValueError("SECRET_KEY повинен бути мінімум 32 символи")
         return v
 
 

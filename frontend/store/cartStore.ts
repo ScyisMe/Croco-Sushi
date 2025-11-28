@@ -1,114 +1,246 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { Product, ProductSize } from "@/lib/types";
-import { Decimal } from "decimal.js";
 
-interface CartItem {
-  productId: number;
-  productName: string;
-  productSlug: string;
-  imageUrl?: string;
-  sizeId: number;
-  sizeName: string;
-  price: string; // Use string for Decimal compatibility
+// Спрощений тип для елемента кошика
+export interface CartItem {
+  id: number; // product id
+  name: string;
+  slug?: string;
+  price: number;
+  image_url?: string;
+  size?: string;
+  sizeId?: number;
   quantity: number;
 }
+
+// Інформація про доставку
+export interface DeliveryInfo {
+  zone_id?: number;
+  zone_name?: string;
+  delivery_cost: number;
+  free_delivery_from: number;
+  min_order_amount: number;
+  estimated_time?: string;
+}
+
+// Значення за замовчуванням для доставки
+const DEFAULT_DELIVERY: DeliveryInfo = {
+  delivery_cost: 50,
+  free_delivery_from: 1000,
+  min_order_amount: 200,
+};
 
 interface CartState {
   items: CartItem[];
   totalItems: number;
-  totalAmount: string; // Use string for Decimal compatibility
-  addItem: (product: Product, size: ProductSize, quantity: number) => void;
-  removeItem: (productId: number, sizeId: number) => void;
-  updateQuantity: (productId: number, sizeId: number, quantity: number) => void;
+  totalAmount: number;
+  delivery: DeliveryInfo;
+  lastValidated: number | null; // Час останньої перевірки
+  
+  // Actions
+  addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
+  removeItem: (id: number, sizeId?: number) => void;
+  updateQuantity: (id: number, quantity: number, sizeId?: number) => void;
   clearCart: () => void;
-  calculateTotals: () => { totalItems: number; totalAmount: string };
+  setDelivery: (delivery: DeliveryInfo) => void;
+  removeUnavailableItems: (unavailableIds: number[]) => string[]; // Повертає імена видалених товарів
+  setLastValidated: (timestamp: number) => void;
+  
+  // Helpers
+  getItemCount: (id: number, sizeId?: number) => number;
+  getFinalAmount: () => number;
+  getDeliveryCost: () => number;
 }
+
+export const MAX_CART_ITEMS = 20; // Максимум 20 товарів у кошику
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
       totalItems: 0,
-      totalAmount: "0.00",
+      totalAmount: 0,
+      delivery: DEFAULT_DELIVERY,
+      lastValidated: null,
 
-      addItem: (product, size, quantity) => {
+      addItem: (newItem) => {
         set((state) => {
-          const existingItemIndex = state.items.findIndex(
-            (item) => item.productId === product.id && item.sizeId === size.id
+          // Перевірка на максимум товарів
+          if (state.items.length >= MAX_CART_ITEMS) {
+            return state;
+          }
+
+          const itemKey = `${newItem.id}-${newItem.sizeId || "default"}`;
+          const existingIndex = state.items.findIndex(
+            (item) => `${item.id}-${item.sizeId || "default"}` === itemKey
           );
 
-          let updatedItems;
-          if (existingItemIndex > -1) {
-            // Update quantity if item already exists
+          let updatedItems: CartItem[];
+          
+          if (existingIndex > -1) {
+            // Оновлюємо кількість існуючого товару
             updatedItems = state.items.map((item, index) =>
-              index === existingItemIndex
-                ? { ...item, quantity: item.quantity + quantity }
+              index === existingIndex
+                ? { ...item, quantity: item.quantity + (newItem.quantity || 1) }
                 : item
             );
           } else {
-            // Add new item
+            // Додаємо новий товар
             updatedItems = [
               ...state.items,
               {
-                productId: product.id,
-                productName: product.name,
-                productSlug: product.slug,
-                imageUrl: product.image_url,
-                sizeId: size.id,
-                sizeName: size.name,
-                price: size.price,
-                quantity,
+                id: newItem.id,
+                name: newItem.name,
+                slug: newItem.slug,
+                price: newItem.price,
+                image_url: newItem.image_url,
+                size: newItem.size,
+                sizeId: newItem.sizeId,
+                quantity: newItem.quantity || 1,
               },
             ];
           }
-          const { totalItems, totalAmount } = get().calculateTotals();
-          return { items: updatedItems, totalItems, totalAmount };
-        });
-      },
 
-      removeItem: (productId, sizeId) => {
-        set((state) => {
-          const updatedItems = state.items.filter(
-            (item) => !(item.productId === productId && item.sizeId === sizeId)
+          // Перераховуємо totals
+          const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+          const totalAmount = updatedItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
           );
-          const { totalItems, totalAmount } = get().calculateTotals();
+
           return { items: updatedItems, totalItems, totalAmount };
         });
       },
 
-      updateQuantity: (productId, sizeId, quantity) => {
+      removeItem: (id, sizeId) => {
         set((state) => {
-          const updatedItems = state.items
-            .map((item) =>
-              item.productId === productId && item.sizeId === sizeId
-                ? { ...item, quantity: quantity }
-                : item
-            )
-            .filter((item) => item.quantity > 0); // Remove if quantity is 0
-          const { totalItems, totalAmount } = get().calculateTotals();
+          const itemKey = `${id}-${sizeId || "default"}`;
+          const updatedItems = state.items.filter(
+            (item) => `${item.id}-${item.sizeId || "default"}` !== itemKey
+          );
+
+          const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+          const totalAmount = updatedItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
+
           return { items: updatedItems, totalItems, totalAmount };
         });
       },
 
-      clearCart: () => set({ items: [], totalItems: 0, totalAmount: "0.00" }),
+      updateQuantity: (id, quantity, sizeId) => {
+        set((state) => {
+          if (quantity <= 0) {
+            // Видаляємо товар якщо кількість 0 або менше
+            const itemKey = `${id}-${sizeId || "default"}`;
+            const updatedItems = state.items.filter(
+              (item) => `${item.id}-${item.sizeId || "default"}` !== itemKey
+            );
 
-      calculateTotals: () => {
-        const items = get().items;
-        let totalItems = 0;
-        let totalAmount = new Decimal("0.00");
+            const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+            const totalAmount = updatedItems.reduce(
+              (sum, item) => sum + item.price * item.quantity,
+              0
+            );
 
-        for (const item of items) {
-          totalItems += item.quantity;
-          totalAmount = totalAmount.plus(new Decimal(item.price).times(item.quantity));
+            return { items: updatedItems, totalItems, totalAmount };
+          }
+
+          const itemKey = `${id}-${sizeId || "default"}`;
+          const updatedItems = state.items.map((item) =>
+            `${item.id}-${item.sizeId || "default"}` === itemKey
+              ? { ...item, quantity }
+              : item
+          );
+
+          const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+          const totalAmount = updatedItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
+
+          return { items: updatedItems, totalItems, totalAmount };
+        });
+      },
+
+      clearCart: () => set({ items: [], totalItems: 0, totalAmount: 0 }),
+
+      setDelivery: (delivery) => set({ delivery }),
+
+      setLastValidated: (timestamp) => set({ lastValidated: timestamp }),
+
+      removeUnavailableItems: (unavailableIds) => {
+        const state = get();
+        const removedNames: string[] = [];
+        
+        // Знаходимо товари для видалення
+        state.items.forEach((item) => {
+          if (unavailableIds.includes(item.id)) {
+            removedNames.push(item.name);
+          }
+        });
+        
+        if (removedNames.length === 0) {
+          return [];
         }
-        return { totalItems, totalAmount: totalAmount.toFixed(2) };
+        
+        // Фільтруємо недоступні товари
+        const updatedItems = state.items.filter(
+          (item) => !unavailableIds.includes(item.id)
+        );
+        
+        // Перераховуємо totals
+        const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalAmount = updatedItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+        
+        set({ items: updatedItems, totalItems, totalAmount });
+        
+        return removedNames;
+      },
+
+      getItemCount: (id, sizeId) => {
+        const itemKey = `${id}-${sizeId || "default"}`;
+        const item = get().items.find(
+          (item) => `${item.id}-${item.sizeId || "default"}` === itemKey
+        );
+        return item?.quantity || 0;
+      },
+
+      getDeliveryCost: () => {
+        const state = get();
+        if (state.totalAmount >= state.delivery.free_delivery_from) {
+          return 0;
+        }
+        return state.delivery.delivery_cost;
+      },
+
+      getFinalAmount: () => {
+        const state = get();
+        return state.totalAmount + state.getDeliveryCost();
       },
     }),
     {
-      name: "croco-sushi-cart", // unique name
-      storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
+      name: "croco-sushi-cart",
+      storage: createJSONStorage(() => localStorage),
+      version: 4, // Версія для міграції (оновлено для підтримки lastValidated)
+      migrate: (persistedState, version) => {
+        // Міграція старих даних
+        if (version < 4) {
+          const state = persistedState as Partial<CartState>;
+          return {
+            items: state.items || [],
+            totalItems: state.totalItems || 0,
+            totalAmount: state.totalAmount || 0,
+            delivery: state.delivery || DEFAULT_DELIVERY,
+            lastValidated: null,
+          };
+        }
+        return persistedState as CartState;
+      },
     }
   )
 );
-

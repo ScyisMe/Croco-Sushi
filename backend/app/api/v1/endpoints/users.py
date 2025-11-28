@@ -588,7 +588,24 @@ async def get_my_favorites(
         .order_by(Favorite.created_at.desc())
     )
     favorites = result.scalars().all()
-    return [{"id": fav.id, "product": fav.product, "created_at": fav.created_at} for fav in favorites]
+    
+    # Серіалізуємо продукти вручну
+    return [
+        {
+            "id": fav.id,
+            "product_id": fav.product_id,
+            "product": {
+                "id": fav.product.id,
+                "name": fav.product.name,
+                "slug": fav.product.slug,
+                "price": str(fav.product.price),
+                "image_url": fav.product.image_url,
+                "is_available": fav.product.is_available,
+            } if fav.product else None,
+            "created_at": fav.created_at.isoformat() if fav.created_at else None
+        }
+        for fav in favorites
+    ]
 
 
 @router.post("/me/favorites/{product_id}", status_code=status.HTTP_201_CREATED)

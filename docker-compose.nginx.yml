@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: croco-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx-config/conf.d:/etc/nginx/conf.d:ro
+      - ./uploads:/app/uploads:ro
+      - ./nginx-config/ssl:/etc/nginx/ssl:ro
+      - nginx_cache:/var/cache/nginx
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - croco-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: croco-backend
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=false
+    volumes:
+      - ./uploads:/app/backend/uploads
+      - ./backend/logs:/app/backend/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - croco-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: croco-frontend
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=/api
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    networks:
+      - croco-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: croco-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-croco}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-croco_password}
+      - POSTGRES_DB=${POSTGRES_DB:-croco_sushi}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - croco-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: croco-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - croco-network
+
+  celery:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: croco-celery
+    restart: unless-stopped
+    command: celery -A app.celery_app worker --loglevel=info
+    working_dir: /app/backend
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+    volumes:
+      - ./uploads:/app/backend/uploads
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - croco-network
+
+networks:
+  croco-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  nginx_cache:
+  nginx_logs:
+

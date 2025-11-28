@@ -1,8 +1,40 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
-import { Toaster } from "react-hot-toast";
+import { useState, useEffect } from "react";
+import { useCartSync } from "@/hooks/useCartSync";
+import { useThemeStore } from "@/store/themeStore";
+
+// Компонент для ініціалізації теми
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const initTheme = useThemeStore((state) => state.initTheme);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    initTheme();
+    setMounted(true);
+  }, [initTheme]);
+
+  // Показуємо контент тільки після ініціалізації теми
+  // щоб уникнути flash of wrong theme (FOUC)
+  // Використовуємо opacity замість visibility для кращого UX
+  return (
+    <div 
+      style={{ 
+        opacity: mounted ? 1 : 0,
+        transition: 'opacity 0.1s ease-in-out'
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Компонент для синхронізації кошика
+function CartSyncProvider({ children }: { children: React.ReactNode }) {
+  useCartSync();
+  return <>{children}</>;
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -19,9 +51,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster position="top-right" />
+      <ThemeProvider>
+        <CartSyncProvider>
+          {children}
+        </CartSyncProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
-

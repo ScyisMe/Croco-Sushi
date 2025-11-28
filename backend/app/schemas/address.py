@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import Optional
 
 
 class AddressBase(BaseModel):
-    city: str = "Бровари"
+    city: str = "Львів"
     street: str
     house: str
     apartment: Optional[str] = None

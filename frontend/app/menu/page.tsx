@@ -1,33 +1,73 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
-import { Category, Product } from "@/lib/types";
+import { Category, Product, Favorite } from "@/lib/types";
 import {
   MagnifyingGlassIcon,
-  FunnelIcon,
-  ArrowPathIcon,
-  ShoppingCartIcon,
+  AdjustmentsHorizontalIcon,
+  XMarkIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import Image from "next/image";
-import { useCartStore } from "@/store/cartStore";
-import toast from "react-hot-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
+import QuickViewModal from "@/components/QuickViewModal";
+import toast from "react-hot-toast";
+import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
+
+// Кількість товарів на сторінку
+const PRODUCTS_PER_PAGE = 12;
+
+// Опції сортування
+const SORT_OPTIONS = [
+  { value: "position", label: "За замовчуванням" },
+  { value: "popular", label: "Популярні" },
+  { value: "name", label: "За назвою" },
+  { value: "price_asc", label: "Спочатку дешевші" },
+  { value: "price_desc", label: "Спочатку дорожчі" },
+];
 
 export default function MenuPage() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const categorySlug = searchParams.get("category");
-  const { addItem } = useCartStore();
+  const sortParam = searchParams.get("sort");
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    categorySlug
-  );
-  const [sortBy, setSortBy] = useState<string>("position");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(categorySlug);
+  const [sortBy, setSortBy] = useState<string>(sortParam || "position");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  
+  // Ref для Intersection Observer (infinite scroll)
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Перевірка авторизації
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  // Debounce для пошуку
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Синхронізація з URL
+  useEffect(() => {
+    setSelectedCategory(categorySlug);
+  }, [categorySlug]);
 
   // Завантаження категорій
   const categoriesQuery = useQuery<Category[]>({
@@ -38,188 +78,505 @@ export default function MenuPage() {
     },
   });
 
-  // Завантаження товарів
-  const productsQuery = useQuery<Product[]>({
-    queryKey: ["products", selectedCategory, searchQuery, sortBy],
-    queryFn: async () => {
-      const params: any = {
-        skip: 0,
-        limit: 100,
+  // Завантаження товарів з infinite scroll
+  const productsQuery = useInfiniteQuery({
+    queryKey: ["products", selectedCategory, debouncedSearch],
+    queryFn: async ({ pageParam = 0 }) => {
+      const params: Record<string, unknown> = {
+        skip: pageParam,
+        limit: PRODUCTS_PER_PAGE,
         is_available: true,
       };
       if (selectedCategory) {
         params.category_slug = selectedCategory;
       }
-      if (searchQuery) {
-        params.search = searchQuery;
+      if (debouncedSearch) {
+        params.search = debouncedSearch;
       }
       const response = await apiClient.get("/products", { params });
+      // API може повертати { items: [...], total: ... } або просто [...]
+      const items = response.data.items || response.data;
+      const total = response.data.total ?? items.length;
+      return {
+        items: items as Product[],
+        nextOffset: pageParam + PRODUCTS_PER_PAGE,
+        hasMore: pageParam + PRODUCTS_PER_PAGE < total,
+        total,
+      };
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasMore ? lastPage.nextOffset : undefined;
+    },
+  });
+  
+  // Всі завантажені товари
+  const allProducts = useMemo(() => {
+    return productsQuery.data?.pages.flatMap((page) => page.items) || [];
+  }, [productsQuery.data]);
+
+  // Intersection Observer для infinite scroll
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting && productsQuery.hasNextPage && !productsQuery.isFetchingNextPage) {
+        productsQuery.fetchNextPage();
+      }
+    },
+    [productsQuery]
+  );
+
+  useEffect(() => {
+    const element = loadMoreRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0,
+    });
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [handleObserver]);
+
+  // Завантаження обраного (якщо авторизований)
+  const favoritesQuery = useQuery<Favorite[]>({
+    queryKey: ["favorites"],
+    queryFn: async () => {
+      const response = await apiClient.get("/users/me/favorites");
       return response.data;
+    },
+    enabled: isAuthenticated,
+  });
+
+  // Множина ID обраних товарів для швидкого пошуку
+  const favoriteIds = useMemo(() => {
+    return new Set(favoritesQuery.data?.map((f) => f.product_id) || []);
+  }, [favoritesQuery.data]);
+
+  // Мутація для додавання/видалення з обраного
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (productId: number) => {
+      if (favoriteIds.has(productId)) {
+        await apiClient.delete(`/users/me/favorites/${productId}`);
+        return { action: "removed", productId };
+      } else {
+        await apiClient.post(`/users/me/favorites/${productId}`);
+        return { action: "added", productId };
+      }
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
+    },
+    onError: () => {
+      toast.error("Помилка. Спробуйте ще раз");
     },
   });
 
-  const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
-  let products = productsQuery.data || [];
-
-  // Сортування
-  if (sortBy === "price_asc") {
-    products = [...products].sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"));
-  } else if (sortBy === "price_desc") {
-    products = [...products].sort((a, b) => parseFloat(b.price || "0") - parseFloat(a.price || "0"));
-  } else if (sortBy === "name") {
-    products = [...products].sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  const handleAddToCart = (product: Product) => {
-    if (!product.sizes || product.sizes.length === 0) {
-      toast.error("Товар не має доступних розмірів");
+  // Обробник перемикання обраного
+  const handleFavoriteToggle = (productId: number) => {
+    if (!isAuthenticated) {
+      toast.error("Увійдіть, щоб додати в обране");
+      router.push("/login");
       return;
     }
-
-    // Беремо перший доступний розмір
-    const defaultSize = product.sizes[0];
-    addItem(product, defaultSize, 1);
-    toast.success(`${product.name} додано в кошик`);
+    toggleFavoriteMutation.mutate(productId);
   };
 
+  // Обробник швидкого перегляду
+  const handleQuickView = (product: Product) => {
+    setQuickViewProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
+  
+  // Загальна кількість товарів
+  const totalProducts = productsQuery.data?.pages[0]?.total ?? 0;
+  
+  // Сортування товарів
+  const sortedProducts = useMemo(() => {
+    const products = allProducts;
+    const sorted = [...products];
+    
+    switch (sortBy) {
+      case "price_asc":
+        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+      case "price_desc":
+        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+      case "name":
+        return sorted.sort((a, b) => a.name.localeCompare(b.name, "uk"));
+      case "popular":
+        return sorted.sort((a, b) => {
+          if (a.is_hit && !b.is_hit) return -1;
+          if (!a.is_hit && b.is_hit) return 1;
+          if (a.is_popular && !b.is_popular) return -1;
+          if (!a.is_popular && b.is_popular) return 1;
+          return 0;
+        });
+      default:
+        return sorted.sort((a, b) => a.position - b.position);
+    }
+  }, [allProducts, sortBy]);
+
+  // Зміна категорії
+  const handleCategoryChange = (slug: string | null) => {
+    setSelectedCategory(slug);
+    if (slug) {
+      router.push(`/menu?category=${slug}`, { scroll: false });
+    } else {
+      router.push("/menu", { scroll: false });
+    }
+    setIsMobileFilterOpen(false);
+  };
+
+  // Отримати назву поточної категорії
+  const currentCategoryName = selectedCategory
+    ? categories.find((c) => c.slug === selectedCategory)?.name || "Меню"
+    : "Все меню";
+
+  // Схема хлібних крихт для SEO
+  const breadcrumbItems = [
+    { name: "Головна", url: BUSINESS_INFO.url },
+    { name: "Меню", url: `${BUSINESS_INFO.url}/menu` },
+  ];
+  if (selectedCategory && currentCategoryName !== "Меню") {
+    breadcrumbItems.push({
+      name: currentCategoryName,
+      url: `${BUSINESS_INFO.url}/menu?category=${selectedCategory}`,
+    });
+  }
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
+      {/* Schema.org markup для SEO */}
+      <JsonLd schema={getBreadcrumbSchema(breadcrumbItems)} />
+      
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        {/* Breadcrumbs */}
-        <nav className="text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-green-600">
-            Головна
-          </Link>
-          <span className="mx-2">/</span>
-          <span>Меню</span>
-        </nav>
-
-        <h1 className="text-4xl font-bold mb-8">Меню</h1>
-
-        {/* Пошук та фільтри */}
-        <div className="mb-8 space-y-4">
-          {/* Пошук */}
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Пошук товарів..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-4 items-center">
-            {/* Фільтр по категоріях */}
-            <div className="flex items-center space-x-2">
-              <FunnelIcon className="w-5 h-5 text-gray-600" />
-              <select
-                value={selectedCategory || ""}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">Всі категорії</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Сортування */}
-            <div className="flex items-center space-x-2">
-              <ArrowPathIcon className="w-5 h-5 text-gray-600" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              >
-                <option value="position">За порядком</option>
-                <option value="name">За назвою</option>
-                <option value="price_asc">Ціна: від низької до високої</option>
-                <option value="price_desc">Ціна: від високої до низької</option>
-              </select>
-            </div>
+      
+      <main className="flex-grow">
+        {/* Хлібні крихти */}
+        <div className="bg-theme-surface border-b border-theme">
+          <div className="container mx-auto px-4 py-3">
+            <nav className="flex items-center text-sm">
+              <Link href="/" className="text-secondary-light hover:text-primary transition">
+                Головна
+              </Link>
+              <ChevronRightIcon className="w-4 h-4 mx-2 text-secondary-light" />
+              <Link href="/menu" className="text-secondary-light hover:text-primary transition">
+                Меню
+              </Link>
+              {selectedCategory && (
+                <>
+                  <ChevronRightIcon className="w-4 h-4 mx-2 text-secondary-light" />
+                  <span className="text-secondary font-medium">{currentCategoryName}</span>
+                </>
+              )}
+            </nav>
           </div>
         </div>
 
-        {/* Список товарів */}
-        {productsQuery.isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-lg h-64 animate-pulse"></div>
-            ))}
-          </div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">Товари не знайдено</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow"
+        <div className="container mx-auto px-4 py-8">
+          {/* Заголовок та пошук */}
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-secondary mb-6">
+              {currentCategoryName}
+            </h1>
+
+            {/* Пошук та фільтри */}
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Пошук */}
+              <div className="relative flex-1">
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-light" />
+                <input
+                  type="text"
+                  placeholder="Пошук страв..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="input pl-12"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-light hover:text-secondary"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Сортування (desktop) */}
+              <div className="hidden md:block">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="input w-auto min-w-[200px]"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Кнопка фільтрів (mobile) */}
+              <button
+                onClick={() => setIsMobileFilterOpen(true)}
+                className="md:hidden flex items-center justify-center gap-2 px-4 py-3 border border-border rounded-lg text-secondary hover:border-primary transition"
               >
-                <Link href={`/products/${product.slug}`}>
-                  {product.image_url && (
-                    <div className="relative h-48 w-full">
-                      <Image
-                        src={product.image_url}
-                        alt={product.name}
-                        fill
-                        style={{ objectFit: "cover" }}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      />
-                    </div>
-                  )}
-                </Link>
-                <div className="p-4 flex flex-col flex-grow">
-                  <Link href={`/products/${product.slug}`}>
-                    <h3 className="font-semibold text-lg mb-2 hover:text-green-600 transition">
-                      {product.name}
-                    </h3>
-                  </Link>
-                  {product.description && (
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
-                  <div className="mt-auto">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xl font-bold text-green-600">
-                        {product.price ? `${parseFloat(product.price).toFixed(2)} грн` : "Ціна не вказана"}
-                      </span>
-                      {product.is_new && (
-                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                          Новинка
-                        </span>
-                      )}
-                      {product.is_popular && (
-                        <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
-                          Хіт
-                        </span>
-                      )}
-                    </div>
+                <AdjustmentsHorizontalIcon className="w-5 h-5" />
+                Фільтри
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-8">
+            {/* Сайдбар з категоріями (desktop) */}
+            <aside className="hidden lg:block w-64 flex-shrink-0">
+              <div className="bg-theme-surface rounded-xl shadow-card p-4 sticky top-24">
+                <h3 className="font-bold text-lg text-secondary mb-4">Категорії</h3>
+                <ul className="space-y-1">
+                  <li>
                     <button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={!product.is_available || !product.sizes || product.sizes.length === 0}
-                      className="w-full bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      onClick={() => handleCategoryChange(null)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition ${
+                        !selectedCategory
+                          ? "bg-primary text-white"
+                          : "text-secondary hover:bg-theme-secondary"
+                      }`}
                     >
-                      <ShoppingCartIcon className="w-5 h-5 mr-2" /> Додати в кошик
+                      Все меню
                     </button>
-                  </div>
+                  </li>
+                  {categories.map((category) => (
+                    <li key={category.id}>
+                      <button
+                        onClick={() => handleCategoryChange(category.slug)}
+                        className={`w-full text-left px-3 py-2 rounded-lg transition ${
+                          selectedCategory === category.slug
+                            ? "bg-primary text-white"
+                            : "text-secondary hover:bg-theme-secondary"
+                        }`}
+                      >
+                        {category.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </aside>
+
+            {/* Основний контент */}
+            <div className="flex-1">
+              {/* Горизонтальні категорії (tablet/mobile) */}
+              <div className="lg:hidden mb-6 -mx-4 px-4">
+                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+                  <button
+                    onClick={() => handleCategoryChange(null)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${
+                      !selectedCategory
+                        ? "bg-primary text-white"
+                        : "bg-theme-surface text-secondary border border-theme hover:border-primary"
+                    }`}
+                  >
+                    Все
+                  </button>
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleCategoryChange(category.slug)}
+                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${
+                        selectedCategory === category.slug
+                          ? "bg-primary text-white"
+                          : "bg-theme-surface text-secondary border border-theme hover:border-primary"
+                      }`}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
+
+              {/* Результати пошуку та кількість */}
+              {debouncedSearch ? (
+                <p className="text-secondary-light mb-4">
+                  Результати пошуку для "{debouncedSearch}": {totalProducts} страв
+                </p>
+              ) : totalProducts > 0 && (
+                <p className="text-secondary-light mb-4">
+                  Показано {sortedProducts.length} з {totalProducts} страв
+                </p>
+              )}
+
+              {/* Skeleton loader для початкового завантаження */}
+              {productsQuery.isLoading && (
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                  {[...Array(PRODUCTS_PER_PAGE)].map((_, i) => (
+                    <ProductCardSkeleton key={i} />
+                  ))}
+                </div>
+              )}
+
+              {/* Порожній стан */}
+              {!productsQuery.isLoading && sortedProducts.length === 0 && (
+                <div className="text-center py-16">
+                  <div className="text-6xl mb-4">🍣</div>
+                  <h3 className="text-xl font-semibold text-secondary mb-2">
+                    Страви не знайдено
+                  </h3>
+                  <p className="text-secondary-light mb-6">
+                    {debouncedSearch
+                      ? "Спробуйте змінити пошуковий запит"
+                      : "В цій категорії поки немає страв"}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      handleCategoryChange(null);
+                    }}
+                    className="btn-fancy group"
+                  >
+                    <span>Показати все меню</span>
+                    <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              )}
+
+              {/* Список товарів */}
+              {!productsQuery.isLoading && sortedProducts.length > 0 && (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {sortedProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        onFavoriteToggle={handleFavoriteToggle}
+                        isFavorite={favoriteIds.has(product.id)}
+                        onQuickView={handleQuickView}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Елемент для спостереження (infinite scroll) */}
+                  <div ref={loadMoreRef} className="py-8">
+                    {productsQuery.isFetchingNextPage && (
+                      <div className="flex flex-col items-center justify-center gap-3">
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+                        <p className="text-secondary-light text-sm">Завантаження...</p>
+                      </div>
+                    )}
+                    {!productsQuery.hasNextPage && sortedProducts.length > PRODUCTS_PER_PAGE && (
+                      <p className="text-center text-secondary-light text-sm">
+                        Ви переглянули всі страви 🎉
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </main>
+
       <Footer />
+
+      {/* Мобільний фільтр */}
+      {isMobileFilterOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsMobileFilterOpen(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-theme-surface rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
+            <div className="sticky top-0 bg-theme-surface border-b border-theme p-4 flex items-center justify-between">
+              <h3 className="font-bold text-lg">Фільтри</h3>
+              <button
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="p-2 text-secondary-light hover:text-secondary"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-6">
+              {/* Сортування */}
+              <div>
+                <h4 className="font-semibold text-secondary mb-3">Сортування</h4>
+                <div className="space-y-2">
+                  {SORT_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => setSortBy(option.value)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                        sortBy === option.value
+                          ? "bg-primary text-white"
+                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Категорії */}
+              <div>
+                <h4 className="font-semibold text-secondary mb-3">Категорії</h4>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleCategoryChange(null)}
+                    className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                      !selectedCategory
+                        ? "bg-primary text-white"
+                        : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
+                    }`}
+                  >
+                    Все меню
+                  </button>
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => handleCategoryChange(category.slug)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                        selectedCategory === category.slug
+                          ? "bg-primary text-white"
+                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
+                      }`}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Кнопка застосувати */}
+            <div className="sticky bottom-0 bg-theme-surface border-t border-theme p-4">
+              <button
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="w-full btn-primary"
+              >
+                Застосувати
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={isQuickViewOpen}
+        onClose={() => {
+          setIsQuickViewOpen(false);
+          setQuickViewProduct(null);
+        }}
+        onFavoriteToggle={handleFavoriteToggle}
+        isFavorite={quickViewProduct ? favoriteIds.has(quickViewProduct.id) : false}
+      />
     </div>
   );
 }
-
