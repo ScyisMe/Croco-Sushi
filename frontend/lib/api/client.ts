@@ -4,7 +4,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Створюємо axios інстанс
 const apiClient: AxiosInstance = axios.create({
-  baseURL: `${API_URL}/api/v1`,
+  baseURL: "/api/v1",
   headers: {
     "Content-Type": "application/json",
   },
@@ -40,7 +40,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
-          const response = await axios.post(`${API_URL}/api/v1/auth/refresh`, {
+          const response = await axios.post("/api/v1/auth/refresh", {
             refresh_token: refreshToken,
           });
 

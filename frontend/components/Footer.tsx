@@ -80,7 +80,7 @@ export default function Footer() {
             <ul className="space-y-4 text-gray-400">
               <li className="flex items-start gap-3">
                 <span>📍</span>
-                <span>Kyiv, Khreshchatyk 1</span>
+                <span>{t("footer.addressValue")}</span>
               </li>
               <li className="flex items-center gap-3">
                 <span>📞</span>
