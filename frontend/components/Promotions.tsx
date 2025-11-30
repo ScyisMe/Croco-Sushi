@@ -13,10 +13,10 @@ import { uk } from "date-fns/locale";
 function getTimeRemaining(endDate: string) {
   const end = new Date(endDate);
   const now = new Date();
-  
+
   const days = differenceInDays(end, now);
   const hours = differenceInHours(end, now) % 24;
-  
+
   if (days > 0) {
     return `${days} дн. ${hours} год.`;
   }
@@ -35,7 +35,7 @@ export default function Promotions() {
     },
   });
 
-  const promotions = promotionsQuery.data?.filter((p) => p.is_available) || [];
+  const promotions = promotionsQuery.data?.filter((p) => p.is_active) || [];
 
   // Skeleton loader
   if (promotionsQuery.isLoading) {
@@ -107,7 +107,7 @@ export default function Promotions() {
                     <TagIcon className="w-16 h-16 text-white/50" />
                   </div>
                 )}
-                
+
                 {/* Бейдж знижки */}
                 {promo.discount_percent && (
                   <div className="absolute top-4 left-4 bg-accent-red text-white font-bold px-3 py-1 rounded-lg">

@@ -2,6 +2,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
+from pydantic import BaseModel, Field
 
 from app.database import get_db
 from app.core.exceptions import NotFoundException
@@ -10,6 +11,10 @@ from app.models.category import Category
 from app.schemas.product import ProductResponse
 
 router = APIRouter()
+
+
+class ProductValidationRequest(BaseModel):
+    product_ids: List[int] = Field(..., description="List of product IDs to validate")
 
 
 @router.get("/", response_model=List[ProductResponse])
@@ -112,3 +117,20 @@ async def get_product_by_slug(
     return product
 
 
+@router.post("/validate", response_model=List[ProductResponse])
+async def validate_products(
+    request: ProductValidationRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """Validate a list of products and return their current details"""
+    if not request.product_ids:
+        return []
+        
+    result = await db.execute(
+        select(Product).where(
+            Product.id.in_(request.product_ids),
+            Product.is_available == True
+        )
+    )
+    products = result.scalars().all()
+    return products

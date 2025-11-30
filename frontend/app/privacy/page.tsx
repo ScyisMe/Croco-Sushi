@@ -203,10 +203,10 @@ export default function PrivacyPage() {
   // Функція для рендерингу контенту з підтримкою markdown-подібного форматування
   const renderContent = (text: string) => {
     if (text === "") return <br />;
-    
+
     // Заміна **text** на жирний текст
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
-    
+
     return parts.map((part, index) => {
       if (part.startsWith("**") && part.endsWith("**")) {
         return (
@@ -306,7 +306,7 @@ export default function PrivacyPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-foreground mb-2">
-                      🔒 Наші зобов'язання щодо безпеки
+                      🔒 Наші зобов&apos;язання щодо безпеки
                     </h3>
                     <p className="text-foreground-secondary mb-4">
                       Ми серйозно ставимось до захисту Ваших персональних даних і гарантуємо:

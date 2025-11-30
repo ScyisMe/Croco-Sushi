@@ -1,9 +1,6 @@
 from pydantic_settings import BaseSettings
-from pydantic import ConfigDict, field_validator
+from pydantic import ConfigDict, model_validator
 from typing import List, Optional
-import json
-import os
-import secrets
 
 
 class Settings(BaseSettings):
@@ -16,20 +13,41 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/croco_sushi"
     
+    # Database Connection Settings
+    POSTGRES_POOL_SIZE: int = 5
+    POSTGRES_MAX_OVERFLOW: int = 10
+    POSTGRES_POOL_TIMEOUT: int = 30
+    POSTGRES_CONNECT_TIMEOUT: int = 10
+    POSTGRES_COMMAND_TIMEOUT: int = 30
+    
     # Security
     SECRET_KEY: str = "your-secret-key-change-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
-    
-    # Security - додаткові налаштування
-    PASSWORD_MIN_LENGTH: int = 8
-    PASSWORD_MAX_LENGTH: int = 128
-    MAX_LOGIN_ATTEMPTS: int = 5
-    LOGIN_LOCKOUT_MINUTES: int = 15
     
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"]
+    ALLOWED_HOSTS: str = "*"
+    
+    # Парсимо рядок з комами в список автоматично
+    # Використовуємо str як базовий тип, щоб уникнути JSON парсингу
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+    
+    @model_validator(mode='after')
+    def parse_cors_origins(self) -> 'Settings':
+        """Парсить CORS_ORIGINS з рядка, розділеного комами, в список"""
+        if isinstance(self.CORS_ORIGINS, str):
+            # Розділяємо по комі та очищаємо пробіли
+            cors_list = [origin.strip() for origin in self.CORS_ORIGINS.split(',') if origin.strip()]
+            # Замінюємо рядок на список
+            object.__setattr__(self, 'CORS_ORIGINS', cors_list)
+            
+        if isinstance(self.ALLOWED_HOSTS, str):
+            # Розділяємо по комі та очищаємо пробіли
+            hosts_list = [host.strip() for host in self.ALLOWED_HOSTS.split(',') if host.strip()]
+            # Замінюємо рядок на список
+            object.__setattr__(self, 'ALLOWED_HOSTS', hosts_list)
+            
+        return self
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -61,35 +79,10 @@ class Settings(BaseSettings):
     SMS_FROM_NUMBER: Optional[str] = None
     
     model_config = ConfigDict(
-        env_file=".env" if os.getenv("ENVIRONMENT") != "test" else None,
-        env_file_encoding="utf-8",
+        env_file=".env",
         case_sensitive=True,
-        env_ignore_empty=True,
-        extra="ignore"  # Ігноруємо додаткові змінні середовища, які не визначені в класі (наприклад, POSTGRES_USER, GF_SECURITY_ADMIN_USER тощо)
+        extra='ignore'  # Ігноруємо додаткові поля з .env (POSTGRES_*, GF_* тощо)
     )
-    
-    @field_validator('CORS_ORIGINS', mode='before')
-    @classmethod
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            # Спробуємо розпарсити як JSON
-            try:
-                return json.loads(v)
-            except json.JSONDecodeError:
-                # Якщо не JSON, розділимо по комі
-                return [origin.strip() for origin in v.split(',') if origin.strip()]
-        return v
-    
-    @field_validator('SECRET_KEY', mode='after')
-    @classmethod
-    def validate_secret_key(cls, v, info):
-        """Перевірка що SECRET_KEY не є дефолтним в production"""
-        env = info.data.get('ENVIRONMENT', 'development')
-        if env == 'production' and v == "your-secret-key-change-in-production":
-            raise ValueError("SECRET_KEY повинен бути змінений в production!")
-        if len(v) < 32:
-            raise ValueError("SECRET_KEY повинен бути мінімум 32 символи")
-        return v
 
 
 settings = Settings()

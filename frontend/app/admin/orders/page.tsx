@@ -61,9 +61,9 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      let url = "/orders/admin/list?limit=50";
+      let url = "/admin/orders?limit=50";
       if (selectedStatus) {
-        url += `&status=${selectedStatus}`;
+        url += `&status_filter=${selectedStatus}`;
       }
       const response = await apiClient.get(url);
       setOrders(response.data.orders || response.data || []);
@@ -173,11 +173,10 @@ export default function AdminOrdersPage() {
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setSelectedStatus("")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-            selectedStatus === ""
-              ? "bg-green-600 text-white"
-              : "bg-white text-gray-600 hover:bg-gray-50 border"
-          }`}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedStatus === ""
+            ? "bg-green-600 text-white"
+            : "bg-white text-gray-600 hover:bg-gray-50 border"
+            }`}
         >
           Всі ({total})
         </button>
@@ -185,11 +184,10 @@ export default function AdminOrdersPage() {
           <button
             key={status}
             onClick={() => setSelectedStatus(status)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              selectedStatus === status
-                ? "bg-green-600 text-white"
-                : `${color} hover:opacity-80`
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedStatus === status
+              ? "bg-green-600 text-white"
+              : `${color} hover:opacity-80`
+              }`}
           >
             {label}
           </button>
@@ -248,10 +246,9 @@ export default function AdminOrdersPage() {
                       <select
                         value={order.status}
                         onChange={(e) => updateStatus(order.id, e.target.value)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${
-                          STATUS_CONFIG[order.status]?.color ||
+                        className={`px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${STATUS_CONFIG[order.status]?.color ||
                           "bg-gray-100 text-gray-800"
-                        }`}
+                          }`}
                       >
                         {Object.entries(STATUS_CONFIG).map(([value, { label }]) => (
                           <option key={value} value={value}>
@@ -264,8 +261,8 @@ export default function AdminOrdersPage() {
                       {order.payment_method === "cash"
                         ? "💵 Готівка"
                         : order.payment_method === "card"
-                        ? "💳 Карткою"
-                        : order.payment_method}
+                          ? "💳 Карткою"
+                          : order.payment_method}
                     </td>
                     <td className="px-6 py-4 text-gray-500 text-sm">
                       {formatDate(order.created_at)}

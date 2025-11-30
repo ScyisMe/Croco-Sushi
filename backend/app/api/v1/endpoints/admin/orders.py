@@ -36,6 +36,7 @@ async def get_orders(
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
     search: Optional[str] = None,
+    user_id: Optional[int] = None,
     min_amount: Optional[float] = None,
     max_amount: Optional[float] = None,
     db: AsyncSession = Depends(get_db),
@@ -65,6 +66,9 @@ async def get_orders(
             (Order.customer_name.ilike(f"%{search}%")) |
             (Order.customer_phone.ilike(f"%{search}%"))
         )
+    
+    if user_id is not None:
+        conditions.append(Order.user_id == user_id)
     
     if min_amount is not None:
         conditions.append(Order.total_amount >= min_amount)

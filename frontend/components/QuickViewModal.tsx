@@ -34,7 +34,7 @@ export default function QuickViewModal({
 }: QuickViewModalProps) {
   const addItem = useCartStore((state) => state.addItem);
   const itemsCount = useCartStore((state) => state.items.length);
-  
+
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -56,9 +56,9 @@ export default function QuickViewModal({
   if (!product) return null;
 
   // Розрахунок ціни
-  const currentPrice = selectedSize?.price || product.price;
+  const currentPrice = Number(selectedSize?.price || product.price || 0);
   const originalPrice = selectedSize?.original_price || product.original_price;
-  const hasDiscount = originalPrice && originalPrice > currentPrice;
+  const hasDiscount = originalPrice && Number(originalPrice) > currentPrice;
   const totalPrice = currentPrice * quantity;
 
   // Зображення товару
@@ -81,7 +81,7 @@ export default function QuickViewModal({
       sizeId: selectedSize?.id,
       quantity,
     });
-    
+
     toast.success(`${product.name} додано в кошик`);
     onClose();
   };
@@ -156,7 +156,7 @@ export default function QuickViewModal({
                         )}
                         {hasDiscount && (
                           <span className="badge badge-sale">
-                            -{Math.round(((originalPrice - currentPrice) / originalPrice) * 100)}%
+                            -{Math.round(((Number(originalPrice) - currentPrice) / Number(originalPrice)) * 100)}%
                           </span>
                         )}
                       </div>
@@ -165,11 +165,10 @@ export default function QuickViewModal({
                       {onFavoriteToggle && (
                         <button
                           onClick={handleFavoriteClick}
-                          className={`absolute top-3 right-3 p-2 rounded-full transition ${
-                            isFavorite
-                              ? "bg-accent-red text-white"
-                              : "bg-white/80 text-gray-600 hover:bg-white hover:text-accent-red"
-                          }`}
+                          className={`absolute top-3 right-3 p-2 rounded-full transition ${isFavorite
+                            ? "bg-accent-red text-white"
+                            : "bg-white/80 text-gray-600 hover:bg-white hover:text-accent-red"
+                            }`}
                         >
                           {isFavorite ? (
                             <HeartSolidIcon className="w-5 h-5" />
@@ -187,11 +186,10 @@ export default function QuickViewModal({
                           <button
                             key={index}
                             onClick={() => setSelectedImageIndex(index)}
-                            className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${
-                              selectedImageIndex === index
-                                ? "border-primary"
-                                : "border-transparent hover:border-gray-300"
-                            }`}
+                            className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${selectedImageIndex === index
+                              ? "border-primary"
+                              : "border-transparent hover:border-gray-300"
+                              }`}
                           >
                             <Image
                               src={img}
@@ -237,11 +235,10 @@ export default function QuickViewModal({
                             <button
                               key={size.id}
                               onClick={() => setSelectedSize(size)}
-                              className={`px-4 py-2 rounded-lg border-2 transition ${
-                                selectedSize?.id === size.id
-                                  ? "border-primary bg-primary/5 text-primary"
-                                  : "border-border hover:border-primary"
-                              }`}
+                              className={`px-4 py-2 rounded-lg border-2 transition ${selectedSize?.id === size.id
+                                ? "border-primary bg-primary/5 text-primary"
+                                : "border-border hover:border-primary"
+                                }`}
                             >
                               <span className="font-medium">{size.name}</span>
                               <span className="text-sm text-secondary-light ml-2">
@@ -286,7 +283,7 @@ export default function QuickViewModal({
                         </span>
                         {hasDiscount && (
                           <span className="text-lg text-secondary-light line-through">
-                            {originalPrice * quantity} ₴
+                            {Number(originalPrice) * quantity} ₴
                           </span>
                         )}
                       </div>

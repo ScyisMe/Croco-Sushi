@@ -12,6 +12,12 @@ import {
   ArrowRightOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
+  UsersIcon,
+  StarIcon,
+  GiftIcon,
+  TicketIcon,
+  TruckIcon,
+  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
 
 // Типи
@@ -28,6 +34,12 @@ const NAV_ITEMS = [
   { href: "/admin/orders", label: "Замовлення", icon: ClipboardDocumentListIcon },
   { href: "/admin/products", label: "Товари", icon: ShoppingBagIcon },
   { href: "/admin/categories", label: "Категорії", icon: TagIcon },
+  { href: "/admin/users", label: "Користувачі", icon: UsersIcon },
+  { href: "/admin/reviews", label: "Відгуки", icon: StarIcon },
+  { href: "/admin/promotions", label: "Акції", icon: GiftIcon },
+  { href: "/admin/promo-codes", label: "Промокоди", icon: TicketIcon },
+  { href: "/admin/delivery-zones", label: "Доставка", icon: TruckIcon },
+  { href: "/admin/settings", label: "Налаштування", icon: Cog6ToothIcon },
 ];
 
 export default function AdminLayout({
@@ -40,7 +52,7 @@ export default function AdminLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   // Ref для відстеження mounted стану (запобігає memory leak)
   const isMountedRef = useRef(true);
 
@@ -53,7 +65,7 @@ export default function AdminLayout({
   useEffect(() => {
     // Встановлюємо mounted стан
     isMountedRef.current = true;
-    
+
     // Сторінка логіну не потребує перевірки авторизації
     if (pathname === "/admin/login") {
       setIsLoading(false);
@@ -64,7 +76,7 @@ export default function AdminLayout({
     // Перевірка авторизації адміністратора через бекенд
     const verifyAdmin = async () => {
       const token = localStorage.getItem("access_token");
-      
+
       if (!token) {
         router.push("/admin/login");
         if (isMountedRef.current) {
@@ -77,10 +89,10 @@ export default function AdminLayout({
         // Перевіряємо роль користувача через API
         const response = await apiClient.get<User>("/auth/me");
         const user = response.data;
-        
+
         // Перевірка чи компонент ще mounted
         if (!isMountedRef.current) return;
-        
+
         if (user.role !== "admin") {
           // Якщо не адмін - видаляємо токен і перенаправляємо
           clearAuth();
@@ -91,7 +103,7 @@ export default function AdminLayout({
       } catch {
         // Якщо помилка (невалідний токен) - перенаправляємо на логін
         if (!isMountedRef.current) return;
-        
+
         clearAuth();
         router.push("/admin/login");
       } finally {
@@ -102,7 +114,7 @@ export default function AdminLayout({
     };
 
     verifyAdmin();
-    
+
     // Cleanup функція для запобігання memory leak
     return () => {
       isMountedRef.current = false;
@@ -159,9 +171,8 @@ export default function AdminLayout({
 
       {/* Бокова панель */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Логотип */}
@@ -178,18 +189,17 @@ export default function AdminLayout({
           {/* Навігація */}
           <nav className="flex-1 p-4 space-y-1">
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href || 
+              const isActive = pathname === item.href ||
                 (item.href !== "/admin" && pathname.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
-                    isActive
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${isActive
                       ? "bg-green-50 text-green-600 font-medium"
                       : "text-gray-600 hover:bg-gray-50 hover:text-green-600"
-                  }`}
+                    }`}
                 >
                   <item.icon className="w-5 h-5" />
                   <span>{item.label}</span>

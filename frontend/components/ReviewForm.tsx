@@ -36,7 +36,7 @@ export default function ReviewForm({
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+
     // Обмеження на 3 файли
     if (images.length + files.length > 3) {
       toast.error("Максимум 3 фото");
@@ -211,7 +211,7 @@ export default function ReviewForm({
                   {/* Фото */}
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-secondary mb-2">
-                      Додати фото (необов'язково)
+                      Додати фото (необов&apos;язково)
                     </label>
                     <div className="flex flex-wrap gap-3">
                       {/* Превью зображень */}

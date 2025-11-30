@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+import sqlalchemy
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
@@ -23,13 +24,46 @@ def get_engine():
         
         _engine = create_async_engine(
             settings.DATABASE_URL,
-            echo=echo_sql,  # Логування SQL запитів (тільки для розробки)
-
-            pool_pre_ping=True,  # Перевірка з'єднання перед використанням
-            pool_size=10,
-            max_overflow=20,
+            echo=echo_sql,
+            pool_pre_ping=True,
+            pool_size=settings.POSTGRES_POOL_SIZE,
+            max_overflow=settings.POSTGRES_MAX_OVERFLOW,
+            pool_timeout=settings.POSTGRES_POOL_TIMEOUT,
+            connect_args={
+                "timeout": settings.POSTGRES_CONNECT_TIMEOUT,
+                "command_timeout": settings.POSTGRES_COMMAND_TIMEOUT,
+                "server_settings": {
+                    "jit": "off",  # Optimization for simple queries
+                    "application_name": settings.PROJECT_NAME
+                }
+            }
         )
     return _engine
+
+
+async def check_db_connection():
+    """Check database connection with retries"""
+    import asyncio
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    max_retries = 5
+    retry_interval = 2
+    
+    for attempt in range(max_retries):
+        try:
+            engine = get_engine()
+            async with engine.connect() as conn:
+                await conn.execute(sqlalchemy.text("SELECT 1"))
+            logger.info("Database connection established successfully")
+            return True
+        except Exception as e:
+            logger.warning(f"Database connection attempt {attempt + 1}/{max_retries} failed: {str(e)}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(retry_interval)
+            else:
+                logger.error("Could not establish database connection after multiple retries")
+                raise e
 
 
 def get_async_session_local():

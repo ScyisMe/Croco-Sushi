@@ -27,7 +27,7 @@ export default function PromotionDetailPage() {
   });
 
   const promotion = promotionQuery.data;
-  const isActive = promotion?.is_available === true || promotion?.is_active === true;
+  const isActive = promotion?.is_active === true;
   const hasEndDate = promotion?.end_date && new Date(promotion.end_date) > new Date();
 
   // Санітизація HTML на клієнті (DOMPurify потребує window)
@@ -46,7 +46,7 @@ export default function PromotionDetailPage() {
   return (
     <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       <Header />
-      
+
       <main className="flex-grow">
         {/* Хлібні крихти */}
         <div className="bg-theme-surface border-b border-theme">
@@ -118,11 +118,10 @@ export default function PromotionDetailPage() {
                   )}
 
                   {/* Статус */}
-                  <div className={`absolute top-4 right-4 px-4 py-2 rounded-lg font-semibold ${
-                    isActive
+                  <div className={`absolute top-4 right-4 px-4 py-2 rounded-lg font-semibold ${isActive
                       ? "bg-primary text-white"
                       : "bg-gray-600 text-white"
-                  }`}>
+                    }`}>
                     {isActive ? "✓ Активна" : "Завершена"}
                   </div>
                 </div>
@@ -224,11 +223,10 @@ export default function PromotionDetailPage() {
                       </div>
                       <div className="w-full bg-theme-secondary rounded-full h-3">
                         <div
-                          className={`h-3 rounded-full transition-all ${
-                            promotion.current_uses / promotion.max_uses > 0.8
+                          className={`h-3 rounded-full transition-all ${promotion.current_uses / promotion.max_uses > 0.8
                               ? "bg-accent-red"
                               : "bg-primary"
-                          }`}
+                            }`}
                           style={{
                             width: `${Math.min((promotion.current_uses / promotion.max_uses) * 100, 100)}%`,
                           }}
@@ -247,9 +245,9 @@ export default function PromotionDetailPage() {
                     <div className="mb-6">
                       <h2 className="font-bold text-secondary text-lg mb-3">Умови акції:</h2>
                       {sanitizedConditions ? (
-                        <div 
-                          className="prose prose-sm max-w-none text-secondary-light" 
-                          dangerouslySetInnerHTML={{ __html: sanitizedConditions }} 
+                        <div
+                          className="prose prose-sm max-w-none text-secondary-light"
+                          dangerouslySetInnerHTML={{ __html: sanitizedConditions }}
                         />
                       ) : (
                         <p className="text-secondary-light">{promotion.conditions}</p>
@@ -278,7 +276,7 @@ export default function PromotionDetailPage() {
           )}
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

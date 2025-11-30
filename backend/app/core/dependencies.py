@@ -1,6 +1,6 @@
 """Dependency injection для FastAPI"""
 from typing import Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,11 +24,16 @@ async def get_current_user(
     if payload is None:
         raise UnauthorizedException("Невірний токен")
     
-    user_id: Optional[int] = payload.get("sub")
+    user_id: Optional[str] = payload.get("sub")
     if user_id is None:
         raise UnauthorizedException("Невірний токен")
     
-    result = await db.execute(select(User).where(User.id == user_id))
+    try:
+        user_id_int = int(user_id)
+    except ValueError:
+        raise UnauthorizedException("Невірний формат ID користувача")
+    
+    result = await db.execute(select(User).where(User.id == user_id_int))
     user = result.scalar_one_or_none()
     
     if user is None:
@@ -60,7 +65,7 @@ async def get_current_admin_user(
 
 class OptionalHTTPBearer(HTTPBearer):
     """HTTPBearer з опціональним токеном"""
-    async def __call__(self, request):
+    async def __call__(self, request: Request):
         try:
             return await super().__call__(request)
         except HTTPException:
@@ -84,11 +89,16 @@ async def get_optional_user(
         if payload is None:
             return None
         
-        user_id: Optional[int] = payload.get("sub")
+        user_id: Optional[str] = payload.get("sub")
         if user_id is None:
             return None
         
-        result = await db.execute(select(User).where(User.id == user_id))
+        try:
+            user_id_int = int(user_id)
+        except ValueError:
+            return None
+        
+        result = await db.execute(select(User).where(User.id == user_id_int))
         user = result.scalar_one_or_none()
         
         if user is None or not user.is_active:

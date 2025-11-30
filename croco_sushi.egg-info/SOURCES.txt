@@ -99,7 +99,6 @@ backend/tests/api/test_promotions.py
 backend/tests/api/test_reviews.py
 backend/tests/api/test_security.py
 backend/tests/api/test_settings.py
-backend/tests/api/test_users.py
 backend/tests/utils/__init__.py
 backend/tests/utils/helpers.py
 croco_sushi.egg-info/PKG-INFO

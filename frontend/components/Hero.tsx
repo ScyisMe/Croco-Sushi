@@ -1,158 +1,84 @@
 "use client";
 
-import { useState, useEffect, useCallback, startTransition } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "@/store/localeStore";
-
-// Слайди для Hero секції з ключами локалізації
-const HERO_SLIDES = [
-  {
-    id: 1,
-    titleKey: "hero.title1",
-    subtitleKey: "hero.subtitle1",
-    image: "/images/hero/hero-1.jpg",
-    buttonTextKey: "header.order",
-    buttonLink: "/menu",
-  },
-  {
-    id: 2,
-    titleKey: "hero.title2",
-    subtitleKey: "hero.subtitle2",
-    image: "/images/hero/hero-2.jpg",
-    buttonTextKey: "hero.orderNow",
-    buttonLink: "/menu",
-  },
-  {
-    id: 3,
-    titleKey: "hero.title3",
-    subtitleKey: "hero.subtitle3",
-    image: "/images/hero/hero-3.jpg",
-    buttonTextKey: "header.promotions",
-    buttonLink: "/promotions",
-  },
-];
+import { Button } from "./ui/Button";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 export default function Hero() {
-  const [currentSlide, setCurrentSlide] = useState(0);
   const { t } = useTranslation();
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
 
-  // Використовуємо startTransition для некритичних оновлень - INP optimization
-  const handleSlideChange = useCallback((index: number) => {
-    startTransition(() => {
-      setCurrentSlide(index);
-    });
-  }, []);
-
-  // Автоматична зміна слайдів з startTransition
-  useEffect(() => {
-    const timer = setInterval(() => {
-      startTransition(() => {
-        setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-      });
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const slide = HERO_SLIDES[currentSlide];
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    // CLS optimization - фіксована висота з адаптивними значеннями
-    <section className="relative h-[60vh] min-h-[400px] max-h-[500px] sm:max-h-[550px] md:h-[500px] md:max-h-[600px] overflow-hidden">
-      {/* Фонове зображення - LCP optimization */}
-      <div className="absolute inset-0">
-        {/* Placeholder для CLS prevention */}
-        <div className="absolute inset-0 bg-gray-900" aria-hidden="true" />
-        
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0"
-          >
-            <Image
-              src={slide.image}
-              alt={t(slide.titleKey)}
-              fill
-              className="object-cover"
-              priority={currentSlide === 0}
-              fetchPriority={currentSlide === 0 ? "high" : "auto"}
-              sizes="100vw"
-              quality={85}
-            />
-          </motion.div>
-        </AnimatePresence>
-        
-        {/* Overlay - GPU accelerated, посилений для приховування фонового тексту */}
-        <div 
-          className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/30 transform-gpu" 
-          aria-hidden="true"
-        />
-      </div>
-
-      {/* Контент з анімацією */}
-      <div className="relative container mx-auto px-4 h-full flex items-center">
-        <motion.div
-          key={currentSlide}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="max-w-xl"
+    <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      {/* Video Background */}
+      <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-surface-dark/30 via-surface-dark/50 to-surface-dark z-10" />
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+          poster="/images/hero-poster.jpg"
         >
-          {/* Заголовок - великий та помітний */}
-          <h1 
-            className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 md:mb-5 leading-tight text-white"
-            style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.7)' }}
-          >
-            {t(slide.titleKey)}
+          <source src="/videos/sushi-hero.mp4" type="video/mp4" />
+        </video>
+      </motion.div>
+
+      {/* Content */}
+      <div className="container mx-auto px-4 relative z-20 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 drop-shadow-2xl tracking-tight">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-primary-300 to-primary-500 animate-gradient-x">
+              Croco Sushi
+            </span>
+            <span className="text-4xl md:text-6xl font-light italic text-gray-200">
+              Premium Delivery
+            </span>
           </h1>
-          
-          {/* Підзаголовок - яскравий та читабельний */}
-          <p 
-            className="text-lg sm:text-xl md:text-2xl text-white font-medium mb-8 md:mb-10 leading-relaxed"
-            style={{ textShadow: '1px 1px 6px rgba(0,0,0,0.8)' }}
-          >
-            {t(slide.subtitleKey)}
+
+          <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl mx-auto font-light">
+            {t("hero.subtitle")}
           </p>
-          
-          {/* Одна головна CTA кнопка - велика та помітна */}
-          <Link
-            href="/menu"
-            className="inline-flex items-center justify-center bg-primary hover:bg-primary-600 text-white font-bold text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-5 rounded-xl active:scale-[0.98] transition-all shadow-xl hover:shadow-2xl min-h-[56px] sm:min-h-[64px] touch-target group max-w-md"
-            style={{ boxShadow: '0 8px 30px rgba(0, 168, 89, 0.4)' }}
-          >
-            🍣 {t("header.order")}
-            <ArrowRightIcon className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform" />
-          </Link>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link href="/menu">
+              <Button size="lg" className="shadow-primary-500/50 shadow-2xl">
+                {t("hero.orderNow")}
+              </Button>
+            </Link>
+            <Link href="/about">
+              <Button variant="outline" size="lg" className="backdrop-blur-sm border-white/30 text-white hover:bg-white/10">
+                {t("hero.aboutUs")}
+              </Button>
+            </Link>
+          </div>
         </motion.div>
       </div>
 
-      {/* Індикатори слайдів - touch targets 44px */}
-      <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 flex space-x-2">
-        {HERO_SLIDES.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => handleSlideChange(index)}
-            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-target"
-            aria-label={`Перейти до слайду ${index + 1}`}
-            aria-current={index === currentSlide ? "true" : "false"}
-          >
-            <span 
-              className={`block rounded-full transition-all duration-300 ${
-                index === currentSlide 
-                  ? "bg-white w-8 h-3" 
-                  : "bg-white/50 hover:bg-white/75 w-3 h-3"
-              }`}
-            />
-          </button>
-        ))}
-      </div>
+      {/* Scroll Indicator */}
+      <motion.div
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-white/50"
+      >
+        <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-2">
+          <div className="w-1 h-1 bg-white rounded-full" />
+        </div>
+      </motion.div>
     </section>
   );
 }

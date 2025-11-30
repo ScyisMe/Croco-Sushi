@@ -1,6 +1,14 @@
 from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from datetime import datetime
 from typing import Optional
+from enum import Enum
+
+
+class UserRole(str, Enum):
+    CLIENT = "client"
+    MANAGER = "manager"
+    ADMIN = "admin"
+    COURIER = "courier"
 
 
 class UserBase(BaseModel):
@@ -11,11 +19,13 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: Optional[str] = Field(None, min_length=8, description="Пароль (мін 8 символів)")
+    role: UserRole = UserRole.CLIENT
 
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     name: Optional[str] = None
+    role: Optional[UserRole] = None
 
 
 class UserLogin(BaseModel):
@@ -27,6 +37,7 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     is_admin: bool
+    role: UserRole
     bonus_balance: int = 0  # Бонусні бали
     loyalty_status: str = "new"  # Статус лояльності
     created_at: datetime
@@ -72,6 +83,7 @@ class ResetPasswordRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     """Запит на зміну пароля (для авторизованих або через код відновлення)"""
     new_password: str = Field(..., min_length=8, description="Новий пароль (мін 8 символів)")
+    old_password: Optional[str] = Field(None, description="Старий пароль (для авторизованих користувачів)")
     reset_code: Optional[str] = Field(None, min_length=6, max_length=6, description="SMS код відновлення (якщо відновлюєте пароль без авторизації)")
 
 

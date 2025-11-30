@@ -12,10 +12,12 @@ import {
   TruckIcon,
   ExclamationTriangleIcon,
   ChevronRightIcon,
+  TagIcon,
 } from "@heroicons/react/24/outline";
 import { useCartStore, MAX_CART_ITEMS } from "@/store/cartStore";
 import { useTranslation } from "@/store/localeStore";
 import apiClient from "@/lib/api/client";
+import { Product } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -30,14 +32,14 @@ const VALIDATION_INTERVAL = 5 * 60 * 1000;
 
 export default function Cart({ isOpen, setIsOpen }: CartProps) {
   const { t } = useTranslation();
-  const { 
-    items, 
-    totalAmount, 
-    totalItems, 
+  const {
+    items,
+    totalAmount,
+    totalItems,
     delivery,
     lastValidated,
-    removeItem, 
-    updateQuantity, 
+    removeItem,
+    updateQuantity,
     clearCart,
     getDeliveryCost,
     getFinalAmount,
@@ -47,44 +49,42 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [isPromoApplied, setIsPromoApplied] = useState(false);
+
+  const handleApplyPromo = () => {
+    if (!promoCode.trim()) return;
+    // Mock validation for now
+    toast.success("Промокод застосовано!");
+    setIsPromoApplied(true);
+  };
 
   // Функція валідації товарів у кошику
   const validateCartItems = useCallback(async () => {
     if (items.length === 0) return;
-    
+
     // Перевіряємо чи потрібно валідувати (раз на 5 хвилин)
     const now = Date.now();
     if (lastValidated && now - lastValidated < VALIDATION_INTERVAL) {
       return;
     }
-    
+
     setIsValidating(true);
-    
+
     try {
-      // Отримуємо актуальну інформацію про товари
+      // Отримуємо актуальну інформацію про товари (bulk request)
       const productIds = [...new Set(items.map((item) => item.id))];
-      const unavailableIds: number[] = [];
-      
-      // Перевіряємо кожен товар (можна оптимізувати через batch endpoint)
-      await Promise.all(
-        productIds.map(async (id) => {
-          try {
-            const item = items.find((i) => i.id === id);
-            if (!item?.slug) return;
-            
-            const response = await apiClient.get(`/products/${item.slug}`);
-            const product = response.data;
-            
-            if (!product.is_available) {
-              unavailableIds.push(id);
-            }
-          } catch {
-            // Якщо товар не знайдено, вважаємо його недоступним
-            unavailableIds.push(id);
-          }
-        })
-      );
-      
+
+      const response = await apiClient.post<Product[]>("/products/validate", {
+        product_ids: productIds
+      });
+
+      const availableProducts = response.data;
+      const availableIds = new Set(availableProducts.map(p => p.id));
+
+      // Знаходимо товари, яких немає в списку доступних
+      const unavailableIds = productIds.filter(id => !availableIds.has(id));
+
       // Видаляємо недоступні товари
       if (unavailableIds.length > 0) {
         const removedNames = removeUnavailableItems(unavailableIds);
@@ -95,7 +95,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
           );
         }
       }
-      
+
       setLastValidated(now);
     } catch (error) {
       console.error("Помилка валідації кошика:", error);
@@ -141,7 +141,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
         });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedZone]);
 
   return (
@@ -370,6 +370,34 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           )}
                         </div>
 
+                        {/* Промокод */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <TagIcon className="w-4 h-4 text-secondary-light" />
+                            <span className="text-sm font-medium text-secondary">Промокод</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Введіть промокод"
+                              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-primary"
+                              value={promoCode}
+                              onChange={(e) => setPromoCode(e.target.value)}
+                              disabled={isPromoApplied}
+                            />
+                            <button
+                              onClick={handleApplyPromo}
+                              disabled={isPromoApplied || !promoCode}
+                              className={`px-4 py-2 font-medium rounded-lg transition text-sm ${isPromoApplied
+                                ? "bg-green-100 text-green-700"
+                                : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
+                                }`}
+                            >
+                              {isPromoApplied ? "Застосовано" : "Застосувати"}
+                            </button>
+                          </div>
+                        </div>
+
                         {/* Підсумок */}
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
@@ -405,11 +433,10 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                         <Link
                           href="/checkout"
                           onClick={() => setIsOpen(false)}
-                          className={`block w-full text-center py-4 rounded-lg font-bold text-lg transition ${
-                            isMinOrderReached
-                              ? "bg-primary hover:bg-primary-600 text-white"
-                              : "bg-theme-tertiary text-theme-muted cursor-not-allowed pointer-events-none"
-                          }`}
+                          className={`block w-full text-center py-4 rounded-lg font-bold text-lg transition ${isMinOrderReached
+                            ? "bg-primary hover:bg-primary-600 text-white"
+                            : "bg-theme-tertiary text-theme-muted cursor-not-allowed pointer-events-none"
+                            }`}
                         >
                           {t("cart.checkout")}
                         </Link>

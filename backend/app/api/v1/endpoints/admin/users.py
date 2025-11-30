@@ -28,6 +28,7 @@ async def get_users(
     search: Optional[str] = None,
     is_active: Optional[bool] = None,
     is_admin: Optional[bool] = None,
+    role: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_admin_user)
 ):
@@ -46,6 +47,9 @@ async def get_users(
     
     if is_admin is not None:
         query = query.where(User.is_admin == is_admin)
+        
+    if role:
+        query = query.where(User.role == role)
     
     query = query.order_by(User.created_at.desc()).offset(skip).limit(limit)
     
@@ -101,7 +105,7 @@ async def update_user(
     # БЕЗПЕКА: Використовуємо тільки дозволені поля зі схеми, щоб запобігти зміні критичних полів
     update_data = user_data.model_dump(exclude_unset=True)
     # Whitelist дозволених полів для оновлення (захист від зміни is_admin, hashed_password тощо)
-    allowed_fields = {"email", "name", "phone", "newsletter_subscription"}
+    allowed_fields = {"email", "name", "phone", "newsletter_subscription", "role"}
     for field, value in update_data.items():
         if field in allowed_fields and hasattr(user, field):
             setattr(user, field, value)

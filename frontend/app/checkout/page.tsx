@@ -222,11 +222,11 @@ export default function CheckoutPage() {
       };
 
       const response = await apiClient.post("/orders", orderData);
-      
+
       // Очищаємо кошик та збережені дані
       clearCart();
       localStorage.removeItem("checkout_form");
-      
+
       toast.success("Замовлення успішно створено!");
       router.push(`/orders/${response.data.order_number}/success`);
     } catch (error: unknown) {
@@ -288,13 +288,12 @@ export default function CheckoutPage() {
               {STEPS.map((step, index) => (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition ${
-                      currentStep > step.id
+                    className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition ${currentStep > step.id
                         ? "bg-primary border-primary text-white"
                         : currentStep === step.id
-                        ? "border-primary text-primary bg-primary/10"
-                        : "border-theme text-secondary-light"
-                    }`}
+                          ? "border-primary text-primary bg-primary/10"
+                          : "border-theme text-secondary-light"
+                      }`}
                   >
                     {currentStep > step.id ? (
                       <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -303,17 +302,15 @@ export default function CheckoutPage() {
                     )}
                   </div>
                   <span
-                    className={`hidden xs:block ml-1.5 sm:ml-2 text-xs sm:text-sm font-medium whitespace-nowrap ${
-                      currentStep >= step.id ? "text-secondary" : "text-secondary-light"
-                    }`}
+                    className={`hidden xs:block ml-1.5 sm:ml-2 text-xs sm:text-sm font-medium whitespace-nowrap ${currentStep >= step.id ? "text-secondary" : "text-secondary-light"
+                      }`}
                   >
                     {step.name}
                   </span>
                   {index < STEPS.length - 1 && (
                     <div
-                      className={`w-4 xs:w-6 sm:w-12 lg:w-16 h-0.5 mx-1 sm:mx-2 lg:mx-4 transition-colors ${
-                        currentStep > step.id ? "bg-primary" : "bg-theme-tertiary"
-                      }`}
+                      className={`w-4 xs:w-6 sm:w-12 lg:w-16 h-0.5 mx-1 sm:mx-2 lg:mx-4 transition-colors ${currentStep > step.id ? "bg-primary" : "bg-theme-tertiary"
+                        }`}
                     />
                   )}
                 </div>
@@ -332,13 +329,13 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-secondary mb-2">
-                        Ваше ім'я *
+                        Ваше ім&apos;я *
                       </label>
                       <input
                         type="text"
                         value={formData.customer_name}
                         onChange={(e) => updateField("customer_name", e.target.value)}
-                        placeholder="Введіть ваше ім'я"
+                        placeholder="Введіть ваше ім&apos;я"
                         className={`input ${errors.customer_name ? "input-error" : ""}`}
                       />
                       {errors.customer_name && (
@@ -364,7 +361,7 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-secondary mb-2">
-                        Email (необов'язково)
+                        Email (необов&apos;язково)
                       </label>
                       <input
                         type="email"
@@ -444,7 +441,7 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-secondary mb-2">
-                          Під'їзд
+                          Під&apos;їзд
                         </label>
                         <input
                           type="text"
@@ -470,7 +467,7 @@ export default function CheckoutPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-secondary mb-2">
-                        Коментар для кур'єра
+                        Коментар для кур&apos;єра
                       </label>
                       <textarea
                         value={formData.comment}
@@ -496,13 +493,12 @@ export default function CheckoutPage() {
                       {PAYMENT_METHODS.map((method) => (
                         <label
                           key={method.value}
-                          className={`flex items-center p-4 border rounded-xl cursor-pointer transition ${
-                            method.disabled
+                          className={`flex items-center p-4 border rounded-xl cursor-pointer transition ${method.disabled
                               ? "opacity-50 cursor-not-allowed"
                               : formData.payment_method === method.value
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:border-primary"
-                          }`}
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:border-primary"
+                            }`}
                         >
                           <input
                             type="radio"

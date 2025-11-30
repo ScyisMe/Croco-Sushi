@@ -16,6 +16,7 @@ import { useTranslation, Locale } from "@/store/localeStore";
 import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
 import ThemeToggle, { ThemeToggleMobile } from "./ThemeToggle";
+import { throttle } from "@/lib/utils";
 
 // Контактна інформація Croco Sushi
 const CONTACT_INFO = {
@@ -49,7 +50,7 @@ export default function Header() {
   const [isMounted, setIsMounted] = useState(false); // Для уникнення hydration mismatch
   const [isOpen, setIsOpen] = useState<boolean | null>(null); // Статус роботи
   const getItemCount = useCartStore((state) => state.totalItems);
-  
+
   // Використовуємо локалізацію
   const { locale, setLocale, t } = useTranslation();
 
@@ -68,20 +69,21 @@ export default function Header() {
       return true;
     };
     setIsOpen(checkWorkingHours());
-    
+
     // Оновлюємо статус кожну хвилину
     const interval = setInterval(() => {
       setIsOpen(checkWorkingHours());
     }, 60000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
   // Sticky header при прокрутці
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = throttle(() => {
       setIsSticky(window.scrollY > 50);
-    };
+    }, 100);
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -144,22 +146,20 @@ export default function Header() {
                   <div className="flex items-center border-l border-border pl-4">
                     <button
                       onClick={() => handleLanguageChange("ua")}
-                      className={`px-2 py-1 rounded transition ${
-                        locale === "ua"
-                          ? "bg-primary text-white"
-                          : "text-secondary hover:text-primary"
-                      }`}
+                      className={`px-2 py-1 rounded transition ${locale === "ua"
+                        ? "bg-primary text-white"
+                        : "text-secondary hover:text-primary"
+                        }`}
                     >
                       UA
                     </button>
                     <span className="text-border mx-1">/</span>
                     <button
                       onClick={() => handleLanguageChange("ru")}
-                      className={`px-2 py-1 rounded transition ${
-                        locale === "ru"
-                          ? "bg-primary text-white"
-                          : "text-secondary hover:text-primary"
-                      }`}
+                      className={`px-2 py-1 rounded transition ${locale === "ru"
+                        ? "bg-primary text-white"
+                        : "text-secondary hover:text-primary"
+                        }`}
                     >
                       RU
                     </button>
@@ -328,7 +328,7 @@ export default function Header() {
                           </Link>
                         </li>
                       ))}
-                      
+
                       {/* Авторизація для мобільних */}
                       {!isAuthenticated && (
                         <>
@@ -352,7 +352,7 @@ export default function Header() {
                           </li>
                         </>
                       )}
-                      
+
                       {isAuthenticated && (
                         <li className="border-t border-border pt-2 mt-2">
                           <Link
@@ -416,21 +416,19 @@ export default function Header() {
                       <div className="flex items-center justify-center space-x-2">
                         <button
                           onClick={() => handleLanguageChange("ua")}
-                          className={`px-4 py-2 rounded-lg transition ${
-                            locale === "ua"
-                              ? "bg-primary text-white"
-                              : "bg-surface text-foreground-secondary hover:bg-surface-hover"
-                          }`}
+                          className={`px-4 py-2 rounded-lg transition ${locale === "ua"
+                            ? "bg-primary text-white"
+                            : "bg-surface text-foreground-secondary hover:bg-surface-hover"
+                            }`}
                         >
                           UA
                         </button>
                         <button
                           onClick={() => handleLanguageChange("ru")}
-                          className={`px-4 py-2 rounded-lg transition ${
-                            locale === "ru"
-                              ? "bg-primary text-white"
-                              : "bg-surface text-foreground-secondary hover:bg-surface-hover"
-                          }`}
+                          className={`px-4 py-2 rounded-lg transition ${locale === "ru"
+                            ? "bg-primary text-white"
+                            : "bg-surface text-foreground-secondary hover:bg-surface-hover"
+                            }`}
                         >
                           RU
                         </button>

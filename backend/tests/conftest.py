@@ -1,9 +1,12 @@
 """Pytest configuration and shared fixtures"""
-import os
-# Вимкнути автоматичне визначення версії bcrypt ПЕРЕД імпортом passlib
-os.environ.setdefault('PASSLIB_DISABLE_BCRYPT_VERSION_DETECTION', '1')
-
 import pytest
+import os
+
+# Встановлюємо змінні оточення для тестів ПЕРЕД імпортом app
+os.environ["REDIS_URL"] = "redis://localhost:6379/0"
+os.environ["CELERY_BROKER_URL"] = "redis://localhost:6379/0"
+os.environ["CELERY_RESULT_BACKEND"] = "redis://localhost:6379/0"
+
 import asyncio
 from typing import AsyncGenerator, Generator
 from httpx import AsyncClient, ASGITransport
@@ -170,3 +173,30 @@ async def admin_client(client: AsyncClient, test_admin_user) -> AsyncClient:
     client.headers.update({"Authorization": f"Bearer {token}"})
     return client
 
+    return client
+
+
+@pytest.fixture(autouse=True)
+def mock_redis(monkeypatch):
+    """Mock Redis client for all tests"""
+    from unittest.mock import MagicMock
+    
+    mock_redis_client = MagicMock()
+    # Mock basic Redis methods
+    mock_redis_client.get.return_value = None
+    mock_redis_client.set.return_value = True
+    mock_redis_client.setex.return_value = True
+    mock_redis_client.delete.return_value = True
+    mock_redis_client.incr.return_value = 1
+    mock_redis_client.pipeline.return_value = MagicMock()
+    
+    def mock_from_url(*args, **kwargs):
+        return mock_redis_client
+        
+    monkeypatch.setattr("redis.from_url", mock_from_url)
+    return mock_redis_client
+
+@pytest.fixture(autouse=True)
+async def clear_redis():
+    """Очищає Redis перед кожним тестом (mocked)"""
+    pass

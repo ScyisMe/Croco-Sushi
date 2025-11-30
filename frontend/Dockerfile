@@ -58,3 +58,11 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 CMD ["node", "server.js"]
 
+
+# Stage: Development
+FROM node:20-alpine AS dev
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+COPY . .
+CMD ["npm", "run", "dev"]

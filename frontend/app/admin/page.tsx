@@ -14,12 +14,17 @@ import {
 } from "@heroicons/react/24/outline";
 
 interface DashboardStats {
-  totalOrders: number;
-  pendingOrders: number;
-  totalRevenue: number;
-  totalProducts: number;
-  totalCategories: number;
-  todayOrders: number;
+  orders_today: number;
+  orders_week: number;
+  orders_month: number;
+  orders_year: number;
+  revenue_today: number;
+  revenue_week: number;
+  revenue_month: number;
+  revenue_year: number;
+  average_check: number;
+  new_customers_today: number;
+  new_customers_month: number;
 }
 
 interface RecentOrder {
@@ -43,12 +48,17 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
-    totalOrders: 0,
-    pendingOrders: 0,
-    totalRevenue: 0,
-    totalProducts: 0,
-    totalCategories: 0,
-    todayOrders: 0,
+    orders_today: 0,
+    orders_week: 0,
+    orders_month: 0,
+    orders_year: 0,
+    revenue_today: 0,
+    revenue_week: 0,
+    revenue_month: 0,
+    revenue_year: 0,
+    average_check: 0,
+    new_customers_today: 0,
+    new_customers_month: 0,
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -59,42 +69,14 @@ export default function AdminDashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      // Отримуємо статистику
-      const [ordersRes, productsRes, categoriesRes] = await Promise.all([
-        apiClient.get("/orders/admin/list?limit=10"),
-        apiClient.get("/products"),
-        apiClient.get("/categories"),
+      // Отримуємо статистику та останні замовлення
+      const [statsRes, ordersRes] = await Promise.all([
+        apiClient.get("/admin/statistics/dashboard"),
+        apiClient.get("/admin/orders?limit=5"),
       ]);
 
-      const orders = ordersRes.data.orders || ordersRes.data || [];
-      const products = productsRes.data || [];
-      const categories = categoriesRes.data || [];
-
-      // Рахуємо статистику
-      const pendingOrders = orders.filter(
-        (o: any) => o.status === "pending" || o.status === "confirmed"
-      ).length;
-      const totalRevenue = orders.reduce(
-        (sum: number, o: any) => sum + (o.total_amount || 0),
-        0
-      );
-
-      // Сьогоднішні замовлення
-      const today = new Date().toISOString().split("T")[0];
-      const todayOrders = orders.filter(
-        (o: any) => o.created_at?.startsWith(today)
-      ).length;
-
-      setStats({
-        totalOrders: ordersRes.data.total || orders.length,
-        pendingOrders,
-        totalRevenue,
-        totalProducts: products.length,
-        totalCategories: categories.length,
-        todayOrders,
-      });
-
-      setRecentOrders(orders.slice(0, 5));
+      setStats(statsRes.data);
+      setRecentOrders(ordersRes.data || []);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -149,9 +131,9 @@ export default function AdminDashboardPage() {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Всього замовлень</p>
+              <p className="text-gray-500 text-sm">Замовлень сьогодні</p>
               <p className="text-3xl font-bold text-gray-800 mt-1">
-                {stats.totalOrders}
+                {stats.orders_today}
               </p>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
@@ -159,9 +141,8 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-green-600 flex items-center">
-              <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
-              {stats.todayOrders} сьогодні
+            <span className="text-gray-500">
+              {stats.orders_month} за місяць
             </span>
           </div>
         </div>
@@ -169,63 +150,62 @@ export default function AdminDashboardPage() {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Очікують обробки</p>
+              <p className="text-gray-500 text-sm">Виручка сьогодні</p>
               <p className="text-3xl font-bold text-gray-800 mt-1">
-                {stats.pendingOrders}
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-50 rounded-lg">
-              <ClockIcon className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <Link
-              href="/admin/orders?status=pending"
-              className="text-sm text-green-600 hover:text-green-700"
-            >
-              Переглянути →
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">Загальний дохід</p>
-              <p className="text-3xl font-bold text-gray-800 mt-1">
-                {formatPrice(stats.totalRevenue)}
+                {formatPrice(stats.revenue_today)}
               </p>
             </div>
             <div className="p-3 bg-green-50 rounded-lg">
               <CurrencyDollarIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
+          <div className="mt-4 flex items-center text-sm">
+            <span className="text-gray-500">
+              {formatPrice(stats.revenue_month)} за місяць
+            </span>
+          </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Товари / Категорії</p>
+              <p className="text-gray-500 text-sm">Середній чек</p>
               <p className="text-3xl font-bold text-gray-800 mt-1">
-                {stats.totalProducts} / {stats.totalCategories}
+                {formatPrice(stats.average_check)}
               </p>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg">
               <ShoppingBagIcon className="w-6 h-6 text-purple-600" />
             </div>
           </div>
-          <div className="mt-4">
-            <Link
-              href="/admin/products"
-              className="text-sm text-green-600 hover:text-green-700"
-            >
-              Керувати →
-            </Link>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-500 text-sm">Нові клієнти</p>
+              <p className="text-3xl font-bold text-gray-800 mt-1">
+                {stats.new_customers_today}
+              </p>
+            </div>
+            <div className="p-3 bg-yellow-50 rounded-lg">
+              <UserGroupIcon className="w-6 h-6 text-yellow-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-sm">
+            <span className="text-gray-500">
+              {stats.new_customers_month} за місяць
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Швидкі дії та останні замовлення */}
+      {/* Sales Chart */}
+      <div className="mt-6">
+        <SalesChart isLoading={isLoading} />
+      </div>
+
+      {/* Quick Actions and Recent Orders / Top Products */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Швидкі дії */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -309,10 +289,9 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="py-3">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            STATUS_LABELS[order.status]?.color ||
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_LABELS[order.status]?.color ||
                             "bg-gray-100 text-gray-800"
-                          }`}
+                            }`}
                         >
                           {STATUS_LABELS[order.status]?.label || order.status}
                         </span>
@@ -328,7 +307,14 @@ export default function AdminDashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Top Products */}
+      <div className="mt-6">
+        <TopProducts isLoading={isLoading} />
+      </div>
     </div>
   );
 }
 
+import SalesChart from "./components/SalesChart";
+import TopProducts from "./components/TopProducts";

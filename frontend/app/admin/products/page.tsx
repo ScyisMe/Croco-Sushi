@@ -47,7 +47,7 @@ export default function AdminProductsPage() {
   const fetchData = async () => {
     try {
       const [productsRes, categoriesRes] = await Promise.all([
-        apiClient.get("/products"),
+        apiClient.get("/admin/products?limit=1000"),
         apiClient.get("/categories"),
       ]);
       setProducts(productsRes.data || []);
@@ -252,11 +252,10 @@ export default function AdminProductsPage() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => togglePopular(product)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                          product.is_popular
-                            ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${product.is_popular
+                          ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
                       >
                         {product.is_popular ? "⭐ Так" : "Ні"}
                       </button>
@@ -264,11 +263,10 @@ export default function AdminProductsPage() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => toggleAvailable(product)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                          product.is_available
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${product.is_available
+                          ? "bg-green-100 text-green-700 hover:bg-green-200"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          }`}
                       >
                         {product.is_available ? "В наявності" : "Немає"}
                       </button>

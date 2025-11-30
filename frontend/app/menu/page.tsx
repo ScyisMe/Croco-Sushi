@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+export const dynamic = "force-dynamic";
+
+import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,7 +33,7 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Спочатку дорожчі" },
 ];
 
-export default function MenuPage() {
+function MenuContent() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -46,7 +48,7 @@ export default function MenuPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-  
+
   // Ref для Intersection Observer (infinite scroll)
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -109,7 +111,7 @@ export default function MenuPage() {
       return lastPage.hasMore ? lastPage.nextOffset : undefined;
     },
   });
-  
+
   // Всі завантажені товари
   const allProducts = useMemo(() => {
     return productsQuery.data?.pages.flatMap((page) => page.items) || [];
@@ -192,26 +194,26 @@ export default function MenuPage() {
   };
 
   const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
-  
+
   // Загальна кількість товарів
   const totalProducts = productsQuery.data?.pages[0]?.total ?? 0;
-  
+
   // Сортування товарів
   const sortedProducts = useMemo(() => {
     const products = allProducts;
     const sorted = [...products];
-    
+
     switch (sortBy) {
       case "price_asc":
-        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
+        return sorted.sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"));
       case "price_desc":
-        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
+        return sorted.sort((a, b) => parseFloat(b.price || "0") - parseFloat(a.price || "0"));
       case "name":
         return sorted.sort((a, b) => a.name.localeCompare(b.name, "uk"));
       case "popular":
         return sorted.sort((a, b) => {
-          if (a.is_hit && !b.is_hit) return -1;
-          if (!a.is_hit && b.is_hit) return 1;
+          if (a.is_popular && !b.is_popular) return -1;
+          if (!a.is_popular && b.is_popular) return 1;
           if (a.is_popular && !b.is_popular) return -1;
           if (!a.is_popular && b.is_popular) return 1;
           return 0;
@@ -253,9 +255,9 @@ export default function MenuPage() {
     <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
       {/* Schema.org markup для SEO */}
       <JsonLd schema={getBreadcrumbSchema(breadcrumbItems)} />
-      
+
       <Header />
-      
+
       <main className="flex-grow">
         {/* Хлібні крихти */}
         <div className="bg-theme-surface border-b border-theme">
@@ -342,11 +344,10 @@ export default function MenuPage() {
                   <li>
                     <button
                       onClick={() => handleCategoryChange(null)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition ${
-                        !selectedCategory
-                          ? "bg-primary text-white"
-                          : "text-secondary hover:bg-theme-secondary"
-                      }`}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition ${!selectedCategory
+                        ? "bg-primary text-white"
+                        : "text-secondary hover:bg-theme-secondary"
+                        }`}
                     >
                       Все меню
                     </button>
@@ -355,11 +356,10 @@ export default function MenuPage() {
                     <li key={category.id}>
                       <button
                         onClick={() => handleCategoryChange(category.slug)}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition ${
-                          selectedCategory === category.slug
-                            ? "bg-primary text-white"
-                            : "text-secondary hover:bg-theme-secondary"
-                        }`}
+                        className={`w-full text-left px-3 py-2 rounded-lg transition ${selectedCategory === category.slug
+                          ? "bg-primary text-white"
+                          : "text-secondary hover:bg-theme-secondary"
+                          }`}
                       >
                         {category.name}
                       </button>
@@ -376,11 +376,10 @@ export default function MenuPage() {
                 <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
                   <button
                     onClick={() => handleCategoryChange(null)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${
-                      !selectedCategory
-                        ? "bg-primary text-white"
-                        : "bg-theme-surface text-secondary border border-theme hover:border-primary"
-                    }`}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${!selectedCategory
+                      ? "bg-primary text-white"
+                      : "bg-theme-surface text-secondary border border-theme hover:border-primary"
+                      }`}
                   >
                     Все
                   </button>
@@ -388,11 +387,10 @@ export default function MenuPage() {
                     <button
                       key={category.id}
                       onClick={() => handleCategoryChange(category.slug)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${
-                        selectedCategory === category.slug
-                          ? "bg-primary text-white"
-                          : "bg-theme-surface text-secondary border border-theme hover:border-primary"
-                      }`}
+                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${selectedCategory === category.slug
+                        ? "bg-primary text-white"
+                        : "bg-theme-surface text-secondary border border-theme hover:border-primary"
+                        }`}
                     >
                       {category.name}
                     </button>
@@ -403,7 +401,7 @@ export default function MenuPage() {
               {/* Результати пошуку та кількість */}
               {debouncedSearch ? (
                 <p className="text-secondary-light mb-4">
-                  Результати пошуку для "{debouncedSearch}": {totalProducts} страв
+                  Результати пошуку для &quot;{debouncedSearch}&quot;: {totalProducts} страв
                 </p>
               ) : totalProducts > 0 && (
                 <p className="text-secondary-light mb-4">
@@ -459,7 +457,7 @@ export default function MenuPage() {
                       />
                     ))}
                   </div>
-                  
+
                   {/* Елемент для спостереження (infinite scroll) */}
                   <div ref={loadMoreRef} className="py-8">
                     {productsQuery.isFetchingNextPage && (
@@ -478,93 +476,92 @@ export default function MenuPage() {
               )}
             </div>
           </div>
-        </div>
-      </main>
+        </div >
+      </main >
 
       <Footer />
 
       {/* Мобільний фільтр */}
-      {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setIsMobileFilterOpen(false)}
-          />
-          <div className="absolute bottom-0 left-0 right-0 bg-theme-surface rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
-            <div className="sticky top-0 bg-theme-surface border-b border-theme p-4 flex items-center justify-between">
-              <h3 className="font-bold text-lg">Фільтри</h3>
-              <button
-                onClick={() => setIsMobileFilterOpen(false)}
-                className="p-2 text-secondary-light hover:text-secondary"
-              >
-                <XMarkIcon className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="p-4 space-y-6">
-              {/* Сортування */}
-              <div>
-                <h4 className="font-semibold text-secondary mb-3">Сортування</h4>
-                <div className="space-y-2">
-                  {SORT_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setSortBy(option.value)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                        sortBy === option.value
-                          ? "bg-primary text-white"
-                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
+      {
+        isMobileFilterOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setIsMobileFilterOpen(false)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-theme-surface rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
+              <div className="sticky top-0 bg-theme-surface border-b border-theme p-4 flex items-center justify-between">
+                <h3 className="font-bold text-lg">Фільтри</h3>
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="p-2 text-secondary-light hover:text-secondary"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
               </div>
 
-              {/* Категорії */}
-              <div>
-                <h4 className="font-semibold text-secondary mb-3">Категорії</h4>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleCategoryChange(null)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                      !selectedCategory
+              <div className="p-4 space-y-6">
+                {/* Сортування */}
+                <div>
+                  <h4 className="font-semibold text-secondary mb-3">Сортування</h4>
+                  <div className="space-y-2">
+                    {SORT_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setSortBy(option.value)}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition ${sortBy === option.value
+                          ? "bg-primary text-white"
+                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
+                          }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Категорії */}
+                <div>
+                  <h4 className="font-semibold text-secondary mb-3">Категорії</h4>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => handleCategoryChange(null)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition ${!selectedCategory
                         ? "bg-primary text-white"
                         : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                    }`}
-                  >
-                    Все меню
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategoryChange(category.slug)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition ${
-                        selectedCategory === category.slug
+                        }`}
+                    >
+                      Все меню
+                    </button>
+                    {categories.map((category) => (
+                      <button
+                        key={category.id}
+                        onClick={() => handleCategoryChange(category.slug)}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition ${selectedCategory === category.slug
                           ? "bg-primary text-white"
                           : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                      }`}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
+                          }`}
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Кнопка застосувати */}
-            <div className="sticky bottom-0 bg-theme-surface border-t border-theme p-4">
-              <button
-                onClick={() => setIsMobileFilterOpen(false)}
-                className="w-full btn-primary"
-              >
-                Застосувати
-              </button>
+              {/* Кнопка застосувати */}
+              <div className="sticky bottom-0 bg-theme-surface border-t border-theme p-4">
+                <button
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="w-full btn-primary"
+                >
+                  Застосувати
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Quick View Modal */}
       <QuickViewModal
@@ -577,6 +574,14 @@ export default function MenuPage() {
         onFavoriteToggle={handleFavoriteToggle}
         isFavorite={quickViewProduct ? favoriteIds.has(quickViewProduct.id) : false}
       />
-    </div>
+    </div >
+  );
+}
+
+export default function MenuPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+      <MenuContent />
+    </Suspense>
   );
 }

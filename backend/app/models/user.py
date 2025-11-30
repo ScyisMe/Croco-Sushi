@@ -1,8 +1,8 @@
 from __future__ import annotations
-
+import enum
 from datetime import datetime
 from typing import Optional, List, TYPE_CHECKING
-from sqlalchemy import String, Boolean, Integer, DateTime, Text
+from sqlalchemy import String, Boolean, Integer, DateTime, Text, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -15,6 +15,13 @@ if TYPE_CHECKING:
     from app.models.favorite import Favorite
 
 
+class UserRole(str, enum.Enum):
+    CLIENT = "client"
+    MANAGER = "manager"
+    ADMIN = "admin"
+    COURIER = "courier"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -24,7 +31,14 @@ class User(Base):
     name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     hashed_password: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    
+    # Role field
+    role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.CLIENT, nullable=False)
+    
+    @property
+    def is_admin(self) -> bool:
+        return self.role == UserRole.ADMIN
+
     # 2FA поля
     two_factor_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     two_factor_secret: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)

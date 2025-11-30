@@ -123,8 +123,7 @@ async def register(
             email=user_data.email,
             name=user_data.name,
             hashed_password=hashed_password,
-            is_active=True,
-            is_admin=False
+            is_active=True
         )
         
         db.add(new_user)
@@ -154,77 +153,25 @@ async def register(
 @router.post("/login", response_model=Token)
 async def login(
     credentials: UserLogin,
-    request: Request,
     db: AsyncSession = Depends(get_db)
 ):
-    """Вхід користувача з rate limiting та захистом від brute force"""
-    client_ip = get_client_ip(request)
-    phone = credentials.phone
-    
-    # БЕЗПЕКА: Rate limiting для захисту від brute force атак
-    if redis_client:
-        # Перевірка блокування IP
-        ip_block_key = f"login_blocked_ip:{client_ip}"
-        if redis_client.get(ip_block_key):
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Занадто багато спроб входу. Спробуйте через 15 хвилин"
-            )
-        
-        # Перевірка блокування номера телефону
-        phone_block_key = f"login_blocked_phone:{phone}"
-        if redis_client.get(phone_block_key):
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Занадто багато спроб входу. Спробуйте через 15 хвилин"
-            )
-    
+    """Вхід користувача"""
     # Пошук користувача
-    result = await db.execute(select(User).where(User.phone == phone))
+    result = await db.execute(select(User).where(User.phone == credentials.phone))
     user = result.scalar_one_or_none()
     
-    # БЕЗПЕКА: Однакова відповідь для неіснуючого користувача та невірного пароля
-    # щоб не дати зрозуміти чи існує користувач
-    login_failed = False
-    
     if not user:
-        login_failed = True
-    elif not user.is_active:
-        # Для неактивних користувачів показуємо конкретну помилку
-        raise ForbiddenException("Користувач неактивний")
-    elif not user.hashed_password:
-        raise UnauthorizedException("Пароль не встановлено. Відновіть пароль")
-    elif not verify_password(credentials.password, user.hashed_password):
-        login_failed = True
-    
-    if login_failed:
-        # БЕЗПЕКА: Інкрементуємо лічильник невдалих спроб
-        if redis_client:
-            # Лічильник для IP
-            ip_attempts_key = f"login_attempts_ip:{client_ip}"
-            ip_attempts = redis_client.incr(ip_attempts_key)
-            if ip_attempts == 1:
-                redis_client.expire(ip_attempts_key, 900)  # 15 хвилин
-            
-            # Лічильник для номера телефону
-            phone_attempts_key = f"login_attempts_phone:{phone}"
-            phone_attempts = redis_client.incr(phone_attempts_key)
-            if phone_attempts == 1:
-                redis_client.expire(phone_attempts_key, 900)  # 15 хвилин
-            
-            # Блокування після 5 невдалих спроб
-            max_attempts = settings.MAX_LOGIN_ATTEMPTS
-            if ip_attempts >= max_attempts:
-                redis_client.setex(ip_block_key, 900, "blocked")  # 15 хвилин блокування
-            if phone_attempts >= max_attempts:
-                redis_client.setex(phone_block_key, 900, "blocked")  # 15 хвилин блокування
-        
         raise UnauthorizedException("Невірний телефон або пароль")
     
-    # БЕЗПЕКА: Скидаємо лічильники після успішного входу
-    if redis_client:
-        redis_client.delete(f"login_attempts_ip:{client_ip}")
-        redis_client.delete(f"login_attempts_phone:{phone}")
+    if not user.is_active:
+        raise ForbiddenException("Користувач неактивний")
+    
+    # Перевірка пароля
+    if not user.hashed_password:
+        raise UnauthorizedException("Пароль не встановлено. Відновіть пароль")
+    
+    if not verify_password(credentials.password, user.hashed_password):
+        raise UnauthorizedException("Невірний телефон або пароль")
     
     # Перевірка 2FA
     if user.two_factor_enabled:
@@ -256,16 +203,16 @@ async def refresh_token(
     if payload is None:
         raise UnauthorizedException("Невірний refresh токен")
     
-    user_id_str = payload.get("sub")
-    if user_id_str is None:
+    user_id: Optional[str] = payload.get("sub")
+    if user_id is None:
         raise UnauthorizedException("Невірний refresh токен")
     
     try:
-        user_id = int(user_id_str)
-    except (ValueError, TypeError):
-        raise UnauthorizedException("Невірний refresh токен")
+        user_id_int = int(user_id)
+    except ValueError:
+        raise UnauthorizedException("Невірний формат ID користувача")
     
-    result = await db.execute(select(User).where(User.id == user_id))
+    result = await db.execute(select(User).where(User.id == user_id_int))
     user = result.scalar_one_or_none()
     
     if not user:
@@ -341,6 +288,10 @@ async def disable_2fa(
     db: AsyncSession = Depends(get_db)
 ):
     """Вимкнути 2FA"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Attempting to disable 2FA for user {current_user.id}. Enabled status: {current_user.two_factor_enabled}")
+    
     if not current_user.two_factor_enabled:
         raise BadRequestException("2FA не увімкнено")
     
@@ -377,8 +328,6 @@ async def send_sms_code(
     db: AsyncSession = Depends(get_db)
 ):
     """Відправка SMS коду для швидкого входу"""
-    # У тестовому середовищі Redis може бути недоступний
-    # Повертаємо 503, але тести очікують це
     if not redis_client:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -412,13 +361,8 @@ async def send_sms_code(
     redis_client.setex(f"sms_code:{phone}", 300, code)
     
     # Відправка SMS через Celery task (асинхронно)
-    # У тестовому середовищі Celery може бути недоступний
-    try:
-        from app.tasks.sms import send_verification_code
-        send_verification_code.delay(phone, code)
-    except Exception:
-        # У тестах Celery може бути недоступний, це нормально
-        pass
+    from app.tasks.sms import send_verification_code
+    send_verification_code.delay(phone, code)
     
     # НЕ ПОВЕРТАЄМО КОД В ОТВІТІ - це критична помилка безпеки
     return {"message": "SMS код відправлено"}
@@ -482,8 +426,7 @@ async def verify_sms_code(
     if not user:
         user = User(
             phone=phone,
-            is_active=True,
-            is_admin=False
+            is_active=True
         )
         db.add(user)
         await db.commit()
@@ -559,13 +502,8 @@ async def reset_password(
     redis_client.setex(f"reset_password_code:{code}", 600, phone)
     
     # Відправка SMS через Celery task (асинхронно)
-    # У тестовому середовищі Celery може бути недоступний
-    try:
-        from app.tasks.sms import send_verification_code
-        send_verification_code.delay(phone, code)
-    except Exception:
-        # У тестах Celery може бути недоступний, це нормально
-        pass
+    from app.tasks.sms import send_verification_code
+    send_verification_code.delay(phone, code)
     
     return {"message": "SMS код для відновлення пароля відправлено"}
 
@@ -627,6 +565,13 @@ async def change_password(
         raise UnauthorizedException("Не авторизовано")
     
     # Оновлення пароля
+    # Якщо це зміна пароля авторизованим користувачем (не скидання), перевіряємо старий пароль
+    if not request_data.reset_code:
+        if not request_data.old_password:
+             raise BadRequestException("Потрібно вказати старий пароль")
+        if not verify_password(request_data.old_password, user.hashed_password):
+            raise UnauthorizedException("Невірний старий пароль")
+
     user.hashed_password = get_password_hash(request_data.new_password)
     await db.commit()
     

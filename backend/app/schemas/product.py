@@ -59,3 +59,7 @@ class ProductResponse(ProductBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ProductValidationRequest(BaseModel):
+    product_ids: List[int]
+
+
