@@ -16,8 +16,8 @@ const translations: Record<Locale, typeof ua> = {
 // Типи для вкладених ключів перекладу
 type NestedKeyOf<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
-    ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
-    : `${Key}`;
+  ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
+  : `${Key}`;
 }[keyof ObjectType & (string | number)];
 
 export type TranslationKey = NestedKeyOf<typeof ua>;
@@ -35,7 +35,7 @@ interface LocaleStore {
 function getNestedValue(obj: Record<string, unknown>, path: string): string {
   const keys = path.split(".");
   let result: unknown = obj;
-  
+
   for (const key of keys) {
     if (result && typeof result === "object" && key in result) {
       result = (result as Record<string, unknown>)[key];
@@ -43,14 +43,14 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string {
       return path; // Повертаємо ключ, якщо переклад не знайдено
     }
   }
-  
+
   return typeof result === "string" ? result : path;
 }
 
 // Функція для заміни параметрів у рядку
 function interpolate(str: string, params?: Record<string, string | number>): string {
   if (!params) return str;
-  
+
   return str.replace(/\{(\w+)\}/g, (_, key) => {
     return params[key]?.toString() ?? `{${key}}`;
   });
@@ -62,7 +62,7 @@ export const useLocaleStore = create<LocaleStore>()(
     (set, get) => ({
       locale: "ua",
       _hasHydrated: false,
-      
+
       setLocale: (locale: Locale) => {
         set({ locale });
         // Оновлюємо атрибут lang на html елементі
@@ -70,14 +70,16 @@ export const useLocaleStore = create<LocaleStore>()(
           document.documentElement.lang = locale;
         }
       },
-      
+
       setHasHydrated: (state: boolean) => {
         set({ _hasHydrated: state });
       },
-      
+
       t: (key: string, params?: Record<string, string | number>) => {
-        const { locale } = get();
-        const translation = translations[locale];
+        const { locale, _hasHydrated } = get();
+        // Fix hydration mismatch: use default locale until hydrated
+        const effectiveLocale = _hasHydrated ? locale : "ua";
+        const translation = translations[effectiveLocale];
         const value = getNestedValue(translation as Record<string, unknown>, key);
         return interpolate(value, params);
       },
@@ -93,8 +95,8 @@ export const useLocaleStore = create<LocaleStore>()(
         // На сервері повертаємо заглушку
         return {
           getItem: () => null,
-          setItem: () => {},
-          removeItem: () => {},
+          setItem: () => { },
+          removeItem: () => { },
         };
       }),
       onRehydrateStorage: () => (state) => {

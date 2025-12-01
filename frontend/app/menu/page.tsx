@@ -409,6 +409,20 @@ function MenuContent() {
                 </p>
               )}
 
+              {/* Error State */}
+              {productsQuery.isError && (
+                <div className="text-center py-16 text-red-500">
+                  <h3 className="text-xl font-bold mb-2">Помилка завантаження</h3>
+                  <p>{(productsQuery.error as Error).message}</p>
+                  <button
+                    onClick={() => productsQuery.refetch()}
+                    className="mt-4 btn-primary"
+                  >
+                    Спробувати ще раз
+                  </button>
+                </div>
+              )}
+
               {/* Skeleton loader для початкового завантаження */}
               {productsQuery.isLoading && (
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">

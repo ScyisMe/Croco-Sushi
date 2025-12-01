@@ -6,72 +6,8 @@ import { Product } from "@/lib/types";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-
-// Mock data - replace with API call
-const POPULAR_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: "Філадельфія з лососем",
-    slug: "philadelphia-salmon",
-    description: "Класичний рол з ніжним вершковим сиром, свіжим огірком та лососем",
-    price: "345",
-    image_url: "/images/products/phila-salmon.png",
-    is_hit: true,
-    is_new: false,
-    is_popular: true,
-    category_id: 1,
-    is_available: true,
-    position: 0,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 2,
-    name: "Каліфорнія з креветкою",
-    slug: "california-shrimp",
-    description: "Рол в ікрі тобіко з тигровою креветкою, авокадо та огірком",
-    price: "295",
-    image_url: "/images/products/california-shrimp.png",
-    is_new: true,
-    is_popular: true,
-    is_hit: false,
-    category_id: 1,
-    is_available: true,
-    position: 0,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 3,
-    name: "Золотий Дракон",
-    slug: "golden-dragon",
-    description: "Елітний рол з вугром, авокадо, унагі соусом та кунжутом",
-    price: "425",
-    image_url: "/images/products/golden-dragon.png",
-    is_promotion: true,
-    original_price: "485",
-    is_new: false,
-    is_popular: true,
-    is_hit: false,
-    category_id: 1,
-    is_available: true,
-    position: 0,
-    created_at: new Date().toISOString()
-  },
-  {
-    id: 4,
-    name: "Сет Філадельфія",
-    slug: "set-philadelphia",
-    description: "Набір з 4-х видів ролів Філадельфія: з лососем, вугром, тунцем та креветкою",
-    price: "1250",
-    image_url: "/images/products/set-phila.png",
-    is_hit: true,
-    is_new: false,
-    is_popular: true,
-    category_id: 2,
-    is_available: true,
-    position: 0,
-    created_at: new Date().toISOString()
-  }
-];
+import { useQuery } from "@tanstack/react-query";
+import apiClient from "@/lib/api/client";
 
 const container = {
   hidden: { opacity: 0 },
@@ -90,6 +26,38 @@ const item = {
 
 export default function PopularProducts() {
   const { t } = useTranslation();
+
+  const { data: products, isLoading } = useQuery<Product[]>({
+    queryKey: ["popular-products"],
+    queryFn: async () => {
+      const response = await apiClient.get("/products/popular", {
+        params: { limit: 4 }
+      });
+      return response.data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-20 relative">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+              {t("home.popular")}
+            </h2>
+            <div className="h-6 w-64 bg-white/10 rounded mx-auto animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="aspect-[3/4] bg-white/5 rounded-2xl animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!products || products.length === 0) return null;
 
   return (
     <section className="py-20 relative">
@@ -115,7 +83,7 @@ export default function PopularProducts() {
           viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {POPULAR_PRODUCTS.map((product) => (
+          {products.map((product) => (
             <motion.div key={product.id} variants={item} className="h-full">
               <ProductCard product={product} />
             </motion.div>

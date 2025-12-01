@@ -1,10 +1,16 @@
+import dynamic from "next/dynamic";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import CategorySlider from "@/components/CategorySlider";
 import PopularProducts from "@/components/PopularProducts";
-import ReviewsCarousel from "@/components/ReviewsCarousel";
-import Promotions from "@/components/Promotions";
 import Footer from "@/components/Footer";
+
+const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"), {
+  loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
+});
+const Promotions = dynamic(() => import("@/components/Promotions"), {
+  loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
+});
 
 export default function Home() {
   return (
