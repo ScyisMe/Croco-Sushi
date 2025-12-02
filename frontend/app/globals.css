@@ -81,3 +81,17 @@ body {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-600;
   }
 }
+
+@layer components {
+  .input {
+    @apply w-full bg-surface-card border border-white/10 rounded-xl px-4 py-3 text-foreground placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all duration-200;
+  }
+
+  .input-error {
+    @apply border-accent-red focus:ring-accent-red/50;
+  }
+
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/20 active:scale-95;
+  }
+}

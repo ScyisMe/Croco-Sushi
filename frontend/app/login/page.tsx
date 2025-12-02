@@ -10,6 +10,8 @@ import Footer from "@/components/Footer";
 import { LockClosedIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "@/store/localeStore";
 
+import Image from "next/image";
+
 export default function LoginPage() {
   const router = useRouter();
   const { t } = useTranslation();
@@ -25,10 +27,10 @@ export default function LoginPage() {
       if (response.data.access_token) {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
-        
+
         // Сповіщаємо про зміну авторизації для синхронізації кошика
         window.dispatchEvent(new Event("auth-change"));
-        
+
         toast.success(t("auth.loginSuccess"));
         router.push("/profile");
       }
@@ -42,13 +44,21 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background-secondary transition-colors">
       <Header />
-      
+
       <main className="flex-grow container mx-auto px-4 py-8 flex items-center justify-center">
         <div className="w-full max-w-md">
           {/* Заголовок */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-              <span className="text-3xl">🐊</span>
+            <div className="flex justify-center mb-6">
+              <div className="relative w-32 h-32">
+                <Image
+                  src="/logo.jpg"
+                  alt="Croco Sushi"
+                  fill
+                  className="object-contain rounded-full"
+                  priority
+                />
+              </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
               {t("auth.login")}
@@ -99,8 +109,8 @@ export default function LoginPage() {
 
               {/* Забули пароль */}
               <div className="flex justify-end">
-                <Link 
-                  href="/reset-password" 
+                <Link
+                  href="/reset-password"
                   className="text-sm text-primary hover:text-primary-600 transition"
                 >
                   {t("auth.forgotPassword")}
@@ -140,8 +150,8 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-foreground-secondary">
                 {t("auth.noAccount")}{" "}
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="text-primary hover:text-primary-600 font-semibold transition"
                 >
                   {t("auth.signUp")}

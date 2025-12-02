@@ -15,8 +15,8 @@ import { useCartStore } from "@/store/cartStore";
 import { useTranslation, Locale } from "@/store/localeStore";
 import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
-import ThemeToggle, { ThemeToggleMobile } from "./ThemeToggle";
 import { throttle } from "@/lib/utils";
+import Image from "next/image";
 
 // Контактна інформація Croco Sushi
 const CONTACT_INFO = {
@@ -173,9 +173,17 @@ export default function Header() {
         {/* Main Header - адаптивна висота */}
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-between h-16 sm:h-20">
+
             {/* Логотип - адаптивний розмір */}
             <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
-              <span className="text-2xl sm:text-4xl">🐊</span>
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+                <Image
+                  src="/logo.jpg"
+                  alt="Croco Sushi"
+                  fill
+                  className="object-contain rounded-full"
+                />
+              </div>
               <span className="text-lg sm:text-2xl font-bold text-primary">
                 Croco Sushi
               </span>
@@ -241,11 +249,6 @@ export default function Header() {
                 </div>
               )}
 
-              {/* Перемикач теми (Desktop) */}
-              <div className="hidden md:block">
-                <ThemeToggle variant="icon-only" />
-              </div>
-
               {/* Кошик - touch target 44px */}
               <button
                 onClick={() => setIsCartOpen(true)}
@@ -303,7 +306,14 @@ export default function Header() {
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 border-b border-border">
                     <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                      <span className="text-3xl">🐊</span>
+                      <div className="relative w-10 h-10">
+                        <Image
+                          src="/logo.jpg"
+                          alt="Croco Sushi"
+                          fill
+                          className="object-contain rounded-full"
+                        />
+                      </div>
                       <span className="text-xl font-bold text-primary">Croco Sushi</span>
                     </Link>
                     <button
@@ -432,14 +442,6 @@ export default function Header() {
                         >
                           RU
                         </button>
-                      </div>
-                    )}
-
-                    {/* Перемикач теми - показуємо тільки після монтування */}
-                    {isMounted && (
-                      <div className="pt-4 border-t border-border">
-                        <p className="text-sm text-foreground-muted mb-3 text-center">Тема оформлення</p>
-                        <ThemeToggleMobile />
                       </div>
                     )}
                   </div>

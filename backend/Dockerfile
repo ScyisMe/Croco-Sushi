@@ -21,11 +21,13 @@ COPY alembic ./alembic
 # Копіюємо код backend (потрібно для pip install -e .)
 COPY backend ./backend
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 # Встановлюємо залежності через pip з pyproject.toml
 # pip install -e . автоматично встановлює залежності з pyproject.toml
 # Закріплюємо setuptools<81 для сумісності з passlib (pkg_resources deprecated)
-RUN pip install --no-cache-dir --upgrade pip "setuptools>=61.0,<81" wheel && \
-    pip install --no-cache-dir -e .
+RUN uv pip install --system --upgrade "setuptools>=61.0,<81" wheel && \
+    uv pip install --system -e .
 
 # Встановлюємо робочу директорію в backend
 WORKDIR /app/backend

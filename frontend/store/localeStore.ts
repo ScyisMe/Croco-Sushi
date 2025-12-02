@@ -78,6 +78,8 @@ export const useLocaleStore = create<LocaleStore>()(
       t: (key: string, params?: Record<string, string | number>) => {
         const { locale, _hasHydrated } = get();
         // Fix hydration mismatch: use default locale until hydrated
+        // During server rendering and first client render, _hasHydrated is false (default)
+        // This ensures both server and client render 'ua' initially
         const effectiveLocale = _hasHydrated ? locale : "ua";
         const translation = translations[effectiveLocale];
         const value = getNestedValue(translation as Record<string, unknown>, key);

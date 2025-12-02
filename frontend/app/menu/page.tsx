@@ -20,6 +20,7 @@ import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
 import QuickViewModal from "@/components/QuickViewModal";
 import toast from "react-hot-toast";
 import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
+import { Button } from "@/components/ui/Button";
 
 // Кількість товарів на сторінку
 const PRODUCTS_PER_PAGE = 12;
@@ -80,18 +81,30 @@ function MenuContent() {
     },
   });
 
+  const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
+
+  // Знаходимо ID вибраної категорії
+  const selectedCategoryId = useMemo(() => {
+    if (!selectedCategory) return null;
+    const category = categories.find((c) => c.slug === selectedCategory);
+    return category ? category.id : null;
+  }, [selectedCategory, categories]);
+
   // Завантаження товарів з infinite scroll
   const productsQuery = useInfiniteQuery({
-    queryKey: ["products", selectedCategory, debouncedSearch],
+    queryKey: ["products", selectedCategory, debouncedSearch, selectedCategoryId], // Додали selectedCategoryId в ключ
     queryFn: async ({ pageParam = 0 }) => {
       const params: Record<string, unknown> = {
         skip: pageParam,
         limit: PRODUCTS_PER_PAGE,
         is_available: true,
       };
-      if (selectedCategory) {
-        params.category_slug = selectedCategory;
+
+      // Використовуємо ID категорії замість slug
+      if (selectedCategoryId) {
+        params.category_id = selectedCategoryId;
       }
+
       if (debouncedSearch) {
         params.search = debouncedSearch;
       }
@@ -110,6 +123,8 @@ function MenuContent() {
     getNextPageParam: (lastPage) => {
       return lastPage.hasMore ? lastPage.nextOffset : undefined;
     },
+    // Не робити запит, якщо вибрана категорія, але її ID ще не знайдено (крім випадку "Всі меню")
+    enabled: !selectedCategory || !!selectedCategoryId || categoriesQuery.isLoading,
   });
 
   // Всі завантажені товари
@@ -192,8 +207,6 @@ function MenuContent() {
     setQuickViewProduct(product);
     setIsQuickViewOpen(true);
   };
-
-  const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
 
   // Загальна кількість товарів
   const totalProducts = productsQuery.data?.pages[0]?.total ?? 0;
@@ -414,12 +427,13 @@ function MenuContent() {
                 <div className="text-center py-16 text-red-500">
                   <h3 className="text-xl font-bold mb-2">Помилка завантаження</h3>
                   <p>{(productsQuery.error as Error).message}</p>
-                  <button
+                  <Button
                     onClick={() => productsQuery.refetch()}
-                    className="mt-4 btn-primary"
+                    className="mt-4"
+                    variant="primary"
                   >
                     Спробувати ще раз
-                  </button>
+                  </Button>
                 </div>
               )}
 
@@ -444,16 +458,17 @@ function MenuContent() {
                       ? "Спробуйте змінити пошуковий запит"
                       : "В цій категорії поки немає страв"}
                   </p>
-                  <button
+                  <Button
                     onClick={() => {
                       setSearchQuery("");
                       handleCategoryChange(null);
                     }}
-                    className="btn-fancy group"
+                    variant="primary"
+                    className="group"
                   >
                     <span>Показати все меню</span>
                     <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  </Button>
                 </div>
               )}
 
@@ -565,12 +580,13 @@ function MenuContent() {
 
               {/* Кнопка застосувати */}
               <div className="sticky bottom-0 bg-theme-surface border-t border-theme p-4">
-                <button
+                <Button
                   onClick={() => setIsMobileFilterOpen(false)}
-                  className="w-full btn-primary"
+                  className="w-full"
+                  variant="primary"
                 >
                   Застосувати
-                </button>
+                </Button>
               </div>
             </div>
           </div>

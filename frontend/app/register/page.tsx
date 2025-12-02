@@ -10,6 +10,8 @@ import Footer from "@/components/Footer";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "@/store/localeStore";
 
+import Image from "next/image";
+
 export default function RegisterPage() {
   const router = useRouter();
   const { t } = useTranslation();
@@ -22,7 +24,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-  
+
   // Стани для помилок валідації
   const [phoneError, setPhoneError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -39,7 +41,7 @@ export default function RegisterPage() {
 
   const formatPhoneNumber = (value: string) => {
     const digits = value.replace(/\D/g, "");
-    
+
     if (digits.length === 0) return "";
     if (digits.length <= 3) return `+${digits}`;
     if (digits.length <= 5) return `+${digits.slice(0, 3)} ${digits.slice(3)}`;
@@ -109,17 +111,17 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setPhoneError("");
     setEmailError("");
     setNameError("");
     setPasswordError("");
-    
+
     const isPhoneValid = validatePhone();
     const isEmailValid = validateEmail();
     const isNameValid = validateName();
     const isPasswordValid = validatePassword();
-    
+
     if (!isPhoneValid || !isEmailValid || !isNameValid || !isPasswordValid) {
       return;
     }
@@ -132,11 +134,11 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const cleanPhone = phone.replace(/\s/g, "");
-      await apiClient.post("/auth/register", { 
-        phone: cleanPhone, 
-        email: email || undefined, 
-        name: name.trim() || undefined, 
-        password 
+      await apiClient.post("/auth/register", {
+        phone: cleanPhone,
+        email: email || undefined,
+        name: name.trim() || undefined,
+        password
       });
       toast.success(t("auth.registerSuccess"));
       router.push("/login");
@@ -144,7 +146,7 @@ export default function RegisterPage() {
       const err = error as { response?: { data?: { detail?: string } } };
       const message = err.response?.data?.detail || t("auth.registerError");
       toast.error(message);
-      
+
       if (message.toLowerCase().includes("телефон") || message.toLowerCase().includes("phone")) {
         setPhoneError(t("auth.phoneAlreadyRegistered") || "Цей номер вже зареєстровано");
       } else if (message.toLowerCase().includes("email")) {
@@ -183,8 +185,16 @@ export default function RegisterPage() {
         <div className="max-w-md mx-auto">
           {/* Заголовок */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-              <span className="text-3xl">🐊</span>
+            <div className="flex justify-center mb-6">
+              <div className="relative w-32 h-32">
+                <Image
+                  src="/logo.jpg"
+                  alt="Croco Sushi"
+                  fill
+                  className="object-contain rounded-full"
+                  priority
+                />
+              </div>
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">{t("auth.createAccount")}</h1>
             <p className="text-foreground-secondary">{t("auth.joinUs")}</p>
@@ -307,7 +317,7 @@ export default function RegisterPage() {
                     )}
                   </button>
                 </div>
-                
+
                 {/* Індикатор сили пароля */}
                 {password && (
                   <div className="mt-2" id="password-strength">
@@ -315,9 +325,8 @@ export default function RegisterPage() {
                       {[...Array(5)].map((_, i) => (
                         <div
                           key={i}
-                          className={`h-1 flex-1 rounded-full transition ${
-                            i < passwordStrength ? strengthColors[Math.max(0, passwordStrength - 1)] : "bg-background-tertiary"
-                          }`}
+                          className={`h-1 flex-1 rounded-full transition ${i < passwordStrength ? strengthColors[Math.max(0, passwordStrength - 1)] : "bg-background-tertiary"
+                            }`}
                         />
                       ))}
                     </div>
