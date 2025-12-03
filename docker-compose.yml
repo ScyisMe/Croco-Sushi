@@ -8,12 +8,12 @@ services:
       POSTGRES_DB: croco_sushi
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - "5433:5433"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -47,7 +47,7 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -196,7 +196,6 @@ services:
       - croco_sushi_network
     restart: unless-stopped
 
-
 volumes:
   postgres_data:
   redis_data:
@@ -206,8 +205,7 @@ volumes:
   grafana_data:
   pgadmin_data:
 
+
 networks:
   croco_sushi_network:
     driver: bridge
-
-

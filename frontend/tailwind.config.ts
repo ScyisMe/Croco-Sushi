@@ -24,6 +24,7 @@ const config: Config = {
           dark: "rgb(var(--surface-dark))",
           card: "rgb(var(--surface-card))",
         },
+        foreground: "rgb(var(--foreground-rgb))",
       },
       fontFamily: {
         display: ["var(--font-playfair)", "serif"],

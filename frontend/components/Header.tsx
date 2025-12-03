@@ -178,7 +178,7 @@ export default function Header() {
             <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
               <div className="relative w-10 h-10 sm:w-12 sm:h-12">
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.png"
                   alt="Croco Sushi"
                   fill
                   className="object-contain rounded-full"
@@ -308,7 +308,7 @@ export default function Header() {
                     <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className="relative w-10 h-10">
                         <Image
-                          src="/logo.jpg"
+                          src="/logo.png"
                           alt="Croco Sushi"
                           fill
                           className="object-contain rounded-full"
