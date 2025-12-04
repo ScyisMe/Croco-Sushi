@@ -6,8 +6,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api/client";
 import { Review } from "@/lib/types";
-import { StarIcon as StarSolidIcon } from "@heroicons/react/20/solid";
-import { StarIcon as StarOutlineIcon, ChevronRightIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import { StarIcon as StarSolidIcon, FaceFrownIcon, FaceSmileIcon, SparklesIcon } from "@heroicons/react/24/solid";
+import { StarIcon as StarOutlineIcon, ChevronRightIcon, PencilSquareIcon, FaceSmileIcon as FaceNeutralIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { uk, ru } from "date-fns/locale";
 import Header from "@/components/Header";
@@ -30,9 +31,8 @@ function RatingStars({ rating, size = "sm" }: { rating: number; size?: "sm" | "m
       {[1, 2, 3, 4, 5].map((star) => (
         <StarSolidIcon
           key={star}
-          className={`${sizeClasses[size]} ${
-            star <= rating ? "text-yellow-400" : "text-foreground-muted/30"
-          }`}
+          className={`${sizeClasses[size]} ${star <= rating ? "text-yellow-400" : "text-foreground-muted/30"
+            }`}
         />
       ))}
     </div>
@@ -44,14 +44,14 @@ function ReviewCard({ review }: { review: Review }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((state) => state.locale);
   const dateLocale = locale === "ru" ? ru : uk;
-  
+
   const initials = review.user_name
     ? review.user_name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
     : "АК";
 
   return (
@@ -227,12 +227,12 @@ export default function ReviewsPage() {
           })}
         />
       )}
-      
+
       <Header />
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-surface border-b border-border">
+        <div className="bg-surface">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-foreground-muted hover:text-primary transition">
@@ -271,11 +271,10 @@ export default function ReviewsPage() {
                       <button
                         key={item.rating}
                         onClick={() => setRatingFilter(ratingFilter === item.rating ? 0 : item.rating)}
-                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition ${
-                          ratingFilter === item.rating
-                            ? "bg-primary/15 border border-primary/30"
-                            : "hover:bg-background-secondary border border-transparent"
-                        }`}
+                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl transition ${ratingFilter === item.rating
+                          ? "bg-primary/15 border border-primary/30"
+                          : "hover:bg-background-secondary border border-transparent"
+                          }`}
                       >
                         <span className="text-sm font-medium text-foreground w-16 text-left">
                           {item.rating} {item.rating === 1 ? t("reviews.star") : item.rating < 5 ? t("reviews.stars2_4") : t("reviews.stars")}
@@ -303,17 +302,15 @@ export default function ReviewsPage() {
               <button
                 key={filter.value}
                 onClick={() => setRatingFilter(filter.value)}
-                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  ratingFilter === filter.value
-                    ? "bg-primary text-white shadow-md shadow-primary/30"
-                    : "bg-surface text-foreground-secondary border border-border hover:border-primary hover:text-primary"
-                }`}
+                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${ratingFilter === filter.value
+                  ? "bg-primary text-white shadow-md shadow-primary/30"
+                  : "bg-surface text-foreground-secondary border border-border hover:border-primary hover:text-primary"
+                  }`}
               >
                 {filter.label}
                 {filter.value > 0 && (
-                  <StarSolidIcon className={`w-4 h-4 inline-block ml-1.5 ${
-                    ratingFilter === filter.value ? "text-yellow-300" : "text-yellow-400"
-                  }`} />
+                  <StarSolidIcon className={`w-4 h-4 inline-block ml-1.5 ${ratingFilter === filter.value ? "text-yellow-300" : "text-yellow-400"
+                    }`} />
                 )}
               </button>
             ))}
@@ -327,8 +324,8 @@ export default function ReviewsPage() {
               ))}
             </div>
           ) : reviewsQuery.isError ? (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">😢</div>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <FaceFrownIcon className="w-16 h-16 text-theme-muted mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 {t("reviews.loadError")}
               </h3>
@@ -344,7 +341,14 @@ export default function ReviewsPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">📝</div>
+              <div className="relative w-24 h-24 mx-auto mb-4 opacity-50">
+                <Image
+                  src="/logo.png"
+                  alt="No reviews"
+                  fill
+                  className="object-contain grayscale"
+                />
+              </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 {ratingFilter > 0
                   ? t("reviews.noReviewsWithFilter", { rating: ratingFilter })
@@ -392,16 +396,16 @@ export default function ReviewsPage() {
                   </button>
                 ))}
               </div>
-              
+
               {/* Підказка при наведенні */}
               <p className="text-sm text-primary font-medium mb-4 h-5">
                 {hoverRating > 0 && (
                   <span className="animate-fadeIn">
-                    {hoverRating === 5 && `🎉 ${t("reviews.ratingExcellent")}`}
-                    {hoverRating === 4 && `😊 ${t("reviews.ratingGood")}`}
-                    {hoverRating === 3 && `😐 ${t("reviews.ratingNormal")}`}
-                    {hoverRating === 2 && `😕 ${t("reviews.ratingBad")}`}
-                    {hoverRating === 1 && `😞 ${t("reviews.ratingTerrible")}`}
+                    {hoverRating === 5 && <><SparklesIcon className="w-4 h-4 inline-block mr-1 text-yellow-400" /> {t("reviews.ratingExcellent")}</>}
+                    {hoverRating === 4 && <><FaceSmileIcon className="w-4 h-4 inline-block mr-1 text-yellow-400" /> {t("reviews.ratingGood")}</>}
+                    {hoverRating === 3 && <><FaceNeutralIcon className="w-4 h-4 inline-block mr-1 text-yellow-400" /> {t("reviews.ratingNormal")}</>}
+                    {hoverRating === 2 && <><FaceFrownIcon className="w-4 h-4 inline-block mr-1 text-yellow-400" /> {t("reviews.ratingBad")}</>}
+                    {hoverRating === 1 && <><FaceFrownIcon className="w-4 h-4 inline-block mr-1 text-yellow-400" /> {t("reviews.ratingTerrible")}</>}
                   </span>
                 )}
               </p>
@@ -412,21 +416,22 @@ export default function ReviewsPage() {
               <p className="text-foreground-secondary mb-8 leading-relaxed">
                 {t("reviews.yourOpinionMatters")} {t("reviews.helpOthers")}
               </p>
-              
+
               {/* Покращені кнопки */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={handleOpenReviewForm}
-                  className="btn-fancy group"
+                  className="btn-primary group flex items-center justify-center gap-2"
                 >
                   <PencilSquareIcon className="w-6 h-6 group-hover:rotate-3 transition-transform" />
                   {t("reviews.leaveReview")}
                 </button>
-                <Link 
-                  href="/menu" 
+                <Link
+                  href="/menu"
                   className="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-surface hover:bg-surface-hover text-foreground font-bold text-lg rounded-2xl border-2 border-primary/30 hover:border-primary transition-all duration-300 hover:-translate-y-1"
                 >
-                  <span>🍣 {t("reviews.goToMenu")}</span>
+
+                  <span>{t("reviews.goToMenu")}</span>
                   <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>

@@ -256,7 +256,7 @@ export default function Header() {
                 aria-label="Відкрити кошик"
               >
                 <ShoppingCartIcon className="w-6 h-6" />
-                {getItemCount > 0 && (
+                {isMounted && getItemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-accent-red text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                     {getItemCount > 99 ? "99+" : getItemCount}
                   </span>

@@ -8,20 +8,6 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import apiClient from "@/lib/api/client";
 import { Category } from "@/lib/types";
 
-// Fallback іконки для категорій (якщо немає зображення)
-const CATEGORY_ICONS: Record<string, string> = {
-  "firmovi": "🌟",
-  "klasychni": "🍣",
-  "sety": "🍱",
-  "zapecheni": "🔥",
-  "black": "⬛",
-  "wok": "🥡",
-  "supy": "🍜",
-  "salaty": "🥗",
-  "sushi": "🍙",
-  "napoi": "🥤",
-  "default": "🍽️",
-};
 
 export default function Categories() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -77,7 +63,7 @@ export default function Categories() {
           <h2 className="text-2xl md:text-3xl font-bold text-secondary">
             Категорії меню
           </h2>
-          
+
           {/* Кнопки прокрутки (для desktop) */}
           <div className="hidden md:flex gap-2">
             <button
@@ -108,10 +94,15 @@ export default function Categories() {
               href="/menu"
               className="flex-shrink-0 group"
             >
-              <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3 transition group-hover:bg-primary group-hover:scale-105">
-                <span className="text-3xl md:text-4xl group-hover:scale-110 transition">
-                  🍽️
-                </span>
+              <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3 transition group-hover:bg-primary group-hover:scale-105 p-6">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="/logo.png"
+                    alt="Всі меню"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </div>
               <p className="text-center text-sm md:text-base font-medium text-secondary group-hover:text-primary transition">
                 Все меню
@@ -135,9 +126,16 @@ export default function Categories() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-3xl md:text-4xl">
-                      {CATEGORY_ICONS[category.slug] || CATEGORY_ICONS.default}
-                    </span>
+                    <div className="w-full h-full flex items-center justify-center p-4 bg-gray-50">
+                      <div className="relative w-full h-full">
+                        <Image
+                          src="/logo.png"
+                          alt={category.name}
+                          fill
+                          className="object-contain opacity-50 grayscale"
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
                 <p className="text-center text-sm md:text-base font-medium text-secondary group-hover:text-primary transition max-w-[100px] md:max-w-[120px] mx-auto truncate">

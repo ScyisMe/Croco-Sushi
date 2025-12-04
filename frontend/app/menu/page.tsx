@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/api/client";
@@ -273,7 +274,7 @@ function MenuContent() {
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-theme-surface border-b border-theme">
+        <div className="bg-theme-surface">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -449,7 +450,14 @@ function MenuContent() {
               {/* Порожній стан */}
               {!productsQuery.isLoading && sortedProducts.length === 0 && (
                 <div className="text-center py-16">
-                  <div className="text-6xl mb-4">🍣</div>
+                  <div className="relative w-24 h-24 mb-4 mx-auto">
+                    <Image
+                      src="/logo.png"
+                      alt="Croco Sushi"
+                      fill
+                      className="object-contain opacity-50 grayscale"
+                    />
+                  </div>
                   <h3 className="text-xl font-semibold text-secondary mb-2">
                     Страви не знайдено
                   </h3>

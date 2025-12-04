@@ -10,6 +10,12 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   PhoneIcon,
+  RocketLaunchIcon,
+  GiftIcon,
+  SparklesIcon,
+  BanknotesIcon,
+  CreditCardIcon,
+  GlobeAltIcon,
 } from "@heroicons/react/24/outline";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -71,22 +77,22 @@ const FAQ_ITEMS = [
 // Переваги доставки
 const DELIVERY_FEATURES = [
   {
-    icon: "🚀",
+    icon: <RocketLaunchIcon className="w-10 h-10 text-primary" />,
     title: "Швидка доставка",
     description: "Від 40 хвилин по центру",
   },
   {
-    icon: "🎁",
+    icon: <GiftIcon className="w-10 h-10 text-primary" />,
     title: "Безкоштовна доставка",
     description: "Від 1000 ₴ по всіх зонах",
   },
   {
-    icon: "🍣",
+    icon: <SparklesIcon className="w-10 h-10 text-primary" />,
     title: "Свіжі страви",
     description: "Готуємо після замовлення",
   },
   {
-    icon: "💳",
+    icon: <CreditCardIcon className="w-10 h-10 text-primary" />,
     title: "Зручна оплата",
     description: "Готівка або картка",
   },
@@ -103,22 +109,22 @@ export default function DeliveryPage() {
   // Локалізовані переваги
   const LOCALIZED_FEATURES = [
     {
-      icon: "🚀",
+      icon: <RocketLaunchIcon className="w-10 h-10 text-primary" />,
       title: t("delivery.fastDelivery"),
       description: t("delivery.fastDeliveryDesc"),
     },
     {
-      icon: "🎁",
+      icon: <GiftIcon className="w-10 h-10 text-primary" />,
       title: t("delivery.freeDelivery"),
       description: t("delivery.freeDeliveryFromShort", { amount: "1000" }),
     },
     {
-      icon: "🍣",
+      icon: <SparklesIcon className="w-10 h-10 text-primary" />,
       title: t("delivery.freshDishes"),
       description: t("delivery.freshDishesDesc"),
     },
     {
-      icon: "💳",
+      icon: <CreditCardIcon className="w-10 h-10 text-primary" />,
       title: t("delivery.convenientPayment"),
       description: t("delivery.convenientPaymentDesc"),
     },
@@ -153,12 +159,12 @@ export default function DeliveryPage() {
           { name: t("delivery.title"), url: `${BUSINESS_INFO.url}/delivery` },
         ])}
       />
-      
+
       <Header />
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-theme-surface border-b border-theme">
+        <div className="bg-theme-surface">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -201,7 +207,7 @@ export default function DeliveryPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Умови доставки */}
-            <div className="bg-theme-surface rounded-xl shadow-card p-6 md:p-8">
+            <div className="bg-surface border border-white/10 rounded-xl shadow-card p-6 md:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                   <TruckIcon className="w-6 h-6 text-primary" />
@@ -268,7 +274,7 @@ export default function DeliveryPage() {
             {/* Графік роботи та оплата */}
             <div className="space-y-8">
               {/* Графік роботи */}
-              <div className="bg-theme-surface rounded-xl shadow-card p-6 md:p-8">
+              <div className="bg-surface border border-white/10 rounded-xl shadow-card p-6 md:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                     <ClockIcon className="w-6 h-6 text-primary" />
@@ -288,7 +294,7 @@ export default function DeliveryPage() {
               </div>
 
               {/* Способи оплати */}
-              <div className="bg-theme-surface rounded-xl shadow-card p-6 md:p-8">
+              <div className="bg-surface border border-white/10 rounded-xl shadow-card p-6 md:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                     <CurrencyDollarIcon className="w-6 h-6 text-primary" />
@@ -298,15 +304,15 @@ export default function DeliveryPage() {
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3 p-3 bg-theme-tertiary rounded-lg">
-                    <span className="text-2xl">💵</span>
+                    <BanknotesIcon className="w-6 h-6 text-primary" />
                     <span className="text-theme-secondary">{t("delivery.cashPayment")}</span>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-theme-tertiary rounded-lg">
-                    <span className="text-2xl">💳</span>
+                    <CreditCardIcon className="w-6 h-6 text-primary" />
                     <span className="text-theme-secondary">{t("delivery.cardPaymentCourier")}</span>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-theme-tertiary rounded-lg opacity-50">
-                    <span className="text-2xl">🌐</span>
+                    <GlobeAltIcon className="w-6 h-6 text-primary" />
                     <span className="text-theme-secondary">{t("delivery.onlinePayment")}</span>
                     <span className="ml-auto text-xs text-theme-muted bg-theme-surface px-2 py-1 rounded border border-theme">
                       {t("delivery.comingSoon")}
@@ -318,7 +324,7 @@ export default function DeliveryPage() {
           </div>
 
           {/* Зони доставки */}
-          <div className="mt-8 bg-theme-surface rounded-xl shadow-card p-6 md:p-8">
+          <div className="mt-8 bg-surface border border-white/10 rounded-xl shadow-card p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                 <TruckIcon className="w-6 h-6 text-primary" />
@@ -479,7 +485,7 @@ export default function DeliveryPage() {
                 <p className="text-secondary mb-4">
                   {t("delivery.pickupInfo")}
                 </p>
-                <a 
+                <a
                   href={CONTACT_INFO.addressUrl}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -497,7 +503,7 @@ export default function DeliveryPage() {
                   <PhoneIcon className="w-5 h-5" />
                   {CONTACT_INFO.phoneDisplay}
                 </a>
-                
+
                 {/* Переваги самовивозу */}
                 <div className="mt-6 p-4 bg-primary/10 border-2 border-primary/30 rounded-xl">
                   <p className="text-sm font-semibold text-primary mb-2">
@@ -549,9 +555,8 @@ export default function DeliveryPage() {
                   >
                     <span className="font-medium text-secondary">{item.question}</span>
                     <ChevronDownIcon
-                      className={`w-5 h-5 text-secondary-light transition-transform ${
-                        openFaqIndex === index ? "rotate-180" : ""
-                      }`}
+                      className={`w-5 h-5 text-secondary-light transition-transform ${openFaqIndex === index ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
                   {openFaqIndex === index && (

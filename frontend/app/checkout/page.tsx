@@ -17,6 +17,9 @@ import {
   MapPinIcon,
   CreditCardIcon,
   ChevronLeftIcon,
+  ChevronDownIcon,
+  BanknotesIcon,
+  GlobeAltIcon,
 } from "@heroicons/react/24/outline";
 
 // Типи
@@ -289,10 +292,10 @@ export default function CheckoutPage() {
                 <div key={step.id} className="flex items-center">
                   <div
                     className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition ${currentStep > step.id
-                        ? "bg-primary border-primary text-white"
-                        : currentStep === step.id
-                          ? "border-primary text-primary bg-primary/10"
-                          : "border-theme text-secondary-light"
+                      ? "bg-primary border-primary text-white"
+                      : currentStep === step.id
+                        ? "border-primary text-primary bg-primary/10"
+                        : "border-theme text-secondary-light"
                       }`}
                   >
                     {currentStep > step.id ? (
@@ -494,10 +497,10 @@ export default function CheckoutPage() {
                         <label
                           key={method.value}
                           className={`flex items-center p-4 border rounded-xl cursor-pointer transition ${method.disabled
-                              ? "opacity-50 cursor-not-allowed"
-                              : formData.payment_method === method.value
-                                ? "border-primary bg-primary/5"
-                                : "border-border hover:border-primary"
+                            ? "opacity-50 cursor-not-allowed"
+                            : formData.payment_method === method.value
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary"
                             }`}
                         >
                           <input
@@ -691,9 +694,14 @@ export default function CheckoutPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-lg sm:text-xl">
-                            🍣
-                          </div>
+                          // Replaced sushi placeholder with Image component
+                          <Image
+                            src="/placeholder-sushi.png" // Assuming a placeholder image path
+                            alt="Sushi placeholder"
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">

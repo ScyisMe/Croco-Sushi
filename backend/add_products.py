@@ -75,6 +75,56 @@ async def seed_products():
                 "image_url": "/uploads/xDSC_1310-2500x1668.jpg.pagespeed.ic.lyMGsXJNu3.webp",
                 "is_popular": False,
                 "is_new": False
+            },
+            {
+                "name": "Філадельфія з Вугрем",
+                "slug": "philadelphia-eel",
+                "description": "Вугор, крем-сир, авокадо, огірок, унагі соус",
+                "price": 490.00,
+                "weight": 315,
+                "image_url": "/uploads/xDSC_0987-2500x1668.jpg.pagespeed.ic.9Xl9xQrPhn.webp",
+                "is_popular": True,
+                "is_new": True
+            },
+            {
+                "name": "Зелений Дракон",
+                "slug": "green-dragon",
+                "description": "Вугор, авокадо, крем-сир, тобіко, унагі соус",
+                "price": 510.00,
+                "weight": 305,
+                "image_url": "/uploads/xDSC_1025-2500x1668.jpg.pagespeed.ic.cGWbklo--W.webp",
+                "is_popular": True,
+                "is_new": False
+            },
+            {
+                "name": "Макі з Лососем",
+                "slug": "salmon-maki",
+                "description": "Лосось, рис, норі",
+                "price": 190.00,
+                "weight": 110,
+                "image_url": "/uploads/xDSC_1310-2500x1668.jpg.pagespeed.ic.lyMGsXJNu3.webp",
+                "is_popular": False,
+                "is_new": False
+            },
+            {
+                "name": "Макі з Авокадо",
+                "slug": "avocado-maki",
+                "description": "Авокадо, рис, норі, кунжут",
+                "price": 150.00,
+                "weight": 110,
+                "image_url": "/uploads/xDSC_1310-2500x1668.jpg.pagespeed.ic.lyMGsXJNu3.webp",
+                "is_popular": False,
+                "is_new": False
+            },
+            {
+                "name": "Сет 'Дракони'",
+                "slug": "dragon-set",
+                "description": "Золотий Дракон, Зелений Дракон, Червоний Дракон",
+                "price": 1450.00,
+                "weight": 950,
+                "image_url": "/uploads/xDSC_1250-2500x1668.jpg.pagespeed.ic.3I5ngdU0GJ.webp",
+                "is_popular": True,
+                "is_new": True
             }
         ]
 

@@ -62,7 +62,15 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                  🐊 Croco Sushi
+                  <span className="inline-block w-10 h-10 relative mr-2 align-bottom">
+                    <Image
+                      src="/logo.png"
+                      alt="Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </span>
+                  Croco Sushi
                 </h1>
                 <p className="text-xl text-foreground-secondary mb-6 leading-relaxed">
                   Ласкаво просимо до <strong className="text-primary">Croco Sushi</strong> —
@@ -78,7 +86,7 @@ export default function AboutPage() {
                     href="/menu"
                     className="inline-flex items-center justify-center px-8 py-4 bg-primary hover:bg-primary-600 text-white font-bold rounded-xl transition"
                   >
-                    🍣 Переглянути меню
+                    Переглянути меню
                   </Link>
                   <a
                     href={`tel:${CONTACTS.phone}`}
@@ -92,7 +100,14 @@ export default function AboutPage() {
               {/* Зображення/ілюстрація */}
               <div className="relative">
                 <div className="aspect-square max-w-md mx-auto bg-gradient-to-br from-primary/20 to-accent-orange/20 rounded-3xl flex items-center justify-center">
-                  <span className="text-[150px] md:text-[200px]">🐊</span>
+                  <div className="relative w-48 h-48 md:w-64 md:h-64">
+                    <Image
+                      src="/logo.png"
+                      alt="Croco Sushi Logo"
+                      fill
+                      className="object-contain drop-shadow-2xl"
+                    />
+                  </div>
                 </div>
                 {/* Декоративні елементи */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-primary/10 rounded-full blur-xl"></div>
@@ -290,7 +305,7 @@ export default function AboutPage() {
               href="/menu"
               className="inline-flex items-center justify-center px-10 py-5 bg-white text-primary font-bold text-lg rounded-xl hover:bg-gray-100 transition"
             >
-              🍣 Замовити зараз
+              Замовити зараз
             </Link>
           </div>
         </section>

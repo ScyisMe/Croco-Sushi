@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface Product {
     id: number;
     name: string;
@@ -62,8 +64,15 @@ export default function TopProducts({ products = [], isLoading = false }: TopPro
                                     }}
                                 />
                             ) : (
-                                <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center text-2xl">
-                                    🍣
+                                <div className="w-12 h-12 rounded bg-gray-100 flex items-center justify-center p-2">
+                                    <div className="relative w-full h-full">
+                                        <Image
+                                            src="/logo.png"
+                                            alt="Product"
+                                            fill
+                                            className="object-contain opacity-50 grayscale"
+                                        />
+                                    </div>
                                 </div>
                             )}
                         </div>

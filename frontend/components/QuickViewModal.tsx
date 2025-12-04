@@ -141,8 +141,15 @@ export default function QuickViewModal({
                           sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-8xl">
-                          🍣
+                        <div className="w-full h-full flex items-center justify-center p-8 bg-gray-50">
+                          <div className="relative w-full h-full">
+                            <Image
+                              src="/logo.png"
+                              alt={product.name}
+                              fill
+                              className="object-contain opacity-50 grayscale"
+                            />
+                          </div>
                         </div>
                       )}
 
