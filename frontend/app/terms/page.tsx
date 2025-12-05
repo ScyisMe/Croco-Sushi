@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "@/store/localeStore";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ChevronRightIcon, DocumentTextIcon, ShoppingCartIcon, TruckIcon, CreditCardIcon, ExclamationTriangleIcon, ScaleIcon } from "@heroicons/react/24/outline";
@@ -220,9 +222,9 @@ const TERMS_SECTIONS = [
 export default function TermsPage() {
   const renderContent = (text: string) => {
     if (text === "") return <br />;
-    
+
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
-    
+
     return parts.map((part, index) => {
       if (part.startsWith("**") && part.endsWith("**")) {
         return (
@@ -339,15 +341,17 @@ export default function TermsPage() {
               </div>
 
               {/* CTA */}
-              <div className="text-center py-8">
-                <p className="text-foreground-muted mb-4">
-                  Готові зробити замовлення?
-                </p>
-                <Link
-                  href="/menu"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary hover:bg-primary-600 text-white font-bold rounded-xl transition"
-                >
-                  🍣 Перейти до меню
+              <div className="mt-12 text-center">
+                <Link href="/menu" className="btn-primary inline-flex items-center gap-2">
+                  <div className="relative w-5 h-5">
+                    <Image
+                      src="/logo.png"
+                      alt="Logo"
+                      fill
+                      className="object-contain brightness-0 invert"
+                    />
+                  </div>
+                  {t("common.backToMenu")}
                 </Link>
               </div>
             </div>

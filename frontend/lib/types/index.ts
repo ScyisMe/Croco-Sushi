@@ -82,6 +82,7 @@ export interface Product {
   original_price?: string;
   weight?: string;
   calories?: number;
+  ingredients?: string;
   is_available: boolean;
   is_new: boolean;
   is_popular: boolean;

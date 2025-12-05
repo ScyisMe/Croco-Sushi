@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api/client";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function AdminLoginPage() {
       if (response.data.access_token) {
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
-        
+
         // Перевіряємо роль користувача з бекенду після отримання токена
         try {
           const userResponse = await apiClient.get("/auth/me", {
@@ -33,7 +34,7 @@ export default function AdminLoginPage() {
               Authorization: `Bearer ${response.data.access_token}`,
             },
           });
-          
+
           if (userResponse.data.role !== "admin") {
             // Якщо не адмін - видаляємо токени і показуємо помилку
             localStorage.removeItem("access_token");
@@ -48,7 +49,7 @@ export default function AdminLoginPage() {
           toast.error("Помилка верифікації користувача");
           return;
         }
-        
+
         toast.success("Вхід успішний!");
         router.push("/admin");
       }
@@ -60,26 +61,33 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-theme-secondary flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Логотип */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2">
-            <span className="text-5xl">🐊</span>
-            <span className="text-3xl font-bold text-green-600">Croco Sushi</span>
+            <div className="relative w-12 h-12">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <span className="text-3xl font-bold text-primary">Croco Sushi</span>
           </Link>
-          <p className="text-gray-600 mt-2">Адміністративна панель</p>
+          <p className="text-gray-400 mt-2">Адміністративна панель</p>
         </div>
 
         {/* Форма входу */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        <div className="bg-surface rounded-2xl shadow-xl p-8 border border-white/10">
+          <h1 className="text-2xl font-bold text-white mb-6 text-center">
             Вхід для адміністратора
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Email
               </label>
               <input
@@ -87,13 +95,13 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition text-white placeholder-gray-500"
                 placeholder="admin@crocosushi.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Пароль
               </label>
               <input
@@ -101,7 +109,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition text-white placeholder-gray-500"
                 placeholder="••••••••"
               />
             </div>
@@ -109,7 +117,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
@@ -143,8 +151,8 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Посилання на сайт */}
-        <p className="text-center mt-6 text-gray-600">
-          <Link href="/" className="text-green-600 hover:text-green-700 font-medium">
+        <p className="text-center mt-6 text-gray-500">
+          <Link href="/" className="text-primary hover:text-primary-400 font-medium transition-colors">
             ← Повернутися на сайт
           </Link>
         </p>

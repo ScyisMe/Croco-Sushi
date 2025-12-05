@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import apiClient from "@/lib/api/client";
 import {
   HomeIcon,
@@ -178,7 +179,14 @@ export default function AdminLayout({
           {/* Логотип */}
           <div className="p-6 border-b border-gray-200">
             <Link href="/admin" className="flex items-center space-x-2">
-              <span className="text-3xl">🐊</span>
+              <div className="relative w-8 h-8">
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
               <div>
                 <span className="text-xl font-bold text-green-600">Croco Sushi</span>
                 <p className="text-xs text-gray-500">Адмін панель</p>
@@ -197,8 +205,8 @@ export default function AdminLayout({
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${isActive
-                      ? "bg-green-50 text-green-600 font-medium"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-green-600"
+                    ? "bg-green-50 text-green-600 font-medium"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-green-600"
                     }`}
                 >
                   <item.icon className="w-5 h-5" />

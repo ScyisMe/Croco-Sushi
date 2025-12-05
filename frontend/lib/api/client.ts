@@ -1,10 +1,13 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const isServer = typeof window === "undefined";
+const API_URL = isServer
+  ? process.env.INTERNAL_API_URL || "http://backend:8000"
+  : process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Створюємо axios інстанс
 const apiClient: AxiosInstance = axios.create({
-  baseURL: "/api/v1",
+  baseURL: `${API_URL}/api/v1`,
   headers: {
     "Content-Type": "application/json",
   },

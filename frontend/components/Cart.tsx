@@ -208,12 +208,12 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             {t("cart.empty")}
                           </h3>
                           <p className="text-secondary-light text-center mb-6">
-                            Додайте смачні страви з нашого меню
+                            {t("cart.emptyDescription")}
                           </p>
                           <Link
                             href="/menu"
                             onClick={() => setIsOpen(false)}
-                            className="btn-fancy group"
+                            className="btn-primary group flex items-center justify-center gap-2"
                           >
                             <span>{t("cart.goToMenu")}</span>
                             <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -268,8 +268,15 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                       className="w-full h-full object-cover"
                                     />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-3xl">
-                                      🍣
+                                    <div className="w-full h-full flex items-center justify-center p-2 bg-gray-50">
+                                      <div className="relative w-full h-full">
+                                        <Image
+                                          src="/logo.png"
+                                          alt={item.name}
+                                          fill
+                                          className="object-contain opacity-50 grayscale"
+                                        />
+                                      </div>
                                     </div>
                                   )}
                                 </div>

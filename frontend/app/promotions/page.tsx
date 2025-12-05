@@ -38,7 +38,7 @@ export default function PromotionsPage() {
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-theme-surface border-b border-theme">
+        <div className="bg-theme-surface">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -202,7 +202,7 @@ export default function PromotionsPage() {
               </p>
               <Link
                 href="/menu"
-                className="btn-fancy group"
+                className="btn-primary group flex items-center justify-center gap-2 inline-flex"
               >
                 <span>{t("promotions.goToMenu")}</span>
                 <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

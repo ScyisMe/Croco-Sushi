@@ -106,8 +106,15 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           />
         ) : (
-          <div className="w-full h-full bg-surface-card flex items-center justify-center">
-            <span className="text-6xl">🍣</span>
+          <div className="w-full h-full bg-surface-card flex items-center justify-center p-8">
+            <div className="relative w-full h-full">
+              <Image
+                src="/logo.png"
+                alt={product.name}
+                fill
+                className="object-contain opacity-50 grayscale"
+              />
+            </div>
           </div>
         )}
 
