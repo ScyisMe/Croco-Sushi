@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslation } from "@/store/localeStore";
 import Link from "next/link";
 import Image from "next/image";
@@ -31,6 +32,15 @@ const item = {
 
 export default function CategorySlider() {
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <section className="py-20 relative overflow-hidden">
@@ -64,6 +74,7 @@ export default function CategorySlider() {
                       src={category.image}
                       alt={t(category.nameKey)}
                       fill
+                      sizes="(max-width: 768px) 100px, 150px"
                       className="object-contain drop-shadow-lg"
                     />
                   </div>

@@ -120,7 +120,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="pt-8 border-t border-white/5 text-center text-gray-500 text-sm">
-          <p>© {currentYear} Croco Sushi. All rights reserved.</p>
+          <p suppressHydrationWarning>© {currentYear} Croco Sushi. All rights reserved.</p>
         </div>
       </div>
     </footer>

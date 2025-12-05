@@ -1,8 +1,15 @@
 README.md
 pyproject.toml
+backend/add_products.py
+backend/add_uploaded_products.py
+backend/check_products.py
+backend/create_admin.py
 backend/fix_all_tests_final.py
 backend/fix_tests.py
 backend/run.py
+backend/alembic/env.py
+backend/alembic/versions/2025_11_23_1910-ca724174a33c_test.py
+backend/alembic/versions/2025_11_30_1851-47e397629a88_add_role_to_users.py
 backend/app/__init__.py
 backend/app/celery_app.py
 backend/app/database.py
@@ -46,6 +53,9 @@ backend/app/core/password_validation.py
 backend/app/core/security.py
 backend/app/core/sms.py
 backend/app/db/__init__.py
+backend/app/db/add_more_products.py
+backend/app/db/add_products.py
+backend/app/db/debug_products.py
 backend/app/db/seed.py
 backend/app/models/__init__.py
 backend/app/models/address.py

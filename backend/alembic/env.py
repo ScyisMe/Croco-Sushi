@@ -27,16 +27,10 @@ from sqlalchemy.engine import Connection
 
 from alembic import context
 
-# Додаємо backend до sys.path для імпортів
-# alembic/env.py знаходиться в alembic/, тому backend - це parent.parent / "backend"
-project_root = Path(__file__).resolve().parent.parent
-backend_dir = project_root / "backend"
-
-if backend_dir.exists():
-    sys.path.insert(0, str(backend_dir))
-else:
-    # Якщо backend не знайдено, спробуємо поточну директорію
-    sys.path.insert(0, str(project_root))
+# Додаємо поточну директорію (backend) до sys.path
+# alembic/env.py знаходиться в backend/alembic/, тому parent.parent - це backend
+current_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(current_dir))
 
 # Тепер можемо імпортувати app
 from app.database import Base

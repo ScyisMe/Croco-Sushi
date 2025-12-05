@@ -14,9 +14,9 @@ WORKDIR /app
 # Копіюємо файли залежностей з кореня проєкту
 COPY pyproject.toml uv.lock* ./
 
-# Копіюємо Alembic конфігурацію та скрипти (з кореня проекту)
-COPY alembic.ini ./
-COPY alembic ./alembic
+# Alembic configuration is now inside backend directory, so it will be copied with backend
+# COPY alembic.ini ./
+# COPY alembic ./alembic
 
 # Копіюємо код backend (потрібно для pip install -e .)
 COPY backend ./backend

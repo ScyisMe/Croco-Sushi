@@ -54,6 +54,14 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* Navbar Frosted Glass Effect */
+.navbar-glass {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Optional subtle border */
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

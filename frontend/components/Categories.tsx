@@ -100,6 +100,7 @@ export default function Categories() {
                     src="/logo.png"
                     alt="Всі меню"
                     fill
+                    sizes="(max-width: 768px) 96px, 112px"
                     className="object-contain"
                   />
                 </div>
@@ -132,6 +133,7 @@ export default function Categories() {
                           src="/logo.png"
                           alt={category.name}
                           fill
+                          sizes="(max-width: 768px) 96px, 112px"
                           className="object-contain opacity-50 grayscale"
                         />
                       </div>

@@ -92,7 +92,7 @@ export default function ReviewsCarousel() {
                                 </p>
                                 <div className="flex items-center justify-between mt-auto">
                                     <span className="font-semibold text-gray-900">{review.user_name}</span>
-                                    <span className="text-sm text-gray-400">
+                                    <span suppressHydrationWarning className="text-sm text-gray-400">
                                         {new Date(review.created_at).toLocaleDateString('uk-UA')}
                                     </span>
                                 </div>

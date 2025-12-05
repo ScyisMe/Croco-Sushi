@@ -103,7 +103,7 @@ export default function Header() {
 
   return (
     <>
-      <header className={`bg-surface transition-colors ${isSticky ? "sticky top-0 z-40 shadow-header" : ""}`}>
+      <header className={`transition-colors ${isSticky ? "sticky top-0 z-40 navbar-glass shadow-lg" : "bg-surface"}`}>
         {/* Top Bar */}
         <div className="bg-background-secondary border-b border-border hidden md:block">
           <div className="container mx-auto px-4">
@@ -181,6 +181,7 @@ export default function Header() {
                   src="/logo.png"
                   alt="Croco Sushi"
                   fill
+                  sizes="48px"
                   className="object-contain rounded-full"
                 />
               </div>
