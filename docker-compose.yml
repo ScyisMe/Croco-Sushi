@@ -104,6 +104,9 @@ services:
       - POSTGRES_POOL_TIMEOUT=30
       - POSTGRES_CONNECT_TIMEOUT=10
       - POSTGRES_COMMAND_TIMEOUT=30
+      - SMTP_SERVER=maildev
+      - SMTP_PORT=1025
+      - EMAIL_FROM=admin@crocosushi.com
     depends_on:
       - postgres
       - redis
@@ -132,6 +135,9 @@ services:
       - POSTGRES_POOL_TIMEOUT=30
       - POSTGRES_CONNECT_TIMEOUT=10
       - POSTGRES_COMMAND_TIMEOUT=30
+      - SMTP_SERVER=maildev
+      - SMTP_PORT=1025
+      - EMAIL_FROM=admin@crocosushi.com
     depends_on:
       - postgres
       - redis
@@ -192,6 +198,16 @@ services:
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
+    networks:
+      - croco_sushi_network
+    restart: unless-stopped
+
+  maildev:
+    image: maildev/maildev
+    container_name: croco_sushi_maildev
+    ports:
+      - "1080:1080"
+      - "1025:1025"
     networks:
       - croco_sushi_network
     restart: unless-stopped

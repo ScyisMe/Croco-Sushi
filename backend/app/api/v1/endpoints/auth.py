@@ -157,7 +157,13 @@ async def login(
 ):
     """Вхід користувача"""
     # Пошук користувача
-    result = await db.execute(select(User).where(User.phone == credentials.phone))
+    if credentials.phone:
+        result = await db.execute(select(User).where(User.phone == credentials.phone))
+    elif credentials.email:
+        result = await db.execute(select(User).where(User.email == credentials.email))
+    else:
+        raise BadRequestException("Необхідно вказати телефон або email")
+        
     user = result.scalar_one_or_none()
     
     if not user:

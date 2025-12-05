@@ -2,6 +2,7 @@
 
 import { useState, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import Image from "next/image";
 import { XMarkIcon, StarIcon, CameraIcon } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
 import toast from "react-hot-toast";
@@ -122,15 +123,15 @@ export default function ReviewForm({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl glass-card border border-white/10 shadow-2xl transition-all">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-border">
-                  <Dialog.Title className="text-xl font-bold text-secondary">
+                <div className="flex items-center justify-between p-6 border-b border-white/10">
+                  <Dialog.Title className="text-xl font-bold text-white">
                     Залишити відгук
                   </Dialog.Title>
                   <button
                     onClick={handleClose}
-                    className="p-2 text-gray-400 hover:text-gray-600 transition rounded-full hover:bg-gray-100"
+                    className="p-2 text-gray-400 hover:text-white transition rounded-full hover:bg-white/10"
                   >
                     <XMarkIcon className="w-6 h-6" />
                   </button>
@@ -140,15 +141,15 @@ export default function ReviewForm({
                 <form onSubmit={handleSubmit} className="p-6">
                   {/* Про що відгук */}
                   {(productName || orderNumber) && (
-                    <div className="mb-6 p-4 bg-gray-50 rounded-xl">
+                    <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/5">
                       {productName && (
-                        <p className="text-secondary">
-                          Товар: <span className="font-semibold">{productName}</span>
+                        <p className="text-gray-300">
+                          Товар: <span className="font-semibold text-white">{productName}</span>
                         </p>
                       )}
                       {orderNumber && (
-                        <p className="text-secondary">
-                          Замовлення: <span className="font-semibold">#{orderNumber}</span>
+                        <p className="text-gray-300">
+                          Замовлення: <span className="font-semibold text-white">#{orderNumber}</span>
                         </p>
                       )}
                     </div>
@@ -156,7 +157,7 @@ export default function ReviewForm({
 
                   {/* Оцінка */}
                   <div className="mb-6">
-                    <label className="block text-sm font-medium text-secondary mb-3">
+                    <label className="block text-sm font-medium text-gray-300 mb-3">
                       Ваша оцінка *
                     </label>
                     <div className="flex items-center gap-1">
@@ -172,11 +173,11 @@ export default function ReviewForm({
                           {star <= displayRating ? (
                             <StarSolidIcon className="w-8 h-8 text-yellow-400" />
                           ) : (
-                            <StarIcon className="w-8 h-8 text-gray-300" />
+                            <StarIcon className="w-8 h-8 text-gray-600" />
                           )}
                         </button>
                       ))}
-                      <span className="ml-3 text-secondary-light">
+                      <span className="ml-3 text-gray-400">
                         {displayRating === 1 && "Жахливо"}
                         {displayRating === 2 && "Погано"}
                         {displayRating === 3 && "Нормально"}
@@ -190,7 +191,7 @@ export default function ReviewForm({
                   <div className="mb-6">
                     <label
                       htmlFor="comment"
-                      className="block text-sm font-medium text-secondary mb-2"
+                      className="block text-sm font-medium text-gray-300 mb-2"
                     >
                       Ваш відгук *
                     </label>
@@ -200,17 +201,17 @@ export default function ReviewForm({
                       onChange={(e) => setComment(e.target.value)}
                       rows={4}
                       maxLength={1000}
-                      className="input resize-none"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition resize-none"
                       placeholder="Розкажіть про ваші враження..."
                     />
-                    <p className="mt-1 text-xs text-secondary-light text-right">
+                    <p className="mt-1 text-xs text-gray-500 text-right">
                       {comment.length}/1000
                     </p>
                   </div>
 
                   {/* Фото */}
                   <div className="mb-6">
-                    <label className="block text-sm font-medium text-secondary mb-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Додати фото (необов&apos;язково)
                     </label>
                     <div className="flex flex-wrap gap-3">
@@ -218,12 +219,15 @@ export default function ReviewForm({
                       {images.map((file, index) => (
                         <div
                           key={index}
-                          className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100"
+                          className="relative w-20 h-20 rounded-lg overflow-hidden bg-white/5 border border-white/10"
                         >
-                          <img
+                          <Image
                             src={URL.createObjectURL(file)}
                             alt={`Preview ${index + 1}`}
+                            width={80}
+                            height={80}
                             className="w-full h-full object-cover"
+                            unoptimized
                           />
                           <button
                             type="button"
@@ -237,9 +241,9 @@ export default function ReviewForm({
 
                       {/* Кнопка додати */}
                       {images.length < 3 && (
-                        <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary transition">
-                          <CameraIcon className="w-6 h-6 text-gray-400" />
-                          <span className="text-xs text-gray-400 mt-1">Додати</span>
+                        <label className="w-20 h-20 flex flex-col items-center justify-center border-2 border-dashed border-white/20 rounded-lg cursor-pointer hover:border-primary hover:bg-white/5 transition group">
+                          <CameraIcon className="w-6 h-6 text-gray-500 group-hover:text-primary transition" />
+                          <span className="text-xs text-gray-500 mt-1 group-hover:text-primary transition">Додати</span>
                           <input
                             type="file"
                             accept="image/*"
@@ -250,7 +254,7 @@ export default function ReviewForm({
                         </label>
                       )}
                     </div>
-                    <p className="mt-2 text-xs text-secondary-light">
+                    <p className="mt-2 text-xs text-gray-500">
                       Максимум 3 фото, до 5MB кожне
                     </p>
                   </div>
@@ -300,13 +304,13 @@ export default function ReviewForm({
                     <button
                       type="button"
                       onClick={handleClose}
-                      className="px-6 py-2.5 border border-border rounded-lg text-secondary hover:bg-gray-50 transition"
+                      className="px-6 py-2.5 border border-white/10 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition"
                     >
                       Скасувати
                     </button>
                   </div>
 
-                  <p className="mt-4 text-xs text-center text-secondary-light">
+                  <p className="mt-4 text-xs text-center text-gray-500">
                     Відгук буде опублікований після модерації
                   </p>
                 </form>

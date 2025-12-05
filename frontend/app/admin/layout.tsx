@@ -88,7 +88,7 @@ export default function AdminLayout({
 
       try {
         // Перевіряємо роль користувача через API
-        const response = await apiClient.get<User>("/auth/me");
+        const response = await apiClient.get<User>("/users/me");
         const user = response.data;
 
         // Перевірка чи компонент ще mounted

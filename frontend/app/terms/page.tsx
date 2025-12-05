@@ -220,6 +220,7 @@ const TERMS_SECTIONS = [
 ];
 
 export default function TermsPage() {
+  const { t } = useTranslation();
   const renderContent = (text: string) => {
     if (text === "") return <br />;
 

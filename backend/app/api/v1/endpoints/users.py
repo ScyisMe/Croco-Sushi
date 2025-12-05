@@ -1,7 +1,7 @@
 """API endpoints для користувачів"""
 from typing import List, Optional
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
 from sqlalchemy.orm import selectinload
@@ -459,18 +459,23 @@ async def cancel_order(
 
 @router.post("/me/reviews", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
 async def create_review(
-    review_data: ReviewCreate,
+    rating: int = Form(...),
+    comment: str = Form(None),
+    order_id: int = Form(None),
+    product_id: int = Form(None),
+    images: List[UploadFile] = File(None),
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Додати відгук"""
     from app.models.review import Review
+    from app.utils.file_upload import save_image_with_processing
     
     # Перевірка чи можна додати відгук (тільки після замовлення)
-    if review_data.order_id:
+    if order_id:
         result = await db.execute(
             select(Order).where(
-                Order.id == review_data.order_id,
+                Order.id == order_id,
                 Order.user_id == current_user.id
             )
         )
@@ -478,13 +483,26 @@ async def create_review(
         if not order:
             raise NotFoundException("Замовлення не знайдено")
     
+    # Обробка зображень
+    image_urls = []
+    if images:
+        for image in images:
+            # Валідація та збереження
+            _, file_url, _ = await save_image_with_processing(
+                file=image,
+                subdirectory="reviews",
+                prefix="review",
+                create_thumbnail=True
+            )
+            image_urls.append(file_url)
+    
     new_review = Review(
         user_id=current_user.id,
-        order_id=review_data.order_id,
-        product_id=review_data.product_id,
-        rating=review_data.rating,
-        comment=review_data.comment,
-        images=review_data.images,
+        order_id=order_id,
+        product_id=product_id,
+        rating=rating,
+        comment=comment,
+        images=image_urls,
         is_published=False  # Потребує модерації
     )
     
