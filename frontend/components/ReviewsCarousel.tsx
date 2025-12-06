@@ -16,6 +16,10 @@ interface Review {
     created_at: string;
 }
 
+import apiClient from '@/lib/api/client';
+
+// ... (imports remain)
+
 export default function ReviewsCarousel() {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -23,13 +27,16 @@ export default function ReviewsCarousel() {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const response = await fetch('/api/v1/reviews/?limit=5&is_published=true');
-                if (response.ok) {
-                    const data = await response.json();
-                    // Handle both array and paginated response
-                    const items = Array.isArray(data) ? data : data.items || [];
-                    setReviews(items);
-                }
+                const response = await apiClient.get('/reviews/', {
+                    params: {
+                        limit: 5,
+                        is_published: true
+                    }
+                });
+                const data = response.data;
+                // Handle both array and paginated response
+                const items = Array.isArray(data) ? data : data.items || [];
+                setReviews(items);
             } catch (error) {
                 console.error('Failed to fetch reviews:', error);
             } finally {
@@ -43,10 +50,10 @@ export default function ReviewsCarousel() {
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-12">
-                <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-8 mx-auto"></div>
+                <div className="h-8 w-64 bg-white/10 rounded animate-pulse mb-8 mx-auto"></div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-48 bg-gray-200 rounded-xl animate-pulse"></div>
+                        <div key={i} className="h-48 bg-white/10 rounded-xl animate-pulse"></div>
                     ))}
                 </div>
             </div>
@@ -56,9 +63,9 @@ export default function ReviewsCarousel() {
     if (reviews.length === 0) return null;
 
     return (
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-theme-secondary">
             <div className="container mx-auto px-4">
-                <h2 className="text-3xl font-bold text-center mb-10 text-gray-900">
+                <h2 className="text-3xl font-bold text-center mb-10 text-foreground">
                     Що кажуть наші клієнти
                 </h2>
 
@@ -78,21 +85,21 @@ export default function ReviewsCarousel() {
                 >
                     {reviews.map((review) => (
                         <SwiperSlide key={review.id}>
-                            <div className="bg-white p-6 rounded-xl shadow-sm h-full flex flex-col">
+                            <div className="bg-surface p-6 rounded-xl shadow-sm h-full flex flex-col border border-border">
                                 <div className="flex items-center gap-1 mb-4 text-yellow-400">
                                     {[...Array(5)].map((_, i) => (
                                         <StarIcon
                                             key={i}
-                                            className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-200'}`}
+                                            className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-foreground-muted/30'}`}
                                         />
                                     ))}
                                 </div>
-                                <p className="text-gray-600 mb-6 flex-grow italic">
+                                <p className="text-foreground-secondary mb-6 flex-grow italic">
                                     &quot;{review.comment}&quot;
                                 </p>
                                 <div className="flex items-center justify-between mt-auto">
-                                    <span className="font-semibold text-gray-900">{review.user_name}</span>
-                                    <span suppressHydrationWarning className="text-sm text-gray-400">
+                                    <span className="font-semibold text-foreground">{review.user_name}</span>
+                                    <span suppressHydrationWarning className="text-sm text-foreground-muted">
                                         {new Date(review.created_at).toLocaleDateString('uk-UA')}
                                     </span>
                                 </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import apiClient from "@/lib/api/client";
 import toast from "react-hot-toast";
 import {
@@ -146,9 +147,11 @@ export default function AdminCategoriesPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         {category.image_url && (
-                          <img
+                          <Image
                             src={category.image_url}
                             alt={category.name}
+                            width={40}
+                            height={40}
                             className="w-10 h-10 rounded-lg object-cover"
                           />
                         )}
@@ -167,11 +170,10 @@ export default function AdminCategoriesPage() {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => toggleActive(category)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${
-                          category.is_active
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${category.is_active
                             ? "bg-green-100 text-green-700 hover:bg-green-200"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        }`}
+                          }`}
                       >
                         {category.is_active ? "Активна" : "Неактивна"}
                       </button>

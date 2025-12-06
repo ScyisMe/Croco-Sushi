@@ -86,6 +86,22 @@ async def create_product(
     return new_product
 
 
+@router.get("/{product_id}", response_model=ProductResponse)
+async def get_product(
+    product_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Отримати товар за ID (адмін)"""
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    product = result.scalar_one_or_none()
+    
+    if not product:
+        raise NotFoundException("Товар не знайдено")
+    
+    return product
+
+
 @router.put("/{product_id}", response_model=ProductResponse)
 async def update_product(
     product_id: int,

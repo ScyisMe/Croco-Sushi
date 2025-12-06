@@ -78,7 +78,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return response
 
 # Add Rate Limiting (100 requests per minute)
-app.add_middleware(RateLimitMiddleware, limit=100, window=60)
+# app.add_middleware(RateLimitMiddleware, limit=100, window=60)
 
 # Підключення роутерів
 app.include_router(api_router, prefix="/api/v1")

@@ -62,14 +62,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                  <span className="inline-block w-10 h-10 relative mr-2 align-bottom">
-                    <Image
-                      src="/logo.png"
-                      alt="Logo"
-                      fill
-                      className="object-contain"
-                    />
-                  </span>
+
                   Croco Sushi
                 </h1>
                 <p className="text-xl text-foreground-secondary mb-6 leading-relaxed">

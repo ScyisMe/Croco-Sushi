@@ -18,7 +18,7 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post("/auth/admin/login", {
+      const response = await apiClient.post("/auth/login", {
         email,
         password,
       });
@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
 
         // Перевіряємо роль користувача з бекенду після отримання токена
         try {
-          const userResponse = await apiClient.get("/auth/me", {
+          const userResponse = await apiClient.get("/users/me", {
             headers: {
               Authorization: `Bearer ${response.data.access_token}`,
             },

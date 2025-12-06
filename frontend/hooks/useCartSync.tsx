@@ -41,28 +41,28 @@ export function useCartSync() {
       const token = localStorage.getItem("access_token");
       setIsAuthenticated(!!token);
     };
-    
+
     // Перевіряємо при монтуванні
     checkAuth();
-    
+
     // Слухаємо зміни в localStorage (для інших вкладок)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "access_token") {
         checkAuth();
       }
     };
-    
+
     // Слухаємо custom event для поточної вкладки
     const handleAuthChange = () => {
       checkAuth();
     };
-    
+
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("auth-change", handleAuthChange);
-    
+
     // Періодична перевірка (backup)
     const interval = setInterval(checkAuth, 5000);
-    
+
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("auth-change", handleAuthChange);
@@ -96,14 +96,20 @@ export function useCartSync() {
   // Завантаження кошика з сервера
   const loadCartFromServer = useCallback(async () => {
     if (!isAuthenticated || syncInProgressRef.current) return null;
-    
+
     try {
       syncInProgressRef.current = true;
       const response = await apiClient.get("/users/me/cart");
       return response.data as ServerCart;
-    } catch (error) {
+    } catch (error: any) {
       // Кошик може не існувати - це нормально
       console.debug("Кошик на сервері не знайдено:", error);
+      // Якщо помилка 401 (Unauthorized), токен недійсний
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("access_token");
+        setIsAuthenticated(false);
+        window.dispatchEvent(new Event("auth-change"));
+      }
       return null;
     } finally {
       syncInProgressRef.current = false;
@@ -113,17 +119,23 @@ export function useCartSync() {
   // Збереження кошика на сервер
   const saveCartToServer = useCallback(async () => {
     if (!isAuthenticated || syncInProgressRef.current || items.length === 0) return;
-    
+
     try {
       syncInProgressRef.current = true;
       const cartData = {
         items: convertLocalCartToServer(items),
       };
-      
+
       await apiClient.post("/users/me/cart", cartData);
       lastSyncRef.current = Date.now();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Помилка збереження кошика:", error);
+      // Якщо помилка 401 (Unauthorized), токен недійсний
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem("access_token");
+        setIsAuthenticated(false);
+        window.dispatchEvent(new Event("auth-change")); // Сповіщаємо інші компоненти
+      }
     } finally {
       syncInProgressRef.current = false;
     }
@@ -154,7 +166,7 @@ export function useCartSync() {
 
       // Якщо обидва непорожні - питаємо користувача
       const localTotal = localItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      
+
       if (Math.abs(localTotal - serverCart.total_amount) > 1) {
         // Є різниця між кошиками
         toast((t) => (
@@ -199,7 +211,7 @@ export function useCartSync() {
   // Синхронізація при логіні
   const syncOnLogin = useCallback(async () => {
     if (!isAuthenticated) return;
-    
+
     const serverCart = await loadCartFromServer();
     mergeCart(serverCart);
   }, [isAuthenticated, loadCartFromServer, mergeCart]);
@@ -229,7 +241,7 @@ export function useCartSync() {
   // Синхронізація при зміні кошика (з debounce)
   useEffect(() => {
     if (!isAuthenticated || items.length === 0) return;
-    
+
     const timeout = setTimeout(() => {
       saveCartToServer();
     }, 2000); // Debounce 2 секунди

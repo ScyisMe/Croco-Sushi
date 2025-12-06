@@ -35,13 +35,13 @@ interface Order {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  pending: { label: "Очікує", color: "bg-yellow-100 text-yellow-800" },
-  confirmed: { label: "Підтверджено", color: "bg-blue-100 text-blue-800" },
-  preparing: { label: "Готується", color: "bg-orange-100 text-orange-800" },
-  ready: { label: "Готово", color: "bg-green-100 text-green-800" },
-  delivering: { label: "Доставляється", color: "bg-purple-100 text-purple-800" },
-  completed: { label: "Виконано", color: "bg-gray-100 text-gray-800" },
-  cancelled: { label: "Скасовано", color: "bg-red-100 text-red-800" },
+  pending: { label: "Очікує", color: "bg-yellow-900/30 text-yellow-500 border border-yellow-700/50" },
+  confirmed: { label: "Підтверджено", color: "bg-blue-900/30 text-blue-500 border border-blue-700/50" },
+  preparing: { label: "Готується", color: "bg-orange-900/30 text-orange-500 border border-orange-700/50" },
+  ready: { label: "Готово", color: "bg-green-900/30 text-green-500 border border-green-700/50" },
+  delivering: { label: "Доставляється", color: "bg-purple-900/30 text-purple-500 border border-purple-700/50" },
+  completed: { label: "Виконано", color: "bg-gray-800 text-gray-400 border border-gray-700" },
+  cancelled: { label: "Скасовано", color: "bg-red-900/30 text-red-500 border border-red-700/50" },
 };
 
 export default function AdminOrdersPage() {
@@ -78,6 +78,7 @@ export default function AdminOrdersPage() {
 
   const updateStatus = async (orderId: number, newStatus: string) => {
     try {
+      // Використовуємо новий ендпоінт PATCH
       await apiClient.patch(`/orders/${orderId}/status`, { status: newStatus });
       setOrders(
         orders.map((o) =>
@@ -120,7 +121,7 @@ export default function AdminOrdersPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
       </div>
     );
   }
@@ -129,34 +130,34 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       {/* Заголовок */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Замовлення</h1>
-        <p className="text-gray-600">
+        <h1 className="text-2xl font-bold text-white">Замовлення</h1>
+        <p className="text-gray-400">
           Управління замовленнями ({total})
         </p>
       </div>
 
       {/* Фільтри */}
-      <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+      <div className="bg-gray-800 rounded-xl shadow-sm p-4 border border-gray-700">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Пошук */}
           <div className="flex-1 relative">
-            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Пошук за номером, ім'ям, телефоном..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-600"
             />
           </div>
 
           {/* Фільтр за статусом */}
           <div className="flex items-center space-x-2">
-            <FunnelIcon className="w-5 h-5 text-gray-400" />
+            <FunnelIcon className="w-5 h-5 text-gray-500" />
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="px-4 py-2 bg-gray-900 border border-gray-700 text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="">Всі статуси</option>
               {Object.entries(STATUS_CONFIG).map(([value, { label }]) => (
@@ -175,7 +176,7 @@ export default function AdminOrdersPage() {
           onClick={() => setSelectedStatus("")}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedStatus === ""
             ? "bg-green-600 text-white"
-            : "bg-white text-gray-600 hover:bg-gray-50 border"
+            : "bg-gray-800 text-gray-400 hover:bg-gray-700 border border-gray-700"
             }`}
         >
           Всі ({total})
@@ -184,8 +185,8 @@ export default function AdminOrdersPage() {
           <button
             key={status}
             onClick={() => setSelectedStatus(status)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${selectedStatus === status
-              ? "bg-green-600 text-white"
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition border ${selectedStatus === status
+              ? "bg-green-600 text-white border-green-600"
               : `${color} hover:opacity-80`
               }`}
           >
@@ -195,7 +196,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Список замовлень */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700 overflow-hidden">
         {filteredOrders.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">Замовлень не знайдено</p>
@@ -203,8 +204,8 @@ export default function AdminOrdersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr className="text-left text-sm text-gray-600">
+              <thead className="bg-gray-900/50 border-b border-gray-700">
+                <tr className="text-left text-sm text-gray-400">
                   <th className="px-6 py-4 font-medium">№ Замовлення</th>
                   <th className="px-6 py-4 font-medium">Клієнт</th>
                   <th className="px-6 py-4 font-medium">Сума</th>
@@ -214,50 +215,50 @@ export default function AdminOrdersPage() {
                   <th className="px-6 py-4 font-medium text-right">Дії</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-700">
                 {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
+                  <tr key={order.id} className="hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-4">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="text-green-600 hover:text-green-700 font-medium"
+                        className="text-green-500 hover:text-green-400 font-medium font-mono"
                       >
                         #{order.order_number}
                       </Link>
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-gray-800">
+                        <p className="font-medium text-gray-200">
                           {order.customer_name || "—"}
                         </p>
                         <a
                           href={`tel:${order.customer_phone}`}
-                          className="text-sm text-gray-500 hover:text-green-600 flex items-center"
+                          className="text-sm text-gray-500 hover:text-green-500 flex items-center transition-colors"
                         >
                           <PhoneIcon className="w-3 h-3 mr-1" />
                           {order.customer_phone}
                         </a>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-medium text-gray-800">
+                    <td className="px-6 py-4 font-medium text-gray-200">
                       {formatPrice(order.total_amount)}
                     </td>
                     <td className="px-6 py-4">
                       <select
                         value={order.status}
                         onChange={(e) => updateStatus(order.id, e.target.value)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer ${STATUS_CONFIG[order.status]?.color ||
-                          "bg-gray-100 text-gray-800"
+                        className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer bg-transparent focus:ring-0 focus:outline-none ${STATUS_CONFIG[order.status]?.color ||
+                          "text-gray-400"
                           }`}
                       >
                         {Object.entries(STATUS_CONFIG).map(([value, { label }]) => (
-                          <option key={value} value={value}>
+                          <option key={value} value={value} className="bg-gray-800 text-white">
                             {label}
                           </option>
                         ))}
                       </select>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-gray-400">
                       {order.payment_method === "cash"
                         ? "💵 Готівка"
                         : order.payment_method === "card"
@@ -271,7 +272,7 @@ export default function AdminOrdersPage() {
                       <div className="flex items-center justify-end space-x-2">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+                          className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-500/10 rounded-lg transition"
                           title="Переглянути"
                         >
                           <EyeIcon className="w-5 h-5" />
@@ -288,4 +289,3 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
-

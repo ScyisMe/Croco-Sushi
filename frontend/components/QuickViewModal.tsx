@@ -118,20 +118,20 @@ export default function QuickViewModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-surface-card border border-white/10 shadow-xl transition-all">
                 {/* Кнопка закриття */}
                 <button
                   onClick={onClose}
-                  className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white hover:text-gray-900 transition"
+                  className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-primary transition"
                 >
                   <XMarkIcon className="w-6 h-6" />
                 </button>
 
                 <div className="grid grid-cols-1 md:grid-cols-2">
                   {/* Зображення */}
-                  <div className="relative bg-gray-100 p-4 md:p-6">
+                  <div className="relative bg-white/5 p-4 md:p-6">
                     {/* Головне зображення */}
-                    <div className="relative aspect-square rounded-xl overflow-hidden bg-white">
+                    <div className="relative aspect-square rounded-xl overflow-hidden bg-transparent">
                       {images.length > 0 ? (
                         <Image
                           src={images[selectedImageIndex]}
@@ -141,7 +141,7 @@ export default function QuickViewModal({
                           sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center p-8 bg-gray-50">
+                        <div className="w-full h-full flex items-center justify-center p-8 bg-white/5">
                           <div className="relative w-full h-full">
                             <Image
                               src="/logo.png"
@@ -174,7 +174,7 @@ export default function QuickViewModal({
                           onClick={handleFavoriteClick}
                           className={`absolute top-3 right-3 p-2 rounded-full transition ${isFavorite
                             ? "bg-accent-red text-white"
-                            : "bg-white/80 text-gray-600 hover:bg-white hover:text-accent-red"
+                            : "bg-black/50 text-white hover:bg-white hover:text-accent-red"
                             }`}
                         >
                           {isFavorite ? (
@@ -195,7 +195,7 @@ export default function QuickViewModal({
                             onClick={() => setSelectedImageIndex(index)}
                             className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${selectedImageIndex === index
                               ? "border-primary"
-                              : "border-transparent hover:border-gray-300"
+                              : "border-transparent hover:border-white/30"
                               }`}
                           >
                             <Image
@@ -213,19 +213,19 @@ export default function QuickViewModal({
 
                   {/* Інформація */}
                   <div className="p-6 flex flex-col">
-                    <Dialog.Title className="text-xl md:text-2xl font-bold text-secondary mb-2">
+                    <Dialog.Title className="text-xl md:text-2xl font-bold text-white mb-2">
                       {product.name}
                     </Dialog.Title>
 
                     {product.description && (
-                      <p className="text-secondary-light mb-4 line-clamp-3">
+                      <p className="text-gray-400 mb-4 line-clamp-3">
                         {product.description}
                       </p>
                     )}
 
                     {/* Вага/калорії */}
                     {(selectedSize?.weight || product.weight || product.calories) && (
-                      <div className="flex gap-4 mb-4 text-sm text-secondary-light">
+                      <div className="flex gap-4 mb-4 text-sm text-gray-400">
                         {(selectedSize?.weight || product.weight) && (
                           <span>Вага: {selectedSize?.weight || product.weight} г</span>
                         )}
@@ -236,19 +236,19 @@ export default function QuickViewModal({
                     {/* Вибір розміру */}
                     {product.sizes && product.sizes.length > 1 && (
                       <div className="mb-4">
-                        <h4 className="font-semibold text-secondary mb-2">Розмір:</h4>
+                        <h4 className="font-semibold text-white mb-2">Розмір:</h4>
                         <div className="flex flex-wrap gap-2">
                           {product.sizes.map((size) => (
                             <button
                               key={size.id}
                               onClick={() => setSelectedSize(size)}
                               className={`px-4 py-2 rounded-lg border-2 transition ${selectedSize?.id === size.id
-                                ? "border-primary bg-primary/5 text-primary"
-                                : "border-border hover:border-primary"
+                                ? "border-primary bg-primary/20 text-primary"
+                                : "border-white/10 hover:border-primary text-gray-300"
                                 }`}
                             >
                               <span className="font-medium">{size.name}</span>
-                              <span className="text-sm text-secondary-light ml-2">
+                              <span className="text-sm text-gray-400 ml-2">
                                 {size.price} ₴
                               </span>
                             </button>
@@ -259,22 +259,22 @@ export default function QuickViewModal({
 
                     {/* Кількість */}
                     <div className="mb-4">
-                      <h4 className="font-semibold text-secondary mb-2">Кількість:</h4>
+                      <h4 className="font-semibold text-white mb-2">Кількість:</h4>
                       <div className="flex items-center gap-4">
-                        <div className="flex items-center border border-border rounded-lg">
+                        <div className="flex items-center border border-white/10 rounded-lg">
                           <button
                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            className="p-2 text-secondary-light hover:text-secondary transition"
+                            className="p-2 text-gray-400 hover:text-white transition"
                             disabled={quantity <= 1}
                           >
                             <MinusIcon className="w-5 h-5" />
                           </button>
-                          <span className="w-12 text-center font-semibold">
+                          <span className="w-12 text-center font-semibold text-white">
                             {quantity}
                           </span>
                           <button
                             onClick={() => setQuantity(quantity + 1)}
-                            className="p-2 text-secondary-light hover:text-secondary transition"
+                            className="p-2 text-gray-400 hover:text-white transition"
                           >
                             <PlusIcon className="w-5 h-5" />
                           </button>
@@ -289,13 +289,13 @@ export default function QuickViewModal({
                           {totalPrice} ₴
                         </span>
                         {hasDiscount && (
-                          <span className="text-lg text-secondary-light line-through">
+                          <span className="text-lg text-gray-500 line-through">
                             {Number(originalPrice) * quantity} ₴
                           </span>
                         )}
                       </div>
                       {quantity > 1 && (
-                        <p className="text-sm text-secondary-light mt-1">
+                        <p className="text-sm text-gray-400 mt-1">
                           {currentPrice} ₴ × {quantity} шт.
                         </p>
                       )}
@@ -306,7 +306,7 @@ export default function QuickViewModal({
                       <button
                         onClick={handleAddToCart}
                         disabled={!product.is_available}
-                        className="w-full bg-primary hover:bg-primary-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2"
+                        className="w-full bg-primary hover:bg-primary-600 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2"
                       >
                         <ShoppingCartIcon className="w-5 h-5" />
                         {product.is_available ? "Додати в кошик" : "Немає в наявності"}
@@ -315,7 +315,7 @@ export default function QuickViewModal({
                       <Link
                         href={`/products/${product.slug}`}
                         onClick={onClose}
-                        className="w-full border border-border hover:border-primary text-secondary hover:text-primary font-medium py-3 px-6 rounded-xl transition flex items-center justify-center gap-2"
+                        className="w-full border border-white/10 hover:border-primary text-gray-300 hover:text-primary font-medium py-3 px-6 rounded-xl transition flex items-center justify-center gap-2"
                       >
                         <ArrowTopRightOnSquareIcon className="w-5 h-5" />
                         Детальніше про товар

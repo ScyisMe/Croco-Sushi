@@ -89,7 +89,22 @@ class OrderTrack(BaseModel):
     created_at: datetime
     total_amount: Decimal
     
+    # Додаткові поля для відображення
+    customer_name: Optional[str] = None
+    customer_phone: Optional[str] = None
+    delivery_time: Optional[datetime] = None
+    comment: Optional[str] = None
+    
+    # Адреса (flattened або nested - оберемо flattened для простоти)
+    city: Optional[str] = None
+    street: Optional[str] = None
+    building: Optional[str] = Field(None, alias="house") # Alias to match frontend
+    apartment: Optional[str] = None
+    entrance: Optional[str] = None
+    floor: Optional[str] = None
+    
     model_config = ConfigDict(from_attributes=True)
+
 
 
 

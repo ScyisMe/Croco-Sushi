@@ -175,16 +175,16 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                   <div className="flex h-full flex-col bg-theme-surface shadow-xl">
                     {/* Header */}
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                      <Dialog.Title className="text-xl font-bold text-secondary">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+                      <Dialog.Title className="text-xl font-bold text-white">
                         {t("cart.title")}
                         {totalItems > 0 && (
-                          <span className="ml-2 text-sm font-normal text-secondary-light">
+                          <span className="ml-2 text-sm font-normal text-gray-400">
                             ({totalItems} {totalItems === 1 ? "товар" : totalItems < 5 ? "товари" : "товарів"})
                           </span>
                         )}
                         {isValidating && (
-                          <span className="ml-2 inline-block w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          <span className="ml-2 inline-block w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                         )}
                       </Dialog.Title>
                       <button
@@ -255,7 +255,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             {items.map((item) => (
                               <li
                                 key={`${item.id}-${item.sizeId || "default"}`}
-                                className="flex gap-4 p-3 bg-theme-secondary rounded-lg"
+                                className="flex gap-4 p-3 bg-white/5 border border-white/5 rounded-xl"
                               >
                                 {/* Зображення */}
                                 <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-theme-surface">
@@ -283,15 +283,15 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
                                 {/* Інформація */}
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-secondary text-sm line-clamp-2">
+                                  <h4 className="font-semibold text-white text-sm line-clamp-2">
                                     {item.name}
                                   </h4>
                                   {item.size && (
-                                    <p className="text-xs text-secondary-light mt-0.5">
+                                    <p className="text-xs text-gray-400 mt-0.5">
                                       {item.size}
                                     </p>
                                   )}
-                                  <p className="text-primary font-bold mt-1">
+                                  <p className="text-primary-500 font-bold mt-1">
                                     {item.price} ₴
                                   </p>
 
@@ -348,46 +348,44 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                     {/* Footer - з safe area для мобільних */}
                     {items.length > 0 && (
                       <div className="border-t border-border px-4 sm:px-6 py-4 pb-safe space-y-4">
-                        {/* Вибір зони доставки */}
                         <div>
                           <div className="flex items-center gap-2 mb-2">
-                            <TruckIcon className="w-4 h-4 text-secondary-light" />
-                            <span className="text-sm font-medium text-secondary">Зона доставки</span>
+                            <TruckIcon className="w-4 h-4 text-primary" />
+                            <span className="text-sm font-medium text-white">Зона доставки</span>
                           </div>
                           <select
                             value={selectedZone || ""}
                             onChange={(e) => setSelectedZone(e.target.value || null)}
-                            className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:border-primary"
+                            className="input appearance-none cursor-pointer"
                           >
-                            <option value="">Оберіть зону доставки</option>
+                            <option value="" className="bg-surface-card text-white">Оберіть зону доставки</option>
                             {deliveryZones.map((zone) => (
-                              <option key={zone.id} value={zone.id}>
+                              <option key={zone.id} value={zone.id} className="bg-surface-card text-white">
                                 {zone.name} • {zone.time} • {totalAmount >= zone.freeFrom ? "Безкоштовно" : `${zone.cost} ₴`}
                               </option>
                             ))}
                           </select>
                           {delivery.zone_name && (
-                            <div className="flex items-center gap-1 mt-1.5 text-xs text-secondary-light">
-                              <MapPinIcon className="w-3 h-3" />
+                            <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                              <MapPinIcon className="w-3 h-3 text-primary" />
                               <span>{delivery.zone_name}</span>
                               {delivery.estimated_time && (
-                                <span className="text-primary"> • {delivery.estimated_time}</span>
+                                <span className="text-primary-500"> • {delivery.estimated_time}</span>
                               )}
                             </div>
                           )}
                         </div>
 
-                        {/* Промокод */}
                         <div>
                           <div className="flex items-center gap-2 mb-2">
-                            <TagIcon className="w-4 h-4 text-secondary-light" />
-                            <span className="text-sm font-medium text-secondary">Промокод</span>
+                            <TagIcon className="w-4 h-4 text-primary" />
+                            <span className="text-sm font-medium text-white">Промокод</span>
                           </div>
                           <div className="flex gap-2">
                             <input
                               type="text"
                               placeholder="Введіть промокод"
-                              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-primary"
+                              className="input flex-1 min-w-0"
                               value={promoCode}
                               onChange={(e) => setPromoCode(e.target.value)}
                               disabled={isPromoApplied}
@@ -395,9 +393,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             <button
                               onClick={handleApplyPromo}
                               disabled={isPromoApplied || !promoCode}
-                              className={`px-4 py-2 font-medium rounded-lg transition text-sm ${isPromoApplied
-                                ? "bg-green-100 text-green-700"
-                                : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
+                              className={`px-4 py-2 font-medium rounded-xl transition text-sm whitespace-nowrap ${isPromoApplied
+                                ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                                : "bg-surface-card border border-white/10 text-white hover:bg-white/5 hover:border-primary/50"
                                 }`}
                             >
                               {isPromoApplied ? "Застосовано" : "Застосувати"}
@@ -408,23 +406,23 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                         {/* Підсумок */}
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-secondary-light">Підсумок</span>
-                            <span className="font-medium">{totalAmount.toFixed(0)} ₴</span>
+                            <span className="text-gray-400">Підсумок</span>
+                            <span className="font-medium text-white">{totalAmount.toFixed(0)} ₴</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-secondary-light">Доставка</span>
-                            <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
+                            <span className="text-gray-400">Доставка</span>
+                            <span className={`font-medium ${deliveryCost === 0 ? "text-primary-500" : "text-white"}`}>
                               {deliveryCost === 0 ? "Безкоштовно" : `${deliveryCost} ₴`}
                             </span>
                           </div>
                           {deliveryCost > 0 && totalAmount > 0 && (
-                            <div className="text-xs text-secondary-light">
+                            <div className="text-xs text-gray-400">
                               До безкоштовної доставки: {amountToFreeDelivery.toFixed(0)} ₴
                             </div>
                           )}
-                          <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
-                            <span>{t("cart.total")}</span>
-                            <span className="text-primary">{finalAmount.toFixed(0)} ₴</span>
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
+                            <span className="text-white">{t("cart.total")}</span>
+                            <span className="text-primary-500">{finalAmount.toFixed(0)} ₴</span>
                           </div>
                         </div>
 

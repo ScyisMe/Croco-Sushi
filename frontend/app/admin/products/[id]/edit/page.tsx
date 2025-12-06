@@ -56,7 +56,7 @@ export default function EditProductPage() {
   const fetchData = async () => {
     try {
       const [productRes, categoriesRes] = await Promise.all([
-        apiClient.get(`/products/${productId}`),
+        apiClient.get(`/admin/products/${productId}`),
         apiClient.get("/categories"),
       ]);
 

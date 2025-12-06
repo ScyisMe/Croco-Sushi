@@ -1,7 +1,7 @@
 """API endpoints для користувачів"""
 from typing import List, Optional
 from decimal import Decimal
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
 from sqlalchemy.orm import selectinload
@@ -24,6 +24,8 @@ from app.schemas.user import UserUpdate, UserResponse
 from app.schemas.address import AddressCreate, AddressUpdate, AddressResponse
 from app.schemas.order import OrderResponse
 from app.schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
+from app.models.cart import Cart, CartItem
+from app.schemas.cart import CartResponse, CartSave
 
 router = APIRouter()
 
@@ -459,18 +461,23 @@ async def cancel_order(
 
 @router.post("/me/reviews", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
 async def create_review(
-    review_data: ReviewCreate,
+    rating: int = Form(...),
+    comment: str = Form(None),
+    order_id: int = Form(None),
+    product_id: int = Form(None),
+    images: List[UploadFile] = File(None),
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Додати відгук"""
     from app.models.review import Review
+    from app.utils.file_upload import save_image_with_processing
     
     # Перевірка чи можна додати відгук (тільки після замовлення)
-    if review_data.order_id:
+    if order_id:
         result = await db.execute(
             select(Order).where(
-                Order.id == review_data.order_id,
+                Order.id == order_id,
                 Order.user_id == current_user.id
             )
         )
@@ -478,13 +485,26 @@ async def create_review(
         if not order:
             raise NotFoundException("Замовлення не знайдено")
     
+    # Обробка зображень
+    image_urls = []
+    if images:
+        for image in images:
+            # Валідація та збереження
+            _, file_url, _ = await save_image_with_processing(
+                file=image,
+                subdirectory="reviews",
+                prefix="review",
+                create_thumbnail=True
+            )
+            image_urls.append(file_url)
+    
     new_review = Review(
         user_id=current_user.id,
-        order_id=review_data.order_id,
-        product_id=review_data.product_id,
-        rating=review_data.rating,
-        comment=review_data.comment,
-        images=review_data.images,
+        order_id=order_id,
+        product_id=product_id,
+        rating=rating,
+        comment=comment,
+        images=image_urls,
         is_published=False  # Потребує модерації
     )
     
@@ -727,4 +747,136 @@ async def get_referral_info(
         "referral_code": current_user.referral_code,
         "referral_link": f"https://croco-sushi.com/ref/{current_user.referral_code}" if current_user.referral_code else None
     }
+
+
+# ========== Кошик (Cart) ==========
+
+@router.get("/me/cart", response_model=CartResponse)
+async def get_my_cart(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Отримання кошика користувача"""
+    result = await db.execute(
+        select(Cart)
+        .where(Cart.user_id == current_user.id)
+        .options(
+            selectinload(Cart.items).selectinload(CartItem.product),
+            selectinload(Cart.items).selectinload(CartItem.size)
+        )
+    )
+    cart = result.scalar_one_or_none()
+    
+    if not cart:
+        # Frontend очікує 404/null якщо кошика немає
+        raise NotFoundException("Кошик не знайдено")
+        
+    # Формуємо відповідь
+    items_response = []
+    total_amount = Decimal("0.00")
+    total_items = 0
+    
+    for item in cart.items:
+        product = item.product
+        size = item.size
+        
+        if not product:
+            continue
+            
+        price = size.price if size else product.price
+        
+        items_response.append({
+            "product_id": product.id,
+            "product_name": product.name,
+            "product_slug": product.slug,
+            "product_image": product.image_url,
+            "size_id": size.id if size else None,
+            "size_name": size.name if size else None,
+            "price": float(price),
+            "quantity": item.quantity
+        })
+        
+        total_amount += price * item.quantity
+        total_items += item.quantity
+        
+    return {
+        "id": cart.id,
+        "items": items_response,
+        "total_amount": float(total_amount),
+        "total_items": total_items
+    }
+
+
+@router.delete("/me/cart", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_my_cart(
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Очищення кошика користувача"""
+    # Знаходимо кошик
+    result = await db.execute(select(Cart).where(Cart.user_id == current_user.id))
+    cart = result.scalar_one_or_none()
+    
+    if not cart:
+        # Якщо кошика немає, вважаємо, що він вже очищений
+        return None
+        
+    # Видаляємо всі товари з кошика
+    await db.execute(delete(CartItem).where(CartItem.cart_id == cart.id))
+    
+    # Можна також видалити сам кошик, але краще залишити його порожнім, 
+    # щоб не створювати знову при додаванні товару (хоча логіка create_cart це обробляє)
+    # В даному випадку просто очищаємо товари
+    
+    await db.commit()
+    return None
+
+
+@router.post("/me/cart", status_code=status.HTTP_204_NO_CONTENT)
+async def save_my_cart(
+    cart_data: CartSave,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Збереження/Синхронізація кошика"""
+    # Знаходимо існуючий кошик
+    result = await db.execute(
+        select(Cart).where(Cart.user_id == current_user.id)
+    )
+    cart = result.scalar_one_or_none()
+    
+    if not cart:
+        cart = Cart(user_id=current_user.id)
+        db.add(cart)
+        await db.flush()
+    else:
+        # Очищаємо існуючі товари
+        await db.execute(delete(CartItem).where(CartItem.cart_id == cart.id))
+        
+    try:
+        # Додаємо нові товари
+        for item_data in cart_data.items:
+            # Якщо розмір 0 або null, вважаємо як null
+            size_id = item_data.size_id if item_data.size_id else None
+            
+            new_item = CartItem(
+                cart_id=cart.id,
+                product_id=item_data.product_id,
+                size_id=size_id,
+                quantity=item_data.quantity
+            )
+            db.add(new_item)
+            
+        await db.commit()
+    except Exception as e:
+        await db.rollback()
+        # Логуємо помилку (можна додати logger пізніше)
+        print(f"Error saving cart: {e}")
+        from sqlalchemy.exc import IntegrityError
+        if isinstance(e, IntegrityError) or "ForeignKeyViolation" in str(e):
+            raise BadRequestException("Неможливо зберегти кошик: один з товарів або розмірів не існує")
+        raise e
+        
+    return None
+
 

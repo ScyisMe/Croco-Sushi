@@ -29,7 +29,8 @@ class UserUpdate(BaseModel):
 
 
 class UserLogin(BaseModel):
-    phone: str
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
     password: str
 
 

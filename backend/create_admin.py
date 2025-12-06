@@ -1,51 +1,46 @@
-"""
-SQL скрипт для створення адміністратора
-"""
+
 import asyncio
-from app.database import get_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy import select
+from app.models.user import User, UserRole
 from app.core.security import get_password_hash
+from app.core.config import settings
 
+# Override database URL to point to localhost if running from outside docker
+DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/croco_sushi"
 
-async def create_admin_sql():
-    """Створити адміністратора через SQL"""
-    engine = get_engine()
-    # hashed_password = get_password_hash("admin123")
-    hashed_password = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5gzHCc6MqrX56"
+async def create_admin():
+    print(f"Connecting to database...")
+    engine = create_async_engine(DATABASE_URL)
     
-    sql = f"""
-    INSERT INTO users (
-        phone, email, name, hashed_password, is_active, 
-        two_factor_enabled, newsletter_subscription, bonus_balance, loyalty_status,
-        created_at, updated_at, role
-    ) VALUES (
-        '+380123456789', 
-        'admin@crocosushi.com', 
-        'Адміністратор', 
-        '{hashed_password}', 
-        true, 
-        false, 
-        false, 
-        0, 
-        'new',
-        NOW(),
-        NOW(),
-        'ADMIN'
-    )
-    ON CONFLICT (phone) DO UPDATE 
-    SET email = EXCLUDED.email,
-        name = EXCLUDED.name;
-    """
-    
-    async with engine.begin() as conn:
-        await conn.execute(sqlalchemy.text(sql))
-    
-    print("✅ Адміністратора успішно створено!")
-    print("Телефон: +380123456789")
-    print("Email: admin@crocosushi.com")
-    print("Пароль: admin123")
-    print("\n⚠️  ВАЖЛИВО: Змініть пароль після першого входу!")
-
+    async with AsyncSession(engine) as session:
+        # Check if admin exists
+        email = "admin@croco.com"
+        result = await session.execute(select(User).where(User.email == email))
+        existing_user = result.scalar_one_or_none()
+        
+        if existing_user:
+            print(f"Admin user '{email}' already exists.")
+            # Update password just in case
+            existing_user.hashed_password = get_password_hash("admin123")
+            existing_user.role = UserRole.ADMIN
+            existing_user.is_active = True
+            await session.commit()
+            print(f"Updated password for '{email}'.")
+        else:
+            new_admin = User(
+                email=email,
+                name="Super Admin",
+                phone="+380000000000",
+                hashed_password=get_password_hash("admin123"),
+                role=UserRole.ADMIN,
+                is_active=True
+            )
+            session.add(new_admin)
+            await session.commit()
+            print(f"Created admin user: {email} / admin123")
+            
+    await engine.dispose()
 
 if __name__ == "__main__":
-    import sqlalchemy
-    asyncio.run(create_admin_sql())
+    asyncio.run(create_admin())

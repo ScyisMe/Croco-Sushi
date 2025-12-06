@@ -11,6 +11,7 @@ from app.models.delivery_zone import DeliveryZone
 from app.models.promo_code import PromoCode
 from app.models.favorite import Favorite
 from app.models.audit_log import AuditLog
+from app.models.cart import Cart, CartItem
 
 __all__ = [
     "Base",
@@ -27,4 +28,6 @@ __all__ = [
     "PromoCode",
     "Favorite",
     "AuditLog",
+    "Cart",
+    "CartItem",
 ]

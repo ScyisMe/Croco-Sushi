@@ -121,23 +121,48 @@ async def create_order(
     # Обробка адреси
     address_id = order_data.address_id
     
-    # Якщо неавторизований користувач створив адресу
-    if not current_user and (order_data.city or order_data.street):
-        # Створюємо тимчасову адресу (або можна не зберігати)
-        address_id = None
-    
-    # Якщо авторизований користувач і є адреса
-    if current_user and order_data.address_id:
-        result = await db.execute(
-            select(Address).where(
-                Address.id == order_data.address_id,
-                Address.user_id == current_user.id
+    # Якщо це нова адреса (вказані вулиця/місто)
+    if order_data.street:
+        # Для авторизованих - шукаємо або створюємо
+        if current_user:
+            # Тут спрощена логіка: якщо ID передано - беремо його, якщо ні - створюємо нову
+            if order_data.address_id:
+                result = await db.execute(
+                    select(Address).where(
+                        Address.id == order_data.address_id,
+                        Address.user_id == current_user.id
+                    )
+                )
+                address = result.scalar_one_or_none()
+                if not address:
+                    raise NotFoundException("Адресу не знайдено")
+                address_id = address.id
+            else:
+                # Створення нової для юзера
+                new_address = Address(
+                    user_id=current_user.id,
+                    city=order_data.city or "Бровари",
+                    street=order_data.street,
+                    house=order_data.house,
+                    apartment=order_data.apartment,
+                    comment=order_data.address_comment
+                )
+                db.add(new_address)
+                await db.flush()
+                address_id = new_address.id
+        else:
+            # Для гостей - створюємо адресу без user_id
+            new_address = Address(
+                user_id=None, # Дозволяємо Null
+                city=order_data.city or "Бровари",
+                street=order_data.street,
+                house=order_data.house,
+                apartment=order_data.apartment,
+                comment=order_data.address_comment
             )
-        )
-        address = result.scalar_one_or_none()
-        if not address:
-            raise NotFoundException("Адресу не знайдено")
-        address_id = address.id
+            db.add(new_address)
+            await db.flush()
+            address_id = new_address.id
     
     # Створення замовлення з обробкою race condition
     from sqlalchemy.exc import IntegrityError
@@ -420,7 +445,52 @@ async def reorder(
     )
     new_order.items = result.scalars().all()
     
-    return new_order
+
+@router.patch("/{order_id}/status", response_model=OrderResponse)
+async def update_order_status(
+    order_id: int,
+    status_data: OrderStatusUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Оновлення статусу замовлення (тільки для адмінів)"""
+    # Перевірка прав доступу
+    if current_user.role != "admin":
+        from app.core.exceptions import ForbiddenException
+        raise ForbiddenException("Тільки адміністратори можуть змінювати статус")
+        
+    result = await db.execute(select(Order).where(Order.id == order_id))
+    order = result.scalar_one_or_none()
+    
+    if not order:
+        raise NotFoundException("Замовлення не знайдено")
+        
+    # Зберігаємо старий статус
+    old_status = order.status
+    new_status = status_data.status
+    
+    if old_status == new_status:
+        return order
+        
+    order.status = new_status
+    
+    # Оновлення історії
+    history = order.status_history or []
+    history.append({
+        "old_status": old_status,
+        "new_status": new_status,
+        "changed_by": current_user.id,
+        "changed_at": datetime.now(timezone.utc).isoformat(),
+        "comment": status_data.comment or "Зміна статусу адміністратором"
+    })
+    order.status_history = history
+    
+    await db.commit()
+    await db.refresh(order)
+    
+    # Тут можна додати відправку сповіщень користувачу про зміну статусу
+    
+    return order
 
 
 

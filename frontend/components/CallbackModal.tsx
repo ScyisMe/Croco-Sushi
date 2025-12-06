@@ -21,7 +21,7 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
   const formatPhone = (value: string) => {
     // Видаляємо всі символи крім цифр
     const digits = value.replace(/\D/g, "");
-    
+
     // Форматуємо телефон
     if (digits.length === 0) return "";
     if (digits.length <= 2) return `+${digits}`;
@@ -44,7 +44,7 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validatePhone(phone)) {
       setError(t("validation.invalidPhone"));
       return;
@@ -117,7 +117,7 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-theme-surface p-6 shadow-modal transition-all">
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-surface-card p-6 shadow-modal transition-all">
                 {/* Кнопка закриття */}
                 <button
                   onClick={onClose}

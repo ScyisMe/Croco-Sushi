@@ -182,12 +182,25 @@ export interface ReviewWithUser {
 }
 
 // Order tracking types
+// Order tracking types
 export interface OrderTrackResponse {
   order_number: string;
   status: string;
   updated_at: string;
   estimated_delivery_time?: string;
   comment?: string;
+
+  // Custom fields
+  customer_name?: string;
+  customer_phone?: string;
+  city?: string;
+  street?: string;
+  building?: string;
+  house?: string; // Alias
+  apartment?: string;
+  entrance?: string;
+  floor?: string;
+
   status_history?: Array<{
     status: string;
     changed_at: string;

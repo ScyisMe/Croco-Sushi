@@ -94,7 +94,7 @@ export default function CheckoutPage() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setFormData((prev) => ({ ...prev, ...parsed }));
+        setFormData((prev: FormData) => ({ ...prev, ...parsed }));
       } catch {
         // Ігноруємо помилки парсингу
       }
@@ -107,13 +107,61 @@ export default function CheckoutPage() {
     localStorage.setItem("checkout_form", JSON.stringify(dataToSave));
   }, [formData]);
 
+  // Завантаження даних користувача
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) return;
+
+        // Отримання профілю
+        const { data: user } = await apiClient.get("/users/me");
+
+        // Отримання адрес
+        let address: any = null;
+        try {
+          const { data: addresses } = await apiClient.get("/users/me/addresses");
+          if (addresses && addresses.length > 0) {
+            address = addresses.find((a: any) => a.is_default) || addresses[0];
+          }
+        } catch (e) {
+          console.error("Failed to fetch addresses:", e);
+        }
+
+        setFormData((prev: FormData) => {
+          // Якщо поле вже заповнене вручну (і не дефолтне +380), не перезаписуємо його
+          const isPhoneDefault = prev.customer_phone === "+380" || prev.customer_phone === "";
+
+          return {
+            ...prev,
+            customer_name: prev.customer_name || user.name || "",
+            customer_email: prev.customer_email || user.email || "",
+            customer_phone: isPhoneDefault ? (user.phone || "+380") : prev.customer_phone,
+
+            // Адреса
+            city: prev.city === "Львів" && address ? address.city : prev.city,
+            street: prev.street || (address?.street || ""),
+            building: prev.building || (address?.house || ""),
+            apartment: prev.apartment || (address?.apartment || ""),
+            entrance: prev.entrance || (address?.entrance || ""),
+            floor: prev.floor || (address?.floor || ""),
+          };
+        });
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   // Розрахунок доставки
   const deliveryCost = totalAmount >= FREE_DELIVERY_FROM ? 0 : DELIVERY_COST;
   const finalAmount = totalAmount + deliveryCost;
 
   // Оновлення поля форми
   const updateField = (field: keyof FormData, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev: FormData) => ({ ...prev, [field]: value }));
     // Очищаємо помилку при зміні поля
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -178,14 +226,14 @@ export default function CheckoutPage() {
   // Перехід до наступного кроку
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep((prev) => Math.min(prev + 1, 4));
+      setCurrentStep((prev: number) => Math.min(prev + 1, 4));
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   // Перехід до попереднього кроку
   const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+    setCurrentStep((prev: number) => Math.max(prev - 1, 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -226,12 +274,22 @@ export default function CheckoutPage() {
 
       const response = await apiClient.post("/orders", orderData);
 
-      // Очищаємо кошик та збережені дані
+      // Очищаємо кошик на сервері (якщо користувач авторизований)
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          await apiClient.delete("/users/me/cart");
+        } catch (e) {
+          console.error("Failed to clear server cart:", e);
+        }
+      }
+
+      // Очищаємо локальний кошик та збережені дані
       clearCart();
       localStorage.removeItem("checkout_form");
 
       toast.success("Замовлення успішно створено!");
-      router.push(`/orders/${response.data.order_number}/success`);
+      router.push(`/orders/${response.data.order_number}/track`);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
       toast.error(err.response?.data?.detail || "Помилка створення замовлення");
@@ -268,7 +326,7 @@ export default function CheckoutPage() {
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-theme-surface border-b border-theme">
+        <div className="bg-theme-surface">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -291,11 +349,11 @@ export default function CheckoutPage() {
               {STEPS.map((step, index) => (
                 <div key={step.id} className="flex items-center">
                   <div
-                    className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition ${currentStep > step.id
-                      ? "bg-primary border-primary text-white"
+                    className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition duration-300 ${currentStep > step.id
+                      ? "bg-primary-500 border-primary-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]"
                       : currentStep === step.id
-                        ? "border-primary text-primary bg-primary/10"
-                        : "border-theme text-secondary-light"
+                        ? "border-primary-500 text-primary-500 bg-primary-500/10 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                        : "border-white/10 text-gray-500"
                       }`}
                   >
                     {currentStep > step.id ? (
@@ -324,7 +382,7 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
             {/* Форма */}
             <div className="lg:col-span-2 order-2 lg:order-1">
-              <div className="bg-theme-surface rounded-xl shadow-card p-4 sm:p-6 md:p-8">
+              <div className="glass-card rounded-xl p-4 sm:p-6 md:p-8">
                 {/* Крок 1: Контактні дані */}
                 {currentStep === 1 && (
                   <div className="space-y-6">
@@ -613,7 +671,7 @@ export default function CheckoutPage() {
                   {currentStep > 1 ? (
                     <button
                       onClick={prevStep}
-                      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-secondary hover:text-primary transition min-h-[44px]"
+                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-300 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl border border-white/10 hover:bg-white/5 active:scale-95"
                     >
                       <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="hidden xs:inline">Назад</span>
@@ -621,7 +679,7 @@ export default function CheckoutPage() {
                   ) : (
                     <Link
                       href="/menu"
-                      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-secondary hover:text-primary transition min-h-[44px]"
+                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-300 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl border border-white/10 hover:bg-white/5 active:scale-95"
                     >
                       <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="hidden xs:inline">До меню</span>
@@ -629,7 +687,7 @@ export default function CheckoutPage() {
                   )}
 
                   {currentStep < 4 ? (
-                    <button onClick={nextStep} className="btn-primary text-sm sm:text-base flex-1 sm:flex-none sm:min-w-[140px]">
+                    <button onClick={nextStep} className="btn-primary text-sm sm:text-base flex-1 sm:flex-none sm:min-w-[140px] flex items-center justify-center">
                       Далі
                       <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
                     </button>
@@ -637,7 +695,7 @@ export default function CheckoutPage() {
                     <button
                       onClick={handleSubmit}
                       disabled={isLoading}
-                      className="btn-primary text-sm sm:text-base flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-primary text-sm sm:text-base flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     >
                       {isLoading ? (
                         <>
@@ -674,7 +732,7 @@ export default function CheckoutPage() {
 
             {/* Бокова панель - Замовлення (зверху на мобільних) */}
             <div className="lg:col-span-1 order-1 lg:order-2">
-              <div className="bg-theme-surface rounded-xl shadow-card p-4 sm:p-6 lg:sticky lg:top-24">
+              <div className="glass-card rounded-xl p-4 sm:p-6 lg:sticky lg:top-24">
                 <h3 className="text-base sm:text-lg font-bold text-secondary mb-3 sm:mb-4">Ваше замовлення</h3>
 
                 {/* Список товарів - компактний на мобільних */}

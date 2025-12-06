@@ -27,7 +27,7 @@ function RatingStars({ rating, size = "sm" }: { rating: number; size?: "sm" | "m
   };
 
   return (
-    <div className="flex">
+    <div className="flex justify-center">
       {[1, 2, 3, 4, 5].map((star) => (
         <StarSolidIcon
           key={star}
@@ -39,8 +39,31 @@ function RatingStars({ rating, size = "sm" }: { rating: number; size?: "sm" | "m
   );
 }
 
+
+
+// Компонент модального вікна для перегляду фото
+function ImageModal({ src, isOpen, onClose }: { src: string; isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 text-white hover:text-gray-300 transition"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center p-2" onClick={(e) => e.stopPropagation()}>
+        <img src={src} alt="Review full size" className="max-w-full max-h-full object-contain rounded-lg shadow-2xl" />
+      </div>
+    </div>
+  );
+}
+
 // Компонент картки відгуку
-function ReviewCard({ review }: { review: Review }) {
+function ReviewCard({ review, onImageClick }: { review: Review; onImageClick: (src: string) => void }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((state) => state.locale);
   const dateLocale = locale === "ru" ? ru : uk;
@@ -55,7 +78,7 @@ function ReviewCard({ review }: { review: Review }) {
     : "АК";
 
   return (
-    <div className="bg-surface rounded-xl shadow-card p-6 border border-border hover:border-primary/30 transition-colors">
+    <div className="bg-surface rounded-xl shadow-card p-6 border border-border hover:border-primary/30 transition-colors h-full flex flex-col">
       {/* Заголовок */}
       <div className="flex items-start gap-4 mb-4">
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">
@@ -77,21 +100,44 @@ function ReviewCard({ review }: { review: Review }) {
         </time>
       </div>
 
-      {/* Коментар */}
-      <p className="text-foreground-secondary mb-4">{review.comment}</p>
+      {/* Коментар: flex-grow pushing footer down */}
+      <div className="flex-grow">
+        <p className="text-foreground-secondary mb-4">{review.comment}</p>
+
+        {/* Фотографії відгуку */}
+        {review.images && review.images.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {review.images.map((img, idx) => (
+              <div
+                key={idx}
+                className="relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 active:scale-95 transition-all border border-border"
+                onClick={() => onImageClick(img)}
+              >
+                <img
+                  src={img}
+                  alt={`Review attachment ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Відповідь адміністрації */}
       {review.reply_text && (
-        <div className="mt-4 p-4 bg-primary/10 rounded-lg border-l-4 border-primary">
-          <p className="font-semibold text-primary text-sm mb-1">
-            {t("reviews.replyFromRestaurant")}
-          </p>
-          <p className="text-foreground-secondary text-sm">{review.reply_text}</p>
-          {review.reply_date && (
-            <time className="text-xs text-foreground-muted mt-2 block">
-              {format(new Date(review.reply_date), "dd MMM yyyy", { locale: dateLocale })}
-            </time>
-          )}
+        <div className="mt-auto pt-4">
+          <div className="p-4 bg-primary/10 rounded-lg border-l-4 border-primary">
+            <p className="font-semibold text-primary text-sm mb-1">
+              {t("reviews.replyFromRestaurant")}
+            </p>
+            <p className="text-foreground-secondary text-sm">{review.reply_text}</p>
+            {review.reply_date && (
+              <time className="text-xs text-foreground-muted mt-2 block">
+                {format(new Date(review.reply_date), "dd MMM yyyy", { locale: dateLocale })}
+              </time>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -101,7 +147,7 @@ function ReviewCard({ review }: { review: Review }) {
 // Skeleton для відгуку
 function ReviewSkeleton() {
   return (
-    <div className="bg-theme-surface rounded-xl shadow-card p-6">
+    <div className="bg-theme-surface rounded-xl shadow-card p-6 h-full flex flex-col">
       <div className="flex items-start gap-4 mb-4">
         <div className="w-12 h-12 rounded-full skeleton" />
         <div className="flex-1">
@@ -109,7 +155,7 @@ function ReviewSkeleton() {
           <div className="h-4 skeleton w-24 rounded" />
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2 flex-grow">
         <div className="h-4 skeleton w-full rounded" />
         <div className="h-4 skeleton w-3/4 rounded" />
       </div>
@@ -126,6 +172,9 @@ export default function ReviewsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
+
+  // Image modal state
+  const [modalImage, setModalImage] = useState<string | null>(null);
 
   // Локалізовані фільтри рейтингу
   const RATING_FILTERS = useMemo(() => [
@@ -334,9 +383,13 @@ export default function ReviewsPage() {
               </p>
             </div>
           ) : filteredReviews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {filteredReviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  onImageClick={(src) => setModalImage(src)}
+                />
               ))}
             </div>
           ) : (
@@ -442,11 +495,16 @@ export default function ReviewsPage() {
 
       <Footer />
 
-      {/* Форма відгуку */}
       <ReviewForm
         isOpen={isReviewFormOpen}
         onClose={() => setIsReviewFormOpen(false)}
         onSubmit={handleSubmitReview}
+      />
+
+      <ImageModal
+        isOpen={!!modalImage}
+        src={modalImage || ""}
+        onClose={() => setModalImage(null)}
       />
     </div>
   );
