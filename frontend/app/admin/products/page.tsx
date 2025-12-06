@@ -128,7 +128,7 @@ export default function AdminProductsPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -145,7 +145,7 @@ export default function AdminProductsPage() {
         </div>
         <Link
           href="/admin/products/new"
-          className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="inline-flex items-center justify-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition"
         >
           <PlusIcon className="w-5 h-5 mr-2" />
           Додати товар
@@ -162,7 +162,7 @@ export default function AdminProductsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Пошук товарів..."
-              className="w-full pl-10 pr-4 py-2 bg-surface border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-500"
+              className="w-full pl-10 pr-4 py-2 bg-surface border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -172,7 +172,7 @@ export default function AdminProductsPage() {
               onChange={(e) =>
                 setSelectedCategory(e.target.value ? Number(e.target.value) : null)
               }
-              className="px-4 py-2 bg-surface border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="px-4 py-2 bg-surface border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-surface-card [&>option]:text-white"
             >
               <option value="">Всі категорії</option>
               {categories.map((category) => (
@@ -253,7 +253,7 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => togglePopular(product)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition ${product.is_popular
-                          ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
+                          ? "bg-accent-gold/20 text-accent-gold hover:bg-accent-gold/30"
                           : "bg-white/5 text-gray-400 hover:bg-white/10"
                           }`}
                       >
@@ -264,7 +264,7 @@ export default function AdminProductsPage() {
                       <button
                         onClick={() => toggleAvailable(product)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition ${product.is_available
-                          ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                          ? "bg-primary-500/20 text-primary-500 hover:bg-primary-500/30"
                           : "bg-white/5 text-gray-400 hover:bg-white/10"
                           }`}
                       >
@@ -275,7 +275,7 @@ export default function AdminProductsPage() {
                       <div className="flex items-center justify-end space-x-2">
                         <Link
                           href={`/admin/products/${product.id}/edit`}
-                          className="p-2 text-gray-400 hover:text-green-400 hover:bg-green-500/10 rounded-lg transition"
+                          className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-500/10 rounded-lg transition"
                         >
                           <PencilIcon className="w-5 h-5" />
                         </Link>

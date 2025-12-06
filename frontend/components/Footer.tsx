@@ -40,7 +40,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               {/* Social Icons */}
-              {["instagram", "facebook", "tiktok"].map((social) => (
+              {["telegram", "instagram"].map((social) => (
                 <a
                   key={social}
                   href={`#${social}`}

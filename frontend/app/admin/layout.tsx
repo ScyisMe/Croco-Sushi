@@ -130,8 +130,8 @@ export default function AdminLayout({
   // Показуємо завантаження
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -147,12 +147,12 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
+    <div className="min-h-screen bg-surface text-gray-100">
       {/* Мобільна кнопка меню */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 bg-gray-800 rounded-lg shadow-md text-gray-200 hover:text-green-500"
+          className="p-2 bg-surface-card rounded-lg shadow-md text-gray-200 hover:text-primary-500"
         >
           {sidebarOpen ? (
             <XMarkIcon className="w-6 h-6" />
@@ -172,15 +172,15 @@ export default function AdminLayout({
 
       {/* Бокова панель */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 shadow-xl transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface-card shadow-xl transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         <div className="flex flex-col h-full">
           {/* Логотип видалено за запитом */}
-          <div className="p-6 border-b border-gray-700">
+          <div className="p-6 border-b border-white/10">
             <Link href="/admin" className="flex items-center space-x-2">
               <div>
-                <span className="text-xl font-bold text-green-500">Croco Admin</span>
+                <span className="text-xl font-bold text-primary-500">Croco Admin</span>
               </div>
             </Link>
           </div>
@@ -196,8 +196,8 @@ export default function AdminLayout({
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${isActive
-                    ? "bg-gray-700 text-green-500 font-medium"
-                    : "text-gray-400 hover:bg-gray-700 hover:text-green-500"
+                    ? "bg-white/10 text-primary-500 font-medium"
+                    : "text-gray-400 hover:bg-white/5 hover:text-primary-500"
                     }`}
                 >
                   <item.icon className="w-5 h-5" />
@@ -208,10 +208,10 @@ export default function AdminLayout({
           </nav>
 
           {/* Кнопка виходу */}
-          <div className="p-4 border-t border-gray-700">
+          <div className="p-4 border-t border-white/10">
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-3 px-4 py-3 w-full text-gray-400 hover:bg-gray-700 hover:text-red-400 rounded-lg transition"
+              className="flex items-center space-x-3 px-4 py-3 w-full text-gray-400 hover:bg-white/5 hover:text-red-400 rounded-lg transition"
             >
               <ArrowRightOnRectangleIcon className="w-5 h-5" />
               <span>Вийти</span>

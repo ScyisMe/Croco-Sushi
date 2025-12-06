@@ -78,16 +78,16 @@ export default function UsersPage() {
   const columns = [
     columnHelper.accessor("id", {
       header: "ID",
-      cell: (info) => <span className="text-gray-500">#{info.getValue()}</span>,
+      cell: (info) => <span className="text-gray-400">#{info.getValue()}</span>,
     }),
     columnHelper.accessor("name", {
       header: "Ім'я",
       cell: (info) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+          <div className="w-8 h-8 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-500 font-bold">
             {info.getValue()?.charAt(0) || "?"}
           </div>
-          <div className="font-medium text-gray-900">{info.getValue() || "Без імені"}</div>
+          <div className="font-medium text-white">{info.getValue() || "Без імені"}</div>
         </div>
       ),
     }),
@@ -103,11 +103,11 @@ export default function UsersPage() {
       header: "Роль",
       cell: (info) => {
         const role = info.getValue();
-        const colors = {
-          admin: "bg-purple-100 text-purple-800",
-          manager: "bg-blue-100 text-blue-800",
-          courier: "bg-yellow-100 text-yellow-800",
-          client: "bg-gray-100 text-gray-800",
+        const colors: Record<string, string> = {
+          admin: "bg-purple-500/20 text-purple-300",
+          manager: "bg-blue-500/20 text-blue-300",
+          courier: "bg-accent-gold/20 text-accent-gold",
+          client: "bg-white/10 text-gray-300",
         };
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[role] || colors.client}`}>
@@ -118,7 +118,7 @@ export default function UsersPage() {
     }),
     columnHelper.accessor("bonus_balance", {
       header: "Бонуси",
-      cell: (info) => <span className="font-medium text-primary">{info.getValue()} ₴</span>,
+      cell: (info) => <span className="font-medium text-primary-500">{info.getValue()} ₴</span>,
     }),
     columnHelper.accessor("is_active", {
       header: "Статус",
@@ -128,7 +128,7 @@ export default function UsersPage() {
             <CheckCircleIcon className="w-4 h-4" /> Активний
           </span>
         ) : (
-          <span className="flex items-center gap-1 text-red-600 text-sm">
+          <span className="flex items-center gap-1 text-red-500 text-sm">
             <XCircleIcon className="w-4 h-4" /> Заблокований
           </span>
         )
@@ -138,8 +138,8 @@ export default function UsersPage() {
       id: "actions",
       cell: (info) => (
         <Menu as="div" className="relative inline-block text-left">
-          <Menu.Button className="p-2 hover:bg-gray-100 rounded-full transition">
-            <EllipsisVerticalIcon className="w-5 h-5 text-gray-500" />
+          <Menu.Button className="p-2 hover:bg-white/10 rounded-full transition">
+            <EllipsisVerticalIcon className="w-5 h-5 text-gray-400" />
           </Menu.Button>
           <Transition
             as={Fragment}
@@ -150,14 +150,14 @@ export default function UsersPage() {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-surface-card border border-white/10 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
                     <Link
                       href={`/admin/users/${info.row.original.id}`}
-                      className={`${active ? "bg-gray-100" : ""
-                        } block px-4 py-2 text-sm text-gray-700`}
+                      className={`${active ? "bg-white/5" : ""
+                        } block px-4 py-2 text-sm text-gray-300 hover:text-white`}
                     >
                       Редагувати
                     </Link>
@@ -170,8 +170,8 @@ export default function UsersPage() {
                         id: info.row.original.id,
                         isActive: info.row.original.is_active
                       })}
-                      className={`${active ? "bg-gray-100" : ""
-                        } block w-full text-left px-4 py-2 text-sm ${info.row.original.is_active ? "text-red-600" : "text-green-600"
+                      className={`${active ? "bg-white/5" : ""
+                        } block w-full text-left px-4 py-2 text-sm ${info.row.original.is_active ? "text-red-500" : "text-green-500"
                         }`}
                     >
                       {info.row.original.is_active ? "Заблокувати" : "Розблокувати"}
@@ -207,8 +207,8 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Користувачі</h1>
-          <p className="text-gray-500">Управління клієнтами та співробітниками</p>
+          <h1 className="text-2xl font-bold text-white">Користувачі</h1>
+          <p className="text-gray-400">Управління клієнтами та співробітниками</p>
         </div>
         <Link
           href="/admin/users/new"
@@ -220,7 +220,7 @@ export default function UsersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4">
+      <div className="bg-surface-card p-4 rounded-xl shadow-sm border border-white/10 flex flex-col md:flex-row gap-4">
         <div className="relative flex-grow">
           <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
@@ -228,14 +228,14 @@ export default function UsersPage() {
             placeholder="Пошук за ім'ям, телефоном або email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition placeholder-gray-500"
           />
         </div>
         <div className="flex gap-4">
           <select
             value={roleFilter || ""}
             onChange={(e) => setRoleFilter(e.target.value || null)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white"
+            className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none [&>option]:bg-surface-card [&>option]:text-white"
           >
             <option value="">Всі ролі</option>
             <option value="client">Клієнт</option>
@@ -249,7 +249,7 @@ export default function UsersPage() {
               const val = e.target.value;
               setStatusFilter(val === "" ? null : val === "true");
             }}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white"
+            className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none [&>option]:bg-surface-card [&>option]:text-white"
           >
             <option value="">Всі статуси</option>
             <option value="true">Активні</option>
@@ -259,16 +259,16 @@ export default function UsersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-surface-card rounded-xl shadow-sm border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-white/5 border-b border-white/10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition"
+                      className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider cursor-pointer hover:bg-white/10 transition"
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export default function UsersPage() {
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-white/10">
               {isLoading ? (
                 // Skeleton loading
                 [...Array(5)].map((_, i) => (
@@ -306,9 +306,9 @@ export default function UsersPage() {
                 </tr>
               ) : (
                 table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50 transition">
+                  <tr key={row.id} className="hover:bg-white/5 transition">
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4 text-sm text-gray-700">
+                      <td key={cell.id} className="px-6 py-4 text-sm text-gray-300">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -323,24 +323,24 @@ export default function UsersPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 transition"
+              className="px-3 py-1 border border-white/10 rounded-lg text-gray-300 disabled:opacity-50 hover:bg-white/5 transition"
             >
               Попередня
             </button>
             <button
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()} // This might be always true if pageCount is -1, need to handle better
-              className="px-3 py-1 border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 transition"
+              className="px-3 py-1 border border-white/10 rounded-lg text-gray-300 disabled:opacity-50 hover:bg-white/5 transition"
             >
               Наступна
             </button>
           </div>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-400">
             Сторінка {table.getState().pagination.pageIndex + 1}
           </span>
         </div>

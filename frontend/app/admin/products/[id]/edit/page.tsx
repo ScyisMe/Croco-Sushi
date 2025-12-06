@@ -125,7 +125,7 @@ export default function EditProductPage() {
   if (isFetching) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -136,25 +136,25 @@ export default function EditProductPage() {
       <div className="flex items-center space-x-4">
         <Link
           href="/admin/products"
-          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+          className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition"
         >
           <ArrowLeftIcon className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Редагування товару</h1>
-          <p className="text-gray-600">Зміна даних товару &quot;{formData.name}&quot;</p>
+          <h1 className="text-2xl font-bold text-white">Редагування товару</h1>
+          <p className="text-gray-400">Зміна даних товару &quot;{formData.name}&quot;</p>
         </div>
       </div>
 
       {/* Форма */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 space-y-6"
+        className="bg-surface-card rounded-xl shadow-sm p-6 border border-white/10 space-y-6"
       >
         {/* Основна інформація */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Назва товару *
             </label>
             <input
@@ -162,13 +162,13 @@ export default function EditProductPage() {
               value={formData.name}
               onChange={handleNameChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="Наприклад: Філадельфія Класік"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Slug (URL) *
             </label>
             <input
@@ -178,13 +178,13 @@ export default function EditProductPage() {
                 setFormData({ ...formData, slug: e.target.value })
               }
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="filadelfiya-klasik"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Категорія *
             </label>
             <select
@@ -193,7 +193,7 @@ export default function EditProductPage() {
                 setFormData({ ...formData, category_id: Number(e.target.value) })
               }
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-surface-card [&>option]:text-white"
             >
               <option value={0} disabled>
                 Виберіть категорію
@@ -209,7 +209,7 @@ export default function EditProductPage() {
 
         {/* Опис */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Опис
           </label>
           <textarea
@@ -218,14 +218,14 @@ export default function EditProductPage() {
               setFormData({ ...formData, description: e.target.value })
             }
             rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             placeholder="Опис товару..."
           />
         </div>
 
         {/* Склад */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Інгредієнти
           </label>
           <textarea
@@ -234,7 +234,7 @@ export default function EditProductPage() {
               setFormData({ ...formData, ingredients: e.target.value })
             }
             rows={2}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             placeholder="Рис, лосось, сир філадельфія, огірок..."
           />
         </div>
@@ -242,7 +242,7 @@ export default function EditProductPage() {
         {/* Ціна та вага */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Ціна (грн) *
             </label>
             <input
@@ -253,12 +253,12 @@ export default function EditProductPage() {
               }
               required
               min={0}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Стара ціна (грн)
             </label>
             <input
@@ -271,13 +271,13 @@ export default function EditProductPage() {
                 })
               }
               min={0}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="Для знижки"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Вага
             </label>
             <input
@@ -286,7 +286,7 @@ export default function EditProductPage() {
               onChange={(e) =>
                 setFormData({ ...formData, weight: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="250 г / 8 шт"
             />
           </div>
@@ -294,7 +294,7 @@ export default function EditProductPage() {
 
         {/* Зображення */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             URL зображення
           </label>
           <div className="flex space-x-4">
@@ -304,7 +304,7 @@ export default function EditProductPage() {
               onChange={(e) =>
                 setFormData({ ...formData, image_url: e.target.value })
               }
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="https://example.com/image.jpg"
             />
             {formData.image_url && (
@@ -331,8 +331,8 @@ export default function EditProductPage() {
               }
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-            <span className="ml-3 text-sm font-medium text-gray-700">
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
               В наявності
             </span>
           </label>
@@ -346,25 +346,25 @@ export default function EditProductPage() {
               }
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
-            <span className="ml-3 text-sm font-medium text-gray-700">
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-gold"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
               ⭐ Популярний товар
             </span>
           </label>
         </div>
 
         {/* Кнопки */}
-        <div className="flex justify-end space-x-3 pt-4 border-t">
+        <div className="flex justify-end space-x-3 pt-4 border-t border-white/10">
           <Link
             href="/admin/products"
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            className="px-4 py-2 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition"
           >
             Скасувати
           </Link>
           <button
             type="submit"
             disabled={isLoading}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+            className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition disabled:opacity-50"
           >
             {isLoading ? "Збереження..." : "Зберегти зміни"}
           </button>

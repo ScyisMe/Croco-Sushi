@@ -84,7 +84,7 @@ export default function AdminCategoriesPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -94,14 +94,14 @@ export default function AdminCategoriesPage() {
       {/* Заголовок */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Категорії</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold text-white">Категорії</h1>
+          <p className="text-gray-400">
             Управління категоріями товарів ({categories.length})
           </p>
         </div>
         <Link
           href="/admin/categories/new"
-          className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="inline-flex items-center justify-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition"
         >
           <PlusIcon className="w-5 h-5 mr-2" />
           Додати категорію
@@ -109,21 +109,21 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* Пошук */}
-      <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+      <div className="bg-surface-card rounded-xl shadow-sm p-4 border border-white/10">
         <div className="relative">
-          <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Пошук категорій..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 bg-surface/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
           />
         </div>
       </div>
 
       {/* Таблиця категорій */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-surface-card rounded-xl shadow-sm border border-white/10 overflow-hidden">
         {filteredCategories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">Категорій не знайдено</p>
@@ -131,8 +131,8 @@ export default function AdminCategoriesPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr className="text-left text-sm text-gray-600">
+              <thead className="bg-surface/5 border-b border-white/10">
+                <tr className="text-left text-sm text-gray-400">
                   <th className="px-6 py-4 font-medium">Назва</th>
                   <th className="px-6 py-4 font-medium">Slug</th>
                   <th className="px-6 py-4 font-medium">Порядок</th>
@@ -141,9 +141,9 @@ export default function AdminCategoriesPage() {
                   <th className="px-6 py-4 font-medium text-right">Дії</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/10">
                 {filteredCategories.map((category) => (
-                  <tr key={category.id} className="hover:bg-gray-50">
+                  <tr key={category.id} className="hover:bg-white/5">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         {category.image_url && (
@@ -155,24 +155,24 @@ export default function AdminCategoriesPage() {
                             className="w-10 h-10 rounded-lg object-cover"
                           />
                         )}
-                        <span className="font-medium text-gray-800">
+                        <span className="font-medium text-white">
                           {category.name}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-gray-600">{category.slug}</td>
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-gray-400">{category.slug}</td>
+                    <td className="px-6 py-4 text-gray-400">
                       {category.sort_order}
                     </td>
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-gray-400">
                       {category.products_count || 0}
                     </td>
                     <td className="px-6 py-4">
                       <button
                         onClick={() => toggleActive(category)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition ${category.is_active
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+                          : "bg-white/5 text-gray-400 hover:bg-white/10"
                           }`}
                       >
                         {category.is_active ? "Активна" : "Неактивна"}
@@ -182,13 +182,13 @@ export default function AdminCategoriesPage() {
                       <div className="flex items-center justify-end space-x-2">
                         <Link
                           href={`/admin/categories/${category.id}/edit`}
-                          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+                          className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-500/10 rounded-lg transition"
                         >
                           <PencilIcon className="w-5 h-5" />
                         </Link>
                         <button
                           onClick={() => setDeleteModalId(category.id)}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                          className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
                         >
                           <TrashIcon className="w-5 h-5" />
                         </button>
@@ -204,19 +204,19 @@ export default function AdminCategoriesPage() {
 
       {/* Модальне вікно підтвердження видалення */}
       {deleteModalId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="bg-surface-card border border-white/10 rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-white mb-2">
               Видалити категорію?
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-400 mb-6">
               Ця дія незворотна. Всі товари цієї категорії залишаться без
               категорії.
             </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setDeleteModalId(null)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                className="px-4 py-2 text-gray-400 hover:bg-white/5 rounded-lg transition"
               >
                 Скасувати
               </button>
