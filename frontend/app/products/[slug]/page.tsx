@@ -61,7 +61,7 @@ export default function ProductPage() {
         try {
           const response = await apiClient.get("/users/me/favorites");
           const favorites = response.data;
-          setIsFavorite(favorites.some((f: any) => f.product_id === product.id));
+          setIsFavorite(favorites.some((f: any) => f.product?.id === product.id));
         } catch (e) {
           // Ignore error if not logged in
         }
@@ -219,8 +219,8 @@ export default function ProductPage() {
                         key={size.id}
                         onClick={() => setSelectedSize(size)}
                         className={`px-4 py-2 rounded-xl border transition-all ${selectedSize?.id === size.id
-                            ? "bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/25"
-                            : "bg-transparent text-gray-400 border-white/10 hover:border-white/30 hover:text-white"
+                          ? "bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/25"
+                          : "bg-transparent text-gray-400 border-white/10 hover:border-white/30 hover:text-white"
                           }`}
                       >
                         {size.name}
@@ -276,8 +276,8 @@ export default function ProductPage() {
                   <button
                     onClick={toggleFavorite}
                     className={`w-14 h-14 flex items-center justify-center rounded-xl border transition-all ${isFavorite
-                        ? "bg-accent-red text-white border-accent-red shadow-lg shadow-accent-red/25"
-                        : "bg-transparent text-white border-white/10 hover:bg-white/5"
+                      ? "bg-accent-red text-white border-accent-red shadow-lg shadow-accent-red/25"
+                      : "bg-transparent text-white border-white/10 hover:bg-white/5"
                       }`}
                   >
                     {isFavorite ? (

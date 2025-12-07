@@ -31,13 +31,8 @@ def send_email(
         True якщо успішно, False якщо помилка
     """
     try:
-        # TODO: Інтеграція з SMTP провайдером
-        # Приклад використання:
-        # from app.core.email import send_email_smtp
-        # return send_email_smtp(to_email, subject, body, html_body, attachments)
-        
-        logger.info(f"Email відправлено: {to_email} - {subject}")
-        return True
+        from app.core.email import send_email_smtp
+        return send_email_smtp(to_email, subject, body, html_body, attachments)
     
     except Exception as e:
         logger.error(f"Помилка відправки email: {e}", exc_info=True)
@@ -101,4 +96,23 @@ def send_password_reset(email: str, reset_code: str) -> bool:
     # Виконуємо задачу асинхронно (не блокуємо worker)
     send_email.delay(email, subject, body)
     return True  # Задача поставлена в чергу
+
+
+@celery_app.task(name="app.tasks.email.send_welcome_email")
+def send_welcome_email(email: str, name: str) -> bool:
+    """Відправка вітального листа при реєстрації
+    
+    Args:
+        email: Email користувача
+        name: Ім'я користувача
+    
+    Returns:
+        True якщо успішно
+    """
+    subject = "Вітаємо в Croco Sushi!"
+    body = f"Вітаємо, {name}!\n\nДякуємо за реєстрацію в Croco Sushi. Тепер ви можете замовляти улюблені страви ще швидше та зручніше.\n\nЗ повагою,\nКоманда Croco Sushi"
+    
+    # Виконуємо задачу асинхронно
+    send_email.delay(email, subject, body)
+    return True
 

@@ -62,6 +62,8 @@ from app.models import (
     PromoCode,
     Favorite,
     AuditLog,
+    Cart,
+    CartItem,
 )
 
 # Встановлюємо метадату для автогенерації міграцій

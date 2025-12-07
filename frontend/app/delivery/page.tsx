@@ -193,7 +193,7 @@ export default function DeliveryPage() {
               {LOCALIZED_FEATURES.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-theme-surface rounded-xl shadow-card p-6 text-center"
+                  className="bg-theme-surface rounded-xl shadow-card p-6 text-center border border-white/10"
                 >
                   <div className="text-4xl mb-3">{feature.icon}</div>
                   <h3 className="font-bold text-secondary mb-1">{feature.title}</h3>

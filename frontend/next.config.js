@@ -24,6 +24,10 @@ const nextConfig = {
         source: '/uploads/:path*',
         destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/static/uploads/:path*`,
       },
+      {
+        source: '/static/uploads/:path*',
+        destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/static/uploads/:path*`,
+      },
     ];
   },
 };

@@ -26,6 +26,7 @@ from app.schemas.order import OrderResponse
 from app.schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
 from app.models.cart import Cart, CartItem
 from app.schemas.cart import CartResponse, CartSave
+from app.schemas.favorite import FavoriteResponse
 
 router = APIRouter()
 
@@ -595,7 +596,7 @@ async def delete_my_review(
 
 # ========== Обране (Favorites) ==========
 
-@router.get("/me/favorites", response_model=List[dict])
+@router.get("/me/favorites", response_model=List[FavoriteResponse])
 async def get_my_favorites(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
@@ -608,7 +609,7 @@ async def get_my_favorites(
         .order_by(Favorite.created_at.desc())
     )
     favorites = result.scalars().all()
-    return [{"id": fav.id, "product": fav.product, "created_at": fav.created_at} for fav in favorites]
+    return favorites
 
 
 @router.post("/me/favorites/{product_id}", status_code=status.HTTP_201_CREATED)

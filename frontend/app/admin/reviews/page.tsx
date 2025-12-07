@@ -184,8 +184,8 @@ export default function AdminReviewsPage() {
                                 <p className="text-gray-300 whitespace-pre-line">{review.comment}</p>
 
                                 {review.admin_reply && (
-                                    <div className="mt-4 ml-4 pl-4 border-l-4 border-green-500 bg-surface p-4 rounded-r-lg">
-                                        <p className="text-sm font-semibold text-green-400 mb-1">Відповідь адміністратора:</p>
+                                    <div className="mt-4 ml-4 pl-4 border-l-4 border-primary-500 bg-white/5 p-4 rounded-r-lg">
+                                        <p className="text-sm font-semibold text-primary-500 mb-1">Відповідь адміністратора:</p>
                                         <p className="text-gray-400">{review.admin_reply}</p>
                                     </div>
                                 )}
@@ -201,7 +201,7 @@ export default function AdminReviewsPage() {
                     <div className="bg-surface-card border border-white/10 rounded-xl shadow-lg max-w-lg w-full p-6">
                         <h3 className="text-lg font-bold text-white mb-4">Відповідь на відгук</h3>
                         <textarea
-                            className="w-full h-32 p-3 bg-surface border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none placeholder-gray-500"
+                            className="w-full h-32 p-3 bg-white/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none placeholder-gray-500"
                             placeholder="Введіть вашу відповідь..."
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}

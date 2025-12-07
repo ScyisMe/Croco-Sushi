@@ -130,6 +130,15 @@ async def register(
         await db.commit()
         await db.refresh(new_user)
         
+        # Send welcome email
+        if new_user.email:
+            try:
+                from app.tasks.email import send_welcome_email
+                send_welcome_email.delay(new_user.email, new_user.name)
+            except Exception as e:
+                # Don't fail registration if email fails
+                print(f"Failed to send welcome email: {e}")
+        
         return new_user
     
     except IntegrityError as e:

@@ -73,7 +73,13 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
         }, 2000);
       } else {
         const data = await response.json();
-        setError(data.detail || t("callback.error"));
+        // Handle Pydantic validation errors (array of objects) or string errors
+        const errorMessage = typeof data.detail === 'string'
+          ? data.detail
+          : Array.isArray(data.detail)
+            ? data.detail.map((e: any) => e.msg).join(', ')
+            : t("callback.error");
+        setError(errorMessage);
       }
     } catch {
       setError(t("callback.error"));

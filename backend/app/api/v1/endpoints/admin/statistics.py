@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from app.database import get_db
 from app.core.dependencies import get_current_admin_user
 from app.models.user import User
-from app.models.order import Order
+from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.category import Category
 
@@ -170,9 +170,38 @@ async def get_products_statistics(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_admin_user)
 ):
-    """Статистика по товарах"""
-    # TODO: Реалізувати топ товарів, популярні категорії
-    return {"message": "Статистика по товарах"}
+    # Top 5 products by sales quantity
+    # Join OrderItem with Order to filter by status if needed
+    query = (
+        select(
+            Product.id,
+            Product.name,
+            Product.image_url,
+            func.sum(OrderItem.quantity).label("sales"),
+            func.sum(OrderItem.price * OrderItem.quantity).label("revenue")
+        )
+        .join(OrderItem.product)
+        .join(OrderItem.order)
+        .where(Order.status != "cancelled")
+        .group_by(Product.id, Product.name, Product.image_url)
+        .order_by(func.sum(OrderItem.quantity).desc())
+        .limit(5)
+    )
+    
+    result = await db.execute(query)
+    rows = result.all()
+    
+    products_data = []
+    for row in rows:
+        products_data.append({
+            "id": row.id,
+            "name": row.name,
+            "image_url": row.image_url,
+            "sales": row.sales,
+            "revenue": row.revenue
+        })
+        
+    return products_data
 
 
 @router.get("/customers")
@@ -192,9 +221,52 @@ async def get_revenue_statistics(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_admin_user)
 ):
-    """Статистика по виручці"""
-    # TODO: Реалізувати детальну статистику виручки (графіки, періоди)
-    return {"message": "Статистика по виручці", "date_from": date_from, "date_to": date_to}
+    """Статистика по виручці (останні 7 днів за замовчуванням)"""
+    if not date_to:
+        date_to = datetime.now(timezone.utc).date()
+    if not date_from:
+        date_from = date_to - timedelta(days=6)
+        
+    # Generate date range list to fill missing days with 0
+    date_list = []
+    current_date = date_from
+    while current_date <= date_to:
+        date_list.append(current_date)
+        current_date += timedelta(days=1)
+        
+    query = (
+        select(
+            func.date(Order.created_at).label("date"),
+            func.sum(Order.total_amount).label("sales"),
+            func.count(Order.id).label("orders")
+        )
+        .where(
+            and_(
+                func.date(Order.created_at) >= date_from,
+                func.date(Order.created_at) <= date_to,
+                Order.status != "cancelled"
+            )
+        )
+        .group_by(func.date(Order.created_at))
+        .order_by(func.date(Order.created_at))
+    )
+    
+    result = await db.execute(query)
+    rows = result.all()
+    
+    # Create a dict for easier lookup
+    data_map = {row.date: {"sales": row.sales, "orders": row.orders} for row in rows}
+    
+    chart_data = []
+    for d in date_list:
+        day_data = data_map.get(d, {"sales": Decimal("0"), "orders": 0})
+        chart_data.append({
+            "date": d.strftime("%d.%m"),
+            "sales": day_data["sales"],
+            "orders": day_data["orders"]
+        })
+        
+    return chart_data
 
 
 @router.post("/export")

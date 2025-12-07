@@ -31,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uk">
-      <body className={`${inter.variable} ${playfair.variable} ${notoSansJP.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
+    <html lang="uk" suppressHydrationWarning>
+      <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} ${notoSansJP.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
           {children}
           <BottomNav />

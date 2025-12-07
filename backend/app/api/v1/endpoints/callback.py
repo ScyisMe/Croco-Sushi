@@ -86,6 +86,22 @@ async def request_callback(
         }
         redis_client.lpush(callback_key, json.dumps(callback_data_dict))
         redis_client.expire(callback_key, 86400)  # Зберігаємо 24 години
+
+    # Відправка email повідомлення адміністратору
+    try:
+        from app.tasks.email import send_email
+        from app.core.config import settings
+        
+        # Використовуємо EMAIL_FROM як отримувача (або можна додати ADMIN_EMAIL в налаштування)
+        recipient = settings.EMAIL_FROM or "admin@crocosushi.com"
+        
+        subject = f"📞 Запит на передзвін: {callback_data.phone}"
+        body = f"Новий запит на передзвін!\n\nТелефон: {callback_data.phone}\nІм'я: {callback_data.name or 'Не вказано'}\nIP: {client_ip}\nЧас: {datetime.now(timezone.utc)}"
+        
+        send_email.delay(recipient, subject, body)
+    except Exception as e:
+        # Логуємо помилку, але не перериваємо запит
+        print(f"Failed to send callback email: {e}")
     
     return CallbackResponse(
         success=True,

@@ -101,8 +101,17 @@ class EmailService:
             
             # Відправляємо
             with smtplib.SMTP(self.smtp_server, self.smtp_port) as server:
-                server.starttls()
-                server.login(self.smtp_user, self.smtp_password)
+                # Try STARTTLS
+                try:
+                    server.starttls()
+                except smtplib.SMTPNotSupportedError:
+                    pass  # Skip if server doesn't support it (e.g. MailDev)
+                except Exception as e:
+                    logger.warning(f"SMTP STARTTLS error: {e}")
+
+                if self.smtp_user and self.smtp_password:
+                    server.login(self.smtp_user, self.smtp_password)
+                
                 server.send_message(msg)
             
             return True
@@ -114,6 +123,14 @@ class EmailService:
 
 # Глобальний інстанс
 email_service = EmailService()
+email_service.configure(
+    smtp_server=settings.SMTP_SERVER,
+    smtp_port=settings.SMTP_PORT,
+    smtp_user=settings.SMTP_USER,
+    smtp_password=settings.SMTP_PASSWORD,
+    from_email=settings.EMAIL_FROM,
+    from_name=settings.EMAIL_FROM_NAME
+)
 
 
 def send_email_smtp(

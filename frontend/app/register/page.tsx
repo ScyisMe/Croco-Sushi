@@ -179,7 +179,7 @@ export default function RegisterPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background-secondary transition-colors">
+    <div suppressHydrationWarning className="min-h-screen flex flex-col bg-background-secondary transition-colors">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-md mx-auto">
