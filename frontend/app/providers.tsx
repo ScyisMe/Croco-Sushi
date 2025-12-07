@@ -19,8 +19,9 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   // щоб уникнути flash of wrong theme (FOUC)
   // Використовуємо opacity замість visibility для кращого UX
   return (
-    <div 
-      style={{ 
+    <div
+      suppressHydrationWarning
+      style={{
         opacity: mounted ? 1 : 0,
         transition: 'opacity 0.1s ease-in-out'
       }}

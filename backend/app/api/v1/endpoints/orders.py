@@ -112,10 +112,69 @@ async def create_order(
     
     if total_amount > MAX_ORDER_AMOUNT:
         raise BadRequestException(f"Максимальна сума замовлення: {MAX_ORDER_AMOUNT} грн")
+        
+    # --- Обробка промокоду ---
+    promo_discount = Decimal("0.00")
+    promo_code_id = None
+    promo_code_obj_name = None
+    
+    if order_data.promo_code:
+        # Імпортуємо тут щоб уникнути циклічних імпортів (хоча вони в різних файлах, але про всяк випадок)
+        from app.models.promo_code import PromoCode
+        
+        # Нормалізація коду
+        code = order_data.promo_code.strip()
+        
+        # Пошук промокоду
+        promo_result = await db.execute(select(PromoCode).where(PromoCode.code == code))
+        promo = promo_result.scalar_one_or_none()
+        
+        if not promo:
+            raise NotFoundException(f"Промокод '{code}' не знайдено")
+            
+        if not promo.is_active:
+            raise BadRequestException(f"Промокод '{code}' неактивний")
+            
+        now = datetime.now(promo.start_date.tzinfo)
+        
+        if now < promo.start_date:
+            raise BadRequestException("Термін дії промокоду ще не настав")
+            
+        if now > promo.end_date:
+            raise BadRequestException("Термін дії промокоду закінчився")
+            
+        if promo.max_uses is not None and promo.current_uses >= promo.max_uses:
+            raise BadRequestException("Ліміт використання промокоду вичерпано")
+            
+        if promo.min_order_amount is not None and total_amount < promo.min_order_amount:
+            raise BadRequestException(f"Мінімальна сума замовлення для промокоду '{code}': {promo.min_order_amount} грн")
+            
+        # Розрахунок знижки
+        if promo.discount_type == "fixed":
+            promo_discount = promo.discount_value
+        elif promo.discount_type == "percent":
+            promo_discount = (total_amount * promo.discount_value) / Decimal("100.00")
+            
+        # Перевірка щоб знижка не перевищувала суму замовлення
+        if promo_discount > total_amount:
+            promo_discount = total_amount
+            
+        promo_code_id = promo.id
+        promo_code_obj_name = promo.code
+        
+        # Оновлюємо кількість використань
+        promo.current_uses += 1
+        db.add(promo)
+    # -------------------------
     
     # Розрахунок доставки (базова логіка)
+    # Знижка застосовується до вартості товарів, доставка розраховується від повної суми (або зі знижкою?)
+    # Зазвичай free shipping від суми після знижки.
+    # Давайте зробимо від суми ПІСЛЯ знижки, це чесніше для бізнесу.
+    amount_after_discount = total_amount - promo_discount
+    
     delivery_cost = Decimal("50.00")  # Базова вартість доставки
-    if total_amount >= Decimal("500.00"):
+    if amount_after_discount >= Decimal("500.00"):
         delivery_cost = Decimal("0.00")  # Безкоштовна доставка від 500 грн
     
     # Обробка адреси
@@ -180,7 +239,9 @@ async def create_order(
                 status="pending",
                 total_amount=total_amount,
                 delivery_cost=delivery_cost,
-                discount=Decimal("0.00"),
+                discount=promo_discount,
+                promo_code_id=promo_code_id,
+                promo_code_name=promo_code_obj_name,
                 payment_method=order_data.payment_method,
                 customer_name=order_data.customer_name,
                 customer_phone=order_data.customer_phone,

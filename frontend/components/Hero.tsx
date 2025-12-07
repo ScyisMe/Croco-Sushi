@@ -30,7 +30,8 @@ export default function Hero() {
           className="w-full h-full object-cover"
           poster="/images/hero-poster.jpg"
         >
-          <source src="/videos/sushi-hero.mp4" type="video/mp4" />
+          {/* TODO: Upload a valid video file. Current sushi-hero.mp4 is 0 bytes and causes 416 errors. */}
+          {/* <source src="/videos/sushi-hero.mp4" type="video/mp4" /> */}
         </video>
       </motion.div>
 

@@ -105,7 +105,7 @@ export default function Header() {
     <>
       <header suppressHydrationWarning={true} className={`transition-colors ${isSticky ? "sticky top-0 z-40 navbar-glass shadow-lg" : "bg-surface"}`}>
         {/* Top Bar */}
-        <div className="bg-background-secondary border-b border-border hidden md:block">
+        <div suppressHydrationWarning className="bg-background-secondary border-b border-border hidden md:block">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-10 text-sm">
               {/* Телефони */}
@@ -171,7 +171,7 @@ export default function Header() {
         </div>
 
         {/* Main Header - адаптивна висота */}
-        <div className="container mx-auto px-3 sm:px-4">
+        <div suppressHydrationWarning className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-between h-16 sm:h-20">
 
             {/* Логотип - адаптивний розмір */}
@@ -457,7 +457,11 @@ export default function Header() {
       <Cart isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
 
       {/* Callback Modal */}
-      <CallbackModal isOpen={isCallbackOpen} onClose={() => setIsCallbackOpen(false)} />
+      <CallbackModal
+        isOpen={isCallbackOpen}
+        onClose={() => setIsCallbackOpen(false)}
+        isClosed={isMounted && isOpen === false}
+      />
     </>
   );
 }

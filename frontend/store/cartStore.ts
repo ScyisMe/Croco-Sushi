@@ -36,7 +36,11 @@ interface CartState {
   totalAmount: number;
   delivery: DeliveryInfo;
   lastValidated: number | null; // Час останньої перевірки
-  
+
+  promoCode: string | null;
+  discountType: "percent" | "fixed" | null;
+  discountValue: number | null;
+
   // Actions
   addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
   removeItem: (id: number, sizeId?: number) => void;
@@ -45,11 +49,15 @@ interface CartState {
   setDelivery: (delivery: DeliveryInfo) => void;
   removeUnavailableItems: (unavailableIds: number[]) => string[]; // Повертає імена видалених товарів
   setLastValidated: (timestamp: number) => void;
-  
+
+  applyPromoCode: (code: string, type: "percent" | "fixed", value: number) => void;
+  removePromoCode: () => void;
+
   // Helpers
   getItemCount: (id: number, sizeId?: number) => number;
   getFinalAmount: () => number;
   getDeliveryCost: () => number;
+  getDiscountAmount: () => number;
 }
 
 export const MAX_CART_ITEMS = 20; // Максимум 20 товарів у кошику
@@ -62,6 +70,9 @@ export const useCartStore = create<CartState>()(
       totalAmount: 0,
       delivery: DEFAULT_DELIVERY,
       lastValidated: null,
+      promoCode: null,
+      discountType: null,
+      discountValue: null,
 
       addItem: (newItem) => {
         set((state) => {
@@ -76,7 +87,7 @@ export const useCartStore = create<CartState>()(
           );
 
           let updatedItems: CartItem[];
-          
+
           if (existingIndex > -1) {
             // Оновлюємо кількість існуючого товару
             updatedItems = state.items.map((item, index) =>
@@ -164,7 +175,14 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      clearCart: () => set({ items: [], totalItems: 0, totalAmount: 0 }),
+      clearCart: () => set({
+        items: [],
+        totalItems: 0,
+        totalAmount: 0,
+        promoCode: null,
+        discountType: null,
+        discountValue: null
+      }),
 
       setDelivery: (delivery) => set({ delivery }),
 
@@ -173,32 +191,32 @@ export const useCartStore = create<CartState>()(
       removeUnavailableItems: (unavailableIds) => {
         const state = get();
         const removedNames: string[] = [];
-        
+
         // Знаходимо товари для видалення
         state.items.forEach((item) => {
           if (unavailableIds.includes(item.id)) {
             removedNames.push(item.name);
           }
         });
-        
+
         if (removedNames.length === 0) {
           return [];
         }
-        
+
         // Фільтруємо недоступні товари
         const updatedItems = state.items.filter(
           (item) => !unavailableIds.includes(item.id)
         );
-        
+
         // Перераховуємо totals
         const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
         const totalAmount = updatedItems.reduce(
           (sum, item) => sum + item.price * item.quantity,
           0
         );
-        
+
         set({ items: updatedItems, totalItems, totalAmount });
-        
+
         return removedNames;
       },
 
@@ -212,24 +230,55 @@ export const useCartStore = create<CartState>()(
 
       getDeliveryCost: () => {
         const state = get();
+        // Якщо сума після знижки >= free_delivery_from, то доставка безкоштовна
         if (state.totalAmount >= state.delivery.free_delivery_from) {
           return 0;
         }
         return state.delivery.delivery_cost;
       },
 
+      getDiscountAmount: () => {
+        const state = get();
+        if (!state.promoCode) return 0;
+
+        if (state.discountType === "fixed") {
+          return state.discountValue || 0;
+        } else {
+          // Percent
+          return (state.totalAmount * (state.discountValue || 0)) / 100;
+        }
+      },
+
       getFinalAmount: () => {
         const state = get();
-        return state.totalAmount + state.getDeliveryCost();
+        const discount = state.getDiscountAmount();
+        const finalAmount = Math.max(0, state.totalAmount - discount) + state.getDeliveryCost();
+        return finalAmount;
+      },
+
+      applyPromoCode: (code, type, value) => {
+        set({
+          promoCode: code,
+          discountType: type,
+          discountValue: value
+        });
+      },
+
+      removePromoCode: () => {
+        set({
+          promoCode: null,
+          discountType: null,
+          discountValue: null
+        });
       },
     }),
     {
       name: "croco-sushi-cart",
       storage: createJSONStorage(() => localStorage),
-      version: 4, // Версія для міграції (оновлено для підтримки lastValidated)
+      version: 5, // Версія для міграції (додано промокоди)
       migrate: (persistedState, version) => {
         // Міграція старих даних
-        if (version < 4) {
+        if (version < 5) {
           const state = persistedState as Partial<CartState>;
           return {
             items: state.items || [],
@@ -237,6 +286,9 @@ export const useCartStore = create<CartState>()(
             totalAmount: state.totalAmount || 0,
             delivery: state.delivery || DEFAULT_DELIVERY,
             lastValidated: null,
+            promoCode: null,
+            discountType: null,
+            discountValue: null,
           };
         }
         return persistedState as CartState;

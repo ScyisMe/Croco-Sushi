@@ -45,19 +45,64 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
     getFinalAmount,
     removeUnavailableItems,
     setLastValidated,
+    // Promo actions
+    promoCode,
+    discountType,
+    discountValue,
+    applyPromoCode,
+    removePromoCode,
+    getDiscountAmount,
   } = useCartStore();
 
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
-  const [isPromoApplied, setIsPromoApplied] = useState(false);
+  const [isVerifyingPromo, setIsVerifyingPromo] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
 
-  const handleApplyPromo = () => {
-    if (!promoCode.trim()) return;
-    // Mock validation for now
-    toast.success("Промокод застосовано!");
-    setIsPromoApplied(true);
+  // Sync input with store on mount/update
+  useEffect(() => {
+    if (promoCode) {
+      setPromoInput(promoCode);
+    }
+  }, [promoCode]);
+
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+
+    setIsVerifyingPromo(true);
+    try {
+      const response = await apiClient.post("/promo-codes/verify", {
+        code: promoInput,
+        order_amount: totalAmount
+      });
+
+      const { valid, code, discount_type, discount_value, message } = response.data;
+
+      if (valid) {
+        applyPromoCode(code, discount_type, discount_value);
+        toast.success(message || "Промокод застосовано!");
+      } else {
+        toast.error(message || "Не вдалося застосувати промокод");
+        removePromoCode();
+      }
+    } catch (error: any) {
+      console.error("Promo code error:", error);
+      const msg = error.response?.data?.detail || "Невірна помилка при перевірці промокоду";
+      toast.error(msg);
+      // Якщо помилка, скидаємо збережений промокод
+      removePromoCode();
+    } finally {
+      setIsVerifyingPromo(false);
+    }
   };
+
+  const handleRemovePromo = () => {
+    removePromoCode();
+    setPromoInput("");
+    toast.success("Промокод видалено");
+  };
+
+
 
   // Функція валідації товарів у кошику
   const validateCartItems = useCallback(async () => {
@@ -111,8 +156,12 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
     }
   }, [isOpen, validateCartItems, items.length]);
 
+
+
+
   // Використовуємо значення з delivery з store
   const deliveryCost = getDeliveryCost();
+  const discountAmount = getDiscountAmount();
   const finalAmount = getFinalAmount();
   const isMinOrderReached = totalAmount >= delivery.min_order_amount;
   const amountToMinOrder = delivery.min_order_amount - totalAmount;
@@ -143,6 +192,53 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedZone]);
+
+  // UI Render helper
+  const renderPromoSection = () => (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <TagIcon className="w-4 h-4 text-primary" />
+        <span className="text-sm font-medium text-white">Промокод</span>
+      </div>
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <input
+            type="text"
+            placeholder="Введіть промокод"
+            className={`input w-full min-w-0 ${promoCode ? "border-green-500 text-green-500 focus:border-green-500 focus:ring-green-500" : ""}`}
+            value={promoInput}
+            onChange={(e) => setPromoInput(e.target.value)}
+            disabled={!!promoCode}
+          />
+          {promoCode && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <span className="text-green-500 text-sm">Застосовано</span>
+            </div>
+          )}
+        </div>
+
+        {promoCode ? (
+          <button
+            onClick={handleRemovePromo}
+            className="px-4 py-2 font-medium rounded-xl transition text-sm whitespace-nowrap bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
+          >
+            Видалити
+          </button>
+        ) : (
+          <button
+            onClick={handleApplyPromo}
+            disabled={isVerifyingPromo || !promoInput}
+            className={`px-4 py-2 font-medium rounded-xl transition text-sm whitespace-nowrap ${isVerifyingPromo
+              ? "opacity-50 cursor-not-allowed"
+              : "bg-surface-card border border-white/10 text-white hover:bg-white/5 hover:border-primary/50"
+              }`}
+          >
+            {isVerifyingPromo ? "..." : "Застосувати"}
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -183,7 +279,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             ({totalItems} {totalItems === 1 ? "товар" : totalItems < 5 ? "товари" : "товарів"})
                           </span>
                         )}
-                        {isValidating && (
+                        {(isValidating || isVerifyingPromo) && (
                           <span className="ml-2 inline-block w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                         )}
                       </Dialog.Title>
@@ -376,32 +472,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           )}
                         </div>
 
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <TagIcon className="w-4 h-4 text-primary" />
-                            <span className="text-sm font-medium text-white">Промокод</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              placeholder="Введіть промокод"
-                              className="input flex-1 min-w-0"
-                              value={promoCode}
-                              onChange={(e) => setPromoCode(e.target.value)}
-                              disabled={isPromoApplied}
-                            />
-                            <button
-                              onClick={handleApplyPromo}
-                              disabled={isPromoApplied || !promoCode}
-                              className={`px-4 py-2 font-medium rounded-xl transition text-sm whitespace-nowrap ${isPromoApplied
-                                ? "bg-green-500/10 text-green-500 border border-green-500/20"
-                                : "bg-surface-card border border-white/10 text-white hover:bg-white/5 hover:border-primary/50"
-                                }`}
-                            >
-                              {isPromoApplied ? "Застосовано" : "Застосувати"}
-                            </button>
-                          </div>
-                        </div>
+                        {renderPromoSection()}
 
                         {/* Підсумок */}
                         <div className="space-y-2 text-sm">
@@ -409,6 +480,14 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             <span className="text-gray-400">Підсумок</span>
                             <span className="font-medium text-white">{totalAmount.toFixed(0)} ₴</span>
                           </div>
+
+                          {discountAmount > 0 && (
+                            <div className="flex justify-between text-green-500">
+                              <span>Знижка ({promoCode})</span>
+                              <span>- {discountAmount.toFixed(0)} ₴</span>
+                            </div>
+                          )}
+
                           <div className="flex justify-between">
                             <span className="text-gray-400">Доставка</span>
                             <span className={`font-medium ${deliveryCost === 0 ? "text-primary-500" : "text-white"}`}>

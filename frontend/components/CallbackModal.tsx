@@ -8,9 +8,10 @@ import { useTranslation } from "@/store/localeStore";
 interface CallbackModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isClosed?: boolean;
 }
 
-export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
+export default function CallbackModal({ isOpen, onClose, isClosed = false }: CallbackModalProps) {
   const { t } = useTranslation();
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -151,10 +152,12 @@ export default function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
                         <PhoneIcon className="w-8 h-8 text-primary" />
                       </div>
                       <Dialog.Title className="text-2xl font-bold text-secondary">
-                        {t("callback.title")}
+                        {isClosed ? (t("callback.closedTitle") || "Ми наразі зачинені") : t("callback.title")}
                       </Dialog.Title>
                       <p className="text-secondary-light mt-2">
-                        {t("callback.description")}
+                        {isClosed
+                          ? (t("callback.closedDescription") || "Залиште свій номер, і ми передзвонимо вам в робочий час для оформлення замовлення")
+                          : t("callback.description")}
                       </p>
                     </div>
 

@@ -42,6 +42,9 @@ class Order(Base):
     total_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     delivery_cost: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
     discount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=0, nullable=False)
+    # Зв'язок з промокодом
+    promo_code_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("promo_codes.id"), nullable=True)
+    promo_code_name: Mapped[Optional[str]] = mapped_column(String(50), nullable=True) # Зберігаємо код для історії
     payment_method: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)  # cash, card, online
     delivery_time: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     customer_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)

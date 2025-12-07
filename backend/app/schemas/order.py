@@ -47,6 +47,7 @@ class OrderCreate(OrderBase):
     house: Optional[str] = None
     apartment: Optional[str] = None
     address_comment: Optional[str] = None
+    promo_code: Optional[str] = None # Промокод, введений користувачем
 
 
 class OrderUpdate(BaseModel):
@@ -64,6 +65,7 @@ class OrderResponse(BaseModel):
     total_amount: Decimal
     delivery_cost: Decimal
     discount: Decimal
+    promo_code_name: Optional[str] = None
     payment_method: Optional[str]
     delivery_time: Optional[datetime]
     customer_name: Optional[str]

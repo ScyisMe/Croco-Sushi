@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import categories, products, auth, orders, reviews, promotions, callback, users, delivery, settings, payments
+from app.api.v1.endpoints import categories, products, auth, orders, reviews, promotions, callback, users, delivery, settings, payments, promo_codes, newsletter
 from app.api.v1.endpoints import upload
 from app.api.v1.endpoints.admin.admin import admin_router
 
@@ -19,6 +19,8 @@ api_router.include_router(delivery.router, prefix="/delivery", tags=["delivery"]
 api_router.include_router(settings.router, prefix="/settings", tags=["settings"])
 api_router.include_router(upload.router, prefix="/upload", tags=["upload"])
 api_router.include_router(payments.router, prefix="/payments", tags=["payments"])
+api_router.include_router(promo_codes.router, prefix="/promo-codes", tags=["promo-codes"])
+api_router.include_router(newsletter.router, prefix="/newsletter", tags=["newsletter"])
 
 # Адмін endpoints
 api_router.include_router(admin_router, prefix="/admin", tags=["admin"])

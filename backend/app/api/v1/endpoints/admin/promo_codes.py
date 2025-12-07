@@ -11,7 +11,10 @@ from app.core.dependencies import get_current_admin_user
 from app.core.exceptions import NotFoundException, BadRequestException
 from app.models.user import User
 from app.models.promo_code import PromoCode
+from app.models.order import Order
 from pydantic import BaseModel, ConfigDict
+from sqlalchemy import func
+
 
 router = APIRouter()
 
@@ -53,6 +56,14 @@ class PromoCodeResponse(PromoCodeBase):
     updated_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+
+class PromoCodeStats(BaseModel):
+    id: int
+    code: str
+    total_uses: int
+    total_discount: Decimal
+
 
 
 @router.get("", response_model=List[PromoCodeResponse])
@@ -161,4 +172,38 @@ async def delete_promo_code(
     await db.commit()
     
     return None
+
+
+@router.get("/stats/all", response_model=List[PromoCodeStats])
+async def get_promo_code_stats(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user)
+):
+    """Отримати статистику використання промокодів"""
+    # Групуємо замовлення за промокодом
+    query = (
+        select(
+            PromoCode.id,
+            PromoCode.code,
+            func.count(Order.id).label("total_uses"),
+            func.sum(func.coalesce(Order.discount, 0)).label("total_discount")
+        )
+        .outerjoin(Order, Order.promo_code_id == PromoCode.id)
+        .group_by(PromoCode.id, PromoCode.code)
+        .order_by(func.sum(func.coalesce(Order.discount, 0)).desc())
+    )
+    
+    result = await db.execute(query)
+    
+    stats = []
+    for row in result:
+        stats.append(PromoCodeStats(
+            id=row.id,
+            code=row.code,
+            total_uses=row.total_uses,
+            total_discount=row.total_discount or Decimal("0.00")
+        ))
+        
+    return stats
+
 

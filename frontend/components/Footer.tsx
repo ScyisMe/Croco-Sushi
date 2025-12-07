@@ -4,9 +4,31 @@ import Link from "next/link";
 import { useTranslation } from "@/store/localeStore";
 import { Button } from "./ui/Button";
 
+import { useState } from "react";
+import toast from "react-hot-toast";
+import apiClient from "@/lib/api/client";
+
 export default function Footer() {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    try {
+      setIsLoading(true);
+      await apiClient.post("/newsletter/subscribe", { email });
+      toast.success(t("footer.subscribeSuccess") || "Successfully subscribed!");
+      setEmail("");
+    } catch (error) {
+      toast.error(t("footer.subscribeError") || "Failed to subscribe.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <footer className="relative bg-surface-dark pt-20 pb-10 overflow-hidden mt-auto">
@@ -105,14 +127,18 @@ export default function Footer() {
             <p className="text-gray-400 mb-4">
               {t("footer.newsletterDesc")}
             </p>
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-3" onSubmit={handleSubscribe}>
               <input
                 type="email"
                 placeholder="Email"
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLoading}
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50"
               />
-              <Button className="w-full">
-                {t("footer.subscribe")}
+              <Button className="w-full" disabled={isLoading}>
+                {isLoading ? "..." : t("footer.subscribe")}
               </Button>
             </form>
           </div>

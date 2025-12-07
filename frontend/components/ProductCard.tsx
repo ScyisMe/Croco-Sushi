@@ -17,9 +17,10 @@ interface ProductCardProps {
   onFavoriteToggle?: (productId: number) => void;
   isFavorite?: boolean;
   onQuickView?: (product: Product) => void;
+  priority?: boolean;
 }
 
-export default function ProductCard({ product, onFavoriteToggle, isFavorite = false, onQuickView }: ProductCardProps) {
+export default function ProductCard({ product, onFavoriteToggle, isFavorite = false, onQuickView, priority = false }: ProductCardProps) {
   const { t } = useTranslation();
   const addItem = useCartStore((state) => state.addItem);
   const itemsCount = useCartStore((state) => state.items.length);
@@ -104,6 +105,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-110"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            priority={priority}
           />
         ) : (
           <div className="w-full h-full bg-surface-card flex items-center justify-center p-8">

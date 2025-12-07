@@ -25,8 +25,17 @@ interface PromoCode {
   is_active: boolean;
 }
 
+interface PromoCodeStats {
+  id: number;
+  code: string;
+  total_uses: number;
+  total_discount: number;
+}
+
 export default function PromoCodesPage() {
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
+  const [stats, setStats] = useState<PromoCodeStats[]>([]);
+  const [activeTab, setActiveTab] = useState<"list" | "stats">("list");
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<PromoCode | null>(null);
@@ -57,9 +66,25 @@ export default function PromoCodesPage() {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const response = await apiClient.get<PromoCodeStats[]>("/admin/promo-codes/stats/all");
+      setStats(response.data);
+    } catch (error) {
+      console.error("Failed to fetch stats", error);
+      toast.error("Не вдалося завантажити статистику");
+    }
+  };
+
   useEffect(() => {
     fetchPromoCodes();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "stats") {
+      fetchStats();
+    }
+  }, [activeTab]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,146 +172,195 @@ export default function PromoCodesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Промокоди</h1>
-          <p className="text-gray-500">Управління знижками та акціями</p>
+          <h1 className="text-2xl font-bold text-white">Промокоди</h1>
+          <p className="text-gray-400">Управління знижками та акціями</p>
         </div>
         <button
           onClick={() => openModal()}
-          className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition"
         >
           <PlusIcon className="w-5 h-5 mr-2" />
           Створити промокод
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="flex border-b border-white/10 mb-6">
+        <button
+          className={`py-4 px-6 font-medium text-sm border-b-2 transition ${activeTab === "list"
+            ? "border-primary text-primary"
+            : "border-transparent text-gray-400 hover:text-white"
+            }`}
+          onClick={() => setActiveTab("list")}
+        >
+          Управління
+        </button>
+        <button
+          className={`py-4 px-6 font-medium text-sm border-b-2 transition ${activeTab === "stats"
+            ? "border-primary text-primary"
+            : "border-transparent text-gray-400 hover:text-white"
+            }`}
+          onClick={() => setActiveTab("stats")}
+        >
+          Статистика
+        </button>
+      </div>
+
+      <div className="bg-theme-surface rounded-xl shadow-sm border border-white/5 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-100">
-              <tr className="text-left text-sm text-gray-600">
-                <th className="px-6 py-4 font-medium">Код</th>
-                <th className="px-6 py-4 font-medium">Знижка</th>
-                <th className="px-6 py-4 font-medium">Період дії</th>
-                <th className="px-6 py-4 font-medium">Використання</th>
-                <th className="px-6 py-4 font-medium">Статус</th>
-                <th className="px-6 py-4 font-medium text-right">Дії</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">Завантаження...</td>
+          {activeTab === "list" ? (
+            <table className="w-full">
+              <thead className="bg-white/5 border-b border-white/5">
+                <tr className="text-left text-sm text-gray-400">
+                  <th className="px-6 py-4 font-medium">Код</th>
+                  <th className="px-6 py-4 font-medium">Знижка</th>
+                  <th className="px-6 py-4 font-medium">Період дії</th>
+                  <th className="px-6 py-4 font-medium">Використання</th>
+                  <th className="px-6 py-4 font-medium">Статус</th>
+                  <th className="px-6 py-4 font-medium text-right">Дії</th>
                 </tr>
-              ) : promoCodes.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">Промокодів не знайдено</td>
-                </tr>
-              ) : (
-                promoCodes.map((promo) => (
-                  <tr key={promo.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                          <TicketIcon className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <span className="font-bold text-gray-900 block">{promo.code}</span>
-                          <span className="text-xs text-gray-500">{promo.description}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {promo.discount_value} {promo.discount_type === 'percent' ? '%' : '₴'}
-                      </span>
-                      {promo.min_order_amount && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          від {promo.min_order_amount} ₴
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <CalendarIcon className="w-4 h-4 text-gray-400" />
-                        <span>{formatDate(promo.end_date)}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {promo.current_uses} / {promo.max_uses || "∞"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px - 2 py - 1 rounded - full text - xs font - medium \${ promo.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }`}>
-                        {promo.is_active ? 'Активний' : 'Неактивний'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => openModal(promo)}
-                          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(promo.id)}
-                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">Завантаження...</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : promoCodes.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-gray-400">Промокодів не знайдено</td>
+                  </tr>
+                ) : (
+                  promoCodes.map((promo) => (
+                    <tr key={promo.id} className="hover:bg-white/5 transition">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                            <TicketIcon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-white block">{promo.code}</span>
+                            <span className="text-xs text-gray-500">{promo.description}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          {promo.discount_value} {promo.discount_type === 'percent' ? '%' : '₴'}
+                        </span>
+                        {promo.min_order_amount && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            від {promo.min_order_amount} ₴
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-300">
+                        <div className="flex items-center space-x-1">
+                          <CalendarIcon className="w-4 h-4 text-gray-500" />
+                          <span>{formatDate(promo.end_date)}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-300">
+                        {promo.current_uses} / {promo.max_uses || "∞"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${promo.is_active ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                          }`}>
+                          {promo.is_active ? 'Активний' : 'Неактивний'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end space-x-2">
+                          <button
+                            onClick={() => openModal(promo)}
+                            className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition"
+                          >
+                            <PencilIcon className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(promo.id)}
+                            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                          >
+                            <TrashIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-white/5 border-b border-white/5">
+                <tr className="text-left text-sm text-gray-400">
+                  <th className="px-6 py-4 font-medium">Код</th>
+                  <th className="px-6 py-4 font-medium">Всього використань</th>
+                  <th className="px-6 py-4 font-medium">Загальна сума знижок</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {stats.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-8 text-center text-gray-400">Статистики поки немає</td>
+                  </tr>
+                ) : (
+                  stats.map((stat) => (
+                    <tr key={stat.id} className="hover:bg-white/5 transition">
+                      <td className="px-6 py-4 font-medium text-white">{stat.code}</td>
+                      <td className="px-6 py-4 text-gray-300">{stat.total_uses}</td>
+                      <td className="px-6 py-4 font-medium text-primary">{stat.total_discount} ₴</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">{editingPromo ? "Редагувати промокод" : "Новий промокод"}</h2>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-theme-surface border border-white/10 rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4 text-white">{editingPromo ? "Редагувати промокод" : "Новий промокод"}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Код</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Код</label>
                 <input
                   type="text"
                   required
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 uppercase"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500 uppercase"
                   value={formData.code}
                   onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Опис</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Опис</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500"
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Тип знижки</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Тип знижки</label>
                   <select
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
                     value={formData.discount_type}
                     onChange={e => setFormData({ ...formData, discount_type: e.target.value as any })}
                   >
-                    <option value="percent">Відсоток (%)</option>
-                    <option value="fixed">Сума (₴)</option>
+                    <option value="percent" className="bg-theme-surface">Відсоток (%)</option>
+                    <option value="fixed" className="bg-theme-surface">Сума (₴)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Значення</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Значення</label>
                   <input
                     type="number"
                     min="0"
                     required
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
                     value={formData.discount_value}
                     onChange={e => setFormData({ ...formData, discount_value: Number(e.target.value) })}
                   />
@@ -294,21 +368,21 @@ export default function PromoCodesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Початок дії</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Початок дії</label>
                   <input
                     type="datetime-local"
                     required
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white [color-scheme:dark]"
                     value={formData.start_date}
                     onChange={e => setFormData({ ...formData, start_date: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Кінець дії</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Кінець дії</label>
                   <input
                     type="datetime-local"
                     required
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white [color-scheme:dark]"
                     value={formData.end_date}
                     onChange={e => setFormData({ ...formData, end_date: e.target.value })}
                   />
@@ -316,21 +390,21 @@ export default function PromoCodesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Мін. замовлення (₴)</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Мін. замовлення (₴)</label>
                   <input
                     type="number"
                     min="0"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
                     value={formData.min_order_amount}
                     onChange={e => setFormData({ ...formData, min_order_amount: Number(e.target.value) })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ліміт використань</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Ліміт використань</label>
                   <input
                     type="number"
                     min="0"
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500"
                     value={formData.max_uses}
                     onChange={e => setFormData({ ...formData, max_uses: Number(e.target.value) })}
                     placeholder="∞"
@@ -341,24 +415,24 @@ export default function PromoCodesPage() {
                 <input
                   type="checkbox"
                   id="is_active_promo"
-                  className="rounded text-green-600 focus:ring-green-500"
+                  className="rounded bg-white/5 border-white/10 text-primary focus:ring-primary"
                   checked={formData.is_active}
                   onChange={e => setFormData({ ...formData, is_active: e.target.checked })}
                 />
-                <label htmlFor="is_active_promo" className="text-sm font-medium text-gray-700">Активний промокод</label>
+                <label htmlFor="is_active_promo" className="text-sm font-medium text-gray-300">Активний промокод</label>
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="flex justify-end space-x-3 pt-4 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                  className="px-4 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition"
                 >
                   Скасувати
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition"
                 >
                   Зберегти
                 </button>

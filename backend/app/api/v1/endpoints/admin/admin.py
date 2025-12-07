@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints.admin import (
     categories, products, orders, users, reviews,
     promotions, promo_codes, delivery_zones,
-    statistics, settings, audit_logs
+    statistics, settings, audit_logs, newsletter
 )
 
 admin_router = APIRouter()
@@ -63,5 +63,10 @@ admin_router.include_router(
     audit_logs.router,
     prefix="/audit-logs",
     tags=["admin-audit-logs"]
+)
+admin_router.include_router(
+    newsletter.router,
+    prefix="/newsletter",
+    tags=["admin-newsletter"]
 )
 
