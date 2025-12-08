@@ -1,34 +1,67 @@
 "use client";
 
-import Link from "next/link";
-import { useTranslation } from "@/store/localeStore";
-import { Button } from "./ui/Button";
-
 import { useState } from "react";
-import toast from "react-hot-toast";
-import apiClient from "@/lib/api/client";
+import Link from "next/link";
+import Image from "next/image";
+import { useTranslation } from "@/store/localeStore";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
+
+// FAQ data
+const FAQ_ITEMS = [
+  {
+    question: "Скільки коштує доставка?",
+    answer: "Доставка безкоштовна при замовленні від 500 грн. При замовленні до 500 грн вартість доставки складає 50 грн. Доставляємо по всьому Львову!"
+  },
+  {
+    question: "Чи кладете ви соєвий соус безкоштовно?",
+    answer: "Так! До кожного замовлення ми безкоштовно додаємо соєвий соус, імбир, васабі та одноразові палички. Кількість залежить від розміру замовлення."
+  },
+  {
+    question: "Які зони доставки?",
+    answer: "Ми доставляємо по всьому Львову та передмістю. Час доставки залежить від вашої локації: центр — 30-45 хв, віддалені райони — до 60 хв."
+  },
+  {
+    question: "Чи можна оплатити карткою кур'єру?",
+    answer: "Так, наші кур'єри мають термінали для оплати карткою. Також доступна онлайн оплата через LiqPay та оплата готівкою."
+  }
+];
+
+function FaqAccordion() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleItem = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <div className="space-y-3">
+      {FAQ_ITEMS.map((item, index) => (
+        <div key={index} className="border border-white/10 rounded-lg overflow-hidden">
+          <button
+            onClick={() => toggleItem(index)}
+            className="w-full flex items-center justify-between p-4 text-left bg-white/5 hover:bg-white/10 transition-colors"
+          >
+            <span className="text-sm font-medium text-white">{item.question}</span>
+            <ChevronDownIcon
+              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${openIndex === index ? 'rotate-180' : ''}`}
+            />
+          </button>
+          <div
+            className={`overflow-hidden transition-all duration-200 ${openIndex === index ? 'max-h-40' : 'max-h-0'}`}
+          >
+            <p className="p-4 text-sm text-gray-400 bg-white/[0.02]">
+              {item.answer}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Footer() {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    try {
-      setIsLoading(true);
-      await apiClient.post("/newsletter/subscribe", { email });
-      toast.success(t("footer.subscribeSuccess") || "Successfully subscribed!");
-      setEmail("");
-    } catch (error) {
-      toast.error(t("footer.subscribeError") || "Failed to subscribe.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <footer className="relative bg-surface-dark pt-20 pb-10 overflow-hidden mt-auto">
@@ -52,7 +85,15 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="space-y-6">
-            <Link href="/" className="block">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="relative w-14 h-14">
+                <Image
+                  src="/logo.png"
+                  alt="Croco Sushi"
+                  fill
+                  className="object-contain"
+                />
+              </div>
               <span className="font-display text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">
                 Croco Sushi
               </span>
@@ -62,14 +103,19 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               {/* Social Icons */}
-              {["telegram", "instagram"].map((social) => (
+              {[
+                { name: "telegram", url: "https://t.me/Croco_Sushi", icon: "T" },
+                { name: "instagram", url: "https://www.instagram.com/crocosushi/", icon: "I" }
+              ].map((social) => (
                 <a
-                  key={social}
-                  href={`#${social}`}
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-primary-500 hover:scale-110 transition-all duration-300"
-                  aria-label={social}
+                  aria-label={social.name}
                 >
-                  <span className="capitalize">{social[0]}</span>
+                  <span className="capitalize">{social.icon}</span>
                 </a>
               ))}
             </div>
@@ -106,8 +152,8 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <span>📞</span>
-                <a href="tel:+380123456789" className="hover:text-white transition-colors">
-                  +380 12 345 67 89
+                <a href="tel:+380980970003" className="hover:text-white transition-colors">
+                  (098) 097-00-03
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -119,28 +165,12 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* FAQ */}
           <div>
             <h3 className="font-display text-xl font-bold text-white mb-6">
-              {t("footer.newsletter")}
+              Часті запитання
             </h3>
-            <p className="text-gray-400 mb-4">
-              {t("footer.newsletterDesc")}
-            </p>
-            <form className="space-y-3" onSubmit={handleSubscribe}>
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 transition-colors disabled:opacity-50"
-              />
-              <Button className="w-full" disabled={isLoading}>
-                {isLoading ? "..." : t("footer.subscribe")}
-              </Button>
-            </form>
+            <FaqAccordion />
           </div>
         </div>
 

@@ -175,14 +175,15 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 sm:h-20">
 
             {/* Логотип - адаптивний розмір */}
-            <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14">
                 <Image
                   src="/logo.png"
                   alt="Croco Sushi"
                   fill
-                  sizes="48px"
-                  className="object-contain rounded-full"
+                  sizes="56px"
+                  className="object-contain"
+                  priority
                 />
               </div>
               <span className="text-lg sm:text-2xl font-bold text-primary">
@@ -306,13 +307,13 @@ export default function Header() {
                 <div className="flex flex-col h-full">
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 border-b border-border">
-                    <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="relative w-10 h-10">
+                    <Link href="/" className="flex items-center space-x-3" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className="relative w-12 h-12">
                         <Image
                           src="/logo.png"
                           alt="Croco Sushi"
                           fill
-                          className="object-contain rounded-full"
+                          className="object-contain"
                         />
                       </div>
                       <span className="text-xl font-bold text-primary">Croco Sushi</span>

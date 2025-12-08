@@ -35,7 +35,7 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await apiClient.get("/categories");
+      const response = await apiClient.get("/admin/categories");
       setCategories(response.data || []);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -47,7 +47,7 @@ export default function AdminCategoriesPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await apiClient.delete(`/categories/${id}`);
+      await apiClient.delete(`/admin/categories/${id}`);
       toast.success("Категорію видалено");
       setCategories(categories.filter((c) => c.id !== id));
     } catch (error: any) {
@@ -61,7 +61,7 @@ export default function AdminCategoriesPage() {
 
   const toggleActive = async (category: Category) => {
     try {
-      await apiClient.patch(`/categories/${category.id}`, {
+      await apiClient.put(`/admin/categories/${category.id}`, {
         is_active: !category.is_active,
       });
       setCategories(

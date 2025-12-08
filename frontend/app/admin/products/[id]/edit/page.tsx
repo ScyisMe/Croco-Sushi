@@ -34,6 +34,7 @@ export default function EditProductPage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -48,6 +49,43 @@ export default function EditProductPage() {
     weight: "",
     ingredients: "",
   });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Файл занадто великий. Максимум 5MB");
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Дозволені лише зображення");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+
+      const response = await apiClient.post("/upload/image/admin?subdirectory=products", formDataUpload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setFormData({ ...formData, image_url: response.data.url });
+      toast.success("Зображення завантажено!");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error(error.response?.data?.detail || "Помилка завантаження зображення");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -295,27 +333,57 @@ export default function EditProductPage() {
         {/* Зображення */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            URL зображення
+            Зображення товару
           </label>
-          <div className="flex space-x-4">
-            <input
-              type="url"
-              value={formData.image_url}
-              onChange={(e) =>
-                setFormData({ ...formData, image_url: e.target.value })
-              }
-              className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
-              placeholder="https://example.com/image.jpg"
-            />
+          <div className="flex items-start space-x-4">
+            {/* Upload area */}
+            <div className="flex-1">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 hover:border-primary-500 transition-all">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  {isUploading ? (
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+                  ) : (
+                    <>
+                      <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <p className="text-sm text-gray-400">
+                        <span className="font-medium text-primary-500">Натисніть для завантаження</span> або перетягніть файл
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, WebP (макс. 5MB)</p>
+                    </>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                />
+              </label>
+            </div>
+            {/* Preview */}
             {formData.image_url && (
-              <img
-                src={formData.image_url}
-                alt="Preview"
-                className="w-16 h-16 rounded-lg object-cover border"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
+              <div className="relative">
+                <img
+                  src={formData.image_url.startsWith('/') ? formData.image_url : formData.image_url}
+                  alt="Preview"
+                  className="w-32 h-32 rounded-lg object-cover border border-gray-700"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.png';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, image_url: '' })}
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             )}
           </div>
         </div>
