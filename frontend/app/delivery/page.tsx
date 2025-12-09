@@ -253,7 +253,7 @@ export default function DeliveryPage() {
                   </div>
                   <div>
                     <p className="text-secondary">
-                      {t("delivery.deliveryCost")}: <strong>90-300 ₴</strong>
+                      {t("delivery.deliveryCost")}: <strong>200 ₴</strong> (безкоштовно від 1000 ₴)
                     </p>
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export default function DeliveryPage() {
                   </div>
                   <div>
                     <p className="text-secondary">
-                      {t("delivery.deliveryTime")}: <strong>40-105 {t("delivery.minutes")}</strong>
+                      {t("delivery.deliveryTime")}: <strong>40-60 {t("delivery.minutes")}</strong>
                     </p>
                   </div>
                 </div>
@@ -326,20 +326,20 @@ export default function DeliveryPage() {
           {/* Зони доставки */}
           <div className="mt-8 bg-surface border border-white/10 rounded-xl shadow-card p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                <TruckIcon className="w-6 h-6 text-primary" />
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <TruckIcon className="w-5 h-5 text-primary" />
               </div>
               <h2 className="text-xl font-bold text-secondary">{t("delivery.zones")}</h2>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Карта зон - центрована на Croco Sushi */}
-              <div className="h-[450px] md:h-[500px] lg:h-[580px] bg-theme-tertiary rounded-xl overflow-hidden relative shadow-md">
+              {/* Карта зон - темна тема */}
+              <div className="h-[400px] md:h-[450px] lg:h-[500px] bg-gray-900 rounded-xl overflow-hidden relative shadow-md">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20646.884089392867!2d24.000500000000003!3d49.8089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473ae7eb564c2c3f%3A0x9c4bc6e67f0bb7d0!2z0LLRg9C70LjRhtGPINCS0L7Qu9C-0LTQuNC80LjRgNCwINCv0L3QtdCy0LAsIDMxLCDQm9GM0LLRltCyLCDQm9GM0LLRltCy0YHRjNC60LAg0L7QsdC70LDRgdGC0YwsIDc5MDAw!5e0!3m2!1suk!2sua!4v1700000000000!5m2!1suk!2sua"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5161.721022348217!2d24.012!3d49.8089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473ae7eb564c2c3f%3A0x9c4bc6e67f0bb7d0!2sCroco%20Sushi!5e0!3m2!1suk!2sua!4v1700000000000!5m2!1suk!2sua&maptype=roadmap"
                   width="100%"
                   height="100%"
-                  style={{ border: 0 }}
+                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(0.95) contrast(0.9)' }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -350,122 +350,72 @@ export default function DeliveryPage() {
                   href={CONTACT_INFO.addressUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="absolute top-4 right-4 bg-white dark:bg-gray-900 px-3 py-2 rounded-lg shadow-lg text-sm font-medium text-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition flex items-center gap-2 border border-gray-200 dark:border-gray-700"
+                  className="absolute top-4 right-4 bg-gray-800/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg text-sm font-medium text-primary hover:bg-gray-700 transition flex items-center gap-2 border border-gray-600"
                 >
                   <MapPinIcon className="w-4 h-4" />
                   {t("delivery.viewLargerMap")}
                 </a>
 
-                {/* Легенда - внизу зліва, вище кнопок Google Maps */}
-                <div className="absolute bottom-16 left-2 bg-white dark:bg-gray-900 rounded-lg p-2.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-100 mb-1.5">{t("delivery.zones")}:</p>
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                      <span className="text-[11px] text-gray-700 dark:text-gray-200">{t("delivery.zone1")} - {t("delivery.zone1Time")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                      <span className="text-[11px] text-gray-700 dark:text-gray-200">{t("delivery.zone2")} - {t("delivery.zone2Time")}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                      <span className="text-[11px] text-gray-700 dark:text-gray-200">{t("delivery.zone3")} - {t("delivery.zone3Time")}</span>
-                    </div>
+                {/* Легенда */}
+                <div className="absolute bottom-4 left-4 bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-primary animate-pulse"></div>
+                    <span className="text-sm text-gray-200 font-medium">Радіус 6 км від закладу</span>
                   </div>
                 </div>
               </div>
 
-              {/* Список зон */}
+              {/* Інформаційний блок */}
               <div className="space-y-4">
-                {/* Зона 1 - Центр */}
-                <div className="p-4 border-2 border-green-500/30 bg-green-500/10 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
+                {/* Єдина зона доставки */}
+                <div className="p-5 border-2 border-primary/30 bg-primary/5 rounded-xl">
+                  {/* Вартість доставки */}
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                      <span className="font-semibold text-foreground">{t("delivery.zone1")}</span>
-                      <span className="text-xs text-foreground-muted">(5-8 км)</span>
+                      <div className="w-3 h-3 rounded-full bg-primary"></div>
+                      <span className="font-semibold text-foreground">Вартість доставки</span>
                     </div>
-                    <span className="font-bold text-green-500">{t("delivery.zone1Price")}</span>
+                    <span className="font-bold text-2xl text-foreground">200 ₴</span>
                   </div>
-                  <p className="text-sm text-foreground-secondary mb-1">
-                    {t("delivery.zone1Desc")}
-                  </p>
-                  <p className="text-sm text-foreground font-medium">
-                    {t("delivery.deliveryTime")}: {t("delivery.zone1Time")}
-                  </p>
-                  <p className="text-xs text-foreground-muted mt-1">
-                    🚗 {t("delivery.fastZone")} • ~15-25 {t("delivery.timeInRoad")}
-                  </p>
-                  <p className="text-xs text-green-500 font-medium mt-2">
-                    ✓ {t("delivery.freeFrom")} 1000 ₴
-                  </p>
-                </div>
 
-                {/* Зона 2 - Околиці */}
-                <div className="p-4 border-2 border-yellow-500/30 bg-yellow-500/10 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                      <span className="font-semibold text-foreground">{t("delivery.zone2")}</span>
-                      <span className="text-xs text-foreground-muted">(10-15 км)</span>
-                    </div>
-                    <span className="font-bold text-yellow-500">{t("delivery.zone2Price")}</span>
+                  {/* Деталі */}
+                  <div className="space-y-2 mb-4">
+                    <p className="text-sm text-foreground-secondary flex items-center gap-2">
+                      <span className="text-primary">●</span>
+                      Радіус: до 6 км від вул. Володимира Янева, 31
+                    </p>
+                    <p className="text-sm text-foreground-secondary flex items-center gap-2">
+                      <span className="text-primary">●</span>
+                      Час доставки: 40-60 хв (включає приготування)
+                    </p>
                   </div>
-                  <p className="text-sm text-foreground-secondary mb-1">
-                    {t("delivery.zone2Desc")}
-                  </p>
-                  <p className="text-sm text-foreground font-medium">
-                    {t("delivery.deliveryTime")}: {t("delivery.zone2Time")}
-                  </p>
-                  <p className="text-xs text-foreground-muted mt-1">
-                    🚗 {t("delivery.middleZone")} • ~25-40 {t("delivery.timeInRoad")}
-                  </p>
-                  <p className="text-xs text-yellow-500 font-medium mt-2">
-                    ✓ {t("delivery.freeFrom")} 1000 ₴
-                  </p>
-                </div>
 
-                {/* Зона 3 - Віддалені */}
-                <div className="p-4 border-2 border-red-500/30 bg-red-500/10 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <span className="font-semibold text-foreground">{t("delivery.zone3")}</span>
-                      <span className="text-xs text-foreground-muted">(15-25+ км)</span>
-                    </div>
-                    <span className="font-bold text-red-500">{t("delivery.zone3Price")}</span>
+                  {/* Безкоштовна доставка - виділений блок */}
+                  <div className="bg-primary/20 border border-primary/40 rounded-lg p-3">
+                    <p className="text-primary font-bold text-center">
+                      🎁 Доставка 0 ₴ при замовленні від 1000 ₴
+                    </p>
                   </div>
-                  <p className="text-sm text-foreground-secondary mb-1">
-                    {t("delivery.zone3Desc")}
-                  </p>
-                  <p className="text-sm text-foreground font-medium">
-                    {t("delivery.deliveryTime")}: {t("delivery.zone3Time")}
-                  </p>
-                  <p className="text-xs text-foreground-muted mt-1">
-                    🚗 {t("delivery.extendedZone")} • &gt;40 {t("delivery.timeInRoad")}
-                  </p>
-                  <p className="text-xs text-red-500 font-medium mt-2">
-                    ✓ {t("delivery.freeFrom")} 1000 ₴
+                </div>
+
+                {/* Мінімальне замовлення */}
+                <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-lg">
+                  <p className="text-sm text-gray-300">
+                    <span className="font-medium text-white">Мін. замовлення:</span> 200 ₴
                   </p>
                 </div>
 
-                {/* Примітка про буфер */}
-                <div className="p-3 bg-accent-blue/10 border-2 border-accent-blue/30 rounded-lg">
-                  <p className="text-xs text-foreground-secondary">
-                    💡 <strong className="text-foreground">{t("delivery.bufferNote")}</strong>
-                  </p>
-                </div>
+                {/* CTA кнопка */}
+                <Link
+                  href="/menu"
+                  className="block w-full bg-primary hover:bg-primary-600 text-white font-bold py-4 px-6 rounded-xl text-center transition-all shadow-lg hover:shadow-primary/25 hover:scale-[1.02]"
+                >
+                  Перейти до меню →
+                </Link>
 
-                {/* Фактори ціноутворення */}
-                <div className="p-3 bg-surface border border-border rounded-lg">
-                  <p className="text-xs text-foreground-secondary">
-                    📊 <strong className="text-foreground">{t("delivery.priceCalcNote")}</strong>
-                  </p>
-                </div>
-
-                <p className="text-xs text-secondary-light text-center pt-2">
-                  * {t("delivery.notInList")}
+                {/* Примітка */}
+                <p className="text-sm text-gray-400 text-center">
+                  * Якщо ваша адреса за межами зони, зателефонуйте нам — ми уточнимо можливість доставки
                 </p>
               </div>
             </div>

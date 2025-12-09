@@ -38,7 +38,7 @@ const CONTACTS = {
   phoneDisplay: "(098) 097-00-03",
   email: "crocosushi0003@gmail.com",
   workingHours: "10:00 - 21:45",
-  telegram: "https://t.me/Croco_Sushi",
+  telegram: "https://t.me/CrocoSushi",
   instagram: "https://www.instagram.com/crocosushi/",
 };
 

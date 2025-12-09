@@ -234,7 +234,7 @@ export default function PromotionsPage() {
                   Instagram
                 </a>
                 <a
-                  href="https://t.me/Croco_Sushi"
+                  href="https://t.me/CrocoSushi"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-6 py-3 bg-[#0088cc] text-white rounded-lg hover:opacity-90 transition"

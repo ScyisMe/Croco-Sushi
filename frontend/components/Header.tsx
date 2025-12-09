@@ -28,7 +28,7 @@ const CONTACT_INFO = {
   address: "м. Львів, вул. Володимира Янева, 31",
   addressUrl: "https://maps.app.goo.gl/JksKK3KqdouctZ6UJ",
   social: {
-    telegram: "https://t.me/Croco_Sushi",
+    telegram: "https://t.me/CrocoSushi",
     instagram: "https://www.instagram.com/crocosushi/",
   },
 };
@@ -175,14 +175,15 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 sm:h-20">
 
             {/* Логотип - адаптивний розмір */}
-            <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+              <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-[#343434]">
                 <Image
                   src="/logo.png"
                   alt="Croco Sushi"
                   fill
-                  sizes="48px"
-                  className="object-contain rounded-full"
+                  sizes="64px"
+                  className="object-cover"
+                  priority
                 />
               </div>
               <span className="text-lg sm:text-2xl font-bold text-primary">
@@ -205,7 +206,7 @@ export default function Header() {
             </nav>
 
             {/* Права частина */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
               {/* Кнопка передзвону (Desktop) */}
               <button
                 onClick={() => setIsCallbackOpen(true)}
@@ -215,40 +216,14 @@ export default function Header() {
                 <span className="text-sm">{t("header.callback")}</span>
               </button>
 
-              {/* Кнопка "Оформити замовлення" (Desktop) */}
+              {/* Профіль / Вхід - спрощено до однієї іконки */}
               <Link
-                href="/checkout"
-                className="hidden lg:block bg-primary hover:bg-primary-600 text-white font-semibold px-6 py-2.5 rounded-lg transition"
+                href={isAuthenticated ? "/profile" : "/login"}
+                className="flex items-center justify-center w-10 h-10 text-secondary hover:text-primary hover:bg-surface-hover rounded-full transition"
+                aria-label={isAuthenticated ? t("header.profile") : t("header.login")}
               >
-                {t("header.order")}
+                <UserIcon className="w-6 h-6" />
               </Link>
-
-              {/* Профіль / Вхід / Реєстрація */}
-              {isAuthenticated ? (
-                <Link
-                  href="/profile"
-                  className="flex items-center space-x-1 text-secondary hover:text-primary transition"
-                >
-                  <UserIcon className="w-6 h-6" />
-                  <span className="hidden md:inline text-sm">{t("header.profile")}</span>
-                </Link>
-              ) : (
-                <div className="flex items-center space-x-3">
-                  <Link
-                    href="/login"
-                    className="flex items-center space-x-1 text-secondary hover:text-primary transition"
-                  >
-                    <UserIcon className="w-6 h-6" />
-                    <span className="hidden md:inline text-sm">{t("header.login")}</span>
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="hidden md:block text-sm text-primary hover:text-primary-600 font-medium transition"
-                  >
-                    {t("header.register")}
-                  </Link>
-                </div>
-              )}
 
               {/* Кошик - touch target 44px */}
               <button
@@ -306,13 +281,13 @@ export default function Header() {
                 <div className="flex flex-col h-full">
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 border-b border-border">
-                    <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="relative w-10 h-10">
+                    <Link href="/" className="flex items-center space-x-3" onClick={() => setIsMobileMenuOpen(false)}>
+                      <div className="relative w-14 h-14 rounded-full overflow-hidden bg-[#343434]">
                         <Image
                           src="/logo.png"
                           alt="Croco Sushi"
                           fill
-                          className="object-contain rounded-full"
+                          className="object-cover"
                         />
                       </div>
                       <span className="text-xl font-bold text-primary">Croco Sushi</span>

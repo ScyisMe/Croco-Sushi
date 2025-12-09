@@ -15,6 +15,7 @@ interface Category {
 export default function NewProductPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -29,6 +30,41 @@ export default function NewProductPage() {
     weight: "",
     ingredients: "",
   });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Файл занадто великий. Максимум 5MB");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Дозволені лише зображення");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", file);
+
+      const response = await apiClient.post("/upload/image/admin?subdirectory=products", formDataUpload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setFormData({ ...formData, image_url: response.data.url });
+      toast.success("Зображення завантажено!");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error(error.response?.data?.detail || "Помилка завантаження зображення");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -89,25 +125,25 @@ export default function NewProductPage() {
       <div className="flex items-center space-x-4">
         <Link
           href="/admin/products"
-          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+          className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition"
         >
           <ArrowLeftIcon className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Новий товар</h1>
-          <p className="text-gray-600">Додавання нового товару до каталогу</p>
+          <h1 className="text-2xl font-bold text-white">Новий товар</h1>
+          <p className="text-gray-400">Додавання нового товару до каталогу</p>
         </div>
       </div>
 
       {/* Форма */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 space-y-6"
+        className="bg-surface-card rounded-xl shadow-sm p-6 border border-white/10 space-y-6"
       >
         {/* Основна інформація */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Назва товару *
             </label>
             <input
@@ -115,13 +151,13 @@ export default function NewProductPage() {
               value={formData.name}
               onChange={handleNameChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="Наприклад: Філадельфія Класік"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Slug (URL) *
             </label>
             <input
@@ -131,13 +167,13 @@ export default function NewProductPage() {
                 setFormData({ ...formData, slug: e.target.value })
               }
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="filadelfiya-klasik"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Категорія *
             </label>
             <select
@@ -146,7 +182,7 @@ export default function NewProductPage() {
                 setFormData({ ...formData, category_id: Number(e.target.value) })
               }
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-surface-card [&>option]:text-white"
             >
               <option value={0} disabled>
                 Виберіть категорію
@@ -162,7 +198,7 @@ export default function NewProductPage() {
 
         {/* Опис */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Опис
           </label>
           <textarea
@@ -171,14 +207,14 @@ export default function NewProductPage() {
               setFormData({ ...formData, description: e.target.value })
             }
             rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             placeholder="Опис товару..."
           />
         </div>
 
         {/* Склад */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Інгредієнти
           </label>
           <textarea
@@ -187,7 +223,7 @@ export default function NewProductPage() {
               setFormData({ ...formData, ingredients: e.target.value })
             }
             rows={2}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             placeholder="Рис, лосось, сир філадельфія, огірок..."
           />
         </div>
@@ -195,7 +231,7 @@ export default function NewProductPage() {
         {/* Ціна та вага */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Ціна (грн) *
             </label>
             <input
@@ -206,12 +242,12 @@ export default function NewProductPage() {
               }
               required
               min={0}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Стара ціна (грн)
             </label>
             <input
@@ -224,13 +260,13 @@ export default function NewProductPage() {
                 })
               }
               min={0}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="Для знижки"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Вага
             </label>
             <input
@@ -239,7 +275,7 @@ export default function NewProductPage() {
               onChange={(e) =>
                 setFormData({ ...formData, weight: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
               placeholder="250 г / 8 шт"
             />
           </div>
@@ -247,28 +283,58 @@ export default function NewProductPage() {
 
         {/* Зображення */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            URL зображення
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Зображення товару
           </label>
-          <div className="flex space-x-4">
-            <input
-              type="url"
-              value={formData.image_url}
-              onChange={(e) =>
-                setFormData({ ...formData, image_url: e.target.value })
-              }
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="https://example.com/image.jpg"
-            />
+          <div className="flex items-start space-x-4">
+            {/* Upload area */}
+            <div className="flex-1">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 hover:border-primary-500 transition-all">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  {isUploading ? (
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+                  ) : (
+                    <>
+                      <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <p className="text-sm text-gray-400">
+                        <span className="font-medium text-primary-500">Натисніть для завантаження</span> або перетягніть файл
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, WebP (макс. 5MB)</p>
+                    </>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                />
+              </label>
+            </div>
+            {/* Preview */}
             {formData.image_url && (
-              <img
-                src={formData.image_url}
-                alt="Preview"
-                className="w-16 h-16 rounded-lg object-cover border"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
+              <div className="relative">
+                <img
+                  src={formData.image_url}
+                  alt="Preview"
+                  className="w-32 h-32 rounded-lg object-cover border border-gray-700"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.png';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, image_url: '' })}
+                  className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -284,8 +350,8 @@ export default function NewProductPage() {
               }
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-            <span className="ml-3 text-sm font-medium text-gray-700">
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
               В наявності
             </span>
           </label>
@@ -299,25 +365,25 @@ export default function NewProductPage() {
               }
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yellow-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
-            <span className="ml-3 text-sm font-medium text-gray-700">
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-gold"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
               ⭐ Популярний товар
             </span>
           </label>
         </div>
 
         {/* Кнопки */}
-        <div className="flex justify-end space-x-3 pt-4 border-t">
+        <div className="flex justify-end space-x-3 pt-4 border-t border-white/10">
           <Link
             href="/admin/products"
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            className="px-4 py-2 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition"
           >
             Скасувати
           </Link>
           <button
             type="submit"
             disabled={isLoading}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+            className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition disabled:opacity-50"
           >
             {isLoading ? "Створення..." : "Створити товар"}
           </button>
@@ -326,4 +392,3 @@ export default function NewProductPage() {
     </div>
   );
 }
-

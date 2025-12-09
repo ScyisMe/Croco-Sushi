@@ -144,16 +144,16 @@ export default function UserDetailPage() {
                 <div className="flex items-center gap-4">
                     <Link
                         href="/admin/users"
-                        className="p-2 hover:bg-gray-100 rounded-full transition text-gray-500"
+                        className="p-2 hover:bg-gray-700 rounded-full transition text-gray-400"
                     >
                         <ArrowLeftIcon className="w-6 h-6" />
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-2xl font-bold text-white">
                             {isNew ? "Новий користувач" : user?.name || "Користувач"}
                         </h1>
                         {!isNew && (
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
                                 <span>ID: {user?.id}</span>
                                 <span>•</span>
                                 <span>Реєстрація: {user?.created_at ? format(new Date(user.created_at), "dd.MM.yyyy") : "-"}</span>
@@ -177,47 +177,47 @@ export default function UserDetailPage() {
                 {/* Main Info */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Profile Form */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <div className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700">
+                        <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                             <UserIcon className="w-5 h-5 text-primary" />
                             Основна інформація
                         </h2>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
                                         Ім&apos;я
                                     </label>
                                     <input
                                         {...register("name")}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-gray-700 text-white placeholder-gray-400"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
                                         Телефон
                                     </label>
                                     <input
                                         {...register("phone")}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-gray-700 text-white placeholder-gray-400"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
                                         Email
                                     </label>
                                     <input
                                         {...register("email")}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-gray-700 text-white placeholder-gray-400"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">
                                         Роль
                                     </label>
                                     <select
                                         {...register("role")}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white"
+                                        className="w-full px-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-gray-700 text-white"
                                     >
                                         <option value="client">Клієнт</option>
                                         <option value="manager">Менеджер</option>
@@ -234,7 +234,7 @@ export default function UserDetailPage() {
                                         {...register("newsletter_subscription")}
                                         className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
                                     />
-                                    <span className="text-sm text-gray-700">Підписка на новини</span>
+                                    <span className="text-sm text-gray-300">Підписка на новини</span>
                                 </label>
                             </div>
 
@@ -252,38 +252,38 @@ export default function UserDetailPage() {
 
                     {/* Orders History */}
                     {!isNew && (
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700">
+                            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                 <ShoppingBagIcon className="w-5 h-5 text-primary" />
                                 Історія замовлень
                             </h2>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm">
-                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                    <thead className="bg-gray-700 border-b border-gray-600">
                                         <tr>
-                                            <th className="px-4 py-3 font-medium text-gray-500">№</th>
-                                            <th className="px-4 py-3 font-medium text-gray-500">Дата</th>
-                                            <th className="px-4 py-3 font-medium text-gray-500">Сума</th>
-                                            <th className="px-4 py-3 font-medium text-gray-500">Статус</th>
+                                            <th className="px-4 py-3 font-medium text-gray-300">№</th>
+                                            <th className="px-4 py-3 font-medium text-gray-300">Дата</th>
+                                            <th className="px-4 py-3 font-medium text-gray-300">Сума</th>
+                                            <th className="px-4 py-3 font-medium text-gray-300">Статус</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-200">
+                                    <tbody className="divide-y divide-gray-700">
                                         {isOrdersLoading ? (
-                                            <tr><td colSpan={4} className="p-4 text-center">Завантаження...</td></tr>
+                                            <tr><td colSpan={4} className="p-4 text-center text-gray-300">Завантаження...</td></tr>
                                         ) : orders.length === 0 ? (
-                                            <tr><td colSpan={4} className="p-4 text-center text-gray-500">Замовлень немає</td></tr>
+                                            <tr><td colSpan={4} className="p-4 text-center text-gray-400">Замовлень немає</td></tr>
                                         ) : (
                                             orders.map((order) => (
-                                                <tr key={order.id} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-3">
+                                                <tr key={order.id} className="hover:bg-gray-700">
+                                                    <td className="px-4 py-3 text-gray-200">
                                                         <Link href={`/admin/orders/${order.id}`} className="text-primary hover:underline">
                                                             {order.order_number}
                                                         </Link>
                                                     </td>
-                                                    <td className="px-4 py-3 text-gray-600">
+                                                    <td className="px-4 py-3 text-gray-400">
                                                         {format(new Date(order.created_at), "dd.MM.yyyy HH:mm")}
                                                     </td>
-                                                    <td className="px-4 py-3 font-medium">
+                                                    <td className="px-4 py-3 font-medium text-white">
                                                         {order.total_amount} ₴
                                                     </td>
                                                     <td className="px-4 py-3">
@@ -309,22 +309,22 @@ export default function UserDetailPage() {
                 {!isNew && (
                     <div className="space-y-6">
                         {/* Loyalty Card */}
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700">
+                            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                 <GiftIcon className="w-5 h-5 text-primary" />
                                 Лояльність
                             </h2>
 
-                            <div className="bg-theme-secondary p-4 rounded-lg mb-4">
-                                <div className="text-sm text-gray-500 mb-1">Бонусний баланс</div>
+                            <div className="bg-gray-700 p-4 rounded-lg mb-4">
+                                <div className="text-sm text-gray-400 mb-1">Бонусний баланс</div>
                                 <div className="text-3xl font-bold text-primary">{user?.bonus_balance} ₴</div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                    Статус: <span className="font-medium text-gray-900 uppercase">{user?.loyalty_status}</span>
+                                <div className="text-xs text-gray-400 mt-1">
+                                    Статус: <span className="font-medium text-white uppercase">{user?.loyalty_status}</span>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <label className="block text-sm font-medium text-gray-700">
+                                <label className="block text-sm font-medium text-gray-300">
                                     Нарахувати бонуси
                                 </label>
                                 <div className="flex gap-2">
@@ -333,7 +333,7 @@ export default function UserDetailPage() {
                                         placeholder="Сума"
                                         value={bonusAmount}
                                         onChange={(e) => setBonusAmount(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                        className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-gray-700 text-white placeholder-gray-400"
                                     />
                                 </div>
                                 <input
@@ -341,7 +341,7 @@ export default function UserDetailPage() {
                                     placeholder="Причина (опціонально)"
                                     value={bonusReason}
                                     onChange={(e) => setBonusReason(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                                    className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-gray-700 text-white placeholder-gray-400"
                                 />
                                 <button
                                     onClick={() => addBonusMutation.mutate()}
@@ -354,25 +354,25 @@ export default function UserDetailPage() {
                         </div>
 
                         {/* Stats Card */}
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <div className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700">
+                            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                 <CurrencyDollarIcon className="w-5 h-5 text-primary" />
                                 Статистика
                             </h2>
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                    <span className="text-gray-600">Всього замовлень</span>
-                                    <span className="font-bold">{orders.length}</span>
+                                <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                                    <span className="text-gray-400">Всього замовлень</span>
+                                    <span className="font-bold text-white">{orders.length}</span>
                                 </div>
-                                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                    <span className="text-gray-600">Загальна сума</span>
-                                    <span className="font-bold">
+                                <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                                    <span className="text-gray-400">Загальна сума</span>
+                                    <span className="font-bold text-primary">
                                         {orders.reduce((sum, order) => sum + Number(order.total_amount), 0).toFixed(2)} ₴
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                                    <span className="text-gray-600">Середній чек</span>
-                                    <span className="font-bold">
+                                <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                                    <span className="text-gray-400">Середній чек</span>
+                                    <span className="font-bold text-primary">
                                         {orders.length > 0
                                             ? (orders.reduce((sum, order) => sum + Number(order.total_amount), 0) / orders.length).toFixed(2)
                                             : "0.00"} ₴

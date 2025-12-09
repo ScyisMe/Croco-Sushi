@@ -112,6 +112,7 @@ async def get_order(
 
 
 @router.put("/{order_id}/status", response_model=OrderResponse)
+@router.patch("/{order_id}/status", response_model=OrderResponse)
 async def update_order_status(
     order_id: int,
     status_data: OrderStatusUpdate,

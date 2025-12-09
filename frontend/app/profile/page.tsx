@@ -21,7 +21,8 @@ import {
   PlusIcon,
   ChevronRightIcon,
   CheckIcon,
-  ArrowRightOnRectangleIcon,
+  ArrowLeftStartOnRectangleIcon,
+  StarIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
@@ -303,16 +304,16 @@ export default function ProfilePage() {
                 Особистий кабінет
               </h1>
               {userQuery.data && (
-                <p className="text-gray-400 mt-2 text-lg">
-                  {userQuery.data.phone}
+                <p className="text-gray-300 mt-2 text-lg">
+                  Вітаємо, <span className="text-white font-medium">{userQuery.data.name || 'Гостю'}</span>!
                 </p>
               )}
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 text-gray-300 hover:text-accent-red transition-all duration-200"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-accent-red transition-all duration-200 text-sm opacity-70 hover:opacity-100"
             >
-              <ArrowRightOnRectangleIcon className="w-5 h-5" />
+              <ArrowLeftStartOnRectangleIcon className="w-5 h-5" />
               <span>Вийти</span>
             </button>
           </div>
@@ -329,7 +330,7 @@ export default function ProfilePage() {
                       <button
                         onClick={() => setActiveTab(tab.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === tab.id
-                          ? "bg-primary-500 text-white shadow-lg shadow-primary-500/20"
+                          ? "bg-primary-500 text-surface-dark font-semibold shadow-lg shadow-primary-500/30"
                           : "text-gray-400 hover:bg-white/5 hover:text-white"
                           }`}
                       >
@@ -439,40 +440,41 @@ export default function ProfilePage() {
                       </div>
                     ) : (
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between py-4 border-b border-white/5">
+                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
                           <span className="text-gray-400">Телефон</span>
                           <span className="font-medium text-white text-lg">
                             {userQuery.data?.phone}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between py-4 border-b border-white/5">
+                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
                           <span className="text-gray-400">Ім&apos;я</span>
                           <span className="font-medium text-white text-lg">
                             {userQuery.data?.name || "—"}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between py-4 border-b border-white/5">
+                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
                           <span className="text-gray-400">Email</span>
                           <span className="font-medium text-white text-lg">
                             {userQuery.data?.email || "—"}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between py-4 border-b border-white/5">
+                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
                           <span className="text-gray-400">Бонусні бали</span>
                           <span className="font-bold text-accent-gold text-lg">
                             {userQuery.data?.bonus_balance || 0} балів
                           </span>
                         </div>
-                        <div className="flex items-center justify-between py-4">
+                        <div className="grid grid-cols-[140px_1fr] items-center py-4">
                           <span className="text-gray-400">Статус</span>
                           <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium border ${userQuery.data?.loyalty_status === "gold"
-                              ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border w-fit ${userQuery.data?.loyalty_status === "gold"
+                              ? "bg-gradient-to-r from-yellow-500/30 to-amber-500/20 text-yellow-300 border-yellow-400/40 shadow-lg shadow-yellow-500/10"
                               : userQuery.data?.loyalty_status === "silver"
-                                ? "bg-gray-500/20 text-gray-300 border-gray-500/30"
-                                : "bg-green-500/20 text-green-400 border-green-500/30"
+                                ? "bg-gradient-to-r from-gray-400/20 to-slate-400/20 text-gray-200 border-gray-400/40"
+                                : "bg-gradient-to-r from-emerald-500/30 to-green-500/20 text-emerald-300 border-emerald-400/50 shadow-lg shadow-emerald-500/10"
                               }`}
                           >
+                            <StarIcon className="w-4 h-4" />
                             {userQuery.data?.loyalty_status === "gold"
                               ? "Золотий"
                               : userQuery.data?.loyalty_status === "silver"
