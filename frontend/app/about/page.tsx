@@ -33,7 +33,7 @@ const ADVANTAGES = [
 // Контакти
 const CONTACTS = {
   address: "м. Львів, вул. Володимира Янева, 31",
-  addressUrl: "https://maps.app.goo.gl/zX2FmCwhEj8vN2JF9",
+  addressUrl: "https://maps.app.goo.gl/FVwFa238ugXyDEDj7",
   phone: "+380980970003",
   phoneDisplay: "(098) 097-00-03",
   email: "crocosushi0003@gmail.com",
@@ -285,18 +285,18 @@ export default function AboutPage() {
         </section>
 
         {/* CTA секція */}
-        <section className="py-16 md:py-24 bg-gradient-to-r from-primary to-primary-600">
+        <section className="py-16 md:py-24">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Готові спробувати?
             </h2>
-            <p className="text-white/80 mb-8 max-w-xl mx-auto">
+            <p className="text-foreground-secondary mb-8 max-w-xl mx-auto">
               Замовте смачні суші та роли з доставкою прямо до вашого дому!
               Безкоштовна доставка від 1000 грн.
             </p>
             <Link
               href="/menu"
-              className="inline-flex items-center justify-center px-10 py-5 bg-white text-primary font-bold text-lg rounded-xl hover:bg-gray-100 transition"
+              className="inline-flex items-center justify-center px-10 py-5 bg-primary hover:bg-primary-600 text-white font-bold text-lg rounded-xl shadow-lg shadow-primary/25 transition"
             >
               Замовити зараз
             </Link>

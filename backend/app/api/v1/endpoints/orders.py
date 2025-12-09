@@ -285,8 +285,8 @@ async def create_order(
     
     # Відправка підтвердження замовлення через Celery (асинхронно)
     if order_data.customer_email:
-        from app.tasks.email import send_order_confirmation
-        send_order_confirmation.delay(new_order.id, order_data.customer_email)
+        from app.tasks.email import schedule_order_confirmation
+        schedule_order_confirmation(new_order.id, order_data.customer_email)
     
     # Відправка SMS сповіщення (якщо є номер телефону)
     if order_data.customer_phone:

@@ -1,13 +1,21 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+"""Database configuration and session management."""
+import asyncio
+import logging
+from typing import Optional
+
 import sqlalchemy
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import settings
-from typing import Optional
+
+logger = logging.getLogger(__name__)
+
 
 # Базовий клас для моделей (SQLAlchemy 2.0 style)
 class Base(DeclarativeBase):
     pass
+
 
 # Змінні для engine та сесій (створюються при першому використанні)
 _engine: Optional[any] = None
@@ -41,12 +49,12 @@ def get_engine():
     return _engine
 
 
-async def check_db_connection():
-    """Check database connection with retries"""
-    import asyncio
-    import logging
+async def check_db_connection() -> bool:
+    """Check database connection with retries.
     
-    logger = logging.getLogger(__name__)
+    Returns:
+        True if connection successful, raises exception otherwise.
+    """
     max_retries = 5
     retry_interval = 2
     
@@ -64,6 +72,8 @@ async def check_db_connection():
             else:
                 logger.error("Could not establish database connection after multiple retries")
                 raise e
+    
+    return False  # Should never reach here, but for type safety
 
 
 def get_async_session_local():
@@ -82,7 +92,8 @@ def get_async_session_local():
 
 # Для зворотної сумісності - створюємо об'єкти, які будуть ініціалізовані при використанні
 class LazyEngine:
-    """Lazy engine wrapper"""
+    """Lazy engine wrapper for backwards compatibility."""
+    
     def __call__(self):
         return get_engine()
     
@@ -91,7 +102,8 @@ class LazyEngine:
 
 
 class LazySessionLocal:
-    """Lazy session local wrapper"""
+    """Lazy session local wrapper for backwards compatibility."""
+    
     def __call__(self):
         return get_async_session_local()
     
@@ -105,14 +117,25 @@ AsyncSessionLocal = LazySessionLocal()
 
 
 async def get_db() -> AsyncSession:
-    """Dependency для отримання сесії БД"""
+    """Dependency для отримання сесії БД.
+    
+    Yields:
+        AsyncSession: Database session for the request.
+        
+    Note:
+        - Commits on success
+        - Rolls back on exception
+        - Always closes the session
+    """
     session_local = get_async_session_local()
     async with session_local() as session:
         try:
             yield session
+            # Комітимо ТІЛЬКИ якщо не було виключень
             await session.commit()
         except Exception:
             await session.rollback()
+            # Прокидаємо помилку далі, щоб FastAPI знав про неї
             raise
         finally:
             await session.close()

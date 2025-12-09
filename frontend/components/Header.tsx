@@ -26,7 +26,7 @@ const CONTACT_INFO = {
   workingHours: "10:00 - 21:45",
   email: "crocosushi0003@gmail.com",
   address: "м. Львів, вул. Володимира Янева, 31",
-  addressUrl: "https://maps.app.goo.gl/JksKK3KqdouctZ6UJ",
+  addressUrl: "https://maps.app.goo.gl/FVwFa238ugXyDEDj7",
   social: {
     telegram: "https://t.me/CrocoSushi",
     instagram: "https://www.instagram.com/crocosushi/",
@@ -233,7 +233,7 @@ export default function Header() {
               >
                 <ShoppingCartIcon className="w-6 h-6" />
                 {isMounted && getItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-accent-red text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-accent-red text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center shadow-md">
                     {getItemCount > 99 ? "99+" : getItemCount}
                   </span>
                 )}

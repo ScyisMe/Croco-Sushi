@@ -19,6 +19,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Форматування телефону - дозволяє тільки цифри
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+
+    if (digits.length === 0) return "";
+    if (digits.length <= 3) return `+${digits}`;
+    if (digits.length <= 5) return `+${digits.slice(0, 3)} ${digits.slice(3)}`;
+    if (digits.length <= 8) return `+${digits.slice(0, 3)} ${digits.slice(3, 5)} ${digits.slice(5)}`;
+    if (digits.length <= 10) return `+${digits.slice(0, 3)} ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
+    return `+${digits.slice(0, 3)} ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10, 12)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhone(formatted);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -81,10 +98,10 @@ export default function LoginPage() {
                   <input
                     type="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={handlePhoneChange}
                     required
                     className="input pl-12"
-                    placeholder="+380XXXXXXXXX"
+                    placeholder="+380 XX XXX XX XX"
                   />
                 </div>
               </div>

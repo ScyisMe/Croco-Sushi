@@ -128,10 +128,11 @@ async def delete_category(
         raise NotFoundException("Категорія не знайдена")
     
     # Перевірка чи є товари в категорії
-    # TODO: Додати перевірку через relationship
+    if category.products:
+        raise BadRequestException("Неможливо видалити категорію, яка містить товари")
     
-    # Правильний спосіб видалення в SQLAlchemy 2.0 async
-    await db.execute(delete(Category).where(Category.id == category_id))
+    # ORM-based delete
+    await db.delete(category)
     await db.commit()
     
     return None

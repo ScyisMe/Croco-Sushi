@@ -54,7 +54,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
     getDiscountAmount,
   } = useCartStore();
 
-  const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [isVerifyingPromo, setIsVerifyingPromo] = useState(false);
   const [promoInput, setPromoInput] = useState("");
@@ -65,6 +64,11 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
       setPromoInput(promoCode);
     }
   }, [promoCode]);
+
+  // Фіксовані умови доставки (без вибору зон)
+  const DELIVERY_COST = 200;
+  const FREE_DELIVERY_FROM = 1000;
+  const MIN_ORDER_AMOUNT = 200;
 
   const handleApplyPromo = async () => {
     if (!promoInput.trim()) return;
@@ -156,42 +160,18 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
     }
   }, [isOpen, validateCartItems, items.length]);
 
-
-
-
-  // Використовуємо значення з delivery з store
-  const deliveryCost = getDeliveryCost();
+  // Розрахунок доставки - фіксована логіка
+  const deliveryCost = totalAmount >= FREE_DELIVERY_FROM ? 0 : DELIVERY_COST;
   const discountAmount = getDiscountAmount();
-  const finalAmount = getFinalAmount();
-  const isMinOrderReached = totalAmount >= delivery.min_order_amount;
-  const amountToMinOrder = delivery.min_order_amount - totalAmount;
-  const amountToFreeDelivery = delivery.free_delivery_from - totalAmount;
+  const finalAmount = totalAmount - discountAmount + deliveryCost;
+  const isMinOrderReached = totalAmount >= MIN_ORDER_AMOUNT;
+  const amountToMinOrder = MIN_ORDER_AMOUNT - totalAmount;
+  const amountToFreeDelivery = FREE_DELIVERY_FROM - totalAmount;
   const isMaxItemsReached = items.length >= MAX_CART_ITEMS;
+  const isFreeDelivery = totalAmount >= FREE_DELIVERY_FROM;
+  const deliveryProgress = Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100);
 
-  // Зони доставки для вибору - всі безкоштовно від 1000₴
-  const deliveryZones = [
-    { id: "center", name: "Центр Львова", cost: 50, freeFrom: 1000, minOrder: 200, time: "30-45 хв" },
-    { id: "suburbs", name: "Околиці", cost: 70, freeFrom: 1000, minOrder: 200, time: "45-60 хв" },
-    { id: "remote", name: "Віддалені райони", cost: 100, freeFrom: 1000, minOrder: 300, time: "60-90 хв" },
-  ];
 
-  // Оновлюємо доставку при виборі зони
-  useEffect(() => {
-    if (selectedZone) {
-      const zone = deliveryZones.find(z => z.id === selectedZone);
-      if (zone) {
-        useCartStore.getState().setDelivery({
-          zone_id: deliveryZones.indexOf(zone),
-          zone_name: zone.name,
-          delivery_cost: zone.cost,
-          free_delivery_from: zone.freeFrom,
-          min_order_amount: zone.minOrder,
-          estimated_time: zone.time,
-        });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedZone]);
 
   // UI Render helper
   const renderPromoSection = () => (
@@ -270,7 +250,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
                   <div className="flex h-full flex-col bg-theme-surface shadow-xl">
-                    {/* Header */}
                     <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
                       <Dialog.Title className="text-xl font-bold text-white">
                         {t("cart.title")}
@@ -283,13 +262,25 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           <span className="ml-2 inline-block w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                         )}
                       </Dialog.Title>
-                      <button
-                        type="button"
-                        className="p-2 text-secondary-light hover:text-secondary transition rounded-full hover:bg-theme-secondary"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <XMarkIcon className="h-6 w-6" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {/* Кнопка очистити кошик - в хедері */}
+                        {items.length > 0 && (
+                          <button
+                            onClick={clearCart}
+                            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition rounded-full"
+                            title="Очистити кошик"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="p-2 text-secondary-light hover:text-secondary transition rounded-full hover:bg-theme-secondary"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <XMarkIcon className="h-6 w-6" />
+                        </button>
+                      </div>
                     </div>
 
                     {/* Content */}
@@ -326,22 +317,33 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             </div>
                           )}
 
-                          {/* Прогрес до безкоштовної доставки */}
-                          {totalAmount < delivery.free_delivery_from && (
-                            <div className="mb-4 p-3 bg-primary/5 rounded-lg">
-                              <p className="text-sm text-secondary mb-2">
-                                До безкоштовної доставки залишилось{" "}
-                                <span className="font-semibold text-primary">
+                          {/* Прогрес до безкоштовної доставки - покращений */}
+                          {!isFreeDelivery ? (
+                            <div className="mb-4 p-4 bg-primary/10 border border-primary/30 rounded-xl">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-gray-300">До безкоштовної доставки</span>
+                                <span className="text-sm font-bold text-primary">
                                   {amountToFreeDelivery.toFixed(0)} ₴
                                 </span>
-                              </p>
-                              <div className="w-full bg-theme-tertiary rounded-full h-2">
+                              </div>
+                              <div className="w-full bg-theme-tertiary rounded-full h-2.5 overflow-hidden">
                                 <div
-                                  className="bg-primary h-2 rounded-full transition-all"
-                                  style={{
-                                    width: `${Math.min((totalAmount / delivery.free_delivery_from) * 100, 100)}%`,
-                                  }}
+                                  className="h-full bg-gradient-to-r from-primary to-primary-600 rounded-full transition-all duration-500"
+                                  style={{ width: `${deliveryProgress}%` }}
                                 />
+                              </div>
+                              <p className="text-xs text-gray-400 mt-2">
+                                🎁 Додайте ще страв на {amountToFreeDelivery.toFixed(0)} ₴ і зекономте 200 ₴!
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="mb-4 p-4 bg-primary/20 border border-primary/40 rounded-xl">
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl">🎉</span>
+                                <div>
+                                  <p className="font-bold text-primary">Доставка безкоштовна!</p>
+                                  <p className="text-xs text-gray-400">Ви зекономили 200 ₴</p>
+                                </div>
                               </div>
                             </div>
                           )}
@@ -429,14 +431,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                               </li>
                             ))}
                           </ul>
-
-                          {/* Кнопка очистити кошик */}
-                          <button
-                            onClick={clearCart}
-                            className="w-full mt-4 py-2 text-sm text-secondary-light hover:text-accent-red transition"
-                          >
-                            Очистити кошик
-                          </button>
                         </div>
                       )}
                     </div>
@@ -444,34 +438,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                     {/* Footer - з safe area для мобільних */}
                     {items.length > 0 && (
                       <div className="border-t border-border px-4 sm:px-6 py-4 pb-safe space-y-4">
-                        <div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <TruckIcon className="w-4 h-4 text-primary" />
-                            <span className="text-sm font-medium text-white">Зона доставки</span>
-                          </div>
-                          <select
-                            value={selectedZone || ""}
-                            onChange={(e) => setSelectedZone(e.target.value || null)}
-                            className="input appearance-none cursor-pointer"
-                          >
-                            <option value="" className="bg-surface-card text-white">Оберіть зону доставки</option>
-                            {deliveryZones.map((zone) => (
-                              <option key={zone.id} value={zone.id} className="bg-surface-card text-white">
-                                {zone.name} • {zone.time} • {totalAmount >= zone.freeFrom ? "Безкоштовно" : `${zone.cost} ₴`}
-                              </option>
-                            ))}
-                          </select>
-                          {delivery.zone_name && (
-                            <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
-                              <MapPinIcon className="w-3 h-3 text-primary" />
-                              <span>{delivery.zone_name}</span>
-                              {delivery.estimated_time && (
-                                <span className="text-primary-500"> • {delivery.estimated_time}</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
                         {renderPromoSection()}
 
                         {/* Підсумок */}
@@ -490,15 +456,16 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
                           <div className="flex justify-between">
                             <span className="text-gray-400">Доставка</span>
-                            <span className={`font-medium ${deliveryCost === 0 ? "text-primary-500" : "text-white"}`}>
-                              {deliveryCost === 0 ? "Безкоштовно" : `${deliveryCost} ₴`}
+                            <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : "text-white"}`}>
+                              {deliveryCost === 0 ? (
+                                <span className="flex items-center gap-1">
+                                  <span>✓</span> Безкоштовно
+                                </span>
+                              ) : (
+                                `${deliveryCost} ₴`
+                              )}
                             </span>
                           </div>
-                          {deliveryCost > 0 && totalAmount > 0 && (
-                            <div className="text-xs text-gray-400">
-                              До безкоштовної доставки: {amountToFreeDelivery.toFixed(0)} ₴
-                            </div>
-                          )}
                           <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
                             <span className="text-white">{t("cart.total")}</span>
                             <span className="text-primary-500">{finalAmount.toFixed(0)} ₴</span>
@@ -508,7 +475,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                         {/* Попередження про мінімальну суму */}
                         {!isMinOrderReached && (
                           <p className="text-sm text-accent-red text-center">
-                            Мінімальна сума замовлення {delivery.min_order_amount} ₴.
+                            Мінімальна сума замовлення {MIN_ORDER_AMOUNT} ₴.
                             Додайте ще {amountToMinOrder.toFixed(0)} ₴
                           </p>
                         )}

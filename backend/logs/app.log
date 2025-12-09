@@ -4069,3 +4069,36 @@ Traceback (most recent call last):
               ^^^^^^^^^^^^^^^^^
 AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-11-30 18:06:17 - app.main - INFO - CORS_ORIGINS: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173']
+2025-12-09 22:25:40 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 22:26:01 - app.main - INFO - Redis connection closed
+2025-12-09 22:26:07 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 22:34:17 - app.main - INFO - Redis connection closed
+2025-12-09 22:34:26 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 22:35:21 - app.main - INFO - Redis connection closed
+2025-12-09 22:35:23 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 22:38:07 - app.main - INFO - Redis connection closed
+2025-12-09 22:38:13 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 22:48:12 - app.main - INFO - Redis connection closed
+2025-12-09 22:48:21 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 22:49:38 - app.main - INFO - Redis connection closed
+2025-12-09 22:49:48 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 22:56:14 - app.main - INFO - Redis connection closed
+2025-12-09 22:56:23 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:05:34 - app.main - INFO - Redis connection closed
+2025-12-09 23:05:44 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:08:42 - app.main - INFO - Redis connection closed
+2025-12-09 23:08:52 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:17:29 - app.main - INFO - Redis connection closed
+2025-12-09 23:17:41 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:19:49 - app.main - INFO - Redis connection closed
+2025-12-09 23:19:51 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:26:50 - app.main - INFO - Redis connection closed
+2025-12-09 23:26:58 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:31:36 - app.main - INFO - Redis connection closed
+2025-12-09 23:31:44 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:37:36 - app.main - INFO - Redis connection closed
+2025-12-09 23:37:45 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:40:14 - app.main - INFO - Redis connection closed
+2025-12-09 23:40:17 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-09 23:40:27 - app.main - INFO - Redis connection closed
+2025-12-09 23:40:29 - app.main - INFO - Connected to Redis for Rate Limiting

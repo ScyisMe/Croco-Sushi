@@ -109,7 +109,7 @@ export default function Footer() {
             <ul className="space-y-3 text-gray-400">
               <li>
                 <a
-                  href="https://maps.app.goo.gl/JksKK3KqdouctZ6UJ"
+                  href="https://maps.app.goo.gl/FVwFa238ugXyDEDj7"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-start gap-3 hover:text-primary-400 transition-colors group"

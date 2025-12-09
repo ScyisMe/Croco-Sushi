@@ -21,7 +21,8 @@ async def get_promotions(
     db: AsyncSession = Depends(get_db)
 ):
     """Отримання активних акцій"""
-    now = datetime.now(timezone.utc)
+    # Використовуємо локальний час сервера для порівняння з датами без timezone
+    now = datetime.now()
     
     query = select(Promotion).where(
         and_(
@@ -65,7 +66,7 @@ async def get_promotion_by_slug(
     db: AsyncSession = Depends(get_db)
 ):
     """Отримання акції за slug"""
-    now = datetime.now(timezone.utc)
+    now = datetime.now()
     
     result = await db.execute(
         select(Promotion).where(

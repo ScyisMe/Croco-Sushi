@@ -152,8 +152,8 @@ async def delete_product(
     if not product:
         raise NotFoundException("Товар не знайдено")
     
-    # Правильний спосіб видалення в SQLAlchemy 2.0 async
-    await db.execute(delete(Product).where(Product.id == product_id))
+    # ORM-based delete
+    await db.delete(product)
     await db.commit()
     
     return None
@@ -167,17 +167,40 @@ async def upload_product_images(
     current_user: User = Depends(get_current_admin_user)
 ):
     """Завантажити зображення товару"""
+    # Валідація: обмеження кількості файлів
+    if len(files) > 10:
+        raise BadRequestException("Максимальна кількість зображень: 10")
+    
+    # Валідація типів файлів
+    allowed_types = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+    max_size = 5 * 1024 * 1024  # 5MB
+    
+    for file in files:
+        if file.content_type not in allowed_types:
+            raise BadRequestException(
+                f"Непідтримуваний тип файлу: {file.content_type}. "
+                f"Дозволені: JPEG, PNG, WebP, GIF"
+            )
+        # Перевірка розміру (читаємо файл для перевірки)
+        content = await file.read()
+        if len(content) > max_size:
+            raise BadRequestException(
+                f"Файл {file.filename} перевищує максимальний розмір 5MB"
+            )
+        # Повертаємо курсор на початок для подальшого використання
+        await file.seek(0)
+    
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
     
     if not product:
         raise NotFoundException("Товар не знайдено")
     
-    # TODO: Реалізувати завантаження та оптимізацію зображень
-    # Поки що повертаємо успішний статус
-    uploaded_urls = []
-    
-    return {"message": "Зображення завантажено", "urls": uploaded_urls}
+    # TODO: Реалізувати збереження файлів на диск/S3
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Завантаження зображень ще не реалізовано"
+    )
 
 
 @router.delete("/{product_id}/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -194,12 +217,11 @@ async def delete_product_image(
     if not product:
         raise NotFoundException("Товар не знайдено")
     
-    # TODO: Видалити зображення з файлової системи/S3
-    # TODO: Оновити список images в продукті
-    
-    await db.commit()
-    
-    return None
+    # TODO: Реалізувати видалення зображень
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Видалення зображень ще не реалізовано"
+    )
 
 
 @router.put("/bulk-update", status_code=status.HTTP_204_NO_CONTENT)
@@ -249,15 +271,24 @@ async def bulk_delete_products(
     current_user: User = Depends(get_current_admin_user)
 ):
     """Масове видалення товарів"""
+    # Валідація: перевірка списку ID
+    if not request.ids:
+        raise BadRequestException("Список ID не може бути порожнім")
+    
+    if len(request.ids) > 100:
+        raise BadRequestException("Максимальна кількість товарів для видалення: 100")
+    
+    if not all(isinstance(id, int) and id > 0 for id in request.ids):
+        raise BadRequestException("Всі ID повинні бути додатніми числами")
+    
     result = await db.execute(
         select(Product).where(Product.id.in_(request.ids))
     )
     products = result.scalars().all()
     
-    # Правильний спосіб видалення в SQLAlchemy 2.0 async
-    if products:
-        product_ids = [p.id for p in products]
-        await db.execute(delete(Product).where(Product.id.in_(product_ids)))
+    # ORM-based delete для кожного продукту
+    for product in products:
+        await db.delete(product)
     
     await db.commit()
     

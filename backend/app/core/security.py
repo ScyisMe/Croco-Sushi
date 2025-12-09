@@ -55,9 +55,9 @@ def decode_access_token(token: str) -> Optional[dict]:
 
 
 def create_refresh_token(data: dict) -> str:
-    """Створення refresh токену (30 днів)"""
+    """Створення refresh токену"""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(days=30)
+    expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
@@ -79,8 +79,11 @@ def generate_2fa_secret() -> str:
     return pyotp.random_base32()
 
 
-def generate_2fa_qr_code(secret: str, email: str, issuer: str = "Croco Sushi") -> str:
+def generate_2fa_qr_code(secret: str, email: str, issuer: str = None) -> str:
     """Генерація QR-коду для Google Authenticator"""
+    if issuer is None:
+        issuer = settings.PROJECT_NAME
+
     totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
         name=email,
         issuer_name=issuer

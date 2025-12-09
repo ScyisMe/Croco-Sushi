@@ -133,8 +133,8 @@ async def register(
         # Send welcome email
         if new_user.email:
             try:
-                from app.tasks.email import send_welcome_email
-                send_welcome_email.delay(new_user.email, new_user.name)
+                from app.tasks.email import schedule_welcome_email
+                schedule_welcome_email(new_user.email, new_user.name or "Шановний клієнте")
             except Exception as e:
                 # Don't fail registration if email fails
                 print(f"Failed to send welcome email: {e}")

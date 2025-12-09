@@ -77,7 +77,7 @@ const PAYMENT_METHODS = [
 
 // Мінімальна сума замовлення
 const MIN_ORDER_AMOUNT = 200;
-const DELIVERY_COST = 50;
+const DELIVERY_COST = 200;
 const FREE_DELIVERY_FROM = 1000;
 
 export default function CheckoutPage() {
@@ -779,7 +779,26 @@ export default function CheckoutPage() {
                 </ul>
 
                 {/* Підсумок */}
-                <div className="border-t border-border pt-3 sm:pt-4 space-y-1.5 sm:space-y-2">
+                <div className="border-t border-border pt-3 sm:pt-4 space-y-2 sm:space-y-3">
+                  {/* Прогрес-бар до безкоштовної доставки */}
+                  {deliveryCost > 0 && (
+                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-3">
+                      <div className="flex justify-between text-xs mb-2">
+                        <span className="text-foreground-secondary">До безкоштовної доставки</span>
+                        <span className="font-bold text-primary">{FREE_DELIVERY_FROM - totalAmount} ₴</span>
+                      </div>
+                      <div className="h-2 bg-theme-tertiary rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-primary to-primary-600 rounded-full transition-all duration-300"
+                          style={{ width: `${Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-foreground-secondary mt-1.5">
+                        🎁 Додайте ще страв на {FREE_DELIVERY_FROM - totalAmount} ₴ і доставка буде безкоштовною!
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-secondary-light">Підсумок</span>
                     <span className="font-medium">{totalAmount} ₴</span>
@@ -787,14 +806,15 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-secondary-light">Доставка</span>
                     <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
-                      {deliveryCost === 0 ? "Безкоштовно" : `${deliveryCost} ₴`}
+                      {deliveryCost === 0 ? (
+                        <span className="flex items-center gap-1">
+                          <span className="text-primary">✓</span> Безкоштовно
+                        </span>
+                      ) : (
+                        `${deliveryCost} ₴`
+                      )}
                     </span>
                   </div>
-                  {deliveryCost > 0 && (
-                    <p className="text-[10px] sm:text-xs text-secondary-light">
-                      Безкоштовна доставка від {FREE_DELIVERY_FROM} ₴
-                    </p>
-                  )}
                   <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-border">
                     <span>Разом</span>
                     <span className="text-primary">{finalAmount} ₴</span>
