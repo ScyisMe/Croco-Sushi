@@ -23,6 +23,9 @@ class ProductBase(BaseModel):
     is_available: bool = True
     is_new: bool = False
     is_popular: bool = False
+    is_spicy: bool = False
+    is_vegan: bool = False
+    is_top_seller: bool = False
     position: int = 0
 
 
@@ -47,6 +50,9 @@ class ProductUpdate(BaseModel):
     is_available: Optional[bool] = None
     is_new: Optional[bool] = None
     is_popular: Optional[bool] = None
+    is_spicy: Optional[bool] = None
+    is_vegan: Optional[bool] = None
+    is_top_seller: Optional[bool] = None
     position: Optional[int] = None
 
 

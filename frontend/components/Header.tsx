@@ -17,6 +17,7 @@ import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
 import { throttle } from "@/lib/utils";
 import Image from "next/image";
+import { NavLink } from "./ui/NavLink";
 
 // Контактна інформація Croco Sushi
 const CONTACT_INFO = {
@@ -95,6 +96,15 @@ export default function Header() {
       setIsAuthenticated(!!token);
     }
   }, []);
+
+  const [isBumping, setIsBumping] = useState(false);
+
+  useEffect(() => {
+    if (getItemCount === 0) return;
+    setIsBumping(true);
+    const timer = setTimeout(() => setIsBumping(false), 300);
+    return () => clearTimeout(timer);
+  }, [getItemCount]);
 
   // Функція для зміни мови
   const handleLanguageChange = (lang: Locale) => {
@@ -191,17 +201,14 @@ export default function Header() {
               </span>
             </Link>
 
+
+
             {/* Навігація (Desktop) */}
             <nav className="hidden lg:flex items-center space-x-8">
               {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-secondary font-medium hover:text-primary transition relative group"
-                >
+                <NavLink key={link.href} href={link.href}>
                   {t(link.labelKey)}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
-                </Link>
+                </NavLink>
               ))}
             </nav>
 
@@ -228,7 +235,7 @@ export default function Header() {
               {/* Кошик - touch target 44px */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] text-foreground hover:text-primary hover:bg-surface-hover rounded-full transition active:scale-95"
+                className={`relative flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] text-foreground hover:text-primary hover:bg-surface-hover rounded-full transition active:scale-95 ${isBumping ? 'scale-110 text-primary bg-primary/10' : ''}`}
                 aria-label="Відкрити кошик"
               >
                 <ShoppingCartIcon className="w-6 h-6" />

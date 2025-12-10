@@ -11,6 +11,14 @@ import { Product, ProductSize } from "@/lib/types";
 import toast from "react-hot-toast";
 import { GlassCard } from "./ui/GlassCard";
 import { Button } from "./ui/Button";
+import { ProductActions } from "./ProductActions";
+import { FireIcon } from "@heroicons/react/24/solid";
+// Use Leaf icon or similar for Vegan if no specific Vegan icon available in Outline/Solid standard set, or import from another lib if available. 
+// Assuming SparklesIcon or similar as placeholder if specific one missing, but Heroicons has rudimentary support.
+// Let's use Sparkles for "Hit"/Popular if not already defined.
+// Actually let's just use what we have or generic ones.
+import { SparklesIcon } from "@heroicons/react/24/solid"; // For 'New' maybe?
+import { HandThumbUpIcon } from "@heroicons/react/24/solid"; // For 'Hit'
 
 interface ProductCardProps {
   product: Product;
@@ -18,9 +26,10 @@ interface ProductCardProps {
   isFavorite?: boolean;
   onQuickView?: (product: Product) => void;
   priority?: boolean;
+  isSet?: boolean;
 }
 
-export default function ProductCard({ product, onFavoriteToggle, isFavorite = false, onQuickView, priority = false }: ProductCardProps) {
+export default function ProductCard({ product, onFavoriteToggle, isFavorite = false, onQuickView, priority = false, isSet = false }: ProductCardProps) {
   const { t } = useTranslation();
   const addItem = useCartStore((state) => state.addItem);
   const itemsCount = useCartStore((state) => state.items.length);
@@ -44,36 +53,53 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
   // Визначаємо бейджі
   const badges = [];
-  if (product.is_new) badges.push({ label: "Новинка", className: "bg-gradient-to-r from-emerald-400 to-emerald-600 text-white" });
-  if (product.is_hit) badges.push({ label: "Хіт", className: "bg-gradient-to-r from-amber-400 to-amber-600 text-white" });
-  if (product.is_promotion || hasDiscount) badges.push({ label: "Акція", className: "bg-gradient-to-r from-rose-400 to-rose-600 text-white" });
 
-  // INP optimization - використовуємо startTransition для некритичних оновлень
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Logic to determine badges (infer from text if not present in validation)
+  const isSpicy = product.is_spicy || product.name.toLowerCase().includes('спайсі') || product.description?.toLowerCase().includes('гострий') || product.description?.toLowerCase().includes('spicy');
+  const isVegan = product.is_vegan || product.name.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('vegan') || product.description?.toLowerCase().includes('овоч');
 
-    // Перевірка на максимум товарів
-    if (itemsCount >= MAX_CART_ITEMS) {
-      toast.error(`Максимум ${MAX_CART_ITEMS} різних товарів у кошику`);
-      return;
-    }
+  if (product.is_top_seller) badges.push({ label: "Top", className: "", icon: "/badges/top.png", isImage: true });
+  if (product.is_new) badges.push({ label: "Новинка", className: "", icon: "/badges/new.png", isImage: true });
+  if (product.is_popular || product.is_hit) badges.push({ label: "Хіт", className: "", icon: "/badges/hit.png", isImage: true });
+  if (product.is_promotion || hasDiscount) badges.push({ label: "Акція", className: "bg-rose-500/90 text-white backdrop-blur-sm", icon: "🏷️" });
+  if (isSpicy) badges.push({ label: "Гостре", className: "", icon: "/badges/spicy.png", isImage: true });
+  if (isVegan) badges.push({ label: "Веган", className: "", icon: "/badges/vegan.png", isImage: true });
 
-    // Використовуємо startTransition для некритичного оновлення стану
-    startTransition(() => {
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: currentPrice,
-        image_url: product.image_url,
-        size: selectedSize?.name,
-        sizeId: selectedSize?.id,
-        quantity: 1,
-      });
+  // Helper to highlight ingredients
+  const highlightIngredients = (text?: string) => {
+    if (!text) return null;
+    const keywords = ['лосось', 'вугор', 'креветка', 'тунець', 'краб', 'авокадо', 'сир', 'salmon', 'eel', 'shrimp', 'tuna', 'crab', 'avocado', 'cheese', 'філадельфія'];
+
+    // Simple split by comma or just return text with highlighted words replacements not reliable with react elements in string replacement simply.
+    // Using simple string replacement logic for display.
+    // We will render HTML safely or use parts.
+
+    const parts = text.split(/([,.]\s+)/); // Split by punctuation
+
+    return parts.map((part, index) => {
+      const lower = part.toLowerCase();
+      const keyword = keywords.find(k => lower.includes(k));
+      if (keyword) {
+        // If part contains a keyword, we might want to highlight just the keyword or the whole phrase?
+        // User asked "Highlight key ingredients (salmon, eel...) bold".
+        // Let's wrap the found keyword in bold.
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        const subParts = part.split(regex);
+        return (
+          <span key={index}>
+            {subParts.map((sub, i) =>
+              sub.toLowerCase() === keyword.toLowerCase() ? <strong key={i} className="text-white font-semibold">{sub}</strong> : sub
+            )}
+          </span>
+        );
+      }
+      return <span key={index}>{part}</span>;
     });
-
-    toast.success(`${product.name} додано в кошик`);
   };
+
+  const ingredientsText = product.ingredients || product.description;
+
+
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -91,7 +117,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
   return (
     <GlassCard
-      className="group relative overflow-hidden h-full flex flex-col border-white/5 bg-surface-card/50 hover:bg-surface-card/80"
+      className={`group relative overflow-hidden h-full flex flex-col border-white/5 bg-surface-card/50 transition-all duration-300 hover:bg-surface-card/80 hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(34,197,94,0.15)] ${isSet ? 'border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : ''}`}
       hoverEffect
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -103,7 +129,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             src={product.image_url}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             priority={priority}
           />
@@ -124,9 +150,21 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         {badges.length > 0 && (
           <div className="absolute top-3 left-3 flex flex-col gap-2">
             {badges.map((badge, index) => (
-              <span key={index} className={`px-3 py-1 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm ${badge.className}`}>
-                {badge.label}
-              </span>
+              badge.isImage ? (
+                <div key={index} className="relative w-8 h-8 md:w-10 md:h-10 drop-shadow-lg transition-transform hover:scale-110" title={badge.label}>
+                  <Image
+                    src={badge.icon as string}
+                    alt={badge.label}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <span key={index} className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm flex items-center gap-1.5 ${badge.className}`}>
+                  {badge.icon}
+                  {badge.label}
+                </span>
+              )
             ))}
           </div>
         )}
@@ -173,9 +211,9 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         </Link>
 
         {/* Опис/склад */}
-        {product.description && (
-          <p className="text-sm text-gray-400 mb-4 line-clamp-2 flex-1">
-            {product.description}
+        {ingredientsText && (
+          <p className="text-sm text-gray-400 mb-4 line-clamp-3 flex-1 leading-relaxed">
+            {highlightIngredients(ingredientsText)}
           </p>
         )}
 
@@ -217,32 +255,32 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             )}
           </div>
 
-          <Button
-            onClick={handleAddToCart}
-            size="sm"
-            className="rounded-full w-12 h-12 p-0 !px-0 flex items-center justify-center shadow-lg shadow-primary-500/20"
-            aria-label={t("product.addToCart")}
-          >
-            <PlusIcon className="w-6 h-6" />
-          </Button>
+          <ProductActions
+            product={product}
+            selectedSize={selectedSize}
+            currentPrice={currentPrice}
+          />
         </div>
       </div>
     </GlassCard>
   );
 }
 
-// Skeleton для завантаження
+// Skeleton with Shimmer
 export function ProductCardSkeleton() {
   return (
-    <div className="glass-card rounded-2xl overflow-hidden p-6 h-full">
-      <div className="aspect-square bg-white/5 rounded-xl animate-pulse mb-4" />
+    <div className="glass-card rounded-2xl overflow-hidden p-6 h-full relative">
+      {/* Shimmer overlay */}
+      <div className="absolute inset-0 -translate-x-full animate-[shine_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent z-10" />
+
+      <div className="aspect-square bg-white/5 rounded-xl mb-4" />
       <div className="space-y-3">
-        <div className="h-6 bg-white/5 rounded w-3/4 animate-pulse" />
-        <div className="h-4 bg-white/5 rounded w-full animate-pulse" />
-        <div className="h-4 bg-white/5 rounded w-2/3 animate-pulse" />
+        <div className="h-6 bg-white/5 rounded w-3/4" />
+        <div className="h-4 bg-white/5 rounded w-full" />
+        <div className="h-4 bg-white/5 rounded w-2/3" />
         <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
-          <div className="h-8 bg-white/5 rounded w-24 animate-pulse" />
-          <div className="w-12 h-12 bg-white/5 rounded-full animate-pulse" />
+          <div className="h-8 bg-white/5 rounded w-24" />
+          <div className="w-12 h-12 bg-white/5 rounded-full" />
         </div>
       </div>
     </div>

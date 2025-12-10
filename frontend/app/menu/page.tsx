@@ -51,6 +51,25 @@ function MenuContent() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
+  // Filters State
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+
+  // Filter Options
+  const TYPE_FILTERS = [
+    { id: "warm", label: "Теплі", keywords: ["теплий", "тепла", "смажений"] },
+    { id: "baked", label: "Запечені", keywords: ["запечений", "запечена", "гріль"] },
+    { id: "classic", label: "Класичні", keywords: [] }, // Fallback or negation? Handling as specific keywords might be tricky, maybe just exclude others?
+  ];
+
+  const INGREDIENT_FILTERS = [
+    { id: "salmon", label: "З лососем", keyword: "лосось" },
+    { id: "eel", label: "З вугром", keyword: "вугор" },
+    { id: "no_cheese", label: "Без сиру", exclude: "сир" },
+    { id: "spicy", label: "Гострі", checkProp: "is_spicy" },
+    { id: "vegan", label: "Веган", checkProp: "is_vegan" },
+  ];
+
   // Ref для Intersection Observer (infinite scroll)
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -212,30 +231,77 @@ function MenuContent() {
   // Загальна кількість товарів
   const totalProducts = productsQuery.data?.pages[0]?.total ?? 0;
 
-  // Сортування товарів
-  const sortedProducts = useMemo(() => {
-    const products = allProducts;
-    const sorted = [...products];
+  // Фільтрація та сортування товарів
+  const filteredAndSortedProducts = useMemo(() => {
+    let result = [...allProducts];
 
+    // Client-side filtering
+    if (selectedType) {
+      const typeFilter = TYPE_FILTERS.find(f => f.id === selectedType);
+      if (typeFilter) {
+        if (typeFilter.id === 'classic') {
+          // Classic = NOT warm AND NOT baked (simplistic logic)
+          result = result.filter(p => {
+            const text = (p.name + p.description).toLowerCase();
+            return !text.includes("теплий") && !text.includes("запечен");
+          });
+        } else {
+          result = result.filter(p => {
+            const text = (p.name + p.description).toLowerCase();
+            return typeFilter.keywords.some(k => text.includes(k));
+          });
+        }
+      }
+    }
+
+    if (selectedIngredients.length > 0) {
+      selectedIngredients.forEach(filterId => {
+        const filter = INGREDIENT_FILTERS.find(f => f.id === filterId);
+        if (!filter) return;
+
+        if (filter.exclude) {
+          result = result.filter(p => {
+            const text = (p.name + p.description).toLowerCase();
+            return !text.includes(filter.exclude!);
+          });
+        } else if (filter.keyword) {
+          result = result.filter(p => {
+            const text = (p.name + p.description).toLowerCase();
+            return text.includes(filter.keyword!);
+          });
+        } else if (filter.checkProp) {
+          // @ts-ignore - props might be optional/missing in strict types but present in runtime/mocks
+          result = result.filter(p => !!p[filter.checkProp]);
+        }
+      });
+    }
+
+    // Sorting
     switch (sortBy) {
       case "price_asc":
-        return sorted.sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"));
+        return result.sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"));
       case "price_desc":
-        return sorted.sort((a, b) => parseFloat(b.price || "0") - parseFloat(a.price || "0"));
+        return result.sort((a, b) => parseFloat(b.price || "0") - parseFloat(a.price || "0"));
       case "name":
-        return sorted.sort((a, b) => a.name.localeCompare(b.name, "uk"));
+        return result.sort((a, b) => a.name.localeCompare(b.name, "uk"));
       case "popular":
-        return sorted.sort((a, b) => {
+        return result.sort((a, b) => {
           if (a.is_popular && !b.is_popular) return -1;
           if (!a.is_popular && b.is_popular) return 1;
-          if (a.is_popular && !b.is_popular) return -1;
-          if (!a.is_popular && b.is_popular) return 1;
-          return 0;
+          // Fallback to position
+          return a.position - b.position;
         });
       default:
-        return sorted.sort((a, b) => a.position - b.position);
+        return result.sort((a, b) => a.position - b.position);
     }
-  }, [allProducts, sortBy]);
+  }, [allProducts, sortBy, selectedType, selectedIngredients]);
+
+  // Handle Filter Toggles
+  const toggleIngredient = (id: string) => {
+    setSelectedIngredients(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   // Зміна категорії
   const handleCategoryChange = (slug: string | null) => {
@@ -323,6 +389,37 @@ function MenuContent() {
                 )}
               </div>
 
+              {/* Фільтри (Quick Access Buttons) - Desktop */}
+              <div className="hidden md:flex gap-2">
+                {TYPE_FILTERS.map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setSelectedType(selectedType === filter.id ? null : filter.id)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedType === filter.id
+                        ? "bg-primary text-white border-primary"
+                        : "bg-surface text-secondary border-border hover:border-primary/50"
+                      }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+
+                <div className="w-px bg-border mx-2 h-8 self-center" />
+
+                {INGREDIENT_FILTERS.slice(0, 3).map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => toggleIngredient(filter.id)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedIngredients.includes(filter.id)
+                        ? "bg-secondary text-white border-secondary"
+                        : "bg-surface text-secondary border-border hover:border-primary/50"
+                      }`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Сортування (desktop) */}
               <div className="hidden md:block">
                 <select
@@ -387,7 +484,7 @@ function MenuContent() {
             <div className="flex-1">
               {/* Горизонтальні категорії (tablet/mobile) */}
               <div className="lg:hidden mb-6 -mx-4 px-4">
-                <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                   <button
                     onClick={() => handleCategoryChange(null)}
                     className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${!selectedCategory
@@ -419,7 +516,7 @@ function MenuContent() {
                 </p>
               ) : totalProducts > 0 && (
                 <p className="text-secondary-light mb-4">
-                  Показано {sortedProducts.length} з {totalProducts} страв
+                  Показано {filteredAndSortedProducts.length} з {totalProducts} страв
                 </p>
               )}
 
@@ -448,7 +545,7 @@ function MenuContent() {
               )}
 
               {/* Порожній стан */}
-              {!productsQuery.isLoading && sortedProducts.length === 0 && (
+              {!productsQuery.isLoading && filteredAndSortedProducts.length === 0 && (
                 <div className="text-center py-16">
                   <div className="relative w-24 h-24 mb-4 mx-auto">
                     <Image
@@ -481,10 +578,10 @@ function MenuContent() {
               )}
 
               {/* Список товарів */}
-              {!productsQuery.isLoading && sortedProducts.length > 0 && (
+              {!productsQuery.isLoading && filteredAndSortedProducts.length > 0 && (
                 <>
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                    {sortedProducts.map((product) => (
+                    {filteredAndSortedProducts.map((product) => (
                       <ProductCard
                         key={product.id}
                         product={product}
@@ -503,7 +600,7 @@ function MenuContent() {
                         <p className="text-secondary-light text-sm">Завантаження...</p>
                       </div>
                     )}
-                    {!productsQuery.hasNextPage && sortedProducts.length > PRODUCTS_PER_PAGE && (
+                    {!productsQuery.hasNextPage && filteredAndSortedProducts.length > PRODUCTS_PER_PAGE && (
                       <p className="text-center text-secondary-light text-sm">
                         Ви переглянули всі страви 🎉
                       </p>
@@ -580,6 +677,43 @@ function MenuContent() {
                           }`}
                       >
                         {category.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Фільтри Mobile */}
+                <div>
+                  <h4 className="font-semibold text-secondary mb-3">Тип страви</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {TYPE_FILTERS.map(filter => (
+                      <button
+                        key={filter.id}
+                        onClick={() => setSelectedType(selectedType === filter.id ? null : filter.id)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedType === filter.id
+                            ? "bg-primary text-white border-primary"
+                            : "bg-surface text-secondary border-border"
+                          }`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-secondary mb-3">Інгредієнти</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {INGREDIENT_FILTERS.map(filter => (
+                      <button
+                        key={filter.id}
+                        onClick={() => toggleIngredient(filter.id)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedIngredients.includes(filter.id)
+                            ? "bg-secondary text-white border-secondary"
+                            : "bg-surface text-secondary border-border"
+                          }`}
+                      >
+                        {filter.label}
                       </button>
                     ))}
                   </div>
