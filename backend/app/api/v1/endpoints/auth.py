@@ -2,6 +2,7 @@
 from typing import Optional
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import json
@@ -21,7 +22,9 @@ from app.core.security import (
     generate_backup_codes,
     generate_sms_code,
     validate_password_strength,
-    is_password_common
+    is_password_common,
+    create_pre_auth_token,
+    decode_pre_auth_token
 )
 from app.core.dependencies import get_current_active_user, get_optional_user
 from app.core.exceptions import (
@@ -44,8 +47,18 @@ from app.schemas.user import (
     ResetPasswordRequest,
     ChangePasswordRequest,
     SMSResponse,
-    RefreshTokenRequest
+    RefreshTokenRequest,
+    PreAuthToken,
+    Login2FAResponse,
+    Verify2FARequest
 )
+from typing import Union
+import logging
+from app.tasks.email import schedule_welcome_email
+from app.tasks.sms import send_verification_code
+
+logger = logging.getLogger(__name__)
+security = HTTPBearer()
 
 router = APIRouter()
 
@@ -56,28 +69,7 @@ except Exception:
     redis_client = None
 
 
-def get_client_ip(request: Request) -> str:
-    """Отримання IP адреси клієнта з урахуванням проксі"""
-    # Перевірка X-Forwarded-For (якщо застосунок за проксі)
-    forwarded_for = request.headers.get("X-Forwarded-For")
-    if forwarded_for:
-        # Беремо перший IP (оригінальний клієнт)
-        # X-Forwarded-For може містити кілька IP через кому
-        client_ip = forwarded_for.split(",")[0].strip()
-        # Базова валідація IP адреси
-        if client_ip and len(client_ip) <= 45:  # Максимальна довжина IPv6
-            return client_ip
-    
-    # Перевірка X-Real-IP (альтернативний заголовок)
-    real_ip = request.headers.get("X-Real-IP")
-    if real_ip and len(real_ip) <= 45:
-        return real_ip.strip()
-    
-    # Fallback на стандартний спосіб
-    if request.client:
-        return request.client.host
-    
-    return "unknown"
+from app.core.utils import get_client_ip
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -133,11 +125,11 @@ async def register(
         # Send welcome email
         if new_user.email:
             try:
-                from app.tasks.email import schedule_welcome_email
+                # schedule_welcome_email imported at top
                 schedule_welcome_email(new_user.email, new_user.name or "Шановний клієнте")
             except Exception as e:
                 # Don't fail registration if email fails
-                print(f"Failed to send welcome email: {e}")
+                logger.error(f"Failed to send welcome email: {e}")
         
         return new_user
     
@@ -159,7 +151,7 @@ async def register(
         raise ConflictException("Помилка створення користувача")
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=Union[Token, Login2FAResponse])
 async def login(
     credentials: UserLogin,
     db: AsyncSession = Depends(get_db)
@@ -190,10 +182,11 @@ async def login(
     
     # Перевірка 2FA
     if user.two_factor_enabled:
-        # Потрібно повернути спеціальний статус для 2FA
-        raise HTTPException(
-            status_code=status.HTTP_202_ACCEPTED,
-            detail="Потрібна 2FA автентифікація"
+        # Створення pre-auth токену для 2FA
+        pre_auth_token = create_pre_auth_token(data={"sub": str(user.id)})
+        return Login2FAResponse(
+            pre_auth_token=pre_auth_token,
+            message="Потрібна 2FA автентифікація"
         )
     
     # Створення токенів
@@ -297,14 +290,60 @@ async def verify_2fa_code(
     return {"message": "2FA увімкнено успішно"}
 
 
+@router.post("/2fa/verify-login", response_model=Token)
+async def verify_2fa_login(
+    request_data: Verify2FARequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """Вхід з 2FA (використовуючи pre-auth token)"""
+    # 1. Валідація pre-auth токену
+    payload = decode_pre_auth_token(request_data.pre_auth_token)
+    if not payload:
+        raise UnauthorizedException("Невірний або прострочений сеанс 2FA. Спробуйте увійти знову.")
+        
+    user_id = payload.get("sub")
+    if not user_id:
+        raise UnauthorizedException("Невірний токен")
+        
+    try:
+        user_id_int = int(user_id)
+    except ValueError:
+        raise UnauthorizedException("Некоректний ID користувача")
+        
+    # 2. Пошук користувача
+    result = await db.execute(select(User).where(User.id == user_id_int))
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise UnauthorizedException("Користувача не знайдено")
+        
+    if not user.is_active:
+        raise ForbiddenException("Користувач неактивний")
+        
+    # 3. Перевірка коду
+    if not user.two_factor_enabled or not user.two_factor_secret:
+        raise BadRequestException("2FA не налаштовано для цього користувача")
+        
+    if not verify_2fa_token(user.two_factor_secret, request_data.code):
+        raise UnauthorizedException("Невірний 2FA код")
+        
+    # 4. Видача повних токенів
+    access_token = create_access_token(data={"sub": str(user.id)})
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
+
+
 @router.post("/2fa/disable")
 async def disable_2fa(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Вимкнути 2FA"""
-    import logging
-    logger = logging.getLogger(__name__)
     logger.info(f"Attempting to disable 2FA for user {current_user.id}. Enabled status: {current_user.two_factor_enabled}")
     
     if not current_user.two_factor_enabled:
@@ -320,10 +359,18 @@ async def disable_2fa(
 
 @router.post("/logout")
 async def logout(
+    token_auth: HTTPAuthorizationCredentials = Depends(security),
     current_user: User = Depends(get_current_active_user)
 ):
-    """Вихід користувача (на клієнті видаляється токен)"""
-    # В майбутньому можна додати blacklist для токенів
+    """Вихід користувача (інвалідація токену)"""
+    # Додаємо токен в blacklist
+    if redis_client:
+        token = token_auth.credentials
+        # Встановлюємо TTL як ACCESS_TOKEN_EXPIRE_MINUTES (наприклад 60 хвилин)
+        # Переводимо хвилини в секунди
+        ttl = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        redis_client.setex(f"blacklist:{token}", ttl, "revoked")
+        
     return {"message": "Вихід виконано успішно"}
 
 
@@ -355,19 +402,15 @@ async def send_sms_code(
         raise BadRequestException("Невірний номер телефону")
     
     # Rate limiting: максимум 3 запити на 15 хвилин для одного номера
-    rate_limit_key = f"sms_send_rate:{phone}"
-    attempts = redis_client.get(rate_limit_key)
+    # Atomic rate limiting
+    current_attempts = redis_client.incr(rate_limit_key)
+    if current_attempts == 1:
+        redis_client.expire(rate_limit_key, 900)  # 15 minutes TTL for new window
     
-    if attempts and int(attempts) >= 3:
+    if current_attempts > 3:
         raise BadRequestException(
             "Перевищено ліміт запитів. Спробуйте пізніше (макс 3 на 15 хвилин)"
         )
-    
-    # Збільшуємо лічильник
-    if attempts:
-        redis_client.incr(rate_limit_key)
-    else:
-        redis_client.setex(rate_limit_key, 900, 1)  # 15 хвилин TTL
     
     # Генерація коду
     code = generate_sms_code()
@@ -376,7 +419,7 @@ async def send_sms_code(
     redis_client.setex(f"sms_code:{phone}", 300, code)
     
     # Відправка SMS через Celery task (асинхронно)
-    from app.tasks.sms import send_verification_code
+    # from app.tasks.sms import send_verification_code # Removed local import
     send_verification_code.delay(phone, code)
     
     # НЕ ПОВЕРТАЄМО КОД В ОТВІТІ - це критична помилка безпеки
@@ -495,18 +538,14 @@ async def reset_password(
     
     # Rate limiting: максимум 3 запити на 15 хвилин для одного номера
     rate_limit_key = f"reset_password_rate:{phone}"
-    attempts = redis_client.get(rate_limit_key)
+    current_attempts = redis_client.incr(rate_limit_key)
+    if current_attempts == 1:
+        redis_client.expire(rate_limit_key, 900)  # 15 хвилин TTL
     
-    if attempts and int(attempts) >= 3:
+    if current_attempts > 3:
         raise BadRequestException(
             "Перевищено ліміт запитів. Спробуйте пізніше (макс 3 на 15 хвилин)"
         )
-    
-    # Збільшуємо лічильник
-    if attempts:
-        redis_client.incr(rate_limit_key)
-    else:
-        redis_client.setex(rate_limit_key, 900, 1)  # 15 хвилин TTL
     
     # Генерація коду
     code = generate_sms_code()
@@ -517,7 +556,6 @@ async def reset_password(
     redis_client.setex(f"reset_password_code:{code}", 600, phone)
     
     # Відправка SMS через Celery task (асинхронно)
-    from app.tasks.sms import send_verification_code
     send_verification_code.delay(phone, code)
     
     return {"message": "SMS код для відновлення пароля відправлено"}

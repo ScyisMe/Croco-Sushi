@@ -176,20 +176,80 @@ function MenuContent() {
   // Мутація для додавання/видалення з обраного
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (productId: number) => {
-      if (favoriteIds.has(productId)) {
-        await apiClient.delete(`/users/me/favorites/${productId}`);
-        return { action: "removed", productId };
+      // Визначаємо поточний стан на основі кешу або локального стану
+      // Це важливо для мутації, щоб знати, яку дію виконувати, якщо optimistic update вже спрацював
+      const isCurrentlyFavorite = favoriteIds.has(productId);
+
+      if (isCurrentlyFavorite) {
+        try {
+          await apiClient.delete(`/users/me/favorites/${productId}`);
+          return { action: "removed", productId };
+        } catch (error: any) {
+          const status = error.response?.status || error.status || error.statusCode;
+          // Якщо вже видалено (404), вважаємо успіхом
+          if (status === 404) {
+            return { action: "removed", productId };
+          }
+          console.error("Remove favorite error:", error);
+          throw error;
+        }
       } else {
-        await apiClient.post(`/users/me/favorites/${productId}`);
-        return { action: "added", productId };
+        try {
+          await apiClient.post(`/users/me/favorites/${productId}`);
+          return { action: "added", productId };
+        } catch (error: any) {
+          const status = error.response?.status || error.status || error.statusCode;
+          // Якщо вже існує (400) або конфлікт (409), вважаємо успіхом
+          if (status === 400 || status === 409) {
+            return { action: "added", productId };
+          }
+          console.error("Add favorite error:", error);
+          throw error;
+        }
       }
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["favorites"] });
-      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
+    // Оптимістичне оновлення
+    onMutate: async (productId) => {
+      // Скасовуємо поточні запити
+      await queryClient.cancelQueries({ queryKey: ["favorites"] });
+
+      // Зберігаємо попередній стан
+      const previousFavorites = queryClient.getQueryData<Favorite[]>(["favorites"]);
+
+      // Оновлюємо кеш оптимістично
+      queryClient.setQueryData<Favorite[]>(["favorites"], (old) => {
+        const currentFavorites = old || [];
+        const exists = currentFavorites.some((f) => f.product_id === productId);
+
+        if (exists) {
+          // Видаляємо
+          return currentFavorites.filter((f) => f.product_id !== productId);
+        } else {
+          // Додаємо (створюємо тимчасовий об'єкт)
+          const tempFavorite: Favorite = {
+            id: Date.now(), // Тимчасовий ID
+            user_id: 0,
+            product_id: productId,
+            product: allProducts.find((p) => p.id === productId), // Спробуємо знайти продукт для повноти даних
+            created_at: new Date().toISOString(),
+          };
+          return [...currentFavorites, tempFavorite];
+        }
+      });
+
+      return { previousFavorites };
     },
-    onError: () => {
-      toast.error("Помилка. Спробуйте ще раз");
+    onError: (err, productId, context) => {
+      // Повертаємо попередній стан при помилці
+      if (context?.previousFavorites) {
+        queryClient.setQueryData(["favorites"], context.previousFavorites);
+      }
+      console.error("Favorite mutation error:", err);
+      toast.error("Не вдалося оновити обране");
+    },
+    onSettled: () => {
+      // Оновлюємо дані з сервера після завершення
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
     },
   });
 
@@ -197,7 +257,7 @@ function MenuContent() {
   const handleFavoriteToggle = (productId: number) => {
     if (!isAuthenticated) {
       toast.error("Увійдіть, щоб додати в обране");
-      router.push("/login");
+      router.push("/login"); // Або відкрити модалку логіну
       return;
     }
     toggleFavoriteMutation.mutate(productId);

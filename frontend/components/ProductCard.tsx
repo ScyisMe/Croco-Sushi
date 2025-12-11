@@ -137,16 +137,16 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         {onFavoriteToggle && (
           <button
             onClick={handleFavoriteClick}
-            className={`p-2.5 rounded-full backdrop-blur-md transition-all duration-300 ${isFavorite
+            className={`group/fav p-2.5 rounded-full backdrop-blur-md transition-all duration-300 active:scale-90 ${isFavorite
               ? "bg-accent-red text-white shadow-lg shadow-accent-red/30"
               : "bg-black/20 text-white hover:bg-white hover:text-accent-red"
               }`}
             aria-label={isFavorite ? "Видалити з обраного" : "Додати в обране"}
           >
             {isFavorite ? (
-              <HeartSolidIcon className="w-5 h-5" />
+              <HeartSolidIcon className="w-5 h-5 animate-[heart-pop_0.3s_ease-out]" />
             ) : (
-              <HeartIcon className="w-5 h-5" />
+              <HeartIcon className="w-5 h-5 group-hover/fav:scale-110 transition-transform" />
             )}
           </button>
         )}

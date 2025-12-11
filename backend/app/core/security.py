@@ -54,6 +54,7 @@ def decode_access_token(token: str) -> Optional[dict]:
         return None
 
 
+
 def create_refresh_token(data: dict) -> str:
     """Створення refresh токену"""
     to_encode = data.copy()
@@ -61,6 +62,26 @@ def create_refresh_token(data: dict) -> str:
     to_encode.update({"exp": expire, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+
+
+def create_pre_auth_token(data: dict) -> str:
+    """Створення тимчасового токену для 2FA (pre-auth)"""
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=5) # 5 хвилин на введення коду
+    to_encode.update({"exp": expire, "type": "pre_auth"})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+
+def decode_pre_auth_token(token: str) -> Optional[dict]:
+    """Декодування pre-auth токену"""
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if payload.get("type") != "pre_auth":
+            return None
+        return payload
+    except JWTError:
+        return None
 
 
 def decode_refresh_token(token: str) -> Optional[dict]:

@@ -100,3 +100,20 @@ class RefreshTokenRequest(BaseModel):
 
 
 
+
+class PreAuthToken(BaseModel):
+    """Тимчасовий токен для 2FA"""
+    pre_auth_token: str
+    message: str = "Потрібна 2FA автентифікація"
+
+
+class Login2FAResponse(BaseModel):
+    """Відповідь при 2FA"""
+    pre_auth_token: str
+    message: str
+
+
+class Verify2FARequest(BaseModel):
+    """Запит на перевірку 2FA з pre-auth токеном"""
+    code: str = Field(..., min_length=6, max_length=6, description="Code 2FA")
+    pre_auth_token: str = Field(..., description="Pre-auth token received from login")
