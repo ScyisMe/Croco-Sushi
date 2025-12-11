@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import apiClient from "@/lib/api/client";
 import toast from "react-hot-toast";
+import { uk } from "date-fns/locale";
+import { format } from "date-fns";
 import {
   ArrowLeftIcon,
   PhoneIcon,
@@ -18,8 +20,10 @@ import {
   CreditCardIcon,
   TruckIcon,
   UserIcon,
-  ReceiptRefundIcon,
 } from "@heroicons/react/24/outline";
+
+import { StatusChangeModal } from "@/components/admin/orders/StatusChangeModal";
+import { OrderHistoryTimeline } from "@/components/admin/orders/OrderHistoryTimeline";
 
 interface OrderItem {
   id: number;
@@ -51,6 +55,14 @@ interface Order {
   comment?: string;
   internal_comment?: string;
   cutlery_count?: number;
+  history?: {
+    manager_name: string;
+    previous_status: string;
+    new_status: string;
+    changed_at: string;
+    comment?: string;
+    reason?: string;
+  }[];
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -99,18 +111,24 @@ export default function OrderDetailPage() {
       await apiClient.patch(`/admin/orders/${order.id}/status`, { status: newStatus });
       setOrder({ ...order, status: newStatus });
       toast.success(`Статус змінено на "${STATUS_CONFIG[newStatus]?.label}"`);
+      fetchOrder(); // Refresh for history
     } catch (error: any) {
       toast.error(error.response?.data?.detail || "Помилка зміни статусу");
     }
   };
 
-  const cancelOrder = async () => {
+  const handleCancelConfirm = async (reason: string) => {
     if (!order) return;
+
     try {
-      await apiClient.patch(`/admin/orders/${order.id}/status`, { status: "cancelled" });
+      await apiClient.patch(`/admin/orders/${order.id}/status`, {
+        status: "cancelled",
+        reason: reason
+      });
       setOrder({ ...order, status: "cancelled" });
       setShowCancelModal(false);
       toast.success("Замовлення скасовано");
+      fetchOrder(); // Refresh to show in history
     } catch (error: any) {
       toast.error(error.response?.data?.detail || "Помилка скасування");
     }
@@ -141,7 +159,6 @@ export default function OrderDetailPage() {
     return null;
   };
 
-  // Calculate subtotal from items
   const calculateSubtotal = () => {
     if (!order?.items) return 0;
     return order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -150,7 +167,7 @@ export default function OrderDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -159,7 +176,7 @@ export default function OrderDetailPage() {
     return (
       <div className="text-center py-12">
         <p className="text-gray-400">Замовлення не знайдено</p>
-        <Link href="/admin/orders" className="text-primary hover:text-primary/80 mt-4 inline-block">
+        <Link href="/admin/orders" className="text-primary-500 hover:text-primary-400 mt-4 inline-block">
           ← Повернутися до списку
         </Link>
       </div>
@@ -173,13 +190,13 @@ export default function OrderDetailPage() {
   const discount = order.discount || 0;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Заголовок */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center space-x-4">
           <Link
             href="/admin/orders"
-            className="p-2 text-gray-400 hover:text-primary hover:bg-gray-800 rounded-lg transition"
+            className="p-2 text-gray-400 hover:text-primary-500 hover:bg-white/5 rounded-lg transition"
           >
             <ArrowLeftIcon className="w-5 h-5" />
           </Link>
@@ -197,7 +214,7 @@ export default function OrderDetailPage() {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => window.print()}
-            className="p-2 text-gray-400 hover:text-primary hover:bg-gray-800 rounded-lg transition"
+            className="p-2 text-gray-400 hover:text-primary-500 hover:bg-white/5 rounded-lg transition"
             title="Друк"
           >
             <PrinterIcon className="w-5 h-5" />
@@ -214,7 +231,7 @@ export default function OrderDetailPage() {
           {nextStatus && (
             <button
               onClick={() => updateStatus(nextStatus)}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80 transition flex items-center"
+              className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center"
             >
               <CheckCircleIcon className="w-5 h-5 mr-1" />
               {STATUS_CONFIG[nextStatus]?.label}
@@ -235,7 +252,7 @@ export default function OrderDetailPage() {
           <select
             value={order.status}
             onChange={(e) => updateStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-800 text-white"
+            className="px-4 py-2 border border-gray-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-800 text-white"
           >
             {Object.entries(STATUS_CONFIG).map(([value, { label }]) => (
               <option key={value} value={value}>
@@ -246,24 +263,24 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Прогрес статусу */}
-        <div className="mt-4 flex items-center space-x-2">
+        <div className="mt-4 flex items-center space-x-2 overflow-x-auto pb-2">
           {STATUS_FLOW.map((status, index) => {
             const isActive = STATUS_FLOW.indexOf(order.status) >= index;
             const isCurrent = order.status === status;
             return (
-              <div key={status} className="flex items-center">
+              <div key={status} className="flex items-center min-w-max">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${isActive
-                    ? "bg-primary text-white"
+                    ? "bg-primary-500 text-white"
                     : "bg-gray-700 text-gray-500"
-                    } ${isCurrent ? "ring-2 ring-primary/50 ring-offset-2 ring-offset-gray-900" : ""}`}
+                    } ${isCurrent ? "ring-2 ring-primary-500/50 ring-offset-2 ring-offset-gray-900" : ""}`}
                 >
                   {index + 1}
                 </div>
                 {index < STATUS_FLOW.length - 1 && (
                   <div
-                    className={`w-8 h-1 ${STATUS_FLOW.indexOf(order.status) > index
-                      ? "bg-primary"
+                    className={`w-8 h-1 mx-1 ${STATUS_FLOW.indexOf(order.status) > index
+                      ? "bg-primary-500"
                       : "bg-gray-700"
                       }`}
                   />
@@ -278,7 +295,7 @@ export default function OrderDetailPage() {
         {/* Інформація про клієнта */}
         <div className="bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-700">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <UserIcon className="w-5 h-5 text-primary" />
+            <UserIcon className="w-5 h-5 text-primary-500" />
             Інформація про клієнта
           </h2>
           <div className="space-y-3">
@@ -290,7 +307,7 @@ export default function OrderDetailPage() {
               <p className="text-sm text-gray-400">Телефон</p>
               <a
                 href={`tel:${order.customer_phone}`}
-                className="font-medium text-primary hover:text-primary/80 flex items-center"
+                className="font-medium text-primary-500 hover:text-primary-400 flex items-center"
               >
                 <PhoneIcon className="w-4 h-4 mr-1" />
                 {order.customer_phone}
@@ -301,7 +318,7 @@ export default function OrderDetailPage() {
                 <p className="text-sm text-gray-400">Email</p>
                 <a
                   href={`mailto:${order.customer_email}`}
-                  className="font-medium text-gray-300 flex items-center hover:text-primary"
+                  className="font-medium text-gray-300 flex items-center hover:text-primary-500"
                 >
                   <EnvelopeIcon className="w-4 h-4 mr-1" />
                   {order.customer_email}
@@ -314,7 +331,7 @@ export default function OrderDetailPage() {
         {/* Доставка */}
         <div className="bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-700">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <TruckIcon className="w-5 h-5 text-primary" />
+            <TruckIcon className="w-5 h-5 text-primary-500" />
             Доставка
           </h2>
           <div className="space-y-3">
@@ -351,7 +368,7 @@ export default function OrderDetailPage() {
         {/* Оплата */}
         <div className="bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-700">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <CreditCardIcon className="w-5 h-5 text-primary" />
+            <CreditCardIcon className="w-5 h-5 text-primary-500" />
             Оплата
           </h2>
           <div className="space-y-3">
@@ -370,12 +387,12 @@ export default function OrderDetailPage() {
             {order.promo_code_name && (
               <div>
                 <p className="text-sm text-gray-400">Промокод</p>
-                <p className="font-medium text-primary">{order.promo_code_name}</p>
+                <p className="font-medium text-primary-500">{order.promo_code_name}</p>
               </div>
             )}
             <div>
               <p className="text-sm text-gray-400">Сума замовлення</p>
-              <p className="text-2xl font-bold text-primary">
+              <p className="text-2xl font-bold text-primary-500">
                 {formatPrice(order.total_amount)}
               </p>
             </div>
@@ -386,7 +403,7 @@ export default function OrderDetailPage() {
       {/* Позиції замовлення - Чек */}
       <div className="bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-700">
         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <ShoppingBagIcon className="w-5 h-5 text-primary" />
+          <ShoppingBagIcon className="w-5 h-5 text-primary-500" />
           Позиції замовлення
         </h2>
         <div className="overflow-x-auto">
@@ -473,40 +490,32 @@ export default function OrderDetailPage() {
             )}
             <div className="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-700">
               <span>До сплати:</span>
-              <span className="text-primary">{formatPrice(order.total_amount)}</span>
+              <span className="text-primary-500">{formatPrice(order.total_amount)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Модальне вікно підтвердження скасування */}
-      {showCancelModal && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 border border-gray-700">
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Скасувати замовлення?
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Ви впевнені, що хочете скасувати замовлення #{order.order_number}?
-              Ця дія повідомить клієнта про скасування.
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 text-gray-400 hover:bg-gray-700 rounded-lg transition"
-              >
-                Ні, залишити
-              </button>
-              <button
-                onClick={cancelOrder}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-              >
-                Так, скасувати
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Історія статусів - NEW TIMELINE */}
+      <div className="bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-700">
+        <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+          <ClockIcon className="w-5 h-5 text-primary-500" />
+          Історія змін
+        </h2>
+        {order.history && order.history.length > 0 ? (
+          <OrderHistoryTimeline history={order.history} />
+        ) : (
+          <p className="text-gray-500 text-center py-4">Історія змін порожня</p>
+        )}
+      </div>
+
+      {/* Модальне вікно скасування */}
+      <StatusChangeModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={handleCancelConfirm}
+        status="cancelled"
+      />
 
       {/* Стилі для друку */}
       <style jsx global>{`
@@ -532,7 +541,7 @@ export default function OrderDetailPage() {
           .text-white, .text-gray-300, .text-gray-400 {
             color: black !important;
           }
-          .text-primary {
+          .text-primary-500 {
             color: #059669 !important;
           }
           button, select, a[href^="tel"], a[href^="mailto"] {

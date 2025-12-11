@@ -1,12 +1,11 @@
-"""Admin endpoints"""
 from app.api.v1.endpoints.admin import (
     categories, products, orders, users, reviews,
-    promotions, promo_codes, delivery_zones,
+    promotions, promo_codes,
     statistics, settings, audit_logs
 )
 
 __all__ = [
     "categories", "products", "orders", "users",
-    "reviews", "promotions", "promo_codes", "delivery_zones",
+    "reviews", "promotions", "promo_codes",
     "statistics", "settings", "audit_logs"
 ]

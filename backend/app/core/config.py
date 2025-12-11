@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     
     # Парсимо рядок з комами в список автоматично
     # Використовуємо str як базовий тип, щоб уникнути JSON парсингу
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,https://crocosushi.com,https://www.crocosushi.com,https://api.crocosushi.com"
     
     @model_validator(mode='after')
     def parse_cors_origins(self) -> 'Settings':

@@ -90,6 +90,13 @@ class Order(Base):
         lazy="selectin"
     )
 
+    history: Mapped[List["OrderHistory"]] = relationship(
+        "OrderHistory",
+        back_populates="order",
+        lazy="selectin",
+        cascade="all, delete-orphan"
+    )
+
     __table_args__ = (
         CheckConstraint(
             "status IN ('pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled')",

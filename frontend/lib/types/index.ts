@@ -66,7 +66,7 @@ export interface LoyaltyInfo {
 }
 
 // Order status type
-export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivering' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivering' | 'delivered' | 'completed' | 'cancelled';
 
 // Product types
 export interface Product {

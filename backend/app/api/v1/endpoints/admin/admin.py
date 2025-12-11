@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints.admin import (
     categories, products, orders, users, reviews,
-    promotions, promo_codes, delivery_zones,
+    promotions, promo_codes,
     statistics, settings, audit_logs, newsletter
 )
 
@@ -44,11 +44,7 @@ admin_router.include_router(
     prefix="/promo-codes",
     tags=["admin-promo-codes"]
 )
-admin_router.include_router(
-    delivery_zones.router,
-    prefix="/delivery-zones",
-    tags=["admin-delivery-zones"]
-)
+# delivery_zones removed
 admin_router.include_router(
     statistics.router,
     prefix="/statistics",

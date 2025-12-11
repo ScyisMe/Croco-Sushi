@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.core.security import decode_access_token, get_token_data
 from app.core.exceptions import UnauthorizedException, ForbiddenException
-from app.models.user import User
+from app.models.user import User, UserRole
 from sqlalchemy import select
 
 security = HTTPBearer()
@@ -59,6 +59,15 @@ async def get_current_admin_user(
 ) -> User:
     """Отримання адміна"""
     if not current_user.is_admin:
+        raise ForbiddenException("Недостатньо прав доступу")
+    return current_user
+
+
+async def get_current_manager_user(
+    current_user: User = Depends(get_current_active_user)
+) -> User:
+    """Отримання менеджера (або адміна)"""
+    if current_user.role not in [UserRole.ADMIN, UserRole.MANAGER]:
         raise ForbiddenException("Недостатньо прав доступу")
     return current_user
 

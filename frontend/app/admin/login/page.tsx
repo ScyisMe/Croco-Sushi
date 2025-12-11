@@ -35,12 +35,20 @@ export default function AdminLoginPage() {
             },
           });
 
-          if (userResponse.data.role !== "admin") {
-            // Якщо не адмін - видаляємо токени і показуємо помилку
+          const userRole = userResponse.data.role;
+          if (userRole !== "admin" && userRole !== "manager") {
+            // Якщо не адмін і не менеджер - видаляємо токени і показуємо помилку
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");
             toast.error("Доступ заборонено. Тільки для адміністраторів.");
             return;
+          }
+
+          toast.success("Вхід успішний!");
+          if (userRole === "manager") {
+            router.push("/admin/manager");
+          } else {
+            router.push("/admin");
           }
         } catch (verifyError) {
           // Помилка верифікації
@@ -50,8 +58,6 @@ export default function AdminLoginPage() {
           return;
         }
 
-        toast.success("Вхід успішний!");
-        router.push("/admin");
       }
     } catch (error: any) {
       toast.error(error.response?.data?.detail || "Невірний email або пароль");

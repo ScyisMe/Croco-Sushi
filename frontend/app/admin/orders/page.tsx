@@ -12,6 +12,10 @@ import {
   PhoneIcon,
 } from "@heroicons/react/24/outline";
 
+import { useOrderStatus } from "@/hooks/useOrderStatus";
+import { StatusChangeModal } from "@/components/admin/orders/StatusChangeModal";
+import { OrderDetailsModal } from "@/components/admin/orders/OrderDetailsModal";
+
 interface OrderItem {
   id: number;
   product_name: string;
@@ -26,6 +30,7 @@ interface Order {
   customer_phone: string;
   customer_email?: string;
   delivery_address?: string;
+  delivery_type: string;
   total_amount: number;
   status: string;
   payment_method: string;
@@ -54,6 +59,32 @@ export default function AdminOrdersPage() {
   );
   const [total, setTotal] = useState(0);
 
+  // Quick View Modal State
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+  // Status Logic Hook
+  const {
+    changeStatus,
+    confirmCancel,
+    cancelModalOpen,
+    closeCancelModal,
+    isLoading: isStatusLoading
+  } = useOrderStatus({
+    onStatusChanged: (orderId, newStatus) => {
+      // Optimistic Update in List
+      setOrders(current =>
+        current.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
+      );
+      // Also update detailed order if open
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status: newStatus });
+      }
+      toast.success(`Статус змінено на "${STATUS_CONFIG[newStatus]?.label}"`);
+    }
+  });
+
+
   useEffect(() => {
     fetchOrders();
   }, [selectedStatus]);
@@ -76,19 +107,9 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const updateStatus = async (orderId: number, newStatus: string) => {
-    try {
-      // Використовуємо новий ендпоінт PATCH
-      await apiClient.patch(`/orders/${orderId}/status`, { status: newStatus });
-      setOrders(
-        orders.map((o) =>
-          o.id === orderId ? { ...o, status: newStatus } : o
-        )
-      );
-      toast.success(`Статус змінено на "${STATUS_CONFIG[newStatus]?.label}"`);
-    } catch (error: any) {
-      toast.error(error.response?.data?.detail || "Помилка зміни статусу");
-    }
+  const handleRowClick = (order: Order) => {
+    setSelectedOrder(order);
+    setIsDetailsModalOpen(true);
   };
 
   const formatPrice = (price: number) => {
@@ -217,14 +238,15 @@ export default function AdminOrdersPage() {
               </thead>
               <tbody className="divide-y divide-white/10">
                 {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                  <tr
+                    key={order.id}
+                    className="hover:bg-white/5 transition-colors cursor-pointer"
+                    onClick={() => handleRowClick(order)}
+                  >
                     <td className="px-6 py-4">
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="text-primary-500 hover:text-primary-400 font-medium font-mono"
-                      >
+                      <span className="text-primary-500 font-medium font-mono">
                         #{order.order_number}
-                      </Link>
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <div>
@@ -233,7 +255,8 @@ export default function AdminOrdersPage() {
                         </p>
                         <a
                           href={`tel:${order.customer_phone}`}
-                          className="text-sm text-gray-500 hover:text-primary-500 flex items-center transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-sm text-gray-500 hover:text-primary-500 flex items-center transition-colors w-fit"
                         >
                           <PhoneIcon className="w-3 h-3 mr-1" />
                           {order.customer_phone}
@@ -244,19 +267,21 @@ export default function AdminOrdersPage() {
                       {formatPrice(order.total_amount)}
                     </td>
                     <td className="px-6 py-4">
-                      <select
-                        value={order.status}
-                        onChange={(e) => updateStatus(order.id, e.target.value)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer bg-transparent focus:ring-0 focus:outline-none ${STATUS_CONFIG[order.status]?.color ||
-                          "text-gray-400"
-                          }`}
-                      >
-                        {Object.entries(STATUS_CONFIG).map(([value, { label }]) => (
-                          <option key={value} value={value} className="bg-surface-card text-white">
-                            {label}
-                          </option>
-                        ))}
-                      </select>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <select
+                          value={order.status}
+                          onChange={(e) => changeStatus(order, e.target.value)}
+                          className={`px-3 py-1 rounded-full text-xs font-medium cursor-pointer bg-transparent focus:ring-0 focus:outline-none ${STATUS_CONFIG[order.status]?.color ||
+                            "text-gray-400"
+                            }`}
+                        >
+                          {Object.entries(STATUS_CONFIG).map(([value, { label }]) => (
+                            <option key={value} value={value} className="bg-surface-card text-white">
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-gray-400">
                       {order.payment_method === "cash"
@@ -270,13 +295,16 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end space-x-2">
-                        <Link
-                          href={`/admin/orders/${order.id}`}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRowClick(order);
+                          }}
                           className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-500/10 rounded-lg transition"
-                          title="Переглянути"
+                          title="Швидкий перегляд"
                         >
                           <EyeIcon className="w-5 h-5" />
-                        </Link>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -286,6 +314,24 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      <OrderDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        order={selectedOrder}
+        statusConfig={STATUS_CONFIG}
+        onStatusChange={changeStatus}
+      />
+
+      <StatusChangeModal
+        isOpen={cancelModalOpen}
+        onClose={closeCancelModal}
+        onConfirm={confirmCancel}
+        status="cancelled"
+        isLoading={isStatusLoading}
+      />
+
     </div>
   );
 }

@@ -1,0 +1,11 @@
+crocosushi.com {
+    reverse_proxy frontend:3000
+}
+
+www.crocosushi.com {
+    redir https://crocosushi.com{uri}
+}
+
+api.crocosushi.com {
+    reverse_proxy backend:8000
+}

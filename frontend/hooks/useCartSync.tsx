@@ -38,6 +38,11 @@ export function useCartSync() {
   // Перевірка авторизації при монтуванні та при змінах localStorage
   useEffect(() => {
     const checkAuth = () => {
+      // Don't sync cart on admin pages
+      if (window.location.pathname.startsWith('/admin')) {
+        setIsAuthenticated(false);
+        return;
+      }
       const token = localStorage.getItem("access_token");
       setIsAuthenticated(!!token);
     };

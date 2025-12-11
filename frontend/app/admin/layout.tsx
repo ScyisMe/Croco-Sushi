@@ -19,6 +19,7 @@ import {
   TicketIcon,
   TruckIcon,
   Cog6ToothIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 
 // Типи
@@ -33,13 +34,14 @@ interface User {
 const NAV_ITEMS = [
   { href: "/admin", label: "Дашборд", icon: HomeIcon },
   { href: "/admin/orders", label: "Замовлення", icon: ClipboardDocumentListIcon },
+  { href: "/admin/history", label: "Історія замовлень", icon: ClockIcon },
   { href: "/admin/products", label: "Товари", icon: ShoppingBagIcon },
   { href: "/admin/categories", label: "Категорії", icon: TagIcon },
   { href: "/admin/users", label: "Користувачі", icon: UsersIcon },
   { href: "/admin/reviews", label: "Відгуки", icon: StarIcon },
   { href: "/admin/promotions", label: "Акції", icon: GiftIcon },
   { href: "/admin/promo-codes", label: "Промокоди", icon: TicketIcon },
-  { href: "/admin/delivery-zones", label: "Доставка", icon: TruckIcon },
+  // { href: "/admin/delivery-zones", label: "Доставка", icon: TruckIcon }, // Removed
   { href: "/admin/settings", label: "Налаштування", icon: Cog6ToothIcon },
 ];
 
@@ -94,11 +96,18 @@ export default function AdminLayout({
         // Перевірка чи компонент ще mounted
         if (!isMountedRef.current) return;
 
-        if (user.role !== "admin") {
-          // Якщо не адмін - видаляємо токен і перенаправляємо
+        if (user.role !== "admin" && user.role !== "manager") {
+          // Якщо не адмін і не менеджер - видаляємо токен і перенаправляємо
           clearAuth();
           router.push("/admin/login");
         } else {
+          // Якщо менеджер намагається зайти на сторінки адміна (крім /admin/manager)
+          if (user.role === "manager" && !window.location.pathname.startsWith("/admin/manager")) {
+            router.push("/admin/manager");
+            return;
+          }
+          // Якщо адмін (не менеджер) намагається зайти на сторінку менеджера - дозволяємо (або можна редіректити, але хай буде доступ)
+
           setIsAuthenticated(true);
         }
       } catch {
@@ -144,6 +153,11 @@ export default function AdminLayout({
   // Якщо не авторизований - не показуємо нічого
   if (!isAuthenticated) {
     return null;
+  }
+
+  // Manger Layout Override - якщо ми на сторінці менеджера, рендеримо без сайдбару адміна
+  if (pathname.startsWith("/admin/manager")) {
+    return <>{children}</>;
   }
 
   return (

@@ -50,6 +50,18 @@ class OrderCreate(OrderBase):
     promo_code: Optional[str] = None # Промокод, введений користувачем
 
 
+class OrderHistoryResponse(BaseModel):
+    id: int
+    order_id: int
+    manager_name: str
+    previous_status: str
+    new_status: str
+    comment: Optional[str] = None
+    changed_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
 class OrderUpdate(BaseModel):
     status: Optional[str] = None
     payment_method: Optional[str] = None
@@ -75,6 +87,7 @@ class OrderResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     items: List[OrderItemResponse] = []
+    history: List[OrderHistoryResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -82,6 +95,7 @@ class OrderResponse(BaseModel):
 class OrderStatusUpdate(BaseModel):
     status: str = Field(..., pattern="^(pending|confirmed|preparing|delivering|completed|cancelled)$")
     comment: Optional[str] = None
+    reason: Optional[str] = Field(None, max_length=500, description="Причина зміни статусу (обов'язкова для скасування)")
 
 
 class OrderTrack(BaseModel):
