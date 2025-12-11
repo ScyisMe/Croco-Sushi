@@ -16,8 +16,8 @@ export const GlassCard = ({
     return (
         <div
             className={cn(
-                "glass-card relative overflow-hidden rounded-2xl p-6 transition-all duration-500 group",
-                hoverEffect && "hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] hover:border-primary-500/30",
+                "glass-card relative overflow-hidden rounded-2xl transition-all duration-500 group border-white/5",
+                hoverEffect && "hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(224,122,95,0.15)] hover:border-accent-terracotta/30",
                 className
             )}
             {...props}

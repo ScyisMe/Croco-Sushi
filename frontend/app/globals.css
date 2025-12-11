@@ -12,15 +12,24 @@
   /* Accent - Gold/Coral (Sauce, Caviar) */
   --accent-gold: 251, 191, 36;
   --accent-coral: 249, 115, 22;
-  --accent-red: 239, 68, 68;
+  --accent-red: 220, 38, 38;
+  /* Slightly darker, more elegant red */
+
+  /* Premium Accents */
+  --accent-terracotta: 224, 122, 95;
+  --accent-copper: 180, 107, 62;
 
   /* Neutral - Dark Tones (Night, Elegance) */
-  --surface-dark: 10, 10, 12;
+  --surface-dark: 5, 5, 5;
+  /* Creating a deeper black base */
   /* Darker, closer to black */
-  --surface-card: 24, 24, 27;
+  --surface-card: 18, 18, 20;
+  /* Slightly cooler dark grey */
+  --surface-lighter: 30, 30, 35;
 
   /* Foreground (Text) */
-  --foreground-rgb: 255, 255, 255;
+  --foreground-rgb: 250, 250, 250;
+  /* Slightly softer white */
 }
 
 body {
@@ -59,7 +68,8 @@ body {
   background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Optional subtle border */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  /* Optional subtle border */
 }
 
 /* Custom Scrollbar */

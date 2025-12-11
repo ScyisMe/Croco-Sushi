@@ -39,6 +39,9 @@ class Product(Base):
     is_available: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_new: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_popular: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_spicy: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_vegan: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_top_seller: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     # SEO поля
     meta_title: Mapped[OptionalType[str]] = mapped_column(String(255), nullable=True)
     meta_description: Mapped[OptionalType[str]] = mapped_column(Text, nullable=True)

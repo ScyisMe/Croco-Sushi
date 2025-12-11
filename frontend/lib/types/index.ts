@@ -88,6 +88,7 @@ export interface Product {
   is_popular: boolean;
   is_promotion?: boolean;
   is_hit?: boolean;
+  is_top_seller?: boolean;
   position: number;
   sizes?: ProductSize[];
   created_at: string;
@@ -214,4 +215,5 @@ export interface CartItem {
   size: ProductSize;
   quantity: number;
 }
+
 

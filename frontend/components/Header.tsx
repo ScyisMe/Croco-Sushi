@@ -3,6 +3,7 @@
 import { useState, useEffect, Fragment } from "react";
 import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
+import { motion } from "framer-motion";
 import {
   ShoppingCartIcon,
   PhoneIcon,
@@ -17,6 +18,7 @@ import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
 import { throttle } from "@/lib/utils";
 import Image from "next/image";
+import { NavLink } from "./ui/NavLink";
 
 // Контактна інформація Croco Sushi
 const CONTACT_INFO = {
@@ -95,6 +97,15 @@ export default function Header() {
       setIsAuthenticated(!!token);
     }
   }, []);
+
+  const [isBumping, setIsBumping] = useState(false);
+
+  useEffect(() => {
+    if (getItemCount === 0) return;
+    setIsBumping(true);
+    const timer = setTimeout(() => setIsBumping(false), 300);
+    return () => clearTimeout(timer);
+  }, [getItemCount]);
 
   // Функція для зміни мови
   const handleLanguageChange = (lang: Locale) => {
@@ -191,17 +202,14 @@ export default function Header() {
               </span>
             </Link>
 
+
+
             {/* Навігація (Desktop) */}
             <nav className="hidden lg:flex items-center space-x-8">
               {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-secondary font-medium hover:text-primary transition relative group"
-                >
+                <NavLink key={link.href} href={link.href}>
                   {t(link.labelKey)}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
-                </Link>
+                </NavLink>
               ))}
             </nav>
 
@@ -226,8 +234,10 @@ export default function Header() {
               </Link>
 
               {/* Кошик - touch target 44px */}
-              <button
+              <motion.button
                 onClick={() => setIsCartOpen(true)}
+                animate={isBumping ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 20 }}
                 className="relative flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] text-foreground hover:text-primary hover:bg-surface-hover rounded-full transition active:scale-95"
                 aria-label="Відкрити кошик"
               >
@@ -237,7 +247,7 @@ export default function Header() {
                     {getItemCount > 99 ? "99+" : getItemCount}
                   </span>
                 )}
-              </button>
+              </motion.button>
 
               {/* Hamburger меню (Mobile) - touch target 44px */}
               <button

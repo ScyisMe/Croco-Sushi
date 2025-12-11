@@ -70,12 +70,11 @@ export default function ReviewsCarousel() {
                 </h2>
 
                 <Swiper
-                    modules={[Navigation, Autoplay, Pagination]}
+                    modules={[Autoplay, Pagination]}
                     spaceBetween={24}
                     slidesPerView={1}
-                    navigation
                     pagination={{ clickable: true }}
-                    autoplay={{ delay: 6000, disableOnInteraction: false }}
+                    autoplay={{ delay: 3000, disableOnInteraction: false }}
                     breakpoints={{
                         640: { slidesPerView: 1 },
                         768: { slidesPerView: 2 },

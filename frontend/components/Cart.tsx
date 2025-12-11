@@ -21,6 +21,8 @@ import { Product } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
+import NumberTicker from "@/components/ui/NumberTicker";
 
 interface CartProps {
   isOpen: boolean;
@@ -241,7 +243,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
             <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full">
               <Transition.Child
                 as={Fragment}
-                enter="transform transition ease-in-out duration-300"
+                enter="transform transition ease-out duration-300"
                 enterFrom="translate-x-full"
                 enterTo="translate-x-0"
                 leave="transform transition ease-in-out duration-300"
@@ -337,9 +339,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                               </p>
                             </div>
                           ) : (
-                            <div className="mb-4 p-4 bg-primary/20 border border-primary/40 rounded-xl">
+                            <div className="mb-4 p-4 bg-primary/20 border border-primary/40 rounded-xl animate-bounce">
                               <div className="flex items-center gap-2">
-                                <span className="text-2xl">🎉</span>
+                                <span className="text-2xl animate-pulse">🎊</span>
                                 <div>
                                   <p className="font-bold text-primary">Доставка безкоштовна!</p>
                                   <p className="text-xs text-gray-400">Ви зекономили 200 ₴</p>
@@ -350,86 +352,99 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
                           {/* Список товарів */}
                           <ul className="space-y-4">
-                            {items.map((item) => (
-                              <li
-                                key={`${item.id}-${item.sizeId || "default"}`}
-                                className="flex gap-4 p-3 bg-white/5 border border-white/5 rounded-xl"
-                              >
-                                {/* Зображення */}
-                                <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-theme-surface">
-                                  {item.image_url ? (
-                                    <Image
-                                      src={item.image_url}
-                                      alt={item.name}
-                                      width={80}
-                                      height={80}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center p-2 bg-gray-50">
-                                      <div className="relative w-full h-full">
-                                        <Image
-                                          src="/logo.png"
-                                          alt={item.name}
-                                          fill
-                                          className="object-contain opacity-50 grayscale"
-                                        />
+                            <AnimatePresence initial={false} mode="popLayout">
+                              {items.map((item) => (
+                                <motion.li
+                                  layout
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  key={`${item.id}-${item.sizeId || "default"}`}
+                                  className="flex gap-4 p-3 bg-white/5 border border-white/5 rounded-xl overflow-hidden"
+                                >
+                                  {/* Зображення */}
+                                  <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-theme-surface">
+                                    {item.image_url ? (
+                                      <Image
+                                        src={item.image_url}
+                                        alt={item.name}
+                                        width={80}
+                                        height={80}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center p-2 bg-gray-50">
+                                        <div className="relative w-full h-full">
+                                          <Image
+                                            src="/logo.png"
+                                            alt={item.name}
+                                            fill
+                                            className="object-contain opacity-50 grayscale"
+                                          />
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* Інформація */}
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-white text-sm line-clamp-2">
-                                    {item.name}
-                                  </h4>
-                                  {item.size && (
-                                    <p className="text-xs text-gray-400 mt-0.5">
-                                      {item.size}
-                                    </p>
-                                  )}
-                                  <p className="text-primary-500 font-bold mt-1">
-                                    {item.price} ₴
-                                  </p>
-
-                                  {/* Кількість та видалення - збільшені touch targets */}
-                                  <div className="flex items-center justify-between mt-2">
-                                    <div className="flex items-center border border-border rounded-lg">
-                                      <button
-                                        onClick={() =>
-                                          updateQuantity(item.id, item.quantity - 1, item.sizeId)
-                                        }
-                                        className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-l-lg active:scale-95"
-                                        aria-label="Зменшити кількість"
-                                      >
-                                        <MinusIcon className="w-4 h-4" />
-                                      </button>
-                                      <span className="px-4 font-medium text-sm min-w-[40px] text-center">
-                                        {item.quantity}
-                                      </span>
-                                      <button
-                                        onClick={() =>
-                                          updateQuantity(item.id, item.quantity + 1, item.sizeId)
-                                        }
-                                        className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-r-lg active:scale-95"
-                                        aria-label="Збільшити кількість"
-                                      >
-                                        <PlusIcon className="w-4 h-4" />
-                                      </button>
-                                    </div>
-
-                                    <button
-                                      onClick={() => removeItem(item.id, item.sizeId)}
-                                      className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-accent-red hover:bg-accent-red/10 transition rounded-lg active:scale-95"
-                                      aria-label="Видалити товар"
-                                    >
-                                      <TrashIcon className="w-5 h-5" />
-                                    </button>
+                                    )}
                                   </div>
-                                </div>
-                              </li>
-                            ))}
+
+                                  {/* Інформація */}
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-semibold text-white text-sm line-clamp-2">
+                                      {item.name}
+                                    </h4>
+                                    {item.size && (
+                                      <p className="text-xs text-gray-400 mt-0.5">
+                                        {item.size}
+                                      </p>
+                                    )}
+                                    <p className="text-primary-500 font-bold mt-1">
+                                      {item.price} ₴
+                                    </p>
+
+                                    {/* Кількість та видалення - збільшені touch targets */}
+                                    <div className="flex items-center justify-between mt-2">
+                                      <div className="flex items-center border border-border rounded-lg">
+                                        <button
+                                          onClick={() =>
+                                            updateQuantity(item.id, item.quantity - 1, item.sizeId)
+                                          }
+                                          className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-l-lg active:scale-95"
+                                          aria-label="Зменшити кількість"
+                                        >
+                                          <MinusIcon className="w-4 h-4" />
+                                        </button>
+                                        <motion.span
+                                          key={item.quantity}
+                                          initial={{ y: 10, opacity: 0 }}
+                                          animate={{ y: 0, opacity: 1 }}
+                                          exit={{ y: -10, opacity: 0 }}
+                                          className="px-4 font-medium text-sm min-w-[40px] text-center inline-block"
+                                        >
+                                          {item.quantity}
+                                        </motion.span>
+                                        <button
+                                          onClick={() =>
+                                            updateQuantity(item.id, item.quantity + 1, item.sizeId)
+                                          }
+                                          className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-r-lg active:scale-95"
+                                          aria-label="Збільшити кількість"
+                                        >
+                                          <PlusIcon className="w-4 h-4" />
+                                        </button>
+                                      </div>
+
+                                      <button
+                                        onClick={() => removeItem(item.id, item.sizeId)}
+                                        className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-accent-red hover:bg-accent-red/10 transition rounded-lg active:scale-95"
+                                        aria-label="Видалити товар"
+                                      >
+                                        <TrashIcon className="w-5 h-5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </motion.li>
+                              ))}
+                            </AnimatePresence>
                           </ul>
                         </div>
                       )}
@@ -468,7 +483,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           </div>
                           <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
                             <span className="text-white">{t("cart.total")}</span>
-                            <span className="text-primary-500">{finalAmount.toFixed(0)} ₴</span>
+                            <span className="text-primary-500 font-display">
+                              <NumberTicker value={finalAmount} stiffness={250} damping={25} /> ₴
+                            </span>
                           </div>
                         </div>
 
@@ -484,7 +501,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                         <Link
                           href="/checkout"
                           onClick={() => setIsOpen(false)}
-                          className={`block w-full text-center py-4 rounded-lg font-bold text-lg transition ${isMinOrderReached
+                          className={`btn-checkout block w-full text-center py-4 rounded-lg font-bold text-lg transition ${isMinOrderReached
                             ? "bg-primary hover:bg-primary-600 text-white"
                             : "bg-theme-tertiary text-theme-muted cursor-not-allowed pointer-events-none"
                             }`}
@@ -500,6 +517,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
           </div>
         </div>
       </Dialog>
-    </Transition.Root>
+    </Transition.Root >
   );
 }

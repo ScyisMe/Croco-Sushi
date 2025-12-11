@@ -4102,11 +4102,68 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-12-09 23:40:17 - app.main - INFO - Connected to Redis for Rate Limiting
 2025-12-09 23:40:27 - app.main - INFO - Redis connection closed
 2025-12-09 23:40:29 - app.main - INFO - Connected to Redis for Rate Limiting
-2025-12-10 08:17:31 - app.main - INFO - Connected to Redis for Rate Limiting
-2025-12-10 15:06:13 - app.main - INFO - Redis connection closed
-2025-12-10 15:06:22 - app.main - INFO - Connected to Redis for Rate Limiting
-2025-12-10 15:14:26 - app.main - INFO - Redis connection closed
-2025-12-10 15:14:35 - app.main - INFO - Connected to Redis for Rate Limiting
-2025-12-10 15:20:00 - app.main - INFO - Redis connection closed
-2025-12-10 16:07:45 - app.main - INFO - Connected to Redis for Rate Limiting
-2025-12-10 17:22:43 - app.main - INFO - Redis connection closed
+2025-12-09 23:44:07 - app.main - INFO - Redis connection closed
+2025-12-10 18:34:00 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 18:52:50 - app.main - INFO - Redis connection closed
+2025-12-10 18:52:55 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 19:26:57 - app.main - INFO - Redis connection closed
+2025-12-10 19:27:07 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 19:32:26 - app.main - INFO - Redis connection closed
+2025-12-10 19:32:35 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 19:37:23 - app.main - INFO - Redis connection closed
+2025-12-10 19:37:33 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:11:32 - app.main - INFO - Redis connection closed
+2025-12-10 20:11:44 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:21:31 - app.main - INFO - Redis connection closed
+2025-12-10 20:21:40 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:46:20 - app.main - INFO - Redis connection closed
+2025-12-10 20:46:29 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:54:01 - app.main - INFO - Redis connection closed
+2025-12-10 20:54:04 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:54:06 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:54:20 - app.main - INFO - Redis connection closed
+2025-12-10 20:54:23 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:54:49 - app.main - INFO - Redis connection closed
+2025-12-10 20:54:51 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 20:57:19 - app.main - INFO - Redis connection closed
+2025-12-10 20:57:29 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 21:22:40 - app.main - INFO - Redis connection closed
+2025-12-10 21:22:54 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 21:30:47 - app.main - INFO - Redis connection closed
+2025-12-10 21:30:53 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 21:42:19 - app.main - INFO - Redis connection closed
+2025-12-10 21:42:29 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 21:50:52 - app.main - INFO - Redis connection closed
+2025-12-10 21:51:00 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 21:55:19 - app.main - INFO - Redis connection closed
+2025-12-10 21:55:26 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 22:04:22 - app.main - INFO - Redis connection closed
+2025-12-10 22:04:31 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 22:09:53 - app.main - INFO - Redis connection closed
+2025-12-10 22:10:01 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 22:13:38 - app.main - INFO - Redis connection closed
+2025-12-10 22:13:46 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 22:21:02 - app.main - INFO - Redis connection closed
+2025-12-10 22:21:09 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 22:42:55 - app.main - INFO - Redis connection closed
+2025-12-10 22:43:04 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 22:49:36 - app.main - INFO - Redis connection closed
+2025-12-10 22:49:47 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-10 22:53:50 - app.main - INFO - Redis connection closed
+2025-12-10 22:54:00 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 12:54:53 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 12:56:16 - app.main - INFO - Redis connection closed
+2025-12-11 12:56:24 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 13:09:44 - app.main - INFO - Redis connection closed
+2025-12-11 13:09:47 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 13:12:15 - app.main - INFO - Redis connection closed
+2025-12-11 13:12:17 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 13:14:20 - app.main - INFO - Redis connection closed
+2025-12-11 13:14:23 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 13:14:27 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 13:53:47 - app.main - INFO - Redis connection closed
+2025-12-11 13:53:54 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 14:20:50 - app.main - INFO - Redis connection closed
+2025-12-11 14:20:57 - app.main - INFO - Connected to Redis for Rate Limiting
+2025-12-11 14:38:20 - app.main - INFO - Redis connection closed
+2025-12-11 14:38:27 - app.main - INFO - Connected to Redis for Rate Limiting

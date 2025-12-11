@@ -3,23 +3,14 @@ from typing import Optional
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
-import redis
 
 from app.database import get_db
-from app.core.config import settings
 from app.core.security import decode_access_token, get_token_data
 from app.core.exceptions import UnauthorizedException, ForbiddenException
 from app.models.user import User
 from sqlalchemy import select
 
 security = HTTPBearer()
-
-# Redis connection for blacklist
-try:
-    redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
-except Exception:
-    redis_client = None
-
 
 
 async def get_current_user(
@@ -28,13 +19,6 @@ async def get_current_user(
 ) -> User:
     """Отримання поточного користувача з токену"""
     token = credentials.credentials
-    
-    # Check blacklist
-    if redis_client:
-        is_blacklisted = redis_client.get(f"blacklist:{token}")
-        if is_blacklisted:
-            raise UnauthorizedException("Сесію завершено. Будь ласка, увійдіть знову.")
-
     payload = decode_access_token(token)
     
     if payload is None:
