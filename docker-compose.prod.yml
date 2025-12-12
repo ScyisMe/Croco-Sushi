@@ -65,6 +65,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: runner
       args:
         NEXT_PUBLIC_API_URL: https://api.crocosushi.com
     container_name: croco_sushi_frontend
