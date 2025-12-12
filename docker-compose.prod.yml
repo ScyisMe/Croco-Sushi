@@ -1,29 +1,20 @@
 services:
-  nginx:
-    image: nginx:1.27-bookworm
-    container_name: croco-nginx
+  caddy:
+    image: caddy:2-alpine
+    container_name: croco_sushi_caddy
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx-config/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx-config/conf.d:/etc/nginx/conf.d:ro
-      - ./uploads:/app/uploads:ro
-      - ./nginx-config/ssl:/etc/nginx/ssl:ro
-      - nginx_cache:/var/cache/nginx
-      - nginx_logs:/var/log/nginx
-    depends_on:
-      - backend
-      - frontend
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
     networks:
       - croco_sushi_network
-    healthcheck:
-      test: [ "CMD", "wget", "-q", "--spider", "http://localhost/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
+    depends_on:
+      - frontend
+      - backend
 
   postgres:
     image: postgres:17-bookworm
@@ -124,8 +115,8 @@ volumes:
   postgres_data:
   redis_data:
   backend_uploads:
-  nginx_cache:
-  nginx_logs:
+  caddy_data:
+  caddy_config:
 
 
 networks:
