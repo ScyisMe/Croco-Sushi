@@ -28,7 +28,7 @@ interface User {
   phone: string;
   email?: string;
   name?: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "manager";
 }
 
 const NAV_ITEMS = [
