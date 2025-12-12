@@ -43,6 +43,7 @@ const ORDER_STATUS_MAP: Record<OrderStatus, { label: string; color: string }> = 
   ready: { label: "Готове", color: "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" },
   delivering: { label: "Доставляється", color: "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30" },
   delivered: { label: "Доставлено", color: "bg-green-500/20 text-green-400 border border-green-500/30" },
+  completed: { label: "Виконано", color: "bg-green-500/20 text-green-400 border border-green-500/30" },
   cancelled: { label: "Скасовано", color: "bg-red-500/20 text-red-400 border border-red-500/30" },
 };
 

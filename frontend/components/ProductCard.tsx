@@ -55,8 +55,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   const badges = [];
 
   // Logic to determine badges (infer from text if not present in validation)
-  const isSpicy = product.is_spicy || product.name.toLowerCase().includes('спайсі') || product.description?.toLowerCase().includes('гострий') || product.description?.toLowerCase().includes('spicy');
-  const isVegan = product.is_vegan || product.name.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('vegan') || product.description?.toLowerCase().includes('овоч');
+  const isSpicy = (product as any).is_spicy || product.name.toLowerCase().includes('спайсі') || product.description?.toLowerCase().includes('гострий') || product.description?.toLowerCase().includes('spicy');
+  const isVegan = (product as any).is_vegan || product.name.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('vegan') || product.description?.toLowerCase().includes('овоч');
 
   if (product.is_top_seller) badges.push({ label: "Top", className: "", icon: "/badges/top.png", isImage: true });
   if (product.is_new) badges.push({ label: "Новинка", className: "", icon: "/badges/new.png", isImage: true });
@@ -156,10 +156,10 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             <span
               key={index}
               className={`px-3 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase shadow-sm backdrop-blur-md border border-white/10 ${badge.label === 'Top' ? 'bg-accent-gold/90 text-black' :
-                  badge.label === 'Новинка' ? 'bg-primary-500/90 text-white' :
-                    badge.label === 'Хіт' ? 'bg-accent-terracotta/90 text-white' :
-                      badge.label === 'Акція' ? 'bg-rose-500/90 text-white' :
-                        'bg-surface-card/80 text-white'
+                badge.label === 'Новинка' ? 'bg-primary-500/90 text-white' :
+                  badge.label === 'Хіт' ? 'bg-accent-terracotta/90 text-white' :
+                    badge.label === 'Акція' ? 'bg-rose-500/90 text-white' :
+                      'bg-surface-card/80 text-white'
                 } ${badge.className}`}
             >
               {badge.label}
@@ -174,8 +174,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           <button
             onClick={handleFavoriteClick}
             className={`p-2.5 rounded-full backdrop-blur-md transition-all duration-300 ${isFavorite
-                ? "bg-accent-terracotta text-white shadow-lg shadow-accent-terracotta/20"
-                : "bg-black/30 text-white hover:bg-white hover:text-accent-terracotta border border-white/10"
+              ? "bg-accent-terracotta text-white shadow-lg shadow-accent-terracotta/20"
+              : "bg-black/30 text-white hover:bg-white hover:text-accent-terracotta border border-white/10"
               }`}
             aria-label={isFavorite ? "Видалити з обраного" : "Додати в обране"}
           >
@@ -223,8 +223,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
                 key={size.id}
                 onClick={(e) => handleSizeSelect(e, size)}
                 className={`px-3 py-1 text-[10px] uppercase tracking-wider font-bold rounded border transition-all ${selectedSize?.id === size.id
-                    ? "bg-white text-black border-white"
-                    : "bg-transparent text-gray-500 border-white/10 hover:border-white/30 hover:text-gray-300"
+                  ? "bg-white text-black border-white"
+                  : "bg-transparent text-gray-500 border-white/10 hover:border-white/30 hover:text-gray-300"
                   }`}
               >
                 {size.name}

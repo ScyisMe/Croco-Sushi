@@ -217,7 +217,7 @@ export default function OrderTrackPage() {
                 </h3>
                 {order.status_history && order.status_history.length > 0 ? (
                   <div className="relative border-l-2 border-theme-tertiary ml-3 space-y-8 pl-8 py-2">
-                    {order.status_history.map((historyItem, index) => {
+                    {order.status_history.map((historyItem: any, index: number) => {
                       const statusConfig =
                         ORDER_STATUSES[
                         historyItem.status as keyof typeof ORDER_STATUSES

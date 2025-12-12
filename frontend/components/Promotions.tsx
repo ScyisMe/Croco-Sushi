@@ -119,7 +119,7 @@ export default function Promotions() {
               {/* Контент */}
               <div className="p-6">
                 <h3 className="text-xl font-bold text-secondary mb-2 group-hover:text-primary transition">
-                  {promo.title}
+                  {promo.name}
                 </h3>
                 <p className="text-secondary-light text-sm line-clamp-2 mb-4">
                   {promo.description}

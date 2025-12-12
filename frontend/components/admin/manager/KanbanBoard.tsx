@@ -85,9 +85,9 @@ export default function KanbanBoard() {
         executeStatusUpdate(orderId, newStatus);
     };
 
-    const handleCancelConfirm = (reason: string) => {
+    const handleCancelConfirm = async (reason: string) => {
         if (orderIdToCancel) {
-            executeStatusUpdate(orderIdToCancel, "cancelled", reason);
+            await updateStatusMutation.mutateAsync({ id: orderIdToCancel, status: "cancelled", comment: reason });
             setIsCancelModalOpen(false);
             setOrderIdToCancel(null);
         }
