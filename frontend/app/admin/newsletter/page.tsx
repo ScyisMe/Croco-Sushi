@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { EnvelopeIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 
 interface Subscriber {
-    id: int;
+    id: number;
     email: string;
     is_active: boolean;
     created_at: string;
