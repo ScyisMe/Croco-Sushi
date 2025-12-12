@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, XMarkIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 
@@ -392,3 +392,4 @@ export default function EditPromotionPage({ params }: { params: { id: string } }
         </div>
     );
 }
+

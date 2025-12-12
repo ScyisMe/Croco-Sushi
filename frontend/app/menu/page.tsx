@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export const dynamic = "force-dynamic";
 
@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Category, Product, Favorite } from "@/lib/types";
 import { motion } from "framer-motion";
 import {
@@ -16,8 +16,8 @@ import {
   XMarkIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
 import QuickViewModal from "@/components/QuickViewModal";
 import toast from "react-hot-toast";
@@ -779,3 +779,4 @@ export default function MenuPage() {
     </Suspense>
   );
 }
+

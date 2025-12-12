@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -17,7 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { User, Order } from "@/lib/types";
 import { format } from "date-fns";
 
@@ -386,3 +386,4 @@ export default function UserDetailPage() {
         </div>
     );
 }
+

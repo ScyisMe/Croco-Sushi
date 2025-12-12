@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
@@ -441,4 +441,5 @@ export default function EditProductPage() {
     </div>
   );
 }
+
 

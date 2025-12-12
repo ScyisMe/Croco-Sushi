@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Product, Category } from "@/lib/types";
 import ProductCard from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/ProductCard";
@@ -102,3 +102,4 @@ export default function CategorySection({ category }: CategorySectionProps) {
         </section>
     );
 }
+

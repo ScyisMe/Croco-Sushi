@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/store/localeStore";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import { EnvelopeIcon, UserGroupIcon } from "@heroicons/react/24/outline";
@@ -182,3 +182,4 @@ export default function AdminNewsletterPage() {
         </div>
     );
 }
+

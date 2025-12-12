@@ -1,15 +1,15 @@
-"use client";
+﻿"use client";
 
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Promotion } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRightIcon, TagIcon, CalendarIcon, ClockIcon } from "@heroicons/react/24/outline";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import CountdownTimer from "@/components/CountdownTimer";
 
 export default function PromotionDetailPage() {
@@ -281,3 +281,4 @@ export default function PromotionDetailPage() {
     </div>
   );
 }
+

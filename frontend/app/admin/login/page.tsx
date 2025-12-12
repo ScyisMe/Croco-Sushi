@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
@@ -166,4 +166,5 @@ export default function AdminLoginPage() {
     </div>
   );
 }
+
 

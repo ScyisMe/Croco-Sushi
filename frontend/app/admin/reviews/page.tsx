@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import {
     StarIcon,
@@ -226,3 +226,4 @@ export default function AdminReviewsPage() {
         </div>
     );
 }
+

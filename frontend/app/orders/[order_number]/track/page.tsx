@@ -1,14 +1,14 @@
-"use client";
+﻿"use client";
 
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { OrderTrackResponse } from "@/lib/types";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
 import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import {
   CheckCircleIcon,
   ClockIcon,
@@ -337,3 +337,4 @@ function UserIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+

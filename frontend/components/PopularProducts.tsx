@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useTranslation } from "@/store/localeStore";
 import ProductCard from "./ProductCard";
@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useQuery } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 
 const container = {
   hidden: { opacity: 0 },
@@ -103,3 +103,4 @@ export default function PopularProducts() {
     </section>
   );
 }
+

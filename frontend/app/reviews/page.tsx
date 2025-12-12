@@ -1,18 +1,18 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Review } from "@/lib/types";
 import Image from "next/image";
 import { StarIcon as StarSolidIcon, FaceFrownIcon, FaceSmileIcon, SparklesIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon, ChevronRightIcon, PencilSquareIcon, FaceSmileIcon as FaceNeutralIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
 import { uk, ru } from "date-fns/locale";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import ReviewForm, { ReviewFormData } from "@/components/ReviewForm";
 import toast from "react-hot-toast";
 import { JsonLd, getBreadcrumbSchema, getAggregateReviewSchema, BUSINESS_INFO } from "@/lib/schema";
@@ -509,3 +509,4 @@ export default function ReviewsPage() {
     </div>
   );
 }
+

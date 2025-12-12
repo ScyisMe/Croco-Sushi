@@ -1,4 +1,4 @@
-
+﻿
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,14 +18,14 @@ import {
   FireIcon
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Product, ProductSize } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";
 import { useTranslation } from "@/store/localeStore";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import toast from "react-hot-toast";
 
 export default function ProductPage() {
@@ -329,3 +329,4 @@ export default function ProductPage() {
     </div>
   );
 }
+

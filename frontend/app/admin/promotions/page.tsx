@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import {
     PlusIcon,
@@ -169,3 +169,4 @@ export default function AdminPromotionsPage() {
         </div>
     );
 }
+

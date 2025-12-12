@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Fragment, useEffect, useState, useCallback } from "react";
 import { Dialog, Transition } from "@headlessui/react";
@@ -16,7 +16,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useCartStore, MAX_CART_ITEMS } from "@/store/cartStore";
 import { useTranslation } from "@/store/localeStore";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Product } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -520,3 +520,4 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
     </Transition.Root >
   );
 }
+

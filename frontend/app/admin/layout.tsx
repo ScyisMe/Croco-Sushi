@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import {
   HomeIcon,
   ShoppingBagIcon,
@@ -241,6 +241,7 @@ export default function AdminLayout({
     </div>
   );
 }
+
 
 
 

@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useCallback, useRef, useState } from "react";
 import { useCartStore, CartItem } from "@/store/cartStore";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 
 // Інтервал синхронізації (30 секунд)
@@ -263,6 +263,7 @@ export function useCartSync() {
 }
 
 export default useCartSync;
+
 
 
 

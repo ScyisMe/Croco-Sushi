@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import {
   ArrowDownTrayIcon,
   DocumentChartBarIcon,
@@ -144,3 +144,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+

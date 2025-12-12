@@ -1,12 +1,12 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "@/store/localeStore";
 
@@ -464,3 +464,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

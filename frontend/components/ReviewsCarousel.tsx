@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -16,7 +16,7 @@ interface Review {
     created_at: string;
 }
 
-import apiClient from '@/lib/api/client';
+import apiClient from '@/lib/api/apiClient';
 
 // ... (imports remain)
 
@@ -110,3 +110,4 @@ export default function ReviewsCarousel() {
         </section>
     );
 }
+

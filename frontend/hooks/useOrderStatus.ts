@@ -1,5 +1,5 @@
-import { useState } from "react";
-import apiClient from "@/lib/api/client";
+﻿import { useState } from "react";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 
 interface UseOrderStatusProps {
@@ -61,3 +61,4 @@ export const useOrderStatus = ({ onStatusChanged }: UseOrderStatusProps = {}) =>
         orderNumber: orderToCancel?.orderNumber,
     };
 };
+
