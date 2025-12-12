@@ -27,7 +27,15 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 RUN npm run build
 
-# Stage 3: Runner
+# Stage 3: Development
+FROM node:20-alpine AS dev
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+COPY . .
+CMD ["npm", "run", "dev"]
+
+# Stage 4: Runner
 FROM node:20-alpine AS runner
 WORKDIR /app
 
@@ -57,12 +65,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget -q --spider http://localhost:3000 || exit 1
 
 CMD ["node", "server.js"]
-
-
-# Stage: Development
-FROM node:20-alpine AS dev
-WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm ci
-COPY . .
-CMD ["npm", "run", "dev"]
