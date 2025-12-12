@@ -2,21 +2,17 @@
 echo Stopping Docker containers...
 docker compose down
 
-echo Removing Postgres volume...
+echo Removing Postgres volume (trying possible names)...
 docker volume rm croco_sushi_postgres_data
-if %errorlevel% neq 0 (
-    echo.
-    echo [WARNING] Could not remove 'croco_sushi_postgres_data'. 
-    echo Trying to find other volumes...
-    docker volume ls | findstr "postgres"
-    echo.
-    echo Please manually remove the volume name you see above using: docker volume rm <volumename>
-    pause
-    exit /b
-)
+docker volume rm croco-sushi_postgres_data
+docker volume rm crocosushi_postgres_data
 
 echo.
-echo Volume removed successfully.
+echo Cleaning Frontend builds (fixes 'next not found')...
+rmdir /s /q "frontend\.next"
+rmdir /s /q "frontend\node_modules"
+
+echo.
 echo Rebuilding and starting containers...
 docker compose up -d --build
 
