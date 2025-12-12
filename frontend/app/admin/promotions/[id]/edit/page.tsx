@@ -180,7 +180,7 @@ export default function EditPromotionPage({ params }: { params: { id: string } }
                 </Link>
                 <div>
                     <h1 className="text-2xl font-bold text-white">Редагування акції</h1>
-                    <p className="text-gray-400">Зміна параметрів акції "{formData.title}"</p>
+                    <p className="text-gray-400">Зміна параметрів акції &quot;{formData.title}&quot;</p>
                 </div>
             </div>
 

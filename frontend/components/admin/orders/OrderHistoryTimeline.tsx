@@ -49,20 +49,7 @@ export const OrderHistoryTimeline = ({ history }: OrderHistoryTimelineProps) => 
                         <div className="flex-1 bg-white/5 rounded-lg p-3 border border-white/5">
                             <div className="flex flex-wrap items-center gap-x-2 text-sm text-gray-300">
                                 <span className="font-semibold text-white">{entry.manager_name}</span>
-                                <span>змінив статус</span>
-                                <span className="line-through opacity-60">
-                                    {STATUS_LABELS[entry.previous_status] || entry.previous_status}
-                                </span>
-                                <span>→</span>
-                                <span className={`font-medium ${entry.new_status === 'cancelled' ? 'text-red-400' : 'text-primary-400'}`}>
-                                    {STATUS_LABELS[entry.new_status] || entry.new_status}
-                                </span>
                             </div>
-
-                            {(entry.comment || entry.reason) && (
-                                <div className="mt-2 text-sm text-white/80 bg-black/20 p-2 rounded border-l-2 border-primary-500 italic">
-                                    "{entry.comment || entry.reason}"
-                                </div>
                             )}
                         </div>
                     </div>

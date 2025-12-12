@@ -174,64 +174,51 @@ export default function OrderDetailsModal({
 
                                             {onStatusChange ? (
                                                 <select
-                                                    value={order.status}
-                                                    onChange={(e) => onStatusChange(order, e.target.value)}
-                                                    className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-primary outline-none cursor-pointer"
-                                                >
-                                                    {STATUS_OPTIONS.map((opt) => (
-                                                        <option key={opt.value} value={opt.value} className="bg-gray-800">
-                                                            {opt.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            ) : (
-                                                <div className="px-3 py-1.5 inline-block rounded-lg bg-primary/20 text-primary font-bold uppercase tracking-wide text-sm">
-                                                    {order.status}
                                                 </div>
                                             )}
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
 
-                                {/* Order History Section */}
-                                {order.history && order.history.length > 0 && (
-                                    <div className="mt-8 border-t border-white/5 pt-6">
-                                        <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-primary">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            Історія замовлення
-                                        </h4>
-                                        <div className="space-y-4">
-                                            {order.history.map((entry, index) => (
-                                                <div key={index} className="flex gap-4 items-start bg-white/5 p-3 rounded-lg text-sm">
-                                                    <div className="min-w-[140px] text-gray-400">
-                                                        {format(new Date(entry.changed_at), "d MMM, HH:mm", { locale: uk })}
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="font-medium text-white">{entry.manager_name}</span>
-                                                            <span className="text-gray-500">→</span>
-                                                            <span className="px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-bold uppercase">
-                                                                {entry.new_status}
-                                                            </span>
-                                                        </div>
-                                                        {entry.comment && (
-                                                            <div className="text-gray-400 italic mt-1">"{entry.comment}"</div>
-                                                        )}
-                                                    </div>
+                            {/* Order History Section */}
+                            {order.history && order.history.length > 0 && (
+                                <div className="mt-8 border-t border-white/5 pt-6">
+                                    <h4 className="font-semibold text-white mb-4 flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-primary">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Історія замовлення
+                                    </h4>
+                                    <div className="space-y-4">
+                                        {order.history.map((entry, index) => (
+                                            <div key={index} className="flex gap-4 items-start bg-white/5 p-3 rounded-lg text-sm">
+                                                <div className="min-w-[140px] text-gray-400">
+                                                    {format(new Date(entry.changed_at), "d MMM, HH:mm", { locale: uk })}
                                                 </div>
-                                            ))}
-                                        </div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="font-medium text-white">{entry.manager_name}</span>
+                                                        <span className="text-gray-500">→</span>
+                                                        <span className="px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-bold uppercase">
+                                                            {entry.new_status}
+                                                        </span>
+                                                    </div>
+                                                    {entry.comment && (
+                                                        <div className="text-gray-400 italic mt-1">"{entry.comment}"</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                )}
+                                </div>
+                            )}
 
-                            </Dialog.Panel>
-                        </Transition.Child>
-                    </div>
+                        </Dialog.Panel>
+                    </Transition.Child>
                 </div>
-            </Dialog>
+            </div>
+        </Dialog>
         </Transition >
     );
 }
