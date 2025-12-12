@@ -126,7 +126,7 @@ export default function OrderHistoryPage() {
         // Search is already handled by debounce effect
     }
 
-    const handleRowClick = async (order: Order) => {
+    const handleRowClick = async (order: any) => {
         // Fetch full order details including items if needed
         // Assuming the list order object might not have items
         try {
