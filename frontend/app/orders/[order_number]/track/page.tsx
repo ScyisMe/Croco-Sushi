@@ -68,7 +68,7 @@ export default function OrderTrackPage() {
   const params = useParams();
   const orderNumber = params.order_number as string;
 
-  const orderQuery = useQuery<OrderTrackResponse>({
+  const orderQuery = useQuery<any>({
     queryKey: ["orderTrack", orderNumber],
     queryFn: async () => {
       const response = await apiClient.get(`/orders/${orderNumber}/track`);
