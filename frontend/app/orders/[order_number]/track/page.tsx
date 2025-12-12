@@ -213,7 +213,7 @@ export default function OrderTrackPage() {
               <div className="glass-card p-6 rounded-2xl">
                 <h3 className="text-xl font-bold text-secondary mb-6">
                   Історія замовлення
-                  Ваше замовлення &quot;{order.status}&quot;_history && order.status_history.length > 0 ? (
+                  Історія замовлення
                 </h3>
                 {order.status_history && order.status_history.length > 0 ? (
                   <div className="relative border-l-2 border-theme-tertiary ml-3 space-y-8 pl-8 py-2">
@@ -294,7 +294,7 @@ export default function OrderTrackPage() {
                   {order.comment && (
                     <div className="pt-4 border-t border-gray-700/50 mt-4">
                       <p className="text-sm text-secondary-light mb-1">Коментар</p>
-                      <p className="text-secondary italic">"{order.comment}"</p>
+                      <p className="text-secondary italic">&quot;{order.comment}&quot;</p>
                     </div>
                   )}
                 </div>
