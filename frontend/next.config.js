@@ -13,6 +13,7 @@ const nextConfig = {
         hostname: '**',
       },
     ],
+    optimizeFonts: false,
   },
   async rewrites() {
     return [

@@ -1,4 +1,4 @@
-﻿#!/bin/sh
+#!/bin/sh
 # Fix pg_hba.conf for localhost and Docker network connections
 # This script runs after PostgreSQL is initialized
 
