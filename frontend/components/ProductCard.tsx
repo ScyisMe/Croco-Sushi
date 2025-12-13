@@ -124,7 +124,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Зображення - Edge to Edge */}
-      <Link href={`/products/${product.slug}`} className="block relative aspect-square overflow-hidden mb-0">
+      <Link href={`/products/${product.slug}`} className="block relative aspect-[4/5] overflow-hidden mb-0">
         {product.image_url ? (
           <Image
             src={product.image_url}
