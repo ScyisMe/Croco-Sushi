@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  optimizeFonts: false,
   images: {
     remotePatterns: [
       {
@@ -13,7 +14,6 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-    optimizeFonts: false,
   },
   async rewrites() {
     return [

@@ -6,8 +6,8 @@ from app.models.user import User, UserRole
 from app.core.security import get_password_hash
 from app.core.config import settings
 
-# Override database URL to point to localhost if running from outside docker
-DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/croco_sushi"
+# Use settings from config
+DATABASE_URL = settings.DATABASE_URL
 
 async def create_admin():
     print(f"Connecting to database...")
