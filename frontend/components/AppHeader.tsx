@@ -287,12 +287,12 @@ export default function Header() {
               leaveFrom="translate-x-0"
               leaveTo="-translate-x-full"
             >
-              <Dialog.Panel className="fixed inset-y-0 left-0 w-full max-w-xs bg-surface shadow-xl">
+              <Dialog.Panel className="fixed inset-y-0 left-0 w-full max-w-xs bg-[#111] border-r border-white/10 shadow-2xl">
                 <div className="flex flex-col h-full">
                   {/* Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-border">
+                  <div className="flex items-center justify-between p-4 border-b border-white/10">
                     <Link href="/" className="flex items-center space-x-3" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="relative w-14 h-14 rounded-full overflow-hidden bg-[#343434]">
+                      <div className="relative w-14 h-14 rounded-full overflow-hidden bg-[#343434] border border-white/10">
                         <Image
                           src="/logo.png"
                           alt="Croco Sushi"
@@ -304,21 +304,21 @@ export default function Header() {
                     </Link>
                     <button
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-secondary hover:text-primary transition"
+                      className="text-gray-400 hover:text-white transition"
                     >
-                      <XMarkIcon className="w-6 h-6" />
+                      <XMarkIcon className="w-8 h-8" />
                     </button>
                   </div>
 
                   {/* Navigation */}
-                  <nav className="flex-1 p-4">
+                  <nav className="flex-1 p-4 overflow-y-auto">
                     <ul className="space-y-2">
                       {NAV_LINKS.map((link) => (
                         <li key={link.href}>
                           <Link
                             href={link.href}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="block py-3 px-4 text-lg text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition"
+                            className="block py-3 px-4 text-lg font-medium text-gray-200 hover:text-white hover:bg-white/5 rounded-xl transition"
                           >
                             {t(link.labelKey)}
                           </Link>
@@ -328,11 +328,11 @@ export default function Header() {
                       {/* Авторизація для мобільних */}
                       {!isAuthenticated && (
                         <>
-                          <li className="border-t border-border pt-2 mt-2">
+                          <li className="border-t border-white/10 pt-4 mt-4">
                             <Link
                               href="/login"
                               onClick={() => setIsMobileMenuOpen(false)}
-                              className="block py-3 px-4 text-lg text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition"
+                              className="block py-3 px-4 text-lg font-medium text-gray-200 hover:text-white hover:bg-white/5 rounded-xl transition"
                             >
                               {t("header.login")}
                             </Link>
@@ -341,7 +341,7 @@ export default function Header() {
                             <Link
                               href="/register"
                               onClick={() => setIsMobileMenuOpen(false)}
-                              className="block py-3 px-4 text-lg text-primary font-medium hover:bg-primary/5 rounded-lg transition"
+                              className="block py-3 px-4 text-lg font-medium text-primary hover:bg-white/5 rounded-xl transition"
                             >
                               {t("header.register")}
                             </Link>
@@ -350,11 +350,11 @@ export default function Header() {
                       )}
 
                       {isAuthenticated && (
-                        <li className="border-t border-border pt-2 mt-2">
+                        <li className="border-t border-white/10 pt-4 mt-4">
                           <Link
                             href="/profile"
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="block py-3 px-4 text-lg text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition"
+                            className="block py-3 px-4 text-lg font-medium text-gray-200 hover:text-white hover:bg-white/5 rounded-xl transition"
                           >
                             {t("header.profile")}
                           </Link>
@@ -364,9 +364,9 @@ export default function Header() {
                   </nav>
 
                   {/* Bottom section */}
-                  <div className="p-4 border-t border-border space-y-4">
+                  <div className="p-4 border-t border-white/10 space-y-4 bg-[#0a0a0a]">
                     {/* Робочий час - показуємо тільки після монтування */}
-                    <div className="flex items-center text-secondary-light">
+                    <div className="flex items-center text-gray-400">
                       <ClockIcon className="w-5 h-5 mr-2" />
                       <span>
                         {isMounted ? (
@@ -376,7 +376,7 @@ export default function Header() {
                             <span className="text-accent-red font-medium">{t("header.closed")}</span>
                           )
                         ) : (
-                          <span className="text-secondary-light">...</span>
+                          <span className="text-gray-500">...</span>
                         )}{" "}
                         з 10:00 - 21:45
                       </span>
@@ -388,7 +388,7 @@ export default function Header() {
                         <a
                           key={index}
                           href={`tel:${phone.number}`}
-                          className="flex items-center text-secondary hover:text-primary transition"
+                          className="flex items-center text-gray-300 hover:text-primary transition"
                         >
                           <PhoneIcon className="w-5 h-5 mr-2" />
                           {phone.display}
@@ -402,28 +402,28 @@ export default function Header() {
                         setIsMobileMenuOpen(false);
                         setIsCallbackOpen(true);
                       }}
-                      className="w-full bg-primary hover:bg-primary-600 text-white font-semibold py-3 rounded-lg transition"
+                      className="w-full bg-primary hover:bg-primary-600 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-primary/20"
                     >
                       {t("callback.submit")}
                     </button>
 
                     {/* Вибір мови - показуємо тільки після монтування */}
                     {isMounted && (
-                      <div className="flex items-center justify-center space-x-2">
+                      <div className="flex items-center justify-center space-x-2 pt-2">
                         <button
                           onClick={() => handleLanguageChange("ua")}
-                          className={`px-4 py-2 rounded-lg transition ${locale === "ua"
-                            ? "bg-primary text-white"
-                            : "bg-surface text-foreground-secondary hover:bg-surface-hover"
+                          className={`px-6 py-2 rounded-lg transition font-medium ${locale === "ua"
+                            ? "bg-white/10 text-white border border-white/20"
+                            : "bg-transparent text-gray-500 hover:text-gray-300"
                             }`}
                         >
                           UA
                         </button>
                         <button
                           onClick={() => handleLanguageChange("ru")}
-                          className={`px-4 py-2 rounded-lg transition ${locale === "ru"
-                            ? "bg-primary text-white"
-                            : "bg-surface text-foreground-secondary hover:bg-surface-hover"
+                          className={`px-6 py-2 rounded-lg transition font-medium ${locale === "ru"
+                            ? "bg-white/10 text-white border border-white/20"
+                            : "bg-transparent text-gray-500 hover:text-gray-300"
                             }`}
                         >
                           RU

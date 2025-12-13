@@ -8,37 +8,37 @@ const stories = [
     {
         id: 1,
         title: "Хіт тижня",
-        image: "/images/story-hit.jpg", // Placeholder
+        image: "/images/story-hit.png",
         color: "from-orange-500 to-red-500",
-        link: "/collection/hits",
+        link: "/menu?sort=popular",
     },
     {
         id: 2,
         title: "Новинки",
-        image: "/images/story-new.jpg",
+        image: "/images/story-new.png",
         color: "from-green-400 to-emerald-600",
-        link: "/collection/new",
+        link: "/menu?sort=new", // Assuming sorting by new is possible or just a placeholder link
     },
     {
         id: 3,
         title: "-20%",
-        image: "/images/story-promo.jpg",
+        image: "/images/story-promo.png",
         color: "from-purple-500 to-indigo-600",
         link: "/promotions",
     },
     {
         id: 4,
         title: "Гостре",
-        image: "/images/story-spicy.jpg",
+        image: "/images/story-spicy.png",
         color: "from-red-600 to-rose-700",
-        link: "/collection/spicy",
+        link: "/menu?type=spicy", // Assuming filter logic exists via query params
     },
     {
         id: 5,
         title: "Веган",
-        image: "/images/story-vegan.jpg",
+        image: "/images/story-vegan.png",
         color: "from-green-600 to-lime-500",
-        link: "/collection/vegan",
+        link: "/menu?type=vegan",
     },
 ];
 
@@ -53,15 +53,19 @@ export default function Stories() {
                             className={`p-[3px] rounded-full bg-gradient-to-tr ${story.color}`}
                         >
                             <div className="p-[2px] bg-black rounded-full">
-                                <div className="w-16 h-16 relative rounded-full overflow-hidden bg-surface-lighter">
-                                    {/* Placeholder content if image fails */}
-                                    <div className="absolute inset-0 flex items-center justify-center text-[10px] text-white/50">
-                                        {story.title[0]}
-                                    </div>
+                                <div className="w-16 h-16 relative rounded-full overflow-hidden bg-surface-lighter ring-2 ring-black">
+                                    <Image
+                                        src={story.image}
+                                        alt={story.title}
+                                        fill
+                                        className="object-cover"
+                                        sizes="64px"
+                                        priority={index < 4}
+                                    />
                                 </div>
                             </div>
                         </motion.div>
-                        <span className="text-[10px] font-medium text-gray-300 group-hover:text-white transition-colors">
+                        <span className="text-[10px] font-bold text-gray-300 group-hover:text-white transition-colors uppercase tracking-wider">
                             {story.title}
                         </span>
                     </Link>
