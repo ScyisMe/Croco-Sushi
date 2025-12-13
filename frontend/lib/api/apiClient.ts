@@ -1,9 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-const isServer = typeof window === "undefined";
-const API_URL = isServer
-  ? process.env.INTERNAL_API_URL || "http://backend:8000"
-  : process.env.NEXT_PUBLIC_API_URL || "https://api.crocosushi.com";
+const API_URL = "https://api.crocosushi.com";
 
 // Створюємо axios інстанс
 const apiClient: AxiosInstance = axios.create({
@@ -43,7 +40,7 @@ apiClient.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
-          const response = await axios.post("/api/v1/auth/refresh", {
+          const response = await axios.post(`${API_URL}/api/v1/auth/refresh`, {
             refresh_token: refreshToken,
           });
 

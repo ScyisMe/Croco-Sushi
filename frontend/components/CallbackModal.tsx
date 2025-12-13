@@ -55,7 +55,7 @@ export default function CallbackModal({ isOpen, onClose, isClosed = false }: Cal
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://api.crocosushi.com"}/api/v1/callback`, {
+      const response = await fetch("https://api.crocosushi.com/api/v1/callback", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
