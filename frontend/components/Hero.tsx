@@ -21,10 +21,10 @@ export default function Hero() {
     <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Video Background with improved dark overlay */}
       <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
-        {/* Darker overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-surface-dark z-10" />
+        {/* Darker overlay for better text readability - Linear gradient added */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-surface-dark z-10" />
         {/* Additional center vignette for text area */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)] z-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10" />
         <video
           autoPlay
           muted
@@ -45,11 +45,11 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          {/* Main headline - emotional slogan instead of brand name */}
+          {/* Main headline - emotional slogan */}
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
-            <span className="block">Японська якість</span>
-            <span className="block text-primary-400">
-              у кожному шматочку
+            <span className="block text-primary-400">Риби більше,</span>
+            <span className="block text-white">
+              ніж рису
             </span>
           </h1>
 
@@ -58,7 +58,7 @@ export default function Hero() {
             {t("hero.subtitle")}
           </p>
 
-          {/* CTA buttons - primary action emphasized, secondary with white ghost style */}
+          {/* CTA buttons - primary action emphasized, secondary changed to Promotions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/menu">
               <Button
@@ -68,13 +68,13 @@ export default function Hero() {
                 {t("hero.orderNow")}
               </Button>
             </Link>
-            <Link href="/about">
+            <Link href="/promotions">
               <Button
                 variant="outline"
                 size="lg"
                 className="backdrop-blur-md bg-white/5 border-white/40 text-white hover:bg-white/15 hover:border-white/60 transition-all text-lg px-8 py-6"
               >
-                {t("hero.aboutUs")}
+                Акції
               </Button>
             </Link>
           </div>

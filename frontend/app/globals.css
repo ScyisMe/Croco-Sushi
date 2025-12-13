@@ -37,7 +37,8 @@ body {
   background-color: #0a0a0c;
   background-image:
     radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.05) 0%, transparent 30%);
+    radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.05) 0%, transparent 30%),
+    url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20c10 0 20-10 20-20H0c0 10 10 20 20 20zM20 20c-10 0-20 10-20 20h40c0-10-10-20-20-20z' fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
   min-height: 100vh;
   font-feature-settings: "pnum" on, "lnum" on;
   -webkit-font-smoothing: antialiased;

@@ -210,7 +210,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
         {/* Опис/склад */}
         {ingredientsText && (
-          <p className="text-xs text-gray-400 mb-4 line-clamp-3 leading-relaxed font-light tracking-wide">
+          <p className="text-sm text-gray-300 mb-4 leading-relaxed font-light tracking-wide">
             {highlightIngredients(ingredientsText)}
           </p>
         )}

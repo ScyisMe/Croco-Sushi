@@ -93,7 +93,7 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
         <button
             type="button"
             onClick={handleAddToCart}
-            className="group flex items-center justify-center w-10 h-10 bg-white/5 rounded-full text-accent-terracotta border border-white/10 hover:bg-accent-terracotta hover:text-white hover:border-accent-terracotta transition-all duration-300 shadow-lg relative z-20 active:scale-95"
+            className="group flex items-center justify-center w-10 h-10 bg-primary-500 rounded-full text-white border border-transparent hover:bg-primary-600 hover:scale-105 transition-all duration-300 shadow-lg shadow-primary-500/20 relative z-20 active:scale-95"
             aria-label={t("product.addToCart")}
         >
             <PlusIcon className="w-5 h-5 transition-transform group-hover:rotate-90 pointer-events-none" />
