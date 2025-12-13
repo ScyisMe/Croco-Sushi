@@ -84,7 +84,7 @@ dist/
 .env.production
 .env.*.local
 *.local
-
+*.Caddyfile
 # ===============================================
 # Uploads & Temp files
 # ===============================================
@@ -92,6 +92,7 @@ uploads/
 temp/
 tmp/
 *.tmp
+Caddyfile
 
 # ===============================================
 # OS generated files
