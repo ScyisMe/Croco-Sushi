@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-const API_URL = "https://api.crocosushi.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Створюємо axios інстанс
 const apiClient: AxiosInstance = axios.create({

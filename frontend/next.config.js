@@ -20,15 +20,15 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `https://api.crocosushi.com/api/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: `https://api.crocosushi.com/static/uploads/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/static/uploads/:path*`,
       },
       {
         source: '/static/uploads/:path*',
-        destination: `https://api.crocosushi.com/static/uploads/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/static/uploads/:path*`,
       },
     ];
   },

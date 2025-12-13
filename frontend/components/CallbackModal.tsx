@@ -4,6 +4,7 @@ import { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon, PhoneIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "@/store/localeStore";
+import apiClient from "@/lib/api/apiClient";
 
 interface CallbackModalProps {
   isOpen: boolean;
@@ -55,35 +56,26 @@ export default function CallbackModal({ isOpen, onClose, isClosed = false }: Cal
     setError("");
 
     try {
-      const response = await fetch("https://api.crocosushi.com/api/v1/callback", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phone: phone.replace(/\D/g, ""),
-        }),
+      await apiClient.post("/callback", {
+        phone: phone.replace(/\D/g, ""),
       });
 
-      if (response.ok) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          onClose();
-          setIsSuccess(false);
-          setPhone("");
-        }, 2000);
-      } else {
-        const data = await response.json();
-        // Handle Pydantic validation errors (array of objects) or string errors
-        const errorMessage = typeof data.detail === 'string'
+      setIsSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setIsSuccess(false);
+        setPhone("");
+      }, 2000);
+    } catch (error: any) {
+      const data = error.response?.data;
+      // Handle Pydantic validation errors (array of objects) or string errors
+      const errorMessage =
+        data && typeof data.detail === "string"
           ? data.detail
-          : Array.isArray(data.detail)
-            ? data.detail.map((e: any) => e.msg).join(', ')
+          : data && Array.isArray(data.detail)
+            ? data.detail.map((e: any) => e.msg).join(", ")
             : t("callback.error");
-        setError(errorMessage);
-      }
-    } catch {
-      setError(t("callback.error"));
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
