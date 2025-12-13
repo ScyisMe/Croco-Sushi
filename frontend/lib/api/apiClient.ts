@@ -3,7 +3,7 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 const isServer = typeof window === "undefined";
 const API_URL = isServer
   ? process.env.INTERNAL_API_URL || "http://backend:8000"
-  : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace('backend', 'localhost');
+  : process.env.NEXT_PUBLIC_API_URL || "https://api.crocosushi.com";
 
 // Створюємо axios інстанс
 const apiClient: AxiosInstance = axios.create({

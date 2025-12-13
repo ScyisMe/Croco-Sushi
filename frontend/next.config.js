@@ -20,15 +20,15 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/:path*`,
+        destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.crocosushi.com'}/api/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/static/uploads/:path*`,
+        destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.crocosushi.com'}/static/uploads/:path*`,
       },
       {
         source: '/static/uploads/:path*',
-        destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/static/uploads/:path*`,
+        destination: `${process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.crocosushi.com'}/static/uploads/:path*`,
       },
     ];
   },
