@@ -8,11 +8,10 @@ import {
   PlusIcon,
   TrashIcon,
   ShoppingBagIcon,
-  MapPinIcon,
-  TruckIcon,
-  ExclamationTriangleIcon,
-  ChevronRightIcon,
   TagIcon,
+  ChevronRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "@heroicons/react/24/outline";
 import { useCartStore, MAX_CART_ITEMS } from "@/store/cartStore";
 import { useTranslation } from "@/store/localeStore";
@@ -59,11 +58,13 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
   const [isValidating, setIsValidating] = useState(false);
   const [isVerifyingPromo, setIsVerifyingPromo] = useState(false);
   const [promoInput, setPromoInput] = useState("");
+  const [isPromoOpen, setIsPromoOpen] = useState(false);
 
   // Sync input with store on mount/update
   useEffect(() => {
     if (promoCode) {
       setPromoInput(promoCode);
+      setIsPromoOpen(true);
     }
   }, [promoCode]);
 
@@ -107,8 +108,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
     setPromoInput("");
     toast.success("Промокод видалено");
   };
-
-
 
   // Функція валідації товарів у кошику
   const validateCartItems = useCallback(async () => {
@@ -173,58 +172,80 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
   const isFreeDelivery = totalAmount >= FREE_DELIVERY_FROM;
   const deliveryProgress = Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100);
 
-
-
   // UI Render helper
   const renderPromoSection = () => (
-    <div>
-      <div className="flex items-center gap-2 mb-2">
-        <TagIcon className="w-4 h-4 text-primary" />
-        <span className="text-sm font-medium text-white">Промокод</span>
-      </div>
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <input
-            type="text"
-            placeholder="Введіть промокод"
-            className={`input w-full min-w-0 ${promoCode ? "border-green-500 text-green-500 focus:border-green-500 focus:ring-green-500" : ""}`}
-            value={promoInput}
-            onChange={(e) => setPromoInput(e.target.value)}
-            disabled={!!promoCode}
-          />
-          {promoCode && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <span className="text-green-500 text-sm">Застосовано</span>
-            </div>
-          )}
+    <div className="border border-white/10 rounded-xl overflow-hidden mb-4">
+      <button
+        onClick={() => setIsPromoOpen(!isPromoOpen)}
+        className="w-full flex items-center justify-between p-3 bg-surface/5 hover:bg-surface/10 transition"
+      >
+        <div className="flex items-center gap-2">
+          <TagIcon className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium text-white">
+            {promoCode ? "Промокод застосовано" : "У мене є промокод"}
+          </span>
         </div>
-
-        {promoCode ? (
-          <button
-            onClick={handleRemovePromo}
-            className="px-4 py-2 font-medium rounded-xl transition text-sm whitespace-nowrap bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
-          >
-            Видалити
-          </button>
+        {isPromoOpen ? (
+          <ChevronUpIcon className="w-4 h-4 text-gray-400" />
         ) : (
-          <button
-            onClick={handleApplyPromo}
-            disabled={isVerifyingPromo || !promoInput}
-            className={`px-4 py-2 font-medium rounded-xl transition text-sm whitespace-nowrap ${isVerifyingPromo
-              ? "opacity-50 cursor-not-allowed"
-              : "bg-surface-card border border-white/10 text-white hover:bg-white/5 hover:border-primary/50"
-              }`}
-          >
-            {isVerifyingPromo ? "..." : "Застосувати"}
-          </button>
+          <ChevronDownIcon className="w-4 h-4 text-gray-400" />
         )}
-      </div>
+      </button>
+
+      <AnimatePresence>
+        {isPromoOpen && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "auto" }}
+            exit={{ height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="p-3 bg-surface/5 border-t border-white/10 flex gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Введіть промокод"
+                  className={`w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-primary-500 placeholder-gray-600 ${promoCode ? "border-green-500 text-green-500" : ""}`}
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value)}
+                  disabled={!!promoCode}
+                />
+                {promoCode && (
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <span className="text-green-500 text-xs">OK</span>
+                  </div>
+                )}
+              </div>
+
+              {promoCode ? (
+                <button
+                  onClick={handleRemovePromo}
+                  className="px-3 py-2 text-sm font-medium rounded-lg bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition"
+                >
+                  Видалити
+                </button>
+              ) : (
+                <button
+                  onClick={handleApplyPromo}
+                  disabled={isVerifyingPromo || !promoInput}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition ${isVerifyingPromo
+                    ? "opacity-50 cursor-not-allowed"
+                    : "bg-surface-card border border-white/10 text-white hover:bg-white/5 hover:border-primary/50"
+                    }`}
+                >
+                  {isVerifyingPromo ? "..." : "ОК"}
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={setIsOpen}>
+      <Dialog as="div" className="relative z-[100]" onClose={setIsOpen}>
         {/* Overlay */}
         <Transition.Child
           as={Fragment}
@@ -235,7 +256,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/50 transition-opacity" />
+          <div className="fixed inset-0 bg-black/90 transition-opacity backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-hidden">
@@ -251,13 +272,13 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                 leaveTo="translate-x-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                  <div className="flex h-full flex-col bg-theme-surface shadow-xl">
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+                  <div className="flex h-full flex-col bg-[#121212] shadow-xl">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#121212]">
                       <Dialog.Title className="text-xl font-bold text-white">
                         {t("cart.title")}
                         {totalItems > 0 && (
                           <span className="ml-2 text-sm font-normal text-gray-400">
-                            ({totalItems} {totalItems === 1 ? "товар" : totalItems < 5 ? "товари" : "товарів"})
+                            ({totalItems})
                           </span>
                         )}
                         {(isValidating || isVerifyingPromo) && (
@@ -265,7 +286,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                         )}
                       </Dialog.Title>
                       <div className="flex items-center gap-2">
-                        {/* Кнопка очистити кошик - в хедері */}
+                        {/* Кнопка очистити кошик */}
                         {items.length > 0 && (
                           <button
                             onClick={clearCart}
@@ -286,7 +307,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto bg-[#121212]">
                       {items.length === 0 ? (
                         // Порожній кошик
                         <div className="flex flex-col items-center justify-center h-full px-6 py-12">
@@ -309,159 +330,140 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           </Link>
                         </div>
                       ) : (
-                        <div className="px-6 py-4">
+                        <div className="px-4 py-4 space-y-4">
                           {/* Попередження про максимум товарів */}
                           {isMaxItemsReached && (
-                            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                              <p className="text-sm text-yellow-800">
+                            <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                              <p className="text-sm text-yellow-500">
                                 ⚠️ Досягнуто максимум {MAX_CART_ITEMS} різних товарів у кошику
                               </p>
                             </div>
                           )}
 
-                          {/* Прогрес до безкоштовної доставки - покращений */}
+                          {/* Прогрес до безкоштовної доставки */}
                           {!isFreeDelivery ? (
-                            <div className="mb-4 p-4 bg-primary/10 border border-primary/30 rounded-xl">
+                            <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl">
                               <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm text-gray-300">До безкоштовної доставки</span>
                                 <span className="text-sm font-bold text-primary">
                                   {amountToFreeDelivery.toFixed(0)} ₴
                                 </span>
                               </div>
-                              <div className="w-full bg-theme-tertiary rounded-full h-2.5 overflow-hidden">
+                              <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
                                 <div
-                                  className="h-full bg-gradient-to-r from-primary to-primary-600 rounded-full transition-all duration-500"
+                                  className="h-full bg-primary rounded-full transition-all duration-500"
                                   style={{ width: `${deliveryProgress}%` }}
                                 />
                               </div>
-                              <p className="text-xs text-gray-400 mt-2">
-                                🎁 Додайте ще страв на {amountToFreeDelivery.toFixed(0)} ₴ і зекономте 200 ₴!
-                              </p>
                             </div>
                           ) : (
-                            <div className="mb-4 p-4 bg-primary/20 border border-primary/40 rounded-xl animate-bounce">
-                              <div className="flex items-center gap-2">
-                                <span className="text-2xl animate-pulse">🎊</span>
-                                <div>
-                                  <p className="font-bold text-primary">Доставка безкоштовна!</p>
-                                  <p className="text-xs text-gray-400">Ви зекономили 200 ₴</p>
-                                </div>
+                            <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3">
+                              <span className="text-xl">🎉</span>
+                              <div>
+                                <p className="text-sm font-bold text-green-400">Доставка безкоштовна!</p>
+                                <p className="text-xs text-green-500/70">Ви зекономили 200 ₴</p>
                               </div>
                             </div>
                           )}
 
-                          {/* Список товарів */}
-                          <ul className="space-y-4">
+                          {/* Список товарів - Новий Дизайн */}
+                          <ul className="space-y-3">
                             <AnimatePresence initial={false} mode="popLayout">
                               {items.map((item) => (
                                 <motion.li
-                                  layout
                                   initial={{ opacity: 0, height: 0 }}
                                   animate={{ opacity: 1, height: "auto" }}
                                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                                  transition={{ duration: 0.3 }}
+                                  transition={{ duration: 0.2 }}
                                   key={`${item.id}-${item.sizeId || "default"}`}
                                   className="flex gap-4 p-3 bg-white/5 border border-white/5 rounded-xl overflow-hidden"
                                 >
-                                  {/* Зображення */}
-                                  <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-theme-surface">
+                                  {/* Зображення - зліва, більше */}
+                                  <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
                                     {item.image_url ? (
                                       <Image
                                         src={item.image_url}
                                         alt={item.name}
-                                        width={80}
-                                        height={80}
+                                        width={96}
+                                        height={96}
                                         className="w-full h-full object-cover"
                                       />
                                     ) : (
-                                      <div className="w-full h-full flex items-center justify-center p-2 bg-gray-50">
-                                        <div className="relative w-full h-full">
-                                          <Image
-                                            src="/logo.png"
-                                            alt={item.name}
-                                            fill
-                                            className="object-contain opacity-50 grayscale"
-                                          />
-                                        </div>
+                                      <div className="w-full h-full flex items-center justify-center">
+                                        <Image
+                                          src="/logo.png"
+                                          alt={item.name}
+                                          width={40}
+                                          height={40}
+                                          className="object-contain opacity-30 grayscale"
+                                        />
                                       </div>
                                     )}
                                   </div>
 
-                                  {/* Інформація */}
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-semibold text-white text-sm line-clamp-2">
-                                      {item.name}
-                                    </h4>
-                                    {item.size && (
-                                      <p className="text-xs text-gray-400 mt-0.5">
-                                        {item.size}
-                                      </p>
-                                    )}
-                                    <p className="text-primary-500 font-bold mt-1">
-                                      {item.price} ₴
-                                    </p>
+                                  {/* Центр і Права частина */}
+                                  <div className="flex flex-1 justify-between">
+                                    {/* Інформація */}
+                                    <div className="flex flex-col justify-between py-1 pr-2">
+                                      <div>
+                                        <h4 className="font-semibold text-white text-sm line-clamp-2 leading-snug">
+                                          {item.name}
+                                        </h4>
+                                        {item.size && (
+                                          <p className="text-xs text-gray-400 mt-1">
+                                            {item.size}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
 
-                                    {/* Кількість та видалення - збільшені touch targets */}
-                                    <div className="flex items-center justify-between mt-2">
-                                      <div className="flex items-center border border-border rounded-lg">
+                                    {/* Ціна і Контроли - Справа */}
+                                    <div className="flex flex-col justify-between items-end py-1">
+                                      <div className=" font-bold text-white text-base">
+                                        {item.price * item.quantity} <span className="text-xs font-normal text-gray-500">₴</span>
+                                      </div>
+
+                                      {/* Компактний перемикач кількості */}
+                                      <div className="flex items-center bg-black/40 rounded-lg border border-white/10">
                                         <button
                                           onClick={() =>
                                             updateQuantity(item.id, item.quantity - 1, item.sizeId)
                                           }
-                                          className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-l-lg active:scale-95"
-                                          aria-label="Зменшити кількість"
+                                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition active:scale-95"
                                         >
-                                          <MinusIcon className="w-4 h-4" />
+                                          <MinusIcon className="w-3 h-3" />
                                         </button>
-                                        <motion.span
-                                          key={item.quantity}
-                                          initial={{ y: 10, opacity: 0 }}
-                                          animate={{ y: 0, opacity: 1 }}
-                                          exit={{ y: -10, opacity: 0 }}
-                                          className="px-4 font-medium text-sm min-w-[40px] text-center inline-block"
-                                        >
+                                        <span className="w-6 text-center text-sm font-medium text-white">
                                           {item.quantity}
-                                        </motion.span>
+                                        </span>
                                         <button
                                           onClick={() =>
                                             updateQuantity(item.id, item.quantity + 1, item.sizeId)
                                           }
-                                          className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-secondary hover:bg-theme-secondary transition rounded-r-lg active:scale-95"
-                                          aria-label="Збільшити кількість"
+                                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition active:scale-95"
                                         >
-                                          <PlusIcon className="w-4 h-4" />
+                                          <PlusIcon className="w-3 h-3" />
                                         </button>
                                       </div>
-
-                                      <button
-                                        onClick={() => removeItem(item.id, item.sizeId)}
-                                        className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-secondary-light hover:text-accent-red hover:bg-accent-red/10 transition rounded-lg active:scale-95"
-                                        aria-label="Видалити товар"
-                                      >
-                                        <TrashIcon className="w-5 h-5" />
-                                      </button>
                                     </div>
                                   </div>
                                 </motion.li>
                               ))}
                             </AnimatePresence>
                           </ul>
+
+                          {/* Промокод */}
+                          {renderPromoSection()}
+
                         </div>
                       )}
                     </div>
 
-                    {/* Footer - з safe area для мобільних */}
+                    {/* Footer - Sticky Bottom */}
                     {items.length > 0 && (
-                      <div className="border-t border-border px-4 sm:px-6 py-4 pb-safe space-y-4">
-                        {renderPromoSection()}
-
-                        {/* Підсумок */}
+                      <div className="border-t border-white/10 bg-[#121212] px-4 py-4 pb-safe space-y-4 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20">
+                        {/* Підсумок (спрощений в футері) */}
                         <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Підсумок</span>
-                            <span className="font-medium text-white">{totalAmount.toFixed(0)} ₴</span>
-                          </div>
-
                           {discountAmount > 0 && (
                             <div className="flex justify-between text-green-500">
                               <span>Знижка ({promoCode})</span>
@@ -469,44 +471,35 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             </div>
                           )}
 
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Доставка</span>
-                            <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : "text-white"}`}>
-                              {deliveryCost === 0 ? (
-                                <span className="flex items-center gap-1">
-                                  <span>✓</span> Безкоштовно
-                                </span>
-                              ) : (
-                                `${deliveryCost} ₴`
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-lg font-bold pt-2 border-t border-white/10">
-                            <span className="text-white">{t("cart.total")}</span>
-                            <span className="text-primary-500 font-display">
-                              <NumberTicker value={finalAmount} stiffness={250} damping={25} /> ₴
-                            </span>
+                          <div className="flex justify-between text-lg font-bold border-t border-white/10 pt-2">
+                            <span className="text-white">Разом</span>
+                            <div className="text-right">
+                              {deliveryCost > 0 && <div className="text-xs font-normal text-gray-400 mb-0.5">+ доставка {deliveryCost} ₴</div>}
+                              <span className="text-primary-500 font-display text-xl">
+                                <NumberTicker value={finalAmount} /> ₴
+                              </span>
+                            </div>
                           </div>
                         </div>
 
                         {/* Попередження про мінімальну суму */}
                         {!isMinOrderReached && (
-                          <p className="text-sm text-accent-red text-center">
-                            Мінімальна сума замовлення {MIN_ORDER_AMOUNT} ₴.
-                            Додайте ще {amountToMinOrder.toFixed(0)} ₴
-                          </p>
+                          <div className="text-xs text-red-400 text-center bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                            Мінімальна сума: {MIN_ORDER_AMOUNT} ₴.
+                            Ще {amountToMinOrder.toFixed(0)} ₴
+                          </div>
                         )}
 
                         {/* Кнопка оформлення */}
                         <Link
                           href="/checkout"
                           onClick={() => setIsOpen(false)}
-                          className={`btn-checkout block w-full text-center py-4 rounded-lg font-bold text-lg transition ${isMinOrderReached
-                            ? "bg-primary hover:bg-primary-600 text-white"
-                            : "bg-theme-tertiary text-theme-muted cursor-not-allowed pointer-events-none"
+                          className={`btn-checkout block w-full text-center py-3.5 rounded-xl font-bold text-base transition transform active:scale-[0.98] ${isMinOrderReached
+                            ? "bg-primary hover:bg-primary-600 text-white shadow-lg shadow-primary/20"
+                            : "bg-surface-card text-gray-500 cursor-not-allowed pointer-events-none"
                             }`}
                         >
-                          {t("cart.checkout")}
+                          Оформити замовлення
                         </Link>
                       </div>
                     )}
