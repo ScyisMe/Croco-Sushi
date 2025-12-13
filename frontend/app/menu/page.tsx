@@ -341,7 +341,8 @@ function MenuContent() {
 
       <main className="flex-grow">
         {/* Хлібні крихти */}
-        <div className="bg-theme-surface">
+        {/* Хлібні крихти (Desktop Only) */}
+        <div className="bg-theme-surface hidden md:block">
           <div className="container mx-auto px-4 py-3">
             <nav className="flex items-center text-sm">
               <Link href="/" className="text-secondary-light hover:text-primary transition">
@@ -361,15 +362,15 @@ function MenuContent() {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-4 md:py-8">
           {/* Заголовок та пошук */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-secondary mb-6">
+          <div className="mb-6">
+            <h1 className="text-2xl md:text-4xl font-bold text-secondary mb-4">
               {currentCategoryName}
             </h1>
 
             {/* Пошук та фільтри */}
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
               {/* Пошук */}
               <div className="relative flex-1">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-light" />
@@ -378,7 +379,7 @@ function MenuContent() {
                   placeholder="Пошук страв..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input pl-12"
+                  className="input pl-12 text-base"
                 />
                 {searchQuery && (
                   <button
@@ -483,14 +484,14 @@ function MenuContent() {
 
             {/* Основний контент */}
             <div className="flex-1">
-              {/* Горизонтальні категорії (tablet/mobile) */}
-              <div className="lg:hidden mb-6 -mx-4 px-4">
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+              {/* Горизонтальні категорії (tablet/mobile) - Sticky */}
+              <div className="lg:hidden sticky top-16 z-30 bg-surface/90 backdrop-blur-xl border-b border-white/5 py-3 mb-6 -mx-4 px-4 shadow-xl transition-all">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar items-center">
                   <button
                     onClick={() => handleCategoryChange(null)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${!selectedCategory
-                      ? "bg-primary text-white"
-                      : "bg-theme-surface text-secondary border border-theme hover:border-primary"
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${!selectedCategory
+                      ? "bg-primary text-white shadow-lg shadow-primary/25"
+                      : "bg-white/5 text-gray-300 border border-white/10 hover:border-primary hover:text-white"
                       }`}
                   >
                     Все
@@ -499,9 +500,9 @@ function MenuContent() {
                     <button
                       key={category.id}
                       onClick={() => handleCategoryChange(category.slug)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition ${selectedCategory === category.slug
-                        ? "bg-primary text-white"
-                        : "bg-theme-surface text-secondary border border-theme hover:border-primary"
+                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${selectedCategory === category.slug
+                        ? "bg-primary text-white shadow-lg shadow-primary/25"
+                        : "bg-white/5 text-gray-300 border border-white/10 hover:border-primary hover:text-white"
                         }`}
                     >
                       {category.name}
@@ -512,11 +513,11 @@ function MenuContent() {
 
               {/* Результати пошуку та кількість */}
               {debouncedSearch ? (
-                <p className="text-secondary-light mb-4">
+                <p className="text-secondary-light text-xs mb-4">
                   Результати пошуку для &quot;{debouncedSearch}&quot;: {totalProducts} страв
                 </p>
               ) : totalProducts > 0 && (
-                <p className="text-secondary-light mb-4">
+                <p className="text-secondary-light text-xs mb-4">
                   Показано {filteredAndSortedProducts.length} з {totalProducts} страв
                 </p>
               )}
