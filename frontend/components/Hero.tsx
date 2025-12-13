@@ -4,11 +4,22 @@ import Link from "next/link";
 import { useTranslation } from "@/store/localeStore";
 import { Button } from "./ui/Button";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function Hero() {
   const { t } = useTranslation();
   const ref = useRef(null);
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -20,7 +31,10 @@ export default function Hero() {
   return (
     <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Video Background with improved dark overlay */}
-      <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
+      <motion.div
+        style={{ y: isMobile ? 0 : y, opacity }}
+        className="absolute inset-0 z-0 will-change-transform"
+      >
         {/* Darker overlay for better text readability - Linear gradient added */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-surface-dark z-10" />
         {/* Additional center vignette for text area */}
