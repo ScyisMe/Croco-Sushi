@@ -25,7 +25,7 @@ import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 import { Button } from "@/components/ui/Button";
 
 // Кількість товарів на сторінку
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 24;
 
 // Опції сортування
 const SORT_OPTIONS = [
@@ -450,15 +450,15 @@ function MenuContent() {
           <div className="flex gap-8">
             {/* Сайдбар з категоріями (desktop) */}
             <aside className="hidden lg:block w-64 flex-shrink-0">
-              <div className="bg-theme-surface rounded-xl shadow-card p-4 sticky top-24">
-                <h3 className="font-bold text-lg text-secondary mb-4">Категорії</h3>
+              <div className="sticky top-24 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 max-h-[80vh] overflow-y-auto hide-scrollbar">
+                <h3 className="font-bold text-lg text-white mb-4 pl-2">Категорії</h3>
                 <ul className="space-y-1">
                   <li>
                     <button
                       onClick={() => handleCategoryChange(null)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition ${!selectedCategory
-                        ? "bg-primary text-white"
-                        : "text-secondary hover:bg-theme-secondary"
+                      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 font-medium ${!selectedCategory
+                        ? "bg-primary text-white shadow-lg shadow-primary/25"
+                        : "text-gray-300 hover:bg-white/5 hover:text-white"
                         }`}
                     >
                       Все меню
@@ -468,9 +468,9 @@ function MenuContent() {
                     <li key={category.id}>
                       <button
                         onClick={() => handleCategoryChange(category.slug)}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition ${selectedCategory === category.slug
-                          ? "bg-primary text-white"
-                          : "text-secondary hover:bg-theme-secondary"
+                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 font-medium ${selectedCategory === category.slug
+                          ? "bg-primary text-white shadow-lg shadow-primary/25"
+                          : "text-gray-300 hover:bg-white/5 hover:text-white"
                           }`}
                       >
                         {category.name}
