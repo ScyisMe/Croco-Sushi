@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
-from pydantic import ConfigDict, model_validator
-from typing import List, Optional
+from pydantic import ConfigDict, field_validator
+from typing import List, Optional, Any, Union
 
 
 class Settings(BaseSettings):
@@ -27,28 +27,27 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     
     # CORS
-    ALLOWED_HOSTS: str = "*"
+    ALLOWED_HOSTS: List[str] = ["*"]
     
     # Парсимо рядок з комами в список автоматично
-    # Використовуємо str як базовий тип, щоб уникнути JSON парсингу
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,https://crocosushi.com,https://www.crocosushi.com,https://api.crocosushi.com"
+    CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "https://crocosushi.com",
+        "https://www.crocosushi.com",
+        "https://api.crocosushi.com"
+    ]
     
-    @model_validator(mode='after')
-    def parse_cors_origins(self) -> 'Settings':
-        """Парсить CORS_ORIGINS з рядка, розділеного комами, в список"""
-        if isinstance(self.CORS_ORIGINS, str):
-            # Розділяємо по комі та очищаємо пробіли
-            cors_list = [origin.strip() for origin in self.CORS_ORIGINS.split(',') if origin.strip()]
-            # Замінюємо рядок на список
-            object.__setattr__(self, 'CORS_ORIGINS', cors_list)
-            
-        if isinstance(self.ALLOWED_HOSTS, str):
-            # Розділяємо по комі та очищаємо пробіли
-            hosts_list = [host.strip() for host in self.ALLOWED_HOSTS.split(',') if host.strip()]
-            # Замінюємо рядок на список
-            object.__setattr__(self, 'ALLOWED_HOSTS', hosts_list)
-            
-        return self
+    @field_validator("CORS_ORIGINS", "ALLOWED_HOSTS", mode="before")
+    @classmethod
+    def parse_list_from_str(cls, v: Any) -> List[str]:
+        if isinstance(v, str):
+            return [i.strip() for i in v.split(",") if i.strip()]
+        if isinstance(v, list):
+            return v
+        return []
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"

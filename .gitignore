@@ -98,7 +98,7 @@ uploads/
 temp/
 tmp/
 *.tmp
-Caddyfile
+
 
 # ===============================================
 # OS generated files

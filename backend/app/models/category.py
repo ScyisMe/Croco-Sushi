@@ -40,3 +40,7 @@ class Category(Base):
         cascade="all, delete-orphan"
     )
 
+    @property
+    def products_count(self) -> int:
+        return len(self.products)
+
