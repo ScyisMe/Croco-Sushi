@@ -4,6 +4,8 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/AppFooter";
 import CategoryFeed from "@/components/CategoryFeed";
 
+import Stories from "@/components/Stories";
+
 const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"), {
   loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
 });
@@ -17,6 +19,10 @@ export default function Home() {
       <Header />
       <main className="flex-grow">
         <Hero />
+        {/* Mobile Stories */}
+        <div className="md:hidden">
+          <Stories />
+        </div>
         <Promotions />
         <CategoryFeed />
         <ReviewsCarousel />

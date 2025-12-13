@@ -8,13 +8,10 @@ import { HomeIcon as HomeSolid, Squares2X2Icon as MenuSolid, ShoppingBagIcon as 
 import { useCartStore } from "@/store/cartStore";
 import { motion } from "framer-motion";
 import Cart from "@/components/Cart";
-import MobileMoreMenu from "@/components/layout/MobileMoreMenu";
-
 export default function BottomNav() {
     const pathname = usePathname();
     const itemsCount = useCartStore((state) => state.items.length);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [isMoreOpen, setIsMoreOpen] = useState(false);
 
     const links = [
         { href: "/", label: "Home", icon: HomeIcon, activeIcon: HomeSolid },
@@ -31,16 +28,6 @@ export default function BottomNav() {
             }
         },
         { href: "/profile", label: "Profile", icon: UserIcon, activeIcon: UserSolid },
-        {
-            href: "#",
-            label: "More",
-            icon: EllipsisHorizontalIcon,
-            activeIcon: MoreSolid,
-            onClick: (e: React.MouseEvent) => {
-                e.preventDefault();
-                setIsMoreOpen(true);
-            }
-        },
     ];
 
     return (
@@ -87,7 +74,6 @@ export default function BottomNav() {
 
             {/* Modals */}
             <Cart isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
-            <MobileMoreMenu isOpen={isMoreOpen} onClose={() => setIsMoreOpen(false)} />
         </>
     );
 }

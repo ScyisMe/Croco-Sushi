@@ -122,9 +122,19 @@ app.add_middleware(RateLimitMiddleware, limit=1000, window=60)
 
 # 3. CORS (ОСТАННІМ - щоб виконувався ПЕРШИМ і обгортав всі відповіді)
 # Це гарантує, що навіть 429 відповіді матимуть CORS-заголовки
+
+# Explicitly ensure production origins are allowed (double-safety/security)
+c_origins = settings.CORS_ORIGINS
+if isinstance(c_origins, str):
+    c_origins = [o.strip() for o in c_origins.split(",") if o.strip()]
+
+# Add production domains if missing
+required_origins = ["https://crocosushi.com", "https://www.crocosushi.com", "https://api.crocosushi.com"]
+final_origins = list(set(c_origins + required_origins))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=final_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],

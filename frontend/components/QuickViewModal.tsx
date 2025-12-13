@@ -118,7 +118,7 @@ export default function QuickViewModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-surface-card border border-white/10 shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-surface-card/80 backdrop-blur-2xl border border-white/5 shadow-2xl transition-all">
                 {/* Кнопка закриття */}
                 <button
                   onClick={onClose}
