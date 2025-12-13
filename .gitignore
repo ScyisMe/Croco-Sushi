@@ -29,7 +29,12 @@ MANIFEST
 venv/
 ENV/
 env/
-
+.env
+.env.production
+production.env
+.env.*.local
+*.local
+*.Caddyfile
 # ===============================================
 # IDE / Editor
 # ===============================================
@@ -80,7 +85,9 @@ dist/
 # Environment variables (SENSITIVE!)
 # ===============================================
 .env
+.env
 .env.production
+production.env
 .env.*.local
 *.local
 *.Caddyfile

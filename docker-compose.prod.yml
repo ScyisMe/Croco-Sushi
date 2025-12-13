@@ -44,7 +44,7 @@ services:
       dockerfile: backend/Dockerfile
     container_name: croco_sushi_backend
     restart: unless-stopped
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4 --proxy-headers --forwarded-allow-ips='*'"
     volumes:
       - backend_uploads:/app/backend/uploads
     environment:
