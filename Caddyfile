@@ -1,7 +1,4 @@
-{
-    # Staging mode to bypass rate limits
-    acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-}
+
 
 crocosushi.com {
     reverse_proxy frontend:3000
