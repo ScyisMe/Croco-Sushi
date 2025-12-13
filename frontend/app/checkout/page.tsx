@@ -367,10 +367,10 @@ export default function CheckoutPage() {
                   <div key={step.id} className="relative z-10 flex flex-col items-center group">
                     <div
                       className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-500 ${isActive
-                          ? "bg-surface-card border-green-500 text-green-500 scale-110 shadow-[0_0_20px_rgba(34,197,94,0.4)]"
-                          : isCompleted
-                            ? "bg-green-500 border-green-500 text-white"
-                            : "bg-surface-card border-white/10 text-gray-500"
+                        ? "bg-surface-card border-green-500 text-green-500 scale-110 shadow-[0_0_20px_rgba(34,197,94,0.4)]"
+                        : isCompleted
+                          ? "bg-green-500 border-green-500 text-white"
+                          : "bg-surface-card border-white/10 text-gray-500"
                         }`}
                     >
                       {isCompleted ? (
@@ -870,7 +870,7 @@ export default function CheckoutPage() {
                       <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
                       <div>
                         <p className="text-sm font-bold text-white">Безкоштовна доставка активна!</p>
-                        <p className="text-xs text-green-400/70">Ми оплатимо виїзд кур'єра</p>
+                        <p className="text-xs text-green-400/70">Ми оплатимо виїзд кур&apos;єра</p>
                       </div>
                     </div>
                   )}

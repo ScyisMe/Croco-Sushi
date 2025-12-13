@@ -3,7 +3,7 @@ import { Inter, Playfair_Display, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import BottomNav from "@/components/layout/BottomNav";
-import CustomCursor from "@/components/ui/CustomCursor";
+
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,7 +35,7 @@ export default function RootLayout({
     <html lang="uk" suppressHydrationWarning>
       <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} ${notoSansJP.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
-          <CustomCursor />
+
           {children}
           <BottomNav />
         </Providers>
