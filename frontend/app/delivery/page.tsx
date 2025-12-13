@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -17,8 +17,8 @@ import {
   CreditCardIcon,
   GlobeAltIcon,
 } from "@heroicons/react/24/outline";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import { JsonLd, getLocalBusinessSchema, getFAQSchema, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 import { useTranslation } from "@/store/localeStore";
 
@@ -436,3 +436,4 @@ export default function DeliveryPage() {
     </div>
   );
 }
+

@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import Image from "next/image";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Promotion } from "@/lib/types";
 import { ArrowRightIcon, ClockIcon, TagIcon } from "@heroicons/react/24/outline";
 import { format, differenceInDays, differenceInHours } from "date-fns";
@@ -163,3 +163,4 @@ export default function Promotions() {
     </section>
   );
 }
+

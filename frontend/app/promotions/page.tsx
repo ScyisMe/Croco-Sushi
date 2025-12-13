@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Promotion } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRightIcon, TagIcon, ClockIcon } from "@heroicons/react/24/outline";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import { CountdownTimerCompact } from "@/components/CountdownTimer";
 import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 import { useTranslation } from "@/store/localeStore";
@@ -254,3 +254,4 @@ export default function PromotionsPage() {
     </div>
   );
 }
+

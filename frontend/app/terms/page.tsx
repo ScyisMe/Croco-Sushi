@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useTranslation } from "@/store/localeStore";
 import Image from "next/image";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import { ChevronRightIcon, DocumentTextIcon, ShoppingCartIcon, TruckIcon, CreditCardIcon, ExclamationTriangleIcon, ScaleIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
@@ -363,5 +363,6 @@ export default function TermsPage() {
     </div>
   );
 }
+
 
 

@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { OrderTable } from "@/components/admin/orders/OrderTable";
 import { MagnifyingGlassIcon, ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
@@ -231,3 +231,4 @@ export default function OrderHistoryPage() {
         </div>
     );
 }
+

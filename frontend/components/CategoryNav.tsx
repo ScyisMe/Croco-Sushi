@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Category } from "@/lib/types";
 
 export default function CategoryNav() {
@@ -98,3 +98,4 @@ export default function CategoryNav() {
         </div>
     );
 }
+

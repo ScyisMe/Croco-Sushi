@@ -1,14 +1,14 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { User, Address, Order, Favorite, LoyaltyInfo, OrderStatus } from "@/lib/types";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import toast from "react-hot-toast";
 import {
   UserIcon,
@@ -1002,3 +1002,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

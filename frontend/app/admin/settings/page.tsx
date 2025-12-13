@@ -1,8 +1,8 @@
-
+﻿
 "use client";
 
 import { useState, useEffect } from "react";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import {
     Cog6ToothIcon,
     BuildingStorefrontIcon,
@@ -287,3 +287,4 @@ export default function SettingsPage() {
         </div>
     );
 }
+

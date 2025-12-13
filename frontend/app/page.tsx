@@ -1,7 +1,7 @@
-import dynamic from "next/dynamic";
-import Header from "@/components/Header";
+﻿import dynamic from "next/dynamic";
+import Header from "@/components/AppHeader";
 import Hero from "@/components/Hero";
-import Footer from "@/components/Footer";
+import Footer from "@/components/AppFooter";
 import CategoryFeed from "@/components/CategoryFeed";
 
 const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"), {
@@ -25,4 +25,5 @@ export default function Home() {
     </div >
   );
 }
+
 

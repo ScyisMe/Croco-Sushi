@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import KanbanColumn from "./KanbanColumn";
 import { ManagerOrder } from "./OrderCard";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { toast } from "react-hot-toast";
 import OrderDetailsModal from "./OrderDetailsModal";
 import { StatusChangeModal } from "../orders/StatusChangeModal";
@@ -159,3 +159,4 @@ export default function KanbanBoard() {
         </div>
     );
 }
+

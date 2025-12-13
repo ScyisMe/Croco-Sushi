@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import { ChevronRightIcon, ShieldCheckIcon, LockClosedIcon, EyeIcon, TrashIcon, DocumentTextIcon, BellIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
@@ -361,5 +361,6 @@ export default function PrivacyPage() {
     </div>
   );
 }
+
 
 

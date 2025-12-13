@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 import { ChevronRightIcon, HeartIcon, SparklesIcon, TruckIcon, ClockIcon, MapPinIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Image from "next/image";
@@ -307,5 +307,6 @@ export default function AboutPage() {
     </div>
   );
 }
+
 
 

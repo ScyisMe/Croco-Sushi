@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import {
   PlusIcon,
   PencilIcon,
@@ -444,3 +444,4 @@ export default function PromoCodesPage() {
     </div>
   );
 }
+

@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import {
   MagnifyingGlassIcon,
@@ -335,3 +335,4 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
+

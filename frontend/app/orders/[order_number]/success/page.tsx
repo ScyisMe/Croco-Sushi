@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/AppHeader";
+import Footer from "@/components/AppFooter";
 
 export default function OrderSuccessPage() {
   const params = useParams();
@@ -58,5 +58,6 @@ export default function OrderSuccessPage() {
     </div>
   );
 }
+
 
 

@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, PhotoIcon, XMarkIcon, ArrowUpTrayIcon } from "@heroicons/react/24/outline";
 
@@ -345,3 +345,4 @@ export default function NewPromotionPage() {
         </div>
     );
 }
+

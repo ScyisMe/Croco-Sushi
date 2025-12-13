@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import {
   ShoppingBagIcon,
   ClipboardDocumentListIcon,
@@ -330,3 +330,4 @@ export default function AdminDashboardPage() {
 
 import SalesChart from "./components/SalesChart";
 import TopProducts from "./components/TopProducts";
+

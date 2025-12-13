@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useQuery } from "@tanstack/react-query";
-import apiClient from "@/lib/api/client";
+import apiClient from "@/lib/api/apiClient";
 import { Category } from "@/lib/types";
 import CategorySection from "./CategorySection";
 
@@ -40,3 +40,4 @@ export default function CategoryFeed() {
         </div>
     );
 }
+
