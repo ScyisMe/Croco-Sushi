@@ -150,7 +150,7 @@ export default function EditProductPage() {
         ...formData,
         old_price: formData.old_price || null,
       };
-      await apiClient.put(`/products/${productId}`, dataToSend);
+      await apiClient.put(`/admin/products/${productId}`, dataToSend);
       toast.success("Товар оновлено!");
       router.push("/admin/products");
     } catch (error: any) {

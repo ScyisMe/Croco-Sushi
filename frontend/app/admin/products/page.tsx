@@ -62,7 +62,7 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await apiClient.delete(`/products/${id}`);
+      await apiClient.delete(`/admin/products/${id}`);
       toast.success("Товар видалено");
       setProducts(products.filter((p) => p.id !== id));
     } catch (error: any) {
@@ -74,7 +74,7 @@ export default function AdminProductsPage() {
 
   const toggleAvailable = async (product: Product) => {
     try {
-      await apiClient.patch(`/products/${product.id}`, {
+      await apiClient.patch(`/admin/products/${product.id}`, {
         is_available: !product.is_available,
       });
       setProducts(
@@ -92,7 +92,7 @@ export default function AdminProductsPage() {
 
   const togglePopular = async (product: Product) => {
     try {
-      await apiClient.patch(`/products/${product.id}`, {
+      await apiClient.patch(`/admin/products/${product.id}`, {
         is_popular: !product.is_popular,
       });
       setProducts(

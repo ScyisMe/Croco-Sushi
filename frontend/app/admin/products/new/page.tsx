@@ -109,7 +109,7 @@ export default function NewProductPage() {
         ...formData,
         old_price: formData.old_price || null,
       };
-      await apiClient.post("/products", dataToSend);
+      await apiClient.post("/admin/products", dataToSend);
       toast.success("Товар створено!");
       router.push("/admin/products");
     } catch (error: any) {
