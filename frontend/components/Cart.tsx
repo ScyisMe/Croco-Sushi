@@ -349,9 +349,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                   {amountToFreeDelivery.toFixed(0)} ₴
                                 </span>
                               </div>
-                              <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                              <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
                                 <div
-                                  className="h-full bg-primary rounded-full transition-all duration-500"
+                                  className="h-full bg-green-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(34,197,94,0.6)]"
                                   style={{ width: `${deliveryProgress}%` }}
                                 />
                               </div>
