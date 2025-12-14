@@ -308,6 +308,15 @@ async def create_order(
                 import logging
                 logging.getLogger(__name__).error(f"Failed to send SMS notification: {e}")
         
+            # Validate response schema manually to catch errors
+        from app.schemas.order import OrderResponse as OrderResponseSchema
+        try:
+            OrderResponseSchema.model_validate(new_order)
+        except Exception as validation_error:
+            import logging
+            logging.getLogger(__name__).error(f"Response validation failed: {validation_error}")
+            raise Exception(f"Response validation failed: {validation_error}")
+
         return new_order
     
     except HTTPException:
