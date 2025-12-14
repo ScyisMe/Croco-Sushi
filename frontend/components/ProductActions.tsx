@@ -17,11 +17,11 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
     const addItem = useCartStore((state) => state.addItem);
     const updateQuantity = useCartStore((state) => state.updateQuantity);
     const itemsCount = useCartStore((state) => state.items.length);
-    const getItemCount = useCartStore((state) => state.getItemCount);
-
-    // Check unique key for cart item
+    // Subscribe specifically to this item's quantity to ensure meaningful re-renders
     const sizeId = selectedSize?.id;
-    const quantity = getItemCount(product.id, sizeId);
+    const quantity = useCartStore((state) =>
+        state.items.find((item) => item.id === product.id && item.sizeId === sizeId)?.quantity || 0
+    );
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();

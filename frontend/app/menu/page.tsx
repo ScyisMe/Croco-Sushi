@@ -15,6 +15,8 @@ import {
   AdjustmentsHorizontalIcon,
   XMarkIcon,
   ChevronRightIcon,
+  ChevronDownIcon,
+  Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";
@@ -392,49 +394,56 @@ function MenuContent() {
               </div>
 
               {/* Фільтри (Quick Access Buttons) - Desktop */}
-              <div className="hidden md:flex gap-2">
+              <div className="hidden md:flex gap-3 flex-wrap items-center">
                 {TYPE_FILTERS.map(filter => (
-                  <button
+                  <motion.button
                     key={filter.id}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedType(selectedType === filter.id ? null : filter.id)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedType === filter.id
-                      ? "bg-primary text-white border-primary"
-                      : "bg-surface text-secondary border-border hover:border-primary/50"
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedType === filter.id
+                      ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(34,197,94,0.4)]"
+                      : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-primary/50 hover:text-white"
                       }`}
                   >
                     {filter.label}
-                  </button>
+                  </motion.button>
                 ))}
 
-                <div className="w-px bg-border mx-2 h-8 self-center" />
+                <div className="w-px bg-white/10 mx-2 h-6 self-center" />
 
                 {INGREDIENT_FILTERS.slice(0, 3).map(filter => (
-                  <button
+                  <motion.button
                     key={filter.id}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => toggleIngredient(filter.id)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedIngredients.includes(filter.id)
-                      ? "bg-secondary text-white border-secondary"
-                      : "bg-surface text-secondary border-border hover:border-primary/50"
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedIngredients.includes(filter.id)
+                      ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
+                      : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-secondary/50 hover:text-white"
                       }`}
                   >
                     {filter.label}
-                  </button>
+                  </motion.button>
                 ))}
-              </div>
 
-              {/* Сортування (desktop) */}
-              <div className="hidden md:block">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="input w-auto min-w-[200px]"
-                >
-                  {SORT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                {/* Сортування (desktop) */}
+                <div className="ml-auto">
+                  <div className="relative group">
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="appearance-none bg-[#2A2A2A] border border-white/10 text-white rounded-lg px-4 py-2 pr-8 focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-white/5 transition-colors"
+                    >
+                      {SORT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none group-hover:text-primary transition-colors" />
+                  </div>
+                </div>
               </div>
 
               {/* Кнопка фільтрів (mobile) */}
@@ -451,29 +460,52 @@ function MenuContent() {
             {/* Сайдбар з категоріями (desktop) */}
             <aside className="hidden lg:block w-64 flex-shrink-0">
               <div className="sticky top-24 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 max-h-[80vh] overflow-y-auto hide-scrollbar">
-                <h3 className="font-bold text-lg text-white mb-4 pl-2">Категорії</h3>
-                <ul className="space-y-1">
+                <h3 className="font-bold text-lg text-white mb-4 pl-2 flex items-center gap-2">
+                  <Squares2X2Icon className="w-5 h-5 text-primary" />
+                  Категорії
+                </h3>
+                <ul className="space-y-2">
                   <li>
                     <button
                       onClick={() => handleCategoryChange(null)}
-                      className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 font-medium ${!selectedCategory
-                        ? "bg-primary text-white shadow-lg shadow-primary/25"
-                        : "text-gray-300 hover:bg-white/5 hover:text-white"
+                      className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${!selectedCategory
+                        ? "text-white bg-gradient-to-r from-primary/20 to-transparent border-l-4 border-primary shadow-[0_4px_20px_rgba(34,197,94,0.1)]"
+                        : "text-gray-400 hover:bg-white/5 hover:text-white"
                         }`}
                     >
-                      Все меню
+                      <span className={`absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${!selectedCategory ? "opacity-100" : ""}`} />
+                      <div className="relative flex items-center justify-between">
+                        <span className={`transition-transform duration-300 ${!selectedCategory ? "translate-x-1" : "group-hover:translate-x-1"}`}>
+                          Все меню
+                        </span>
+                        {!selectedCategory && (
+                          <motion.div layoutId="activeCategoryArrow">
+                            <ChevronRightIcon className="w-4 h-4 text-primary" />
+                          </motion.div>
+                        )}
+                      </div>
                     </button>
                   </li>
                   {categories.map((category) => (
                     <li key={category.id}>
                       <button
                         onClick={() => handleCategoryChange(category.slug)}
-                        className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-300 font-medium ${selectedCategory === category.slug
-                          ? "bg-primary text-white shadow-lg shadow-primary/25"
-                          : "text-gray-300 hover:bg-white/5 hover:text-white"
+                        className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${selectedCategory === category.slug
+                          ? "text-white bg-gradient-to-r from-primary/20 to-transparent border-l-4 border-primary shadow-[0_4px_20px_rgba(34,197,94,0.1)]"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
                           }`}
                       >
-                        {category.name}
+                        <span className={`absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${selectedCategory === category.slug ? "opacity-100" : ""}`} />
+                        <div className="relative flex items-center justify-between">
+                          <span className={`transition-transform duration-300 ${selectedCategory === category.slug ? "translate-x-1" : "group-hover:translate-x-1"}`}>
+                            {category.name}
+                          </span>
+                          {selectedCategory === category.slug && (
+                            <motion.div layoutId="activeCategoryArrow">
+                              <ChevronRightIcon className="w-4 h-4 text-primary" />
+                            </motion.div>
+                          )}
+                        </div>
                       </button>
                     </li>
                   ))}
