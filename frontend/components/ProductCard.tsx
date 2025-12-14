@@ -200,17 +200,17 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       </div>
 
       {/* Контент - Padded with extra bottom space for air */}
-      <div className="p-4 pb-6 flex flex-col flex-1 relative">
+      <div className="p-2.5 pb-3 md:p-5 flex flex-col flex-1 relative">
         {/* Назва - посилання */}
-        <Link href={`/products/${product.slug}`} className="block mb-2">
-          <h3 className="font-display font-medium text-lg leading-tight text-white group-hover:text-primary-400 transition-colors">
+        <Link href={`/products/${product.slug}`} className="block mb-1 md:mb-2">
+          <h3 className="font-display font-medium text-sm md:text-lg leading-tight text-white group-hover:text-primary-400 transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
 
         {/* Опис/склад */}
         {ingredientsText && (
-          <p className="text-sm text-[#A1A1A1] mb-4 leading-relaxed font-light tracking-wide">
+          <p className="text-xs md:text-sm text-[#A1A1A1] mb-2 md:mb-4 leading-normal font-light tracking-wide line-clamp-2 md:line-clamp-none">
             {highlightIngredients(ingredientsText)}
           </p>
         )}
@@ -236,9 +236,9 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         {/* Ціна та кнопка */}
         <div className={`flex items-center justify-between pt-4 border-t border-white/5 ${(!product.sizes || product.sizes.length <= 1) ? 'mt-auto' : ''}`}>
           <div className="flex flex-col">
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-display font-extrabold text-white tracking-tight">
-                {currentPrice} <span className="text-sm font-normal text-gray-500">₴</span>
+            <div className="flex items-baseline gap-1 md:gap-2">
+              <span className="text-lg md:text-xl font-display font-bold md:font-extrabold text-white tracking-tight">
+                {currentPrice} <span className="text-xs md:text-sm font-normal text-gray-500">₴</span>
               </span>
               {hasDiscount && (
                 <span className="text-sm text-gray-600 line-through decoration-rose-500/50">
