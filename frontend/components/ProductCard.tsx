@@ -199,8 +199,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         )}
       </div>
 
-      {/* Контент - Padded */}
-      <div className="p-5 flex flex-col flex-1 relative">
+      {/* Контент - Padded with extra bottom space for air */}
+      <div className="p-4 pb-6 flex flex-col flex-1 relative">
         {/* Назва - посилання */}
         <Link href={`/products/${product.slug}`} className="block mb-2">
           <h3 className="font-display font-medium text-lg leading-tight text-white group-hover:text-primary-400 transition-colors">
@@ -210,7 +210,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
         {/* Опис/склад */}
         {ingredientsText && (
-          <p className="text-sm text-gray-300 mb-4 leading-relaxed font-light tracking-wide">
+          <p className="text-sm text-[#A1A1A1] mb-4 leading-relaxed font-light tracking-wide">
             {highlightIngredients(ingredientsText)}
           </p>
         )}
@@ -237,7 +237,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         <div className={`flex items-center justify-between pt-4 border-t border-white/5 ${(!product.sizes || product.sizes.length <= 1) ? 'mt-auto' : ''}`}>
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2">
-              <span className="text-xl font-display font-bold text-white tracking-tight">
+              <span className="text-xl font-display font-extrabold text-white tracking-tight">
                 {currentPrice} <span className="text-sm font-normal text-gray-500">₴</span>
               </span>
               {hasDiscount && (

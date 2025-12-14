@@ -47,25 +47,24 @@ export default function BottomNav() {
                                 className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive ? "text-primary-500" : "text-gray-400 hover:text-gray-200"
                                     }`}
                             >
-                                <div className="relative">
+                                <motion.div
+                                    className="relative p-1"
+                                    whileTap={{ scale: 0.9 }}
+                                    animate={isActive ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                                    transition={{ duration: 0.3 }}
+                                >
                                     <Icon className="w-6 h-6" />
                                     {link.badge ? (
                                         <motion.span
                                             initial={{ scale: 0 }}
                                             animate={{ scale: 1 }}
-                                            className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-accent-red rounded-full"
+                                            className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-accent-red rounded-full ring-2 ring-surface-dark"
                                         >
                                             {link.badge}
                                         </motion.span>
                                     ) : null}
-                                </div>
+                                </motion.div>
                                 <span className="text-[10px] font-medium">{link.label}</span>
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="bottomNavIndicator"
-                                        className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary-500 rounded-full"
-                                    />
-                                )}
                             </Link>
                         );
                     })}

@@ -93,10 +93,10 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
         <button
             type="button"
             onClick={handleAddToCart}
-            className="group flex items-center justify-center w-10 h-10 bg-primary-500 rounded-full text-white border border-transparent hover:bg-primary-600 hover:scale-105 transition-all duration-300 shadow-lg shadow-primary-500/20 relative z-20 active:scale-95"
+            className="group flex items-center justify-center w-12 h-12 md:w-10 md:h-10 bg-primary-500 rounded-full text-white border border-transparent hover:bg-primary-600 hover:scale-105 transition-all duration-300 shadow-xl md:shadow-lg shadow-primary-500/30 md:shadow-primary-500/20 relative z-20 active:scale-95"
             aria-label={t("product.addToCart")}
         >
-            <PlusIcon className="w-5 h-5 transition-transform group-hover:rotate-90 pointer-events-none" />
+            <PlusIcon className="w-6 h-6 md:w-5 md:h-5 transition-transform group-hover:rotate-90 pointer-events-none" />
         </button>
     );
 };

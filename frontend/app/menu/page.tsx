@@ -370,21 +370,21 @@ function MenuContent() {
             </h1>
 
             {/* Пошук та фільтри */}
-            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+            <div className="flex flex-row md:flex-row gap-3 md:gap-4">
               {/* Пошук */}
               <div className="relative flex-1">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-light" />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Пошук страв..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input pl-12 text-base"
+                  className="w-full bg-[#2A2A2A] border border-transparent focus:border-primary/50 rounded-xl px-4 py-3 pl-12 text-white placeholder:text-gray-500 focus:outline-none transition-all duration-200"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-light hover:text-secondary"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                   >
                     <XMarkIcon className="w-5 h-5" />
                   </button>
@@ -440,10 +440,9 @@ function MenuContent() {
               {/* Кнопка фільтрів (mobile) */}
               <button
                 onClick={() => setIsMobileFilterOpen(true)}
-                className="md:hidden flex items-center justify-center gap-2 px-4 py-3 border border-border rounded-lg text-secondary hover:border-primary transition"
+                className="md:hidden flex items-center justify-center w-12 flex-shrink-0 bg-[#2A2A2A] rounded-xl text-white hover:bg-[#333] transition-colors"
               >
-                <AdjustmentsHorizontalIcon className="w-5 h-5" />
-                Фільтри
+                <AdjustmentsHorizontalIcon className="w-6 h-6 text-primary-500" />
               </button>
             </div>
           </div>
@@ -485,7 +484,8 @@ function MenuContent() {
             {/* Основний контент */}
             <div className="flex-1">
               {/* Горизонтальні категорії (tablet/mobile) - Sticky */}
-              <div className="lg:hidden sticky top-16 z-30 bg-surface/90 backdrop-blur-xl border-b border-white/5 py-3 mb-6 -mx-4 px-4 shadow-xl transition-all">
+              {/* Горизонтальні категорії (tablet/mobile) - Sticky */}
+              <div className="lg:hidden sticky top-16 z-30 bg-[#121212]/85 backdrop-blur-xl border-b border-white/5 py-3 mb-6 -mx-4 px-4 shadow-xl transition-all">
                 <div className="flex gap-2 overflow-x-auto no-scrollbar items-center">
                   <button
                     onClick={() => handleCategoryChange(null)}
