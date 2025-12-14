@@ -284,18 +284,29 @@ async def create_order(
     new_order.items = result.scalars().all()
     
     # Відправка підтвердження замовлення через Celery (асинхронно)
+    # Відправка підтвердження замовлення через Celery (асинхронно)
     if order_data.customer_email:
-        from app.tasks.email import schedule_order_confirmation
-        schedule_order_confirmation(new_order.id, order_data.customer_email)
+        try:
+            from app.tasks.email import schedule_order_confirmation
+            schedule_order_confirmation(new_order.id, order_data.customer_email)
+        except Exception as e:
+            # Логуємо помилку, але не падаємо (замовлення вже створено)
+            import logging
+            logging.getLogger(__name__).error(f"Failed to schedule email confirmation: {e}")
     
     # Відправка SMS сповіщення (якщо є номер телефону)
     if order_data.customer_phone:
-        from app.tasks.sms import send_order_notification
-        send_order_notification.delay(
-            order_data.customer_phone,
-            order_number,
-            "Створено"
-        )
+        try:
+            from app.tasks.sms import send_order_notification
+            send_order_notification.delay(
+                order_data.customer_phone,
+                order_number,
+                "Створено"
+            )
+        except Exception as e:
+            # Логуємо помилку, але не падаємо
+            import logging
+            logging.getLogger(__name__).error(f"Failed to send SMS notification: {e}")
     
     return new_order
 
