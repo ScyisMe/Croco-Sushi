@@ -271,7 +271,18 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                 leaveFrom="translate-x-0"
                 leaveTo="translate-x-full"
               >
-                <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
+                <Dialog.Panel
+                  as={motion.div}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={{ left: 0, right: 0.5 }}
+                  onDragEnd={(e, info) => {
+                    if (info.offset.x > 100) {
+                      setIsOpen(false);
+                    }
+                  }}
+                  className="pointer-events-auto w-[85vw] md:w-screen max-w-md"
+                >
                   <div className="flex h-full flex-col bg-[#121212] shadow-xl">
                     <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#121212]">
                       <Dialog.Title className="text-xl font-bold text-white">

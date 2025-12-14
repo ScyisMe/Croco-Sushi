@@ -647,8 +647,8 @@ function MenuContent() {
               className="absolute inset-0 bg-black/50"
               onClick={() => setIsMobileFilterOpen(false)}
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-theme-surface rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
-              <div className="sticky top-0 bg-theme-surface border-b border-theme p-4 flex items-center justify-between">
+            <div className="absolute bottom-0 left-0 right-0 bg-[#121212] rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
+              <div className="sticky top-0 bg-[#121212] border-b border-theme p-4 flex items-center justify-between">
                 <h3 className="font-bold text-lg">Фільтри</h3>
                 <button
                   onClick={() => setIsMobileFilterOpen(false)}
