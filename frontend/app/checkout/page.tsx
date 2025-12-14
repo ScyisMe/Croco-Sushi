@@ -276,7 +276,7 @@ export default function CheckoutPage() {
         comment: formData.comment || undefined,
       };
 
-      const response = await apiClient.post("/orders", orderData);
+      const response = await apiClient.post("/orders/", orderData);
 
       // Очищаємо кошик на сервері (якщо користувач авторизований)
       const token = localStorage.getItem("access_token");
