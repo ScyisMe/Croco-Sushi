@@ -148,7 +148,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         )}
 
         {/* Gradient Overlay for Text Readability if needed, or just slight darkening */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-20 md:opacity-60" />
 
         {/* Бейджі - Minimalist */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">

@@ -333,7 +333,7 @@ function MenuContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
+    <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-theme-secondary transition-colors">
       {/* Schema.org markup для SEO */}
       <JsonLd schema={getBreadcrumbSchema(breadcrumbItems)} />
 
