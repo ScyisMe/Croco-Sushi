@@ -600,6 +600,7 @@ function MenuContent() {
                     {filteredAndSortedProducts.map((product) => (
                       <motion.div
                         key={product.id}
+                        className="w-full min-w-0"
                         variants={{
                           hidden: { opacity: 0, y: 20 },
                           show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
