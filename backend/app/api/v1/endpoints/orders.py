@@ -43,163 +43,177 @@ async def create_order(
     if len(order_data.items) > 20:
         raise BadRequestException("Максимальна кількість товарів в замовленні: 20")
     
-    # Перевірка товарів та підрахунок суми
-    # КРИТИЧНО: Ціна завжди береться з БД, ніколи не довіряємо клієнтському вводу
-    total_amount = Decimal("0.00")
-    order_items_data = []
-    
-    for item_data in order_data.items:
-        # КРИТИЧНО: product_id є обов'язковим, перевірка вже на рівні Pydantic
-        # Але додаємо додаткову перевірку для безпеки
-        if not item_data.product_id:
-            raise BadRequestException("product_id є обов'язковим полем для кожної позиції замовлення")
+    try:
+        # Перевірка товарів та підрахунок суми
+        # КРИТИЧНО: Ціна завжди береться з БД, ніколи не довіряємо клієнтському вводу
+        total_amount = Decimal("0.00")
+        order_items_data = []
         
-        # Завантажуємо товар з БД
-        result = await db.execute(select(Product).where(Product.id == item_data.product_id))
-        product = result.scalar_one_or_none()
-        
-        if not product:
-            raise NotFoundException(f"Товар з ID {item_data.product_id} не знайдено")
-        
-        if not product.is_available:
-            raise BadRequestException(f"Товар '{product.name}' недоступний")
-        
-        # Визначаємо ціну та розмір
-        size_id = None
-        size_name = None
-        
-        # Якщо вказано розмір - перевіряємо та беремо ціну з розміру
-        if item_data.size_id:
-            result = await db.execute(
-                select(ProductSize).where(
-                    ProductSize.id == item_data.size_id,
-                    ProductSize.product_id == product.id  # Перевірка, що розмір належить товару
-                )
-            )
-            size = result.scalar_one_or_none()
+        for item_data in order_data.items:
+            # КРИТИЧНО: product_id є обов'язковим, перевірка вже на рівні Pydantic
+            # Але додаємо додаткову перевірку для безпеки
+            if not item_data.product_id:
+                raise BadRequestException("product_id є обов'язковим полем для кожної позиції замовлення")
             
-            if not size:
-                raise NotFoundException(f"Розмір порції з ID {item_data.size_id} не знайдено для товару {product.name}")
+            # Завантажуємо товар з БД
+            result = await db.execute(select(Product).where(Product.id == item_data.product_id))
+            product = result.scalar_one_or_none()
             
-            # Використовуємо ціну з розміру (завжди з БД)
-            size_price = size.price
-            size_id = size.id
-            size_name = size.name
-        else:
-            # Використовуємо базову ціну товару (завжди з БД)
-            size_price = product.price
-        
-        # Підрахунок суми для позиції (ціна завжди з БД)
-        item_total = size_price * item_data.quantity
-        total_amount += item_total
-        
-        # Зберігаємо дані позиції (ціна завжди з БД)
-        order_items_data.append({
-            "product_id": product.id,
-            "product_name": product.name,  # Використовуємо назву з БД для консистентності
-            "size_id": size_id,
-            "size_name": size_name,
-            "quantity": item_data.quantity,
-            "price": size_price  # Ціна завжди з БД
-        })
-    
-    # Валідація: мінімальна та максимальна сума замовлення
-    MIN_ORDER_AMOUNT = Decimal("100.00")  # Базова мінімальна сума
-    MAX_ORDER_AMOUNT = Decimal("50000.00")  # Максимальна сума замовлення (захист від переповнення)
-    
-    if total_amount < MIN_ORDER_AMOUNT:
-        raise BadRequestException(f"Мінімальна сума замовлення: {MIN_ORDER_AMOUNT} грн")
-    
-    if total_amount > MAX_ORDER_AMOUNT:
-        raise BadRequestException(f"Максимальна сума замовлення: {MAX_ORDER_AMOUNT} грн")
-        
-    # --- Обробка промокоду ---
-    promo_discount = Decimal("0.00")
-    promo_code_id = None
-    promo_code_obj_name = None
-    
-    if order_data.promo_code:
-        # Імпортуємо тут щоб уникнути циклічних імпортів (хоча вони в різних файлах, але про всяк випадок)
-        from app.models.promo_code import PromoCode
-        
-        # Нормалізація коду
-        code = order_data.promo_code.strip()
-        
-        # Пошук промокоду
-        promo_result = await db.execute(select(PromoCode).where(PromoCode.code == code))
-        promo = promo_result.scalar_one_or_none()
-        
-        if not promo:
-            raise NotFoundException(f"Промокод '{code}' не знайдено")
+            if not product:
+                raise NotFoundException(f"Товар з ID {item_data.product_id} не знайдено")
             
-        if not promo.is_active:
-            raise BadRequestException(f"Промокод '{code}' неактивний")
+            if not product.is_available:
+                raise BadRequestException(f"Товар '{product.name}' недоступний")
             
-        now = datetime.now(promo.start_date.tzinfo)
-        
-        if now < promo.start_date:
-            raise BadRequestException("Термін дії промокоду ще не настав")
+            # Визначаємо ціну та розмір
+            size_id = None
+            size_name = None
             
-        if now > promo.end_date:
-            raise BadRequestException("Термін дії промокоду закінчився")
-            
-        if promo.max_uses is not None and promo.current_uses >= promo.max_uses:
-            raise BadRequestException("Ліміт використання промокоду вичерпано")
-            
-        if promo.min_order_amount is not None and total_amount < promo.min_order_amount:
-            raise BadRequestException(f"Мінімальна сума замовлення для промокоду '{code}': {promo.min_order_amount} грн")
-            
-        # Розрахунок знижки
-        if promo.discount_type == "fixed":
-            promo_discount = promo.discount_value
-        elif promo.discount_type == "percent":
-            promo_discount = (total_amount * promo.discount_value) / Decimal("100.00")
-            
-        # Перевірка щоб знижка не перевищувала суму замовлення
-        if promo_discount > total_amount:
-            promo_discount = total_amount
-            
-        promo_code_id = promo.id
-        promo_code_obj_name = promo.code
-        
-        # Оновлюємо кількість використань
-        promo.current_uses += 1
-        db.add(promo)
-    # -------------------------
-    
-    # Розрахунок доставки (базова логіка)
-    # Знижка застосовується до вартості товарів, доставка розраховується від повної суми (або зі знижкою?)
-    # Зазвичай free shipping від суми після знижки.
-    # Давайте зробимо від суми ПІСЛЯ знижки, це чесніше для бізнесу.
-    amount_after_discount = total_amount - promo_discount
-    
-    delivery_cost = Decimal("50.00")  # Базова вартість доставки
-    if amount_after_discount >= Decimal("500.00"):
-        delivery_cost = Decimal("0.00")  # Безкоштовна доставка від 500 грн
-    
-    # Обробка адреси
-    address_id = order_data.address_id
-    
-    # Якщо це нова адреса (вказані вулиця/місто)
-    if order_data.street:
-        # Для авторизованих - шукаємо або створюємо
-        if current_user:
-            # Тут спрощена логіка: якщо ID передано - беремо його, якщо ні - створюємо нову
-            if order_data.address_id:
+            # Якщо вказано розмір - перевіряємо та беремо ціну з розміру
+            if item_data.size_id:
                 result = await db.execute(
-                    select(Address).where(
-                        Address.id == order_data.address_id,
-                        Address.user_id == current_user.id
+                    select(ProductSize).where(
+                        ProductSize.id == item_data.size_id,
+                        ProductSize.product_id == product.id  # Перевірка, що розмір належить товару
                     )
                 )
-                address = result.scalar_one_or_none()
-                if not address:
-                    raise NotFoundException("Адресу не знайдено")
-                address_id = address.id
+                size = result.scalar_one_or_none()
+                
+                if not size:
+                    raise NotFoundException(f"Розмір порції з ID {item_data.size_id} не знайдено для товару {product.name}")
+                
+                # Використовуємо ціну з розміру (завжди з БД)
+                size_price = size.price
+                size_id = size.id
+                size_name = size.name
             else:
-                # Створення нової для юзера
+                # Використовуємо базову ціну товару (завжди з БД)
+                size_price = product.price
+            
+            # Підрахунок суми для позиції (ціна завжди з БД)
+            item_total = size_price * item_data.quantity
+            total_amount += item_total
+            
+            # Зберігаємо дані позиції (ціна завжди з БД)
+            order_items_data.append({
+                "product_id": product.id,
+                "product_name": product.name,  # Використовуємо назву з БД для консистентності
+                "size_id": size_id,
+                "size_name": size_name,
+                "quantity": item_data.quantity,
+                "price": size_price  # Ціна завжди з БД
+            })
+        
+        # Валідація: мінімальна та максимальна сума замовлення
+        MIN_ORDER_AMOUNT = Decimal("100.00")  # Базова мінімальна сума
+        MAX_ORDER_AMOUNT = Decimal("50000.00")  # Максимальна сума замовлення (захист від переповнення)
+        
+        if total_amount < MIN_ORDER_AMOUNT:
+            raise BadRequestException(f"Мінімальна сума замовлення: {MIN_ORDER_AMOUNT} грн")
+        
+        if total_amount > MAX_ORDER_AMOUNT:
+            raise BadRequestException(f"Максимальна сума замовлення: {MAX_ORDER_AMOUNT} грн")
+            
+        # --- Обробка промокоду ---
+        promo_discount = Decimal("0.00")
+        promo_code_id = None
+        promo_code_obj_name = None
+        
+        if order_data.promo_code:
+            # Імпортуємо тут щоб уникнути циклічних імпортів (хоча вони в різних файлах, але про всяк випадок)
+            from app.models.promo_code import PromoCode
+            
+            # Нормалізація коду
+            code = order_data.promo_code.strip()
+            
+            # Пошук промокоду
+            promo_result = await db.execute(select(PromoCode).where(PromoCode.code == code))
+            promo = promo_result.scalar_one_or_none()
+            
+            if not promo:
+                raise NotFoundException(f"Промокод '{code}' не знайдено")
+                
+            if not promo.is_active:
+                raise BadRequestException(f"Промокод '{code}' неактивний")
+                
+            now = datetime.now(promo.start_date.tzinfo)
+            
+            if now < promo.start_date:
+                raise BadRequestException("Термін дії промокоду ще не настав")
+                
+            if now > promo.end_date:
+                raise BadRequestException("Термін дії промокоду закінчився")
+                
+            if promo.max_uses is not None and promo.current_uses >= promo.max_uses:
+                raise BadRequestException("Ліміт використання промокоду вичерпано")
+                
+            if promo.min_order_amount is not None and total_amount < promo.min_order_amount:
+                raise BadRequestException(f"Мінімальна сума замовлення для промокоду '{code}': {promo.min_order_amount} грн")
+                
+            # Розрахунок знижки
+            if promo.discount_type == "fixed":
+                promo_discount = promo.discount_value
+            elif promo.discount_type == "percent":
+                promo_discount = (total_amount * promo.discount_value) / Decimal("100.00")
+                
+            # Перевірка щоб знижка не перевищувала суму замовлення
+            if promo_discount > total_amount:
+                promo_discount = total_amount
+                
+            promo_code_id = promo.id
+            promo_code_obj_name = promo.code
+            
+            # Оновлюємо кількість використань
+            promo.current_uses += 1
+            db.add(promo)
+        # -------------------------
+        
+        # Розрахунок доставки (базова логіка)
+        # Знижка застосовується до вартості товарів, доставка розраховується від повної суми (або зі знижкою?)
+        # Зазвичай free shipping від суми після знижки.
+        # Давайте зробимо від суми ПІСЛЯ знижки, це чесніше для бізнесу.
+        amount_after_discount = total_amount - promo_discount
+        
+        delivery_cost = Decimal("50.00")  # Базова вартість доставки
+        if amount_after_discount >= Decimal("500.00"):
+            delivery_cost = Decimal("0.00")  # Безкоштовна доставка від 500 грн
+        
+        # Обробка адреси
+        address_id = order_data.address_id
+        
+        # Якщо це нова адреса (вказані вулиця/місто)
+        if order_data.street:
+            # Для авторизованих - шукаємо або створюємо
+            if current_user:
+                # Тут спрощена логіка: якщо ID передано - беремо його, якщо ні - створюємо нову
+                if order_data.address_id:
+                    result = await db.execute(
+                        select(Address).where(
+                            Address.id == order_data.address_id,
+                            Address.user_id == current_user.id
+                        )
+                    )
+                    address = result.scalar_one_or_none()
+                    if not address:
+                        raise NotFoundException("Адресу не знайдено")
+                    address_id = address.id
+                else:
+                    # Створення нової для юзера
+                    new_address = Address(
+                        user_id=current_user.id,
+                        city=order_data.city or "Бровари",
+                        street=order_data.street,
+                        house=order_data.house,
+                        apartment=order_data.apartment,
+                        comment=order_data.address_comment
+                    )
+                    db.add(new_address)
+                    await db.flush()
+                    address_id = new_address.id
+            else:
+                # Для гостей - створюємо адресу без user_id
                 new_address = Address(
-                    user_id=current_user.id,
+                    user_id=None, # Дозволяємо Null
                     city=order_data.city or "Бровари",
                     street=order_data.street,
                     house=order_data.house,
@@ -209,106 +223,105 @@ async def create_order(
                 db.add(new_address)
                 await db.flush()
                 address_id = new_address.id
+        
+        # Створення замовлення з обробкою race condition
+        from sqlalchemy.exc import IntegrityError
+        
+        order_number = generate_order_number()
+        max_attempts = 100
+        attempts = 0
+        
+        while attempts < max_attempts:
+            try:
+                new_order = Order(
+                    order_number=order_number,
+                    user_id=current_user.id if current_user else None,
+                    address_id=address_id,
+                    status="pending",
+                    total_amount=total_amount,
+                    delivery_cost=delivery_cost,
+                    discount=promo_discount,
+                    promo_code_id=promo_code_id,
+                    promo_code_name=promo_code_obj_name,
+                    payment_method=order_data.payment_method,
+                    customer_name=order_data.customer_name,
+                    customer_phone=order_data.customer_phone,
+                    customer_email=order_data.customer_email,  # Зберігаємо email для сповіщень
+                    comment=order_data.comment
+                )
+                
+                db.add(new_order)
+                await db.flush()  # Отримуємо ID замовлення
+                break  # Успішно створено
+                
+            except IntegrityError:
+                # Конфлікт унікальності - генеруємо новий номер
+                await db.rollback()
+                order_number = generate_order_number()
+                attempts += 1
         else:
-            # Для гостей - створюємо адресу без user_id
-            new_address = Address(
-                user_id=None, # Дозволяємо Null
-                city=order_data.city or "Бровари",
-                street=order_data.street,
-                house=order_data.house,
-                apartment=order_data.apartment,
-                comment=order_data.address_comment
+            raise BadRequestException("Не вдалося згенерувати унікальний номер замовлення")
+        
+        # Створення позицій замовлення
+        for item_data in order_items_data:
+            order_item = OrderItem(
+                order_id=new_order.id,
+                product_id=item_data["product_id"],
+                product_name=item_data["product_name"],
+                size_id=item_data.get("size_id"),
+                size_name=item_data.get("size_name"),
+                quantity=item_data["quantity"],
+                price=item_data["price"]
             )
-            db.add(new_address)
-            await db.flush()
-            address_id = new_address.id
-    
-    # Створення замовлення з обробкою race condition
-    from sqlalchemy.exc import IntegrityError
-    
-    order_number = generate_order_number()
-    max_attempts = 100
-    attempts = 0
-    
-    while attempts < max_attempts:
-        try:
-            new_order = Order(
-                order_number=order_number,
-                user_id=current_user.id if current_user else None,
-                address_id=address_id,
-                status="pending",
-                total_amount=total_amount,
-                delivery_cost=delivery_cost,
-                discount=promo_discount,
-                promo_code_id=promo_code_id,
-                promo_code_name=promo_code_obj_name,
-                payment_method=order_data.payment_method,
-                customer_name=order_data.customer_name,
-                customer_phone=order_data.customer_phone,
-                customer_email=order_data.customer_email,  # Зберігаємо email для сповіщень
-                comment=order_data.comment
-            )
-            
-            db.add(new_order)
-            await db.flush()  # Отримуємо ID замовлення
-            break  # Успішно створено
-            
-        except IntegrityError:
-            # Конфлікт унікальності - генеруємо новий номер
-            await db.rollback()
-            order_number = generate_order_number()
-            attempts += 1
-    else:
-        raise BadRequestException("Не вдалося згенерувати унікальний номер замовлення")
-    
-    # Створення позицій замовлення
-    for item_data in order_items_data:
-        order_item = OrderItem(
-            order_id=new_order.id,
-            product_id=item_data["product_id"],
-            product_name=item_data["product_name"],
-            size_id=item_data.get("size_id"),
-            size_name=item_data.get("size_name"),
-            quantity=item_data["quantity"],
-            price=item_data["price"]
+            db.add(order_item)
+        
+        await db.commit()
+        await db.refresh(new_order)
+        
+        # Завантажуємо позиції
+        result = await db.execute(
+            select(OrderItem).where(OrderItem.order_id == new_order.id)
         )
-        db.add(order_item)
+        new_order.items = result.scalars().all()
+        
+        # Відправка підтвердження замовлення через Celery (асинхронно)
+        if order_data.customer_email:
+            try:
+                from app.tasks.email import schedule_order_confirmation
+                schedule_order_confirmation(new_order.id, order_data.customer_email)
+            except Exception as e:
+                # Логуємо помилку, але не падаємо (замовлення вже створено)
+                import logging
+                logging.getLogger(__name__).error(f"Failed to schedule email confirmation: {e}")
+        
+        # Відправка SMS сповіщення (якщо є номер телефону)
+        if order_data.customer_phone:
+            try:
+                from app.tasks.sms import send_order_notification
+                send_order_notification.delay(
+                    order_data.customer_phone,
+                    order_number,
+                    "Створено"
+                )
+            except Exception as e:
+                # Логуємо помилку, але не падаємо
+                import logging
+                logging.getLogger(__name__).error(f"Failed to send SMS notification: {e}")
+        
+        return new_order
     
-    await db.commit()
-    await db.refresh(new_order)
-    
-    # Завантажуємо позиції
-    result = await db.execute(
-        select(OrderItem).where(OrderItem.order_id == new_order.id)
-    )
-    new_order.items = result.scalars().all()
-    
-    # Відправка підтвердження замовлення через Celery (асинхронно)
-    # Відправка підтвердження замовлення через Celery (асинхронно)
-    if order_data.customer_email:
-        try:
-            from app.tasks.email import schedule_order_confirmation
-            schedule_order_confirmation(new_order.id, order_data.customer_email)
-        except Exception as e:
-            # Логуємо помилку, але не падаємо (замовлення вже створено)
-            import logging
-            logging.getLogger(__name__).error(f"Failed to schedule email confirmation: {e}")
-    
-    # Відправка SMS сповіщення (якщо є номер телефону)
-    if order_data.customer_phone:
-        try:
-            from app.tasks.sms import send_order_notification
-            send_order_notification.delay(
-                order_data.customer_phone,
-                order_number,
-                "Створено"
-            )
-        except Exception as e:
-            # Логуємо помилку, але не падаємо
-            import logging
-            logging.getLogger(__name__).error(f"Failed to send SMS notification: {e}")
-    
-    return new_order
+    except HTTPException:
+        # Re-raise HTTP exceptions as is
+        raise
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"CRITICAL ERROR IN create_order: {error_details}")
+        # Для дебагу - повертаємо деталі помилки клієнту (в продакшені прибрати!)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal Server Error: {str(e)}"
+        )
 
 
 @router.get("/{order_number}/track", response_model=OrderTrack)
