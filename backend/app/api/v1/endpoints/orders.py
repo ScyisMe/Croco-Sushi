@@ -319,17 +319,21 @@ async def create_order(
 
         return new_order
     
-    except HTTPException:
-        # Re-raise HTTP exceptions as is
-        raise
     except Exception as e:
         import traceback
         error_details = traceback.format_exc()
         print(f"CRITICAL ERROR IN create_order: {error_details}")
-        # Для дебагу - повертаємо деталі помилки клієнту (в продакшені прибрати!)
-        raise HTTPException(
+        
+        # Force CORS headers to ensure the error is visible in browser
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Internal Server Error: {str(e)}"
+            content={"detail": f"Internal Server Error: {str(e)}"},
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*", 
+                "Access-Control-Allow-Headers": "*"
+            }
         )
 
 

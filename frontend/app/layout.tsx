@@ -24,6 +24,9 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "Croco Sushi - Premium Sushi Delivery",
   description: "Experience the art of sushi in Kyiv",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
