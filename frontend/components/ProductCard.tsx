@@ -236,21 +236,21 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         {/* Ціна та кнопка */}
         <div className={`flex items-center justify-between pt-4 border-t border-white/5 ${(!product.sizes || product.sizes.length <= 1) ? 'mt-auto' : ''}`}>
           <div className="flex flex-col">
-            <div className="flex items-baseline gap-1 md:gap-2">
+            <div className="flex items-baseline gap-1 md:gap-2 flex-wrap">
               <span className="text-lg md:text-xl font-display font-bold md:font-extrabold text-white tracking-tight">
                 {currentPrice} <span className="text-xs md:text-sm font-normal text-gray-500">₴</span>
               </span>
+              {(selectedSize?.weight || product.weight) && (
+                <span className="text-xs text-gray-500 font-medium">
+                  / {selectedSize?.weight || product.weight} г
+                </span>
+              )}
               {hasDiscount && (
-                <span className="text-sm text-gray-600 line-through decoration-rose-500/50">
+                <span className="text-sm text-gray-600 line-through decoration-rose-500/50 ml-1">
                   {originalPrice} ₴
                 </span>
               )}
             </div>
-            {selectedSize?.weight && (
-              <span className="text-[10px] text-gray-600 font-medium uppercase tracking-wider">
-                {selectedSize.weight} г
-              </span>
-            )}
           </div>
 
           <ProductActions
