@@ -27,7 +27,7 @@ const CONTACT_INFO = {
   phone: "+380980970003",
   phoneDisplay: "(098) 097-00-03",
   address: "м. Львів, вул. Володимира Янева, 31",
-  addressUrl: "https://maps.app.goo.gl/FVwFa238ugXyDEDj7",
+  addressUrl: "https://maps.app.goo.gl/gJgHetkpdwfGTWND9",
   workingHours: "10:00 - 21:45",
   coordinates: {
     lat: 49.8089,
