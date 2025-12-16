@@ -30,14 +30,12 @@ export default function Hero() {
 
   return (
     <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Video Background with improved dark overlay */}
+      {/* Video Background */}
       <motion.div
         style={{ y: isMobile ? 0 : y, opacity }}
         className="absolute inset-0 z-0 will-change-transform"
       >
-        {/* Darker overlay for better text readability - Linear gradient added */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-surface-dark z-10" />
-        {/* Additional center vignette for text area */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10" />
         <video
           autoPlay
@@ -45,21 +43,18 @@ export default function Hero() {
           loop
           playsInline
           className="w-full h-full object-cover"
-          poster="/images/hero-poster.jpg"
         >
-          {/* TODO: Upload a valid video file. Current sushi-hero.mp4 is 0 bytes and causes 416 errors. */}
-          {/* <source src="/videos/sushi-hero.mp4" type="video/mp4" /> */}
+          <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
       </motion.div>
 
-      {/* Content - improved with slogan instead of brand name */}
+      {/* Content */}
       <div className="container mx-auto px-4 pt-20 relative z-20 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          {/* Main headline - emotional slogan */}
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
             <span className="block text-primary-400">Риби більше,</span>
             <span className="block text-white">
@@ -67,12 +62,10 @@ export default function Hero() {
             </span>
           </h1>
 
-          {/* Subtitle - value proposition */}
           <p className="text-lg md:text-xl lg:text-2xl text-gray-200 mb-10 max-w-2xl mx-auto font-light drop-shadow-lg">
             {t("hero.subtitle")}
           </p>
 
-          {/* CTA buttons - primary action emphasized, secondary changed to Promotions */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/menu">
               <Button

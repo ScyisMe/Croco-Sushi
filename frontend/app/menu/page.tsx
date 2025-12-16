@@ -436,7 +436,11 @@ function MenuContent() {
                       className="appearance-none bg-[#2A2A2A] border border-white/10 text-white rounded-lg px-4 py-2 pr-8 focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-white/5 transition-colors"
                     >
                       {SORT_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
+                        <option
+                          key={option.value}
+                          value={option.value}
+                          className="bg-[#2A2A2A] text-white"
+                        >
                           {option.label}
                         </option>
                       ))}
