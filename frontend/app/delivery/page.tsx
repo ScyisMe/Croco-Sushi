@@ -130,12 +130,12 @@ export default function DeliveryPage() {
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-[#1A1A1A] rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-xl border border-white/5 hover:-translate-y-1 transition-transform duration-300"
+                  className="bg-transparent border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors duration-300"
                 >
-                  <div className="bg-white/5 p-4 rounded-full mb-4">
+                  <div className="mb-4">
                     {feature.icon}
                   </div>
-                  <h3 className="font-bold text-lg text-white mb-2">{feature.title}</h3>
+                  <h3 className="font-bold text-lg text-white mb-1.5">{feature.title}</h3>
                   <p className="text-sm font-medium text-gray-400">{feature.subtitle}</p>
                 </div>
               ))}
