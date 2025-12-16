@@ -43,27 +43,27 @@ export default function DeliveryPage() {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
 
-  // Локалізовані переваги
-  const LOCALIZED_FEATURES = [
+  // Переваги (оновлено згідно з новим дизайном)
+  const features = [
     {
-      icon: <RocketLaunchIcon className="w-10 h-10 text-primary" />,
-      title: t("delivery.fastDelivery"),
-      description: t("delivery.fastDeliveryDesc"),
+      icon: <RocketLaunchIcon className="w-12 h-12 text-white mb-2" />,
+      title: "Швидка доставка",
+      subtitle: "40-60 хвилин",
     },
     {
-      icon: <GiftIcon className="w-10 h-10 text-primary" />,
-      title: t("delivery.freeDelivery"),
-      description: t("delivery.freeDeliveryFromShort", { amount: "1000" }),
+      icon: <GiftIcon className="w-12 h-12 text-white mb-2" />,
+      title: "Безкоштовна доставка",
+      subtitle: "Від 1000 ₴",
     },
     {
-      icon: <SparklesIcon className="w-10 h-10 text-primary" />,
-      title: t("delivery.freshDishes"),
-      description: t("delivery.freshDishesDesc"),
+      icon: <SparklesIcon className="w-12 h-12 text-white mb-2" />,
+      title: "Свіжі страви",
+      subtitle: "Готуємо після замовлення",
     },
     {
-      icon: <CreditCardIcon className="w-10 h-10 text-primary" />,
-      title: t("delivery.convenientPayment"),
-      description: t("delivery.convenientPaymentDesc"),
+      icon: <CreditCardIcon className="w-12 h-12 text-white mb-2" />,
+      title: "Зручна оплата",
+      subtitle: "Готівка або картка",
     },
   ];
 
@@ -123,18 +123,20 @@ export default function DeliveryPage() {
           </div>
         </section>
 
-        {/* Переваги */}
-        <section className="py-12 -mt-8">
+        {/* Переваги (Новий дизайн 4 блоків) */}
+        <section className="py-12 -mt-8 relative z-10">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {LOCALIZED_FEATURES.map((feature, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-theme-surface rounded-xl shadow-card p-6 text-center border border-white/10"
+                  className="bg-[#1A1A1A] rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-xl border border-white/5 hover:-translate-y-1 transition-transform duration-300"
                 >
-                  <div className="text-4xl mb-3">{feature.icon}</div>
-                  <h3 className="font-bold text-secondary mb-1">{feature.title}</h3>
-                  <p className="text-sm text-secondary-light">{feature.description}</p>
+                  <div className="bg-white/5 p-4 rounded-full mb-4">
+                    {feature.icon}
+                  </div>
+                  <h3 className="font-bold text-lg text-white mb-2">{feature.title}</h3>
+                  <p className="text-sm font-medium text-gray-400">{feature.subtitle}</p>
                 </div>
               ))}
             </div>

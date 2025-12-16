@@ -469,20 +469,15 @@ function MenuContent() {
                     <button
                       onClick={() => handleCategoryChange(null)}
                       className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${!selectedCategory
-                        ? "text-white bg-gradient-to-r from-primary/20 to-transparent border-l-4 border-primary shadow-[0_4px_20px_rgba(34,197,94,0.1)]"
+                        ? "text-white bg-white/5 border-l-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                         : "text-gray-400 hover:bg-white/5 hover:text-white"
                         }`}
                     >
-                      <span className={`absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${!selectedCategory ? "opacity-100" : ""}`} />
+                      <span className={`absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${!selectedCategory ? "opacity-100" : ""}`} />
                       <div className="relative flex items-center justify-between">
-                        <span className={`transition-transform duration-300 ${!selectedCategory ? "translate-x-1" : "group-hover:translate-x-1"}`}>
+                        <span className={`transition-transform duration-300 ${!selectedCategory ? "translate-x-2 font-bold" : "group-hover:translate-x-1"}`}>
                           Все меню
                         </span>
-                        {!selectedCategory && (
-                          <motion.div layoutId="activeCategoryArrow">
-                            <ChevronRightIcon className="w-4 h-4 text-primary" />
-                          </motion.div>
-                        )}
                       </div>
                     </button>
                   </li>
@@ -491,20 +486,15 @@ function MenuContent() {
                       <button
                         onClick={() => handleCategoryChange(category.slug)}
                         className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${selectedCategory === category.slug
-                          ? "text-white bg-gradient-to-r from-primary/20 to-transparent border-l-4 border-primary shadow-[0_4px_20px_rgba(34,197,94,0.1)]"
+                          ? "text-white bg-white/5 border-l-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                           : "text-gray-400 hover:bg-white/5 hover:text-white"
                           }`}
                       >
-                        <span className={`absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${selectedCategory === category.slug ? "opacity-100" : ""}`} />
+                        <span className={`absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${selectedCategory === category.slug ? "opacity-100" : ""}`} />
                         <div className="relative flex items-center justify-between">
-                          <span className={`transition-transform duration-300 ${selectedCategory === category.slug ? "translate-x-1" : "group-hover:translate-x-1"}`}>
+                          <span className={`transition-transform duration-300 ${selectedCategory === category.slug ? "translate-x-2 font-bold" : "group-hover:translate-x-1"}`}>
                             {category.name}
                           </span>
-                          {selectedCategory === category.slug && (
-                            <motion.div layoutId="activeCategoryArrow">
-                              <ChevronRightIcon className="w-4 h-4 text-primary" />
-                            </motion.div>
-                          )}
                         </div>
                       </button>
                     </li>
