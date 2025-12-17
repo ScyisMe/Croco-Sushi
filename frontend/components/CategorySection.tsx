@@ -55,49 +55,64 @@ export default function CategorySection({ category }: CategorySectionProps) {
             className="py-8 md:py-12 scroll-mt-36"
         >
             <div className="container mx-auto px-4">
-                {/* Helper Wrapper for Header */}
-                <div className="flex items-center justify-between mb-6 md:mb-8">
-                    <h2 className="text-2xl md:text-3xl font-bold font-display text-secondary">
-                        {category.name}
-                    </h2>
 
-                    <Link
-                        href={`/menu?category=${category.slug}`}
-                        className="flex items-center text-primary font-medium hover:text-primary-600 transition group"
-                    >
-                        <span className="mr-2 text-sm md:text-base">Дивитись всі</span>
-                        <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                </div>
+                <div className="relative w-full p-6 md:p-10 lg:p-12">
+                    {/* Neon Frame Background */}
+                    <div
+                        className="absolute inset-0 z-0"
+                        style={{
+                            backgroundImage: 'url("/neon-frame.png")',
+                            backgroundSize: '100% 100%',
+                            backgroundRepeat: 'no-repeat'
+                        }}
+                    />
 
+                    {/* Content */}
+                    <div className="relative z-10">
+                        {/* Helper Wrapper for Header */}
+                        <div className="flex items-center justify-between mb-6 md:mb-8">
+                            <h2 className="text-2xl md:text-3xl font-bold font-display text-white drop-shadow-md">
+                                {category.name}
+                            </h2>
 
-
-                {/* Products Grid */}
-                <div
-                    className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
-                >
-                    {isLoading ? (
-                        // Skeletons
-                        [...Array(4)].map((_, i) => (
-                            <ProductCardSkeleton key={i} />
-                        ))
-                    ) : (
-                        products.map((product) => (
-                            <motion.div
-                                key={product.id}
-                                initial={{ opacity: 0, y: 50 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: "-50px" }}
-                                transition={{ duration: 0.5, ease: "easeOut" }}
+                            <Link
+                                href={`/menu?category=${category.slug}`}
+                                className="flex items-center text-primary font-medium hover:text-primary-600 transition group"
                             >
-                                <ProductCard
-                                    product={product}
-                                    isSet={['sets', 'sety', 'seti'].includes(category.slug)}
-                                />
-                            </motion.div>
-                        ))
-                    )}
+                                <span className="mr-2 text-sm md:text-base">Дивитись всі</span>
+                                <ArrowRightIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+
+                        {/* Products Grid */}
+                        <div
+                            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
+                        >
+                            {isLoading ? (
+                                // Skeletons
+                                [...Array(4)].map((_, i) => (
+                                    <ProductCardSkeleton key={i} />
+                                ))
+                            ) : (
+                                products.map((product) => (
+                                    <motion.div
+                                        key={product.id}
+                                        initial={{ opacity: 0, y: 50 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true, margin: "-50px" }}
+                                        transition={{ duration: 0.5, ease: "easeOut" }}
+                                    >
+                                        <ProductCard
+                                            product={product}
+                                            isSet={['sets', 'sety', 'seti'].includes(category.slug)}
+                                        />
+                                    </motion.div>
+                                ))
+                            )}
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </section>
     );
