@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import PatternBackground from "@/components/PatternBackground";
 import BottomNav from "@/components/layout/BottomNav";
-import ParallaxBackground from "@/components/ParallaxBackground";
+
 
 
 const inter = Inter({
@@ -42,7 +43,8 @@ export default function RootLayout({
       <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} ${notoSansJP.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
 
-          <ParallaxBackground />
+
+          <PatternBackground />
           <div className="relative z-10 w-full">
             {children}
           </div>
