@@ -57,15 +57,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
             <div className="container mx-auto px-4">
 
                 <div className="relative w-full p-6 md:p-10 lg:p-12">
-                    {/* Neon Frame Background */}
-                    <div
-                        className="absolute inset-0 z-0"
-                        style={{
-                            backgroundImage: 'url("/neon-frame.png")',
-                            backgroundSize: '100% 100%',
-                            backgroundRepeat: 'no-repeat'
-                        }}
-                    />
+
 
                     {/* Content */}
                     <div className="relative z-10">
