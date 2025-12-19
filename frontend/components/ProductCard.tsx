@@ -225,7 +225,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       {/* Контент */}
       <div className="p-4 flex flex-col flex-1 relative bg-[#1E1E1E]/40">
         {/* Назва - посилання */}
-        <Link href={`/products/${product.slug}`} className="block mb-2">
+        <Link href={`/products/${product.slug}`} className="block mb-2 relative z-30">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-display font-medium text-lg leading-snug text-white group-hover:text-primary transition-colors line-clamp-2">
               {product.name}
@@ -250,9 +250,27 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
         {/* Опис/склад */}
         {ingredientsText && (
-          <p className="text-sm text-gray-400 mb-4 leading-normal font-normal line-clamp-2 group-hover:line-clamp-none transition-all duration-300 bg-[#1E1E1E] group-hover:absolute group-hover:z-20 group-hover:shadow-2xl group-hover:p-3 group-hover:rounded-xl group-hover:-mx-3 group-hover:-mt-3 group-hover:w-[calc(100%+1.5rem)]">
-            {highlightIngredients(ingredientsText)}
-          </p>
+          <div className="relative mb-4">
+            {/* Invisible placeholder to reserve space if needed, or just let it float. 
+                 If we make the highlighting p absolute, layout shifts. 
+                 Strategy: Keep a copy or strictly absolute the hover version?
+                 Simpler: Apply specific styling to avoiding overlap.
+             */}
+            <p className="text-sm text-gray-400 leading-normal font-normal line-clamp-2 
+               group-hover:line-clamp-none transition-all duration-300 
+               group-hover:absolute group-hover:left-0 group-hover:right-0 group-hover:z-20 
+               group-hover:bg-[#1E1E1E] group-hover:shadow-2xl group-hover:p-3 group-hover:rounded-xl 
+               group-hover:-mx-3 group-hover:w-[calc(100%+1.5rem)]">
+              {highlightIngredients(ingredientsText)}
+            </p>
+            {/* Spacing preservation is tricky with pure CSS hover absolute switch. 
+                Often best not to make it absolute but just expand? 
+                But expanding pushes grid row height? 
+                If 'overflow-hidden' on card, it won't push. 
+                Let's stick to absolute but strictly below title.
+                Removing -mt-3 is the key. 
+            */}
+          </div>
         )}
 
         {/* Вибір розміру */}
