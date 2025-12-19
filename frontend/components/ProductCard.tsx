@@ -144,7 +144,6 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   };
 
   return (
-  return (
     <GlassCard
       className={`group relative overflow-hidden flex flex-col 
       bg-[#1E1E1E]/80 backdrop-blur-xl 
