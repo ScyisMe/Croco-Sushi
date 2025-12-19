@@ -2,13 +2,8 @@
 
 import { useState, useEffect } from "react";
 import apiClient from "@/lib/api/apiClient";
-import { OrderTable } from "@/components/admin/orders/OrderTable";
 import { MagnifyingGlassIcon, ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
-
-import { useOrderStatus } from "@/hooks/useOrderStatus";
-import { StatusChangeModal } from "@/components/admin/orders/StatusChangeModal";
-import { OrderDetailsModal } from "@/components/admin/orders/OrderDetailsModal";
 
 // Duplicated STATUS_CONFIG (should be shared)
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -38,7 +33,7 @@ interface Order {
 }
 
 export default function OrderHistoryPage() {
-    const [orders, setOrders] = useState<Order[]>([]);
+    const [historyLog, setHistoryLog] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Filters
@@ -47,29 +42,6 @@ export default function OrderHistoryPage() {
     const [page, setPage] = useState(1);
     const [limit] = useState(20);
     const [hasMore, setHasMore] = useState(true);
-
-    // Modal State
-    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
-    // Status Hook
-    const {
-        changeStatus,
-        confirmCancel,
-        cancelModalOpen,
-        closeCancelModal,
-        isLoading: isStatusLoading
-    } = useOrderStatus({
-        onStatusChanged: (orderId, newStatus) => {
-            setOrders(current =>
-                current.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
-            );
-            if (selectedOrder && selectedOrder.id === orderId) {
-                setSelectedOrder({ ...selectedOrder, status: newStatus });
-            }
-            toast.success(`Статус оновлено`);
-        }
-    });
 
     // Debounce logic
     useEffect(() => {
@@ -81,7 +53,7 @@ export default function OrderHistoryPage() {
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
-    const fetchOrders = async () => {
+    const fetchHistory = async () => {
         setIsLoading(true);
         try {
             const skip = (page - 1) * limit;
@@ -90,70 +62,57 @@ export default function OrderHistoryPage() {
             params.append('limit', limit.toString());
             params.append('skip', skip.toString());
 
-            // Default statuses for history
-            params.append('status', 'completed');
-            params.append('status', 'cancelled');
-
             if (debouncedSearch) {
                 params.append('search', debouncedSearch);
             }
 
-            const response = await apiClient.get<Order[]>(`/admin/orders?${params.toString()}`);
+            const response = await apiClient.get<any[]>(`/admin/orders/history-log?${params.toString()}`);
 
             if (Array.isArray(response.data)) {
-                setOrders(response.data);
+                setHistoryLog(response.data);
                 setHasMore(response.data.length === limit);
             } else {
-                setOrders([]);
+                setHistoryLog([]);
                 setHasMore(false);
             }
 
         } catch (error) {
-            console.error("Failed to fetch history:", error);
-            toast.error("Не вдалося завантажити історію замовлень");
+            console.error("Failed to fetch history log:", error);
+            toast.error("Не вдалося завантажити журнал змін");
         } finally {
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchOrders();
+        fetchHistory();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, debouncedSearch]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        // Search is already handled by debounce effect
     }
 
-    const handleRowClick = async (order: any) => {
-        // Fetch full order details including items if needed
-        // Assuming the list order object might not have items
-        try {
-            // Optimistically open with existing data
-            setSelectedOrder(order);
-            setIsDetailsModalOpen(true);
-
-            // Optionally fetch detail to get items if missing
-            if (!order.items) {
-                const res = await apiClient.get(`/admin/orders/${order.id}`);
-                setSelectedOrder(res.data);
-            }
-        } catch (e) {
-            console.error(e);
-        }
+    // Helper for Status Badge
+    const StatusBadge = ({ status }: { status: string }) => {
+        const config = STATUS_CONFIG[status] || { label: status, color: "bg-gray-500/10 text-gray-500 border-gray-500/20" };
+        return (
+            <span className={`px-2 py-1 rounded-md text-xs font-medium border ${config.color}`}>
+                {config.label}
+            </span>
+        );
     };
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Історія замовлень</h1>
-                    <p className="text-gray-400">Архів виконаних та скасованих замовлень</p>
+                    <h1 className="text-2xl font-bold text-white">Історія змін статусів</h1>
+                    <p className="text-gray-400">Журнал усіх змін статусів замовлень (Audit Log)</p>
                 </div>
             </div>
 
-            {/* Search & Filters */}
+            {/* Search */}
             <div className="bg-surface-card rounded-xl shadow-sm p-4 border border-white/10">
                 <form onSubmit={handleSearch} className="flex gap-4">
                     <div className="flex-1 relative">
@@ -162,16 +121,10 @@ export default function OrderHistoryPage() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Пошук за номером, ім'ям або телефоном..."
+                            placeholder="Пошук за номером замовлення, іменем клієнта або менеджера..."
                             className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
                         />
                     </div>
-                    <button
-                        type="submit"
-                        className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition font-medium"
-                    >
-                        Пошук
-                    </button>
                 </form>
             </div>
 
@@ -180,13 +133,54 @@ export default function OrderHistoryPage() {
                 <div className="flex items-center justify-center h-64">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
                 </div>
-            ) : orders.length === 0 ? (
+            ) : historyLog.length === 0 ? (
                 <div className="text-center py-12 bg-surface-card rounded-xl border border-white/10">
-                    <p className="text-gray-400">Замовлень не знайдено</p>
+                    <p className="text-gray-400">Історія змін порожня</p>
                 </div>
             ) : (
                 <>
-                    <OrderTable orders={orders} onRowClick={handleRowClick} />
+                    <div className="bg-surface-card border border-white/10 rounded-xl overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-white/10 bg-white/5">
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-400 uppercase">Час</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-400 uppercase">Замовлення</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-400 uppercase">Менеджер</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-400 uppercase">Зміна статусу</th>
+                                        <th className="px-6 py-4 text-xs font-medium text-gray-400 uppercase">Коментар</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/10">
+                                    {historyLog.map((item) => (
+                                        <tr key={item.id} className="hover:bg-white/5 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                {new Date(item.changed_at).toLocaleString("uk-UA")}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-medium text-white">{item.order_number}</div>
+                                                <div className="text-xs text-gray-500">{item.customer_name}</div>
+                                                <div className="text-xs text-gray-500">{item.total_amount} ₴</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                {item.manager_name}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <StatusBadge status={item.previous_status} />
+                                                    <ArrowRightIcon className="w-4 h-4 text-gray-500" />
+                                                    <StatusBadge status={item.new_status} />
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-400 max-w-xs truncate" title={item.comment}>
+                                                {item.comment || "-"}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                     {/* Pagination */}
                     <div className="flex justify-between items-center bg-surface-card p-4 rounded-xl border border-white/10">
@@ -212,22 +206,6 @@ export default function OrderHistoryPage() {
                     </div>
                 </>
             )}
-
-            <OrderDetailsModal
-                isOpen={isDetailsModalOpen}
-                onClose={() => setIsDetailsModalOpen(false)}
-                order={selectedOrder as any}
-                statusConfig={STATUS_CONFIG}
-                onStatusChange={changeStatus}
-            />
-
-            <StatusChangeModal
-                isOpen={cancelModalOpen}
-                onClose={closeCancelModal}
-                onConfirm={confirmCancel}
-                status="cancelled"
-                isLoading={isStatusLoading}
-            />
         </div>
     );
 }
