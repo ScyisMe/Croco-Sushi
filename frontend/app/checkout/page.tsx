@@ -348,58 +348,76 @@ export default function CheckoutPage() {
           </h1>
 
           {/* Індикатор прогресу - Живий шлях кур'єра */}
-          <div className="mb-6 sm:mb-10">
-            <div className="relative flex items-center justify-between max-w-3xl mx-auto px-4">
-              {/* Background Line */}
-              <div className="absolute top-1/2 left-4 right-4 h-1 bg-white/10 -translate-y-1/2 rounded-full" />
-
-              {/* Active Line (Progress) */}
-              <div
-                className="absolute top-1/2 left-4 h-1 bg-green-500 -translate-y-1/2 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }} // Approximate width relative to container
-              />
-
+          {/* Індикатор прогресу - Живий шлях кур'єра */}
+          <div className="mb-6 sm:mb-10 max-w-3xl mx-auto px-4">
+            <div className="flex items-center justify-between w-full relative">
               {STEPS.map((step, index) => {
                 const isActive = currentStep === step.id;
                 const isCompleted = currentStep > step.id;
+                const isNext = index < STEPS.length - 1;
+                const nextStepCompleted = currentStep > STEPS[index + 1]?.id;
+
+                // Determine connector active state
+                // Connector is active if CURRENT step is greater than the NEXT step index (meaning we passed this segment)
+                // Actually simpler: if the next step is at least active, the connector leading to it (from current) is active?
+                // No, we want structure: Step1 --[active]-- Step2 --[inactive]-- Step3
+                // Connector i connects Step i and Step i+1.
+                // It should be green if Step i+1 is either Completed or Active?
+                // If we are on Step 2:
+                // Struct: Step1 --[green]-- Step2 --[gray]-- Step3
+                // Connector i (after step i) is green if currentStep > step.id.
+                const isConnectorActive = currentStep > step.id;
 
                 return (
-                  <div key={step.id} className="relative z-10 flex flex-col items-center group">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-500 ${isActive
-                        ? "bg-surface-card border-green-500 text-green-500 scale-110 shadow-[0_0_20px_rgba(34,197,94,0.4)]"
-                        : isCompleted
-                          ? "bg-green-500 border-green-500 text-white"
-                          : "bg-surface-card border-white/10 text-gray-500"
-                        }`}
-                    >
-                      {isCompleted ? (
-                        <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                      ) : isActive ? (
-                        index === 1 ? <TruckIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
-                          index === 2 ? <BanknotesIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
-                            <step.icon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
-                      ) : (
-                        <step.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                      )}
+                  <div key={step.id} className={`flex items-center ${isNext ? "flex-1 w-full" : ""}`}>
+                    {/* Step Circle */}
+                    <div className="relative z-10 flex flex-col items-center group">
+                      <div
+                        className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-500 ${isActive
+                          ? "bg-surface-card border-green-500 text-green-500 scale-110 shadow-[0_0_20px_rgba(34,197,94,0.4)]"
+                          : isCompleted
+                            ? "bg-green-500 border-green-500 text-white"
+                            : "bg-surface-card border-white/10 text-gray-500"
+                          }`}
+                      >
+                        {isCompleted ? (
+                          <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        ) : isActive ? (
+                          index === 1 ? <TruckIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
+                            index === 2 ? <BanknotesIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
+                              <step.icon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
+                        ) : (
+                          <step.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        )}
 
-                      {/* Moped/Croco Icon moving */}
-                      {isActive && (
-                        <motion.div
-                          layoutId="moving-icon"
-                          className="absolute -top-6 text-2xl"
-                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        >
-                          🐊
-                        </motion.div>
-                      )}
+                        {/* Moped/Croco Icon moving */}
+                        {isActive && (
+                          <motion.div
+                            layoutId="moving-icon"
+                            className="absolute -top-8 text-3xl filter drop-shadow-lg"
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                          >
+                            🐊
+                          </motion.div>
+                        )}
+                      </div>
+                      <span
+                        className={`absolute top-full mt-2 w-max text-xs sm:text-sm font-medium transition-colors duration-300 ${isActive ? "text-green-500" : isCompleted ? "text-white" : "text-gray-500"
+                          }`}
+                      >
+                        {step.name}
+                      </span>
                     </div>
-                    <span
-                      className={`mt-2 text-xs sm:text-sm font-medium transition-colors duration-300 ${isActive ? "text-green-500" : isCompleted ? "text-white" : "text-gray-500"
-                        }`}
-                    >
-                      {step.name}
-                    </span>
+
+                    {/* Connector Line (unless last step) */}
+                    {isNext && (
+                      <div className="flex-1 h-1 mx-2 sm:mx-4 relative rounded-full overflow-hidden bg-white/10">
+                        <div
+                          className={`absolute inset-0 bg-green-500 transition-transform duration-700 ease-in-out origin-left ${isConnectorActive ? "scale-x-100" : "scale-x-0"
+                            }`}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
