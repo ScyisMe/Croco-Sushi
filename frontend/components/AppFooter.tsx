@@ -27,26 +27,10 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-surface-dark pt-20 pb-6 overflow-hidden mt-auto">
-      {/* Wave Separator */}
-      <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0]">
-        <svg
-          className="relative block w-[calc(100%+1.3px)] h-[50px] z-20"
-          data-name="Layer 1"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1200 120"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-            className="fill-surface-card"
-          />
-        </svg>
-      </div>
-
-      {/* Seigaiha Pattern Overlay */}
+    <footer className="relative bg-[#0f1110] pt-16 pb-8 overflow-hidden mt-auto border-t border-white/5">
+      {/* Seigaiha Pattern Overlay - Solution B (Subtle opacity) */}
       <div
-        className="absolute inset-0 opacity-[0.05] pointer-events-none"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20c10 0 20-10 20-20H0c0 10 10 20 20 20zm0 0c-20 0-40 20-40 40h80c0-20-20-40-40-40z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
           backgroundSize: '80px 80px'
@@ -54,35 +38,36 @@ export default function Footer() {
       />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-[#343434] ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
+              {/* Simplified Logo - removed circle container */}
+              <div className="relative w-12 h-12 transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/logo.png"
                   alt="Croco Sushi"
                   fill
-                  className="object-cover brightness-110"
+                  className="object-contain brightness-110"
                 />
               </div>
-              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">
+              <span className="text-2xl font-bold text-white tracking-tight group-hover:text-[#00D26A] transition-colors">
                 Croco Sushi
               </span>
             </Link>
-            <p className="text-gray-400 leading-relaxed">
+            <p className="text-[#b0b0b0] text-sm leading-relaxed max-w-xs">
               {t("footer.description")}
             </p>
 
-            {/* Social Icons with proper SVG icons */}
-            <div className="flex gap-3 mt-2">
+            {/* Social Icons */}
+            <div className="flex gap-4 mt-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-primary-500 hover:scale-110 transition-all duration-300"
+                  className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#00D26A] transition-all duration-300"
                   aria-label={social.name}
                 >
                   <social.Icon />
@@ -92,8 +77,8 @@ export default function Footer() {
           </div>
 
           {/* Menu Links */}
-          <div>
-            <h3 className="text-lg font-bold text-white mb-5 uppercase tracking-wider">
+          <div className="pt-2">
+            <h3 className="text-[#5c7c66] text-xs font-bold uppercase tracking-[1.5px] mb-6">
               {t("footer.menu")}
             </h3>
             <ul className="space-y-3">
@@ -101,7 +86,7 @@ export default function Footer() {
                 <li key={item}>
                   <Link
                     href={`/menu?category=${item}`}
-                    className="text-gray-400 hover:text-primary-400 hover:translate-x-1 inline-block transition-all duration-200"
+                    className="text-[#e5e5e5] hover:text-[#00D26A] hover:translate-x-1 inline-block transition-all duration-200"
                   >
                     {t(`categories.${item}`)}
                   </Link>
@@ -110,54 +95,54 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact - with proper links */}
-          <div>
-            <h3 className="text-lg font-bold text-white mb-5 uppercase tracking-wider">
+          {/* Contact */}
+          <div className="pt-2">
+            <h3 className="text-[#5c7c66] text-xs font-bold uppercase tracking-[1.5px] mb-6">
               {t("footer.contacts")}
             </h3>
-            <ul className="space-y-3 text-gray-400">
+            <ul className="space-y-4 text-[#e5e5e5]">
               <li>
                 <a
                   href="https://maps.app.goo.gl/FVwFa238ugXyDEDj7"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-3 hover:text-primary-400 transition-colors group"
+                  className="flex items-start gap-3 hover:text-[#00D26A] transition-colors group"
                 >
-                  <span className="text-primary-400">📍</span>
-                  <span className="group-hover:underline">{t("footer.addressValue")}</span>
+                  <span className="text-[#00D26A] mt-1">📍</span>
+                  <span className="group-hover:underline text-sm leading-relaxed">{t("footer.addressValue")}</span>
                 </a>
               </li>
               <li>
                 <a
                   href="tel:+380980970003"
-                  className="flex items-center gap-3 hover:text-primary-400 transition-colors"
+                  className="flex items-center gap-3 hover:text-[#00D26A] transition-colors"
                 >
-                  <span className="text-primary-400">📞</span>
+                  <span className="text-[#00D26A]">📞</span>
                   <span>(098) 097-00-03</span>
                 </a>
               </li>
               <li>
                 <a
                   href="mailto:crocosushi0003@gmail.com"
-                  className="flex items-center gap-3 hover:text-primary-400 transition-colors"
+                  className="flex items-center gap-3 hover:text-[#00D26A] transition-colors"
                 >
-                  <span className="text-primary-400">✉️</span>
+                  <span className="text-[#00D26A]">✉️</span>
                   <span>crocosushi0003@gmail.com</span>
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Information - replaced FAQ accordion with simple links */}
-          <div>
-            <h3 className="text-lg font-bold text-white mb-5 uppercase tracking-wider">
+          {/* Information */}
+          <div className="pt-2">
+            <h3 className="text-[#5c7c66] text-xs font-bold uppercase tracking-[1.5px] mb-6">
               Інформація
             </h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/delivery"
-                  className="text-gray-400 hover:text-primary-400 hover:translate-x-1 inline-block transition-all duration-200"
+                  className="text-[#e5e5e5] hover:text-[#00D26A] hover:translate-x-1 inline-block transition-all duration-200"
                 >
                   Доставка та оплата
                 </Link>
@@ -165,7 +150,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="text-gray-400 hover:text-primary-400 hover:translate-x-1 inline-block transition-all duration-200"
+                  className="text-[#e5e5e5] hover:text-[#00D26A] hover:translate-x-1 inline-block transition-all duration-200"
                 >
                   Про нас
                 </Link>
@@ -173,7 +158,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/reviews"
-                  className="text-gray-400 hover:text-primary-400 hover:translate-x-1 inline-block transition-all duration-200"
+                  className="text-[#e5e5e5] hover:text-[#00D26A] hover:translate-x-1 inline-block transition-all duration-200"
                 >
                   Відгуки
                 </Link>
@@ -182,22 +167,22 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Copyright with privacy policy */}
-        <div className="pt-6 border-t border-white/10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+        {/* Copyright */}
+        <div className="pt-8 border-t border-white/5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#666]">
             <p suppressHydrationWarning>
               © {currentYear} Croco Sushi. Всі права захищено.
             </p>
             <div className="flex items-center gap-6">
               <Link
                 href="/terms"
-                className="hover:text-primary-400 transition-colors"
+                className="hover:text-[#00D26A] transition-colors"
               >
                 Політика конфіденційності
               </Link>
               <Link
                 href="/delivery"
-                className="hover:text-primary-400 transition-colors"
+                className="hover:text-[#00D26A] transition-colors"
               >
                 Умови доставки
               </Link>
