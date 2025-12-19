@@ -10,14 +10,14 @@ const stories = [
         title: "Хіт тижня",
         image: "/images/story-hit.png",
         color: "from-orange-500 to-red-500",
-        link: "/menu?sort=popular",
+        link: "/menu?filter=is_popular",
     },
     {
         id: 2,
         title: "Новинки",
         image: "/images/story-new.png",
         color: "from-green-400 to-emerald-600",
-        link: "/menu?sort=new", // Assuming sorting by new is possible or just a placeholder link
+        link: "/menu?filter=is_new",
     },
     {
         id: 3,
@@ -31,14 +31,14 @@ const stories = [
         title: "Гостре",
         image: "/images/story-spicy.png",
         color: "from-red-600 to-rose-700",
-        link: "/menu?type=spicy", // Assuming filter logic exists via query params
+        link: "/menu?filter=is_spicy",
     },
     {
         id: 5,
         title: "Веган",
         image: "/images/story-vegan.png",
         color: "from-green-600 to-lime-500",
-        link: "/menu?type=vegan",
+        link: "/menu?filter=is_vegan",
     },
 ];
 

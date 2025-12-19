@@ -25,6 +25,7 @@ import QuickViewModal from "@/components/QuickViewModal";
 import toast from "react-hot-toast";
 import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 import { Button } from "@/components/ui/Button";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 
 // Кількість товарів на сторінку
 const PRODUCTS_PER_PAGE = 24;
@@ -55,7 +56,22 @@ function MenuContent() {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
   // Filters State
-  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+  const filterParam = searchParams.get("filter");
+  const [selectedProperties, setSelectedProperties] = useState<string[]>(
+    filterParam ? filterParam.split(",") : []
+  );
+
+  // Sync with URL when params change (e.g. navigation from Home)
+  useEffect(() => {
+    const filterParam = searchParams.get("filter");
+    if (filterParam) {
+      setSelectedProperties(filterParam.split(","));
+    } else {
+      // Only clear if we explicitly navigated to a URL without filters (optional, depends on UX)
+      // But if we want to support clearing via back button:
+      setSelectedProperties([]);
+    }
+  }, [searchParams]);
 
   // Filter Options
   // Filter Options
@@ -547,6 +563,24 @@ function MenuContent() {
                 </div>
               </div>
 
+              {/* Фільтри (Mobile) - Horizontal Scroll */}
+              <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto no-scrollbar">
+                <div className="flex gap-2">
+                  {PROPERTY_FILTERS.map((filter) => (
+                    <button
+                      key={filter.id}
+                      onClick={() => toggleProperty(filter.id)}
+                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap border ${selectedProperties.includes(filter.id)
+                        ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
+                        : "bg-white/5 text-gray-300 border-white/10 hover:border-white/20 active:bg-white/10"
+                        }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Результати пошуку та кількість */}
               {debouncedSearch ? (
                 <p className="text-secondary-light text-xs mb-4">
@@ -675,6 +709,7 @@ function MenuContent() {
       </main >
 
       <Footer />
+      <ScrollToTop />
 
       {/* Мобільний фільтр */}
       {
