@@ -74,7 +74,7 @@ export default function OrderDetailsModal({
                                     <div className="flex items-center gap-2">
                                         <button
                                             type="button"
-                                            onClick={() => window.print()}
+                                            onClick={() => window.open(`/admin/orders/${order.id}/receipt`, '_blank')}
                                             className="rounded-full p-2 hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
                                             title="Друк"
                                         >

@@ -162,7 +162,7 @@ export default function DeliveryPage() {
               {/* Карта зон - інтерактивна */}
               <div className="h-[400px] md:h-[450px] bg-gray-900 rounded-xl overflow-hidden relative shadow-md map-dark">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5161.721022348217!2d24.012!3d49.8089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473ae7eb564c2c3f%3A0x9c4bc6e67f0bb7d0!2sCroco%20Sushi!5e0!3m2!1suk!2sua!4v1700000000000!5m2!1suk!2sua&maptype=roadmap"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5161.721022348217!2d24.0155!3d49.8089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473ae7eb564c2c3f%3A0x9c4bc6e67f0bb7d0!2sCroco%20Sushi!5e0!3m2!1suk!2sua!4v1700000000000!5m2!1suk!2sua&maptype=roadmap"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
