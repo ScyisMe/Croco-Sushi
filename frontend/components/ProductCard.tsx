@@ -251,25 +251,22 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         {/* Опис/склад */}
         {ingredientsText && (
           <div className="relative mb-4">
-            {/* Invisible placeholder to reserve space if needed, or just let it float. 
-                 If we make the highlighting p absolute, layout shifts. 
-                 Strategy: Keep a copy or strictly absolute the hover version?
-                 Simpler: Apply specific styling to avoiding overlap.
-             */}
-            <p className="text-sm text-gray-400 leading-normal font-normal line-clamp-2 
-               group-hover:line-clamp-none transition-all duration-300 
-               group-hover:absolute group-hover:left-0 group-hover:right-0 group-hover:z-20 
-               group-hover:bg-[#1E1E1E] group-hover:shadow-2xl group-hover:p-3 group-hover:rounded-xl 
-               group-hover:-mx-3 group-hover:w-[calc(100%+1.5rem)]">
+            {/* 1. Placeholder: Keeps the layout height fixed. Invisible on hover. */}
+            <p className="text-sm text-gray-400 leading-normal font-normal line-clamp-2 group-hover:opacity-0 transition-opacity duration-300">
               {highlightIngredients(ingredientsText)}
             </p>
-            {/* Spacing preservation is tricky with pure CSS hover absolute switch. 
-                Often best not to make it absolute but just expand? 
-                But expanding pushes grid row height? 
-                If 'overflow-hidden' on card, it won't push. 
-                Let's stick to absolute but strictly below title.
-                Removing -mt-3 is the key. 
-            */}
+
+            {/* 2. Overlay: Expands on hover. Absolute. */}
+            <div className="absolute top-0 left-0 right-0 z-20 
+               opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-300
+               -mx-3 -mt-2 p-3 rounded-xl bg-[#1E1E1E] shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-white/5
+               min-h-full h-auto w-[calc(100%+1.5rem)]
+               flex flex-col
+             ">
+              <p className="text-sm text-gray-300 leading-normal font-normal">
+                {highlightIngredients(ingredientsText)}
+              </p>
+            </div>
           </div>
         )}
 
