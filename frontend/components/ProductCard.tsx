@@ -52,18 +52,56 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   const hasDiscount = originalPrice && Number(originalPrice) > currentPrice;
 
   // Визначаємо бейджі
-  const badges = [];
-
-  // Logic to determine badges (infer from text if not present in validation)
+  // Logic to determine badges
   const isSpicy = (product as any).is_spicy || product.name.toLowerCase().includes('спайсі') || product.description?.toLowerCase().includes('гострий') || product.description?.toLowerCase().includes('spicy');
   const isVegan = (product as any).is_vegan || product.name.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('веган') || product.description?.toLowerCase().includes('vegan') || product.description?.toLowerCase().includes('овоч');
 
-  if (product.is_top_seller) badges.push({ label: "Top", className: "", icon: "/badges/top.png", isImage: true });
-  if (product.is_new) badges.push({ label: "Новинка", className: "", icon: "/badges/new.png", isImage: true });
-  if (product.is_popular || product.is_hit) badges.push({ label: "Хіт", className: "", icon: "/badges/hit.png", isImage: true });
-  if (product.is_promotion || hasDiscount) badges.push({ label: "Акція", className: "bg-rose-500/90 text-white backdrop-blur-sm", icon: "🏷️" });
-  if (isSpicy) badges.push({ label: "Гостре", className: "", icon: "/badges/spicy.png", isImage: true });
-  if (isVegan) badges.push({ label: "Веган", className: "", icon: "/badges/vegan.png", isImage: true });
+  const marketingBadges = [];
+  const infoBadges = [];
+
+  // Marketing Badges (Max 2)
+  if (product.is_new) {
+    marketingBadges.push({
+      label: "NEW",
+      className: "bg-indigo-500/20 text-indigo-200 border-indigo-500/50",
+      icon: null
+    });
+  }
+
+  if (product.is_top_seller || product.is_popular || product.is_hit) {
+    // Only one "Hit" badge
+    marketingBadges.push({
+      label: "HIT",
+      className: "bg-yellow-500/20 text-yellow-200 border-yellow-500/50",
+      icon: null
+    });
+  }
+
+  if ((product.is_promotion || hasDiscount) && marketingBadges.length < 2) {
+    marketingBadges.push({
+      label: "SALE",
+      className: "bg-rose-500/20 text-rose-200 border-rose-500/50",
+      icon: null
+    });
+  }
+
+  // Info Badges (Icons)
+  if (isSpicy) {
+    infoBadges.push({
+      id: "spicy",
+      icon: "🌶️",
+      label: "Гостре",
+      className: "bg-red-500/10 text-red-400 border-red-500/20"
+    });
+  }
+  if (isVegan) {
+    infoBadges.push({
+      id: "vegan",
+      icon: "🌱",
+      label: "Веган",
+      className: "bg-green-500/10 text-green-400 border-green-500/20"
+    });
+  }
 
   // Helper to highlight ingredients
   const highlightIngredients = (text?: string) => {
@@ -151,16 +189,11 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-20 md:opacity-60" />
 
         {/* Бейджі - Minimalist */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
-          {badges.map((badge, index) => (
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start z-10">
+          {marketingBadges.slice(0, 2).map((badge, index) => (
             <span
               key={index}
-              className={`px-3 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase shadow-sm backdrop-blur-md border border-white/10 ${badge.label === 'Top' ? 'bg-accent-gold/90 text-black' :
-                badge.label === 'Новинка' ? 'bg-primary-500/90 text-white' :
-                  badge.label === 'Хіт' ? 'bg-accent-terracotta/90 text-white' :
-                    badge.label === 'Акція' ? 'bg-rose-500/90 text-white' :
-                      'bg-surface-card/80 text-white'
-                } ${badge.className}`}
+              className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase shadow-sm backdrop-blur-md border ${badge.className}`}
             >
               {badge.label}
             </span>
@@ -203,9 +236,25 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       <div className="p-2.5 pb-3 md:p-5 flex flex-col flex-1 relative">
         {/* Назва - посилання */}
         <Link href={`/products/${product.slug}`} className="block mb-1 md:mb-2">
-          <h3 className="font-display font-medium text-sm md:text-lg leading-tight text-white group-hover:text-primary-400 transition-colors line-clamp-2">
-            {product.name}
-          </h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-display font-medium text-sm md:text-lg leading-tight text-white group-hover:text-primary-400 transition-colors line-clamp-2">
+              {product.name}
+            </h3>
+            {/* Info Badges (Mini Icons) */}
+            {infoBadges.length > 0 && (
+              <div className="flex gap-1 shrink-0 mt-0.5">
+                {infoBadges.map((badge) => (
+                  <div
+                    key={badge.id}
+                    title={badge.label}
+                    className={`w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full text-[10px] md:text-xs backdrop-blur-sm border ${badge.className}`}
+                  >
+                    {badge.icon}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </Link>
 
         {/* Опис/склад */}
