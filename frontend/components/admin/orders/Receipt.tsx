@@ -56,7 +56,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ order }) => {
         <div className="p-4 mx-auto bg-white text-black font-mono text-sm max-w-[80mm] w-full" style={{ fontFamily: "'Courier New', Courier, monospace" }}>
             {/* Header */}
             <div className="text-center mb-4 uppercase">
-                <h1 className="font-bold text-base mb-1">ТзОВ "Croco Sushi"</h1>
+                <h1 className="font-bold text-base mb-1">ТзОВ &quot;Croco Sushi&quot;</h1>
                 <p>Україна, м. Львів</p>
                 <p>вул. Шевченка, 1</p>
                 <p>МАГАЗИН</p>
