@@ -636,7 +636,8 @@ async def add_to_favorites(
     existing_favorite = result.scalar_one_or_none()
     
     if existing_favorite:
-        raise BadRequestException("Товар вже в обраному")
+        # Idempotent behavior: if already in favorites, return success/existing object
+        return {"message": "Товар вже в обраному", "favorite_id": existing_favorite.id}
     
     favorite = Favorite(
         user_id=current_user.id,
