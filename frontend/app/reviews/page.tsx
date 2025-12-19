@@ -258,7 +258,7 @@ export default function ReviewsPage() {
   }, [reviews]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
+    <div className="min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#0f291e] via-[#05140e] to-[#000000] transition-colors">
       {/* Schema.org markup для SEO */}
       <JsonLd
         schema={getBreadcrumbSchema([
@@ -351,9 +351,9 @@ export default function ReviewsPage() {
               <button
                 key={filter.value}
                 onClick={() => setRatingFilter(filter.value)}
-                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${ratingFilter === filter.value
-                  ? "bg-primary text-white shadow-md shadow-primary/30"
-                  : "bg-surface text-foreground-secondary border border-border hover:border-primary hover:text-primary"
+                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${ratingFilter === filter.value
+                  ? "bg-primary text-white shadow-lg shadow-primary/25"
+                  : "bg-white/5 text-foreground-secondary hover:bg-white/10 hover:text-white"
                   }`}
               >
                 {filter.label}

@@ -41,7 +41,9 @@ export default function Footer() {
                   src="/logo.png"
                   alt="Croco Sushi"
                   fill
+                  sizes="64px"
                   className="object-cover brightness-110"
+                  unoptimized
                 />
               </div>
               <span className="text-2xl font-bold text-white tracking-tight group-hover:text-[#00D26A] transition-colors">
