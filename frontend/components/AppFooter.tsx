@@ -35,13 +35,13 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center space-x-3 group">
-              {/* Simplified Logo - removed circle container */}
-              <div className="relative w-12 h-12 transition-transform duration-300 group-hover:scale-105">
+              {/* Logo with round frame as requested */}
+              <div className="relative w-16 h-16 rounded-full overflow-hidden bg-[#343434] ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
                 <Image
                   src="/logo.png"
                   alt="Croco Sushi"
                   fill
-                  className="object-contain brightness-110"
+                  className="object-cover brightness-110"
                 />
               </div>
               <span className="text-2xl font-bold text-white tracking-tight group-hover:text-[#00D26A] transition-colors">

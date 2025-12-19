@@ -72,12 +72,12 @@ export default function AdminLoginPage() {
         {/* Логотип */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2">
-            <div className="relative w-12 h-12">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[#343434] ring-2 ring-primary/20">
               <Image
                 src="/logo.png"
                 alt="Logo"
                 fill
-                className="object-contain"
+                className="object-cover p-1"
               />
             </div>
             <span className="text-3xl font-bold text-primary">Croco Sushi</span>
