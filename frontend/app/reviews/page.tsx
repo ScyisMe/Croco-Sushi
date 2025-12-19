@@ -351,9 +351,9 @@ export default function ReviewsPage() {
               <button
                 key={filter.value}
                 onClick={() => setRatingFilter(filter.value)}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${ratingFilter === filter.value
-                  ? "bg-primary text-white shadow-lg shadow-primary/25"
-                  : "bg-white/5 text-foreground-secondary hover:bg-white/10 hover:text-white"
+                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${ratingFilter === filter.value
+                  ? "bg-primary text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] scale-105"
+                  : "bg-transparent text-foreground-muted hover:text-white hover:bg-white/5"
                   }`}
               >
                 {filter.label}
@@ -424,7 +424,7 @@ export default function ReviewsPage() {
           )}
 
           {/* CTA для залишення відгуку */}
-          <div className="mt-12 bg-gradient-to-br from-surface via-surface to-primary/5 rounded-2xl shadow-xl p-8 md:p-12 text-center border border-border">
+          <div className="mt-12 bg-gradient-to-br from-surface via-surface to-primary/5 rounded-2xl shadow-xl px-8 pb-8 pt-14 md:px-12 md:pb-12 md:pt-20 text-center border border-border">
             <div className="max-w-xl mx-auto">
               {/* Інтерактивні зірки */}
               <div className="flex justify-center mb-6">
