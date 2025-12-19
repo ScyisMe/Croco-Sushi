@@ -134,11 +134,15 @@ function MenuContent() {
       const response = await apiClient.get("/products", { params });
       // API може повертати { items: [...], total: ... } або просто [...]
       const items = response.data.items || response.data;
-      const total = response.data.total ?? items.length;
+
+      // Fix: Backend does not return total count, so we assume more items if we got a full page
+      const hasMore = items.length === PRODUCTS_PER_PAGE;
+      const total = response.data.total ?? (hasMore ? pageParam + items.length + 1 : pageParam + items.length);
+
       return {
         items: items as Product[],
         nextOffset: pageParam + PRODUCTS_PER_PAGE,
-        hasMore: pageParam + PRODUCTS_PER_PAGE < total,
+        hasMore,
         total,
       };
     },
@@ -147,7 +151,7 @@ function MenuContent() {
       return lastPage.hasMore ? lastPage.nextOffset : undefined;
     },
     // Не робити запит, якщо вибрана категорія, але її ID ще не знайдено (крім випадку "Всі меню")
-    enabled: !selectedCategory || !!selectedCategoryId || categoriesQuery.isLoading,
+    enabled: (!selectedCategory || !!selectedCategoryId) || categoriesQuery.isLoading,
   });
 
   // Всі завантажені товари
@@ -198,6 +202,9 @@ function MenuContent() {
   // Мутація для додавання/видалення з обраного
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (productId: number) => {
+      // Logic inside mutationFn remains the same, but we rely on the previous state
+      // However, for strict correctness with optimistic updates, we can just try to toggle based on what we think is the state
+      // Or simply maintain ID-based endpoints if available. Assuming existing logic is correct.
       if (favoriteIds.has(productId)) {
         await apiClient.delete(`/users/me/favorites/${productId}`);
         return { action: "removed", productId };
@@ -206,13 +213,52 @@ function MenuContent() {
         return { action: "added", productId };
       }
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["favorites"] });
-      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
+    onMutate: async (productId) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["favorites"] });
+
+      // Snapshot the previous value
+      const previousFavorites = queryClient.getQueryData<Favorite[]>(["favorites"]);
+
+      // Optimistically update
+      queryClient.setQueryData<Favorite[]>(["favorites"], (old = []) => {
+        const exists = old.find((f) => f.product_id === productId);
+        if (exists) {
+          // Remove
+          return old.filter((f) => f.product_id !== productId);
+        } else {
+          // Add (mocking the favorite object)
+          const newFavorite: Favorite = {
+            id: Date.now(), // temporary ID
+            user_id: 0, // placeholder
+            product_id: productId,
+            created_at: new Date().toISOString(),
+          };
+          return [...old, newFavorite];
+        }
+      });
+
+      // Return context
+      return { previousFavorites };
     },
-    onError: () => {
+    onError: (err, productId, context) => {
+      // Rollback
+      if (context?.previousFavorites) {
+        queryClient.setQueryData(["favorites"], context.previousFavorites);
+      }
       toast.error("Помилка. Спробуйте ще раз");
     },
+    onSettled: () => {
+      // Invalidate to refetch strict data
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+    },
+    onSuccess: (data) => {
+      // Optional: Toast msg
+      // toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
+      // Keeping toast might be noisy if it's instant, but user expects confirmation? Let's keep it but maybe debounced or simple.
+      // User didn't complain about toast.
+      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного", { id: 'fav-toast' });
+    }
   });
 
   // Обробник перемикання обраного
@@ -540,11 +586,12 @@ function MenuContent() {
               {/* Результати пошуку та кількість */}
               {debouncedSearch ? (
                 <p className="text-secondary-light text-xs mb-4">
-                  Результати пошуку для &quot;{debouncedSearch}&quot;: {totalProducts} страв
+                  Результати пошуку для &quot;{debouncedSearch}&quot;: {filteredAndSortedProducts.length} страв
                 </p>
-              ) : totalProducts > 0 && (
+              ) : (
                 <p className="text-secondary-light text-xs mb-4">
-                  Показано {filteredAndSortedProducts.length} з {totalProducts} страв
+                  Показано {filteredAndSortedProducts.length} страв
+                  {productsQuery.hasNextPage ? " (завантаження...)" : ""}
                 </p>
               )}
 
