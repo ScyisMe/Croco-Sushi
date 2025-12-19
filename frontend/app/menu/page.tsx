@@ -55,22 +55,19 @@ function MenuContent() {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
   // Filters State
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
 
   // Filter Options
-  const TYPE_FILTERS = [
-    { id: "warm", label: "Теплі", keywords: ["теплий", "тепла", "смажений"] },
-    { id: "baked", label: "Запечені", keywords: ["запечений", "запечена", "гріль"] },
-    { id: "classic", label: "Класичні", keywords: [] }, // Fallback or negation? Handling as specific keywords might be tricky, maybe just exclude others?
-  ];
-
-  const INGREDIENT_FILTERS = [
-    { id: "salmon", label: "З лососем", keyword: "лосось" },
-    { id: "eel", label: "З вугром", keyword: "вугор" },
-    { id: "no_cheese", label: "Без сиру", exclude: "сир" },
-    { id: "spicy", label: "Гострі", checkProp: "is_spicy" },
-    { id: "vegan", label: "Веган", checkProp: "is_vegan" },
+  // Filter Options
+  const PROPERTY_FILTERS = [
+    { id: "is_spicy", label: "Гострі 🌶️", type: "boolean", prop: "is_spicy" },
+    { id: "no_cheese", label: "Без сиру 🧀❌", type: "exclude", keyword: "сир" },
+    { id: "salmon", label: "З лососем 🐟", type: "include", keyword: "лосось" },
+    { id: "eel", label: "З вугром 🐍", type: "include", keyword: "вугор" },
+    { id: "shrimp", label: "З креветкою 🍤", type: "include", keyword: "креветк" },
+    { id: "is_vegan", label: "Вегетаріанські 🥬", type: "boolean", prop: "is_vegan" },
+    { id: "is_popular", label: "Топ продажів 🔥", type: "boolean", prop: "is_popular" },
+    { id: "is_new", label: "Новинки 🆕", type: "boolean", prop: "is_new" },
   ];
 
   // Ref для Intersection Observer (infinite scroll)
@@ -285,42 +282,26 @@ function MenuContent() {
     let result = [...allProducts];
 
     // Client-side filtering
-    if (selectedType) {
-      const typeFilter = TYPE_FILTERS.find(f => f.id === selectedType);
-      if (typeFilter) {
-        if (typeFilter.id === 'classic') {
-          // Classic = NOT warm AND NOT baked (simplistic logic)
-          result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
-            return !text.includes("теплий") && !text.includes("запечен");
-          });
-        } else {
-          result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
-            return typeFilter.keywords.some(k => text.includes(k));
-          });
-        }
-      }
-    }
-
-    if (selectedIngredients.length > 0) {
-      selectedIngredients.forEach(filterId => {
-        const filter = INGREDIENT_FILTERS.find(f => f.id === filterId);
+    if (selectedProperties.length > 0) {
+      selectedProperties.forEach(filterId => {
+        const filter = PROPERTY_FILTERS.find(f => f.id === filterId);
         if (!filter) return;
 
-        if (filter.exclude) {
+        if (filter.type === "exclude") {
           result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
-            return !text.includes(filter.exclude!);
+            const text = (p.name + (p.description || "") + (p.ingredients || "")).toLowerCase();
+            // @ts-ignore
+            return !text.includes(filter.keyword!);
           });
-        } else if (filter.keyword) {
+        } else if (filter.type === "include") {
           result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
+            const text = (p.name + (p.description || "") + (p.ingredients || "")).toLowerCase();
+            // @ts-ignore
             return text.includes(filter.keyword!);
           });
-        } else if (filter.checkProp) {
-          // @ts-ignore - props might be optional/missing in strict types but present in runtime/mocks
-          result = result.filter(p => !!p[filter.checkProp]);
+        } else if (filter.type === "boolean") {
+          // @ts-ignore
+          result = result.filter(p => !!p[filter.prop]);
         }
       });
     }
@@ -343,11 +324,11 @@ function MenuContent() {
       default:
         return result.sort((a, b) => a.position - b.position);
     }
-  }, [allProducts, sortBy, selectedType, selectedIngredients]);
+  }, [allProducts, sortBy, selectedProperties]);
 
   // Handle Filter Toggles
-  const toggleIngredient = (id: string) => {
-    setSelectedIngredients(prev =>
+  const toggleProperty = (id: string) => {
+    setSelectedProperties(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -441,30 +422,13 @@ function MenuContent() {
 
               {/* Фільтри (Quick Access Buttons) - Desktop */}
               <div className="hidden md:flex gap-3 flex-wrap items-center">
-                {TYPE_FILTERS.map(filter => (
+                {PROPERTY_FILTERS.map(filter => (
                   <motion.button
                     key={filter.id}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setSelectedType(selectedType === filter.id ? null : filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedType === filter.id
-                      ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(34,197,94,0.4)]"
-                      : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-primary/50 hover:text-white"
-                      }`}
-                  >
-                    {filter.label}
-                  </motion.button>
-                ))}
-
-                <div className="w-px bg-white/10 mx-2 h-6 self-center" />
-
-                {INGREDIENT_FILTERS.slice(0, 3).map(filter => (
-                  <motion.button
-                    key={filter.id}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleIngredient(filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedIngredients.includes(filter.id)
+                    onClick={() => toggleProperty(filter.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedProperties.includes(filter.id)
                       ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
                       : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-secondary/50 hover:text-white"
                       }`}
@@ -781,31 +745,13 @@ function MenuContent() {
 
                 {/* Фільтри Mobile */}
                 <div>
-                  <h4 className="font-semibold text-secondary mb-3">Тип страви</h4>
+                  <h4 className="font-semibold text-secondary mb-3">Властивості</h4>
                   <div className="flex flex-wrap gap-2">
-                    {TYPE_FILTERS.map(filter => (
+                    {PROPERTY_FILTERS.map(filter => (
                       <button
                         key={filter.id}
-                        onClick={() => setSelectedType(selectedType === filter.id ? null : filter.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedType === filter.id
-                          ? "bg-primary text-white border-primary"
-                          : "bg-surface text-secondary border-border"
-                          }`}
-                      >
-                        {filter.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-secondary mb-3">Інгредієнти</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {INGREDIENT_FILTERS.map(filter => (
-                      <button
-                        key={filter.id}
-                        onClick={() => toggleIngredient(filter.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedIngredients.includes(filter.id)
+                        onClick={() => toggleProperty(filter.id)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedProperties.includes(filter.id)
                           ? "bg-secondary text-white border-secondary"
                           : "bg-surface text-secondary border-border"
                           }`}
@@ -815,6 +761,8 @@ function MenuContent() {
                     ))}
                   </div>
                 </div>
+
+
               </div>
 
               {/* Кнопка застосувати */}
