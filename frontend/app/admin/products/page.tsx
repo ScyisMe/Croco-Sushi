@@ -162,7 +162,7 @@ export default function AdminProductsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Пошук товарів..."
-              className="w-full pl-10 pr-4 py-2 bg-surface border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
+              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -172,7 +172,7 @@ export default function AdminProductsPage() {
               onChange={(e) =>
                 setSelectedCategory(e.target.value ? Number(e.target.value) : null)
               }
-              className="px-4 py-2 bg-surface border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-surface-card [&>option]:text-white"
+              className="px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-surface-card [&>option]:text-white"
             >
               <option value="">Всі категорії</option>
               {categories.map((category) => (

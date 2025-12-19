@@ -163,7 +163,7 @@ export default function OrderHistoryPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Пошук за номером, ім'ям або телефоном..."
-                            className="w-full pl-10 pr-4 py-2 bg-surface/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
+                            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
                         />
                     </div>
                     <button

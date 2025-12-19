@@ -168,7 +168,7 @@ export default function AdminOrdersPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Пошук за номером, ім'ям, телефоном..."
-              className="w-full pl-10 pr-4 py-2 bg-surface/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
+              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-500"
             />
           </div>
 
@@ -178,7 +178,7 @@ export default function AdminOrdersPage() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-4 py-2 bg-surface/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-surface-card"
+              className="px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-surface-card"
             >
               <option value="">Всі статуси</option>
               {Object.entries(STATUS_CONFIG).map(([value, { label }]) => (
@@ -225,7 +225,7 @@ export default function AdminOrdersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-surface/5 border-b border-white/10">
+              <thead className="bg-white/5 border-b border-white/10">
                 <tr className="text-left text-sm text-gray-400">
                   <th className="px-6 py-4 font-medium">№ Замовлення</th>
                   <th className="px-6 py-4 font-medium">Клієнт</th>

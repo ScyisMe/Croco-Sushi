@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Форма входу */}
-        <div className="bg-surface rounded-2xl shadow-xl p-8 border border-white/10">
+        <div className="bg-surface-card rounded-2xl shadow-xl p-8 border border-white/10">
           <h1 className="text-2xl font-bold text-white mb-6 text-center">
             Вхід для адміністратора
           </h1>
