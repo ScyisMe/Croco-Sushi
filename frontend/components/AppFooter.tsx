@@ -27,15 +27,8 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-[#0f1110] pt-16 pb-8 overflow-hidden mt-auto border-t border-white/5">
-      {/* Seigaiha Pattern Overlay - Solution B (Subtle opacity) */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20c10 0 20-10 20-20H0c0 10 10 20 20 20zm0 0c-20 0-40 20-40 40h80c0-20-20-40-40-40z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-          backgroundSize: '80px 80px'
-        }}
-      />
+    <footer className="relative bg-[#111111] pt-16 pb-8 overflow-hidden mt-auto border-t border-white/5">
+      {/* Pattern removed for Clean Style (Solution A) */}
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
