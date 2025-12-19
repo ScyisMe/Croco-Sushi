@@ -10,6 +10,7 @@ import {
   FunnelIcon,
   EyeIcon,
   PhoneIcon,
+  PrinterIcon,
 } from "@heroicons/react/24/outline";
 
 import { useOrderStatus } from "@/hooks/useOrderStatus";
@@ -295,6 +296,16 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/admin/orders/${order.id}/receipt`, '_blank');
+                          }}
+                          className="p-2 text-gray-400 hover:text-primary-500 hover:bg-white/5 rounded-lg transition"
+                          title="Друк"
+                        >
+                          <PrinterIcon className="w-5 h-5" />
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
