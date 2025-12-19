@@ -144,9 +144,15 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   };
 
   return (
+  return (
     <GlassCard
-      className={`group relative overflow-hidden h-full flex flex-col bg-[#1E1E1E]/80 backdrop-blur-xl border-white/10 hover:border-primary/50 transition-all duration-300 shadow-md hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] ${isSet ? 'border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : ''
-        }`}
+      className={`group relative overflow-hidden flex flex-col 
+      bg-[#1E1E1E]/80 backdrop-blur-xl 
+      border border-white/10 hover:border-primary/60 
+      transition-all duration-300 ease-out 
+      hover:-translate-y-1 
+      shadow-md hover:shadow-[0_20px_40px_-15px_rgba(34,197,94,0.3)] 
+      ${isSet ? 'border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.1)]' : ''}`}
       hoverEffect={false} // Custom hover effect above
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -223,7 +229,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       </div>
 
       {/* Контент */}
-      <div className="p-4 flex flex-col flex-1 relative bg-[#1E1E1E]/40">
+      <div className="p-4 flex flex-col relative bg-[#1E1E1E]/40">
         {/* Назва - посилання */}
         <Link href={`/products/${product.slug}`} className="block mb-2 relative z-30">
           <div className="flex items-start justify-between gap-2">
@@ -272,7 +278,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
         {/* Вибір розміру */}
         {product.sizes && product.sizes.length > 1 && (
-          <div className="flex flex-wrap gap-2 mb-4 mt-auto">
+          <div className="flex flex-wrap gap-2 mb-4">
             {product.sizes.map((size) => (
               <button
                 key={size.id}
@@ -288,7 +294,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           </div>
         )}
 
-        <div className="mt-auto pt-4 border-t border-white/5 flex items-end justify-between gap-3">
+        <div className="mt-4 pt-4 border-t border-white/5 flex items-end justify-between gap-3">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-bold text-white tracking-tight">
