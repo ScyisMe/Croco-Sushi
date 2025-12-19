@@ -41,7 +41,10 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background-color: #121212;
+  background-color: #000000;
+  /* Radiant gradient: light from top center */
+  background-image: radial-gradient(circle at 50% 0%, #06402B 0%, #000000 70%);
+  background-attachment: fixed;
   /* Clean dark background for mobile */
   min-height: 100vh;
   font-feature-settings: "pnum" on, "lnum" on;
@@ -51,9 +54,9 @@ body {
 }
 
 @media (min-width: 768px) {
-  body {
+  /* body {
     background-color: #0a0a0c;
-  }
+  } */
 }
 
 /* Premium Glassmorphism */
@@ -123,5 +126,24 @@ body {
 
   .btn-primary {
     @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/20 active:scale-95;
+  }
+
+  /* User requested styles */
+  .glass-panel {
+    background: rgba(20, 30, 25, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(74, 222, 128, 0.1);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+
+  .glass-panel:hover {
+    border-color: #4ADE80;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+    transform: translateY(-5px);
+  }
+
+  .map-dark iframe {
+    filter: invert(90%) hue-rotate(180deg) contrast(90%);
   }
 }

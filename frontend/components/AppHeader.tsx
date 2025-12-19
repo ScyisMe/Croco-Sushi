@@ -54,7 +54,7 @@ export default function Header() {
   const getItemCount = useCartStore((state) => state.totalItems);
 
   // Використовуємо локалізацію
-  const { locale, setLocale, t } = useTranslation();
+  const { t } = useTranslation();
 
   // Позначаємо компонент як змонтований після першого рендеру на клієнті
   useEffect(() => {
@@ -107,10 +107,7 @@ export default function Header() {
     return () => clearTimeout(timer);
   }, [getItemCount]);
 
-  // Функція для зміни мови
-  const handleLanguageChange = (lang: Locale) => {
-    setLocale(lang);
-  };
+
 
   return (
     <>
@@ -152,30 +149,7 @@ export default function Header() {
                   </span>
                 </div>
 
-                {/* Вибір мови - показуємо тільки після монтування */}
-                {isMounted && (
-                  <div className="flex items-center border-l border-border pl-4">
-                    <button
-                      onClick={() => handleLanguageChange("ua")}
-                      className={`px-2 py-1 rounded transition ${locale === "ua"
-                        ? "bg-primary text-white"
-                        : "text-secondary hover:text-primary"
-                        }`}
-                    >
-                      UA
-                    </button>
-                    <span className="text-border mx-1">/</span>
-                    <button
-                      onClick={() => handleLanguageChange("ru")}
-                      className={`px-2 py-1 rounded transition ${locale === "ru"
-                        ? "bg-primary text-white"
-                        : "text-secondary hover:text-primary"
-                        }`}
-                    >
-                      RU
-                    </button>
-                  </div>
-                )}
+
               </div>
             </div>
           </div>
@@ -407,29 +381,7 @@ export default function Header() {
                       {t("callback.submit")}
                     </button>
 
-                    {/* Вибір мови - показуємо тільки після монтування */}
-                    {isMounted && (
-                      <div className="flex items-center justify-center space-x-2 pt-2">
-                        <button
-                          onClick={() => handleLanguageChange("ua")}
-                          className={`px-6 py-2 rounded-lg transition font-medium ${locale === "ua"
-                            ? "bg-white/10 text-white border border-white/20"
-                            : "bg-transparent text-gray-500 hover:text-gray-300"
-                            }`}
-                        >
-                          UA
-                        </button>
-                        <button
-                          onClick={() => handleLanguageChange("ru")}
-                          className={`px-6 py-2 rounded-lg transition font-medium ${locale === "ru"
-                            ? "bg-white/10 text-white border border-white/20"
-                            : "bg-transparent text-gray-500 hover:text-gray-300"
-                            }`}
-                        >
-                          RU
-                        </button>
-                      </div>
-                    )}
+
                   </div>
                 </div>
               </Dialog.Panel>

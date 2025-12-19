@@ -13,7 +13,7 @@ interface MobileMoreMenuProps {
 }
 
 export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps) {
-    const { t, locale, setLocale } = useTranslation();
+    const { t } = useTranslation();
 
     const LINKS = [
         { href: "/delivery", labelKey: "header.delivery" },

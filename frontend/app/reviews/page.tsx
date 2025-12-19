@@ -10,7 +10,7 @@ import Image from "next/image";
 import { StarIcon as StarSolidIcon, FaceFrownIcon, FaceSmileIcon, SparklesIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon, ChevronRightIcon, PencilSquareIcon, FaceSmileIcon as FaceNeutralIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
-import { uk, ru } from "date-fns/locale";
+import { uk } from "date-fns/locale";
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";
 import ReviewForm, { ReviewFormData } from "@/components/ReviewForm";
@@ -66,7 +66,7 @@ function ImageModal({ src, isOpen, onClose }: { src: string; isOpen: boolean; on
 function ReviewCard({ review, onImageClick }: { review: Review; onImageClick: (src: string) => void }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((state) => state.locale);
-  const dateLocale = locale === "ru" ? ru : uk;
+  const dateLocale = uk;
 
   const initials = review.user_name
     ? review.user_name

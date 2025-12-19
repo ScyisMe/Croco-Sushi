@@ -46,22 +46,22 @@ export default function DeliveryPage() {
   // Переваги (оновлено згідно з новим дизайном)
   const features = [
     {
-      icon: <RocketLaunchIcon className="w-12 h-12 text-white mb-2" />,
+      icon: <RocketLaunchIcon className="w-12 h-12 text-[#4ADE80] mb-2" />,
       title: "Швидка доставка",
       subtitle: "40-60 хвилин",
     },
     {
-      icon: <GiftIcon className="w-12 h-12 text-white mb-2" />,
+      icon: <GiftIcon className="w-12 h-12 text-[#4ADE80] mb-2" />,
       title: "Безкоштовна доставка",
       subtitle: "Від 1000 ₴",
     },
     {
-      icon: <SparklesIcon className="w-12 h-12 text-white mb-2" />,
+      icon: <SparklesIcon className="w-12 h-12 text-[#4ADE80] mb-2" />,
       title: "Свіжі страви",
       subtitle: "Готуємо після замовлення",
     },
     {
-      icon: <CreditCardIcon className="w-12 h-12 text-white mb-2" />,
+      icon: <CreditCardIcon className="w-12 h-12 text-[#4ADE80] mb-2" />,
       title: "Зручна оплата",
       subtitle: "Готівка або картка",
     },
@@ -130,9 +130,14 @@ export default function DeliveryPage() {
               {features.map((feature, index) => (
                 <div
                   key={index}
-                  className="bg-transparent border border-white/5 rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors duration-300"
+                  className="glass-panel p-6 md:p-8 flex flex-col items-center justify-center text-center"
                 >
-                  <div className="mb-4">
+                  <div className="mb-4 text-[#4ADE80]">
+                    {/* Cloning the icon to replace className if needed, or we rely on the icon having specific path styles? 
+                        The icon is passed as a ReactNode. We can wrapper it or we need to update the definition in the `features` array. 
+                        Wait, the `features` array defines the icon with className "text-white".
+                        I need to update the `features` array definition instead of the map loop if I want to change the icon color cleanly.
+                    */}
                     {feature.icon}
                   </div>
                   <h3 className="font-bold text-lg text-white mb-1.5">{feature.title}</h3>
@@ -155,12 +160,12 @@ export default function DeliveryPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Карта зон - інтерактивна */}
-              <div className="h-[400px] md:h-[450px] bg-gray-900 rounded-xl overflow-hidden relative shadow-md">
+              <div className="h-[400px] md:h-[450px] bg-gray-900 rounded-xl overflow-hidden relative shadow-md map-dark">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5161.721022348217!2d24.012!3d49.8089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473ae7eb564c2c3f%3A0x9c4bc6e67f0bb7d0!2sCroco%20Sushi!5e0!3m2!1suk!2sua!4v1700000000000!5m2!1suk!2sua&maptype=roadmap"
                   width="100%"
                   height="100%"
-                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(0.95) contrast(0.9)' }}
+                  style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -357,12 +362,12 @@ export default function DeliveryPage() {
               </div>
 
               {/* Карта самовивозу - з темним фільтром */}
-              <div className="h-[300px] md:h-[350px] bg-gray-900 rounded-xl overflow-hidden relative shadow-md">
+              <div className="h-[300px] md:h-[350px] bg-gray-900 rounded-xl overflow-hidden relative shadow-md map-dark">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1291.0!2d24.0155!3d49.8089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x473ae7eb564c2c3f%3A0x9c4bc6e67f0bb7d0!2z0LLRg9C70LjRhtGPINCS0L7Qu9C-0LTQuNC80LjRgNCwINCv0L3QtdCy0LAsIDMxLCDQm9GM0LLRltCyLCDQm9GM0LLRltCy0YHRjNC60LAg0L7QsdC70LDRgdGC0YwsIDc5MDAw!5e0!3m2!1suk!2sua!4v1700000000001!5m2!1suk!2sua"
                   width="100%"
                   height="100%"
-                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) brightness(0.95) contrast(0.9)' }}
+                  style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
