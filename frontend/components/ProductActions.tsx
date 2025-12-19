@@ -59,20 +59,21 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
     if (quantity > 0) {
         return (
             <div
-                className="relative z-20 flex items-center justify-between bg-surface-card/80 backdrop-blur-md rounded-full h-9 w-24 border border-white/10 shadow-lg"
+                className="relative z-20 flex items-center justify-between bg-surface-card/90 backdrop-blur-xl rounded-full h-11 min-w-[100px] border border-white/20 shadow-lg"
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
             >
                 {/* Кнопка мінус */}
                 <button
                     type="button"
                     onClick={(e) => handleUpdateQuantity(e, -1)}
-                    className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white transition-colors active:scale-90"
+                    className="w-10 h-full flex items-center justify-center text-gray-400 hover:text-white transition-colors active:scale-90"
+                    aria-label="Зменшити кількість"
                 >
-                    <MinusIcon className="w-3.5 h-3.5 pointer-events-none" />
+                    <MinusIcon className="w-5 h-5 pointer-events-none" />
                 </button>
 
                 {/* Цифра */}
-                <span className="font-display font-medium text-white text-sm min-w-[20px] text-center pointer-events-none select-none">
+                <span className="font-display font-bold text-white text-base min-w-[20px] text-center pointer-events-none select-none">
                     {quantity}
                 </span>
 
@@ -80,9 +81,10 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
                 <button
                     type="button"
                     onClick={(e) => handleUpdateQuantity(e, 1)}
-                    className="w-8 h-full flex items-center justify-center text-gray-400 hover:text-white transition-colors active:scale-90"
+                    className="w-10 h-full flex items-center justify-center text-gray-400 hover:text-white transition-colors active:scale-90"
+                    aria-label="Збільшити кількість"
                 >
-                    <PlusIcon className="w-3.5 h-3.5 pointer-events-none" />
+                    <PlusIcon className="w-5 h-5 pointer-events-none" />
                 </button>
             </div>
         );
@@ -93,10 +95,15 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
         <button
             type="button"
             onClick={handleAddToCart}
-            className="group flex items-center justify-center w-9 h-9 md:w-10 md:h-10 bg-primary-500 rounded-full text-white border border-transparent hover:bg-primary-600 hover:scale-105 transition-all duration-300 shadow-lg shadow-primary-500/30 md:shadow-primary-500/20 relative z-20 active:scale-95"
+            className="group relative z-20 flex items-center justify-center bg-primary-500 rounded-full text-white border border-transparent 
+            h-11 w-11 hover:w-auto hover:px-5
+            transition-all duration-300 ease-in-out shadow-lg shadow-primary-500/30 overflow-hidden active:scale-95"
             aria-label={t("product.addToCart")}
         >
-            <PlusIcon className="w-5 h-5 transition-transform group-hover:rotate-90 pointer-events-none" />
+            <PlusIcon className="w-6 h-6 shrink-0 transition-transform group-hover:rotate-90" />
+            <span className="max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-300 ml-0 group-hover:ml-2 whitespace-nowrap font-bold text-sm">
+                В кошик
+            </span>
         </button>
     );
 };

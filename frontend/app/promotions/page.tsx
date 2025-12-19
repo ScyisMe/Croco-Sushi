@@ -240,12 +240,12 @@ export default function PromotionsPage() {
 
               {/* Best Sellers Grid */}
               {popularProductsQuery.isLoading ? (
-                <div className="w-full max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+                <div className="w-full max-w-7xl mx-auto grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 mb-12">
                   {[1, 2, 3, 4].map(i => <div key={i} className="aspect-[4/5] bg-white/5 rounded-2xl skeleton" />)}
                 </div>
               ) : popularProducts.length > 0 && (
-                <div className="w-full max-w-6xl mx-auto mb-16">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <div className="w-full max-w-7xl mx-auto mb-16 px-4">
+                  <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
                     {popularProducts.map(product => (
                       <div key={product.id} className="h-full">
                         <ProductCard product={product} />
