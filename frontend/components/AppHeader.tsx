@@ -70,7 +70,21 @@ export default function Header() {
       if (hours === 21 && minutes > 45) return false;
       return true;
     };
-    setIsOpen(checkWorkingHours());
+
+    const openStatus = checkWorkingHours();
+    setIsOpen(openStatus);
+
+    // Auto-open modal if closed
+    if (!openStatus) {
+      const hasShown = sessionStorage.getItem("hasShownClosedPopup");
+      if (!hasShown) {
+        // Small delay to ensure UI is ready and it's not too jarring
+        setTimeout(() => {
+          setIsCallbackOpen(true);
+          sessionStorage.setItem("hasShownClosedPopup", "true");
+        }, 2000);
+      }
+    }
 
     // Оновлюємо статус кожну хвилину
     const interval = setInterval(() => {

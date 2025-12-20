@@ -402,7 +402,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-32 md:pb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-secondary mb-4 sm:mb-8">
             Оформлення замовлення
           </h1>
@@ -517,7 +517,7 @@ export default function CheckoutPage() {
                           value={formData.customer_name}
                           onChange={(e) => updateField("customer_name", e.target.value)}
                           placeholder="Введіть ваше ім&apos;я"
-                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50" : ""}`}
+                          className={`input text-base bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50" : ""}`}
                           autoComplete="given-name"
                         />
                         {!errors.customer_name && formData.customer_name.length > 2 && (
@@ -541,7 +541,7 @@ export default function CheckoutPage() {
                           value={formData.customer_phone}
                           onChange={(e) => updateField("customer_phone", formatPhone(e.target.value))}
                           placeholder="+38 (0__) ___-__-__"
-                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.replace(/\D/g, "").length === 12 ? "border-green-500/50" : ""}`}
+                          className={`input text-base bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.replace(/\D/g, "").length === 12 ? "border-green-500/50" : ""}`}
                           inputMode="tel"
                           autoComplete="tel"
                         />
@@ -566,7 +566,7 @@ export default function CheckoutPage() {
                           value={formData.customer_email}
                           onChange={(e) => updateField("customer_email", e.target.value)}
                           placeholder="example@email.com"
-                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_email ? "input-error" : ""}`}
+                          className={`input text-base bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_email ? "input-error" : ""}`}
                           autoComplete="email"
                         />
                         {formData.customer_email && !errors.customer_email && (
@@ -920,7 +920,7 @@ export default function CheckoutPage() {
             {/* Бокова панель - Sticky Glass Summary */}
             <div className="lg:col-span-1 order-1 lg:order-2 h-full">
               <div className="sticky top-24 space-y-4">
-                <div className="bg-[#1E1E1E] border border-white/10 shadow-2xl rounded-2xl p-5 sm:p-6 overflow-hidden relative">
+                <div className="bg-[#1E1E1E] border border-white/10 shadow-2xl rounded-2xl p-4 sm:p-6 overflow-hidden relative">
                   {/* Background decoration */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 

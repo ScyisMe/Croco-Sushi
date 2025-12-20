@@ -245,7 +245,7 @@ export default function PromotionsPage() {
                 </div>
               ) : popularProducts.length > 0 && (
                 <div className="w-full max-w-7xl mx-auto mb-16 px-4">
-                  <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                     {popularProducts.map(product => (
                       <div key={product.id} className="h-full">
                         <ProductCard product={product} />
