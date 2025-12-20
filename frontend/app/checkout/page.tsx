@@ -105,6 +105,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Autocomplete state
   const [streetSuggestions, setStreetSuggestions] = useState<any[]>([]);
@@ -154,7 +155,11 @@ export default function CheckoutPage() {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        if (!token) return;
+        if (!token) {
+          setIsAuthenticated(false);
+          return;
+        }
+        setIsAuthenticated(true);
 
         // Отримання профілю
         const { data: user } = await apiClient.get("/users/me");
@@ -210,17 +215,34 @@ export default function CheckoutPage() {
     }
   };
 
-  // Форматування телефону
+  // Форматування телефону - Strict Mask +380 (XX) XXX-XX-XX
   const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    if (digits.length === 0) return "+380";
-    if (digits.length <= 2) return `+${digits}`;
-    if (digits.length <= 5) return `+${digits.slice(0, 2)} (${digits.slice(2)}`;
-    if (digits.length <= 8)
-      return `+${digits.slice(0, 2)} (${digits.slice(2, 5)}) ${digits.slice(5)}`;
-    if (digits.length <= 10)
-      return `+${digits.slice(0, 2)} (${digits.slice(2, 5)}) ${digits.slice(5, 8)}-${digits.slice(8)}`;
-    return `+${digits.slice(0, 2)} (${digits.slice(2, 5)}) ${digits.slice(5, 8)}-${digits.slice(8, 10)}-${digits.slice(10, 12)}`;
+    // Remove all non-digit characters
+    let digits = value.replace(/\D/g, "");
+
+    // If empty or just starting, return default prefix
+    if (!digits) return "+380";
+
+    // Ensure it starts with 380
+    if (digits.startsWith("0")) {
+      digits = "38" + digits; // Convert 0XX to 380XX
+    } else if (digits.startsWith("80")) {
+      digits = "38" + digits.substring(1); // Convert 80XX to 380XX
+    } else if (!digits.startsWith("380")) {
+      digits = "380" + digits; // Prepend 380 if not present
+    }
+
+    // Limit to 12 digits (380 + 9 digits)
+    digits = digits.slice(0, 12);
+
+    // Format
+    let formatted = "+380";
+    if (digits.length > 3) formatted += ` (${digits.slice(3, 5)}`;
+    if (digits.length > 5) formatted += `) ${digits.slice(5, 8)}`;
+    if (digits.length > 8) formatted += `-${digits.slice(8, 10)}`;
+    if (digits.length > 10) formatted += `-${digits.slice(10, 12)}`;
+
+    return formatted;
   };
 
   // Валідація кроку
@@ -451,7 +473,7 @@ export default function CheckoutPage() {
                     {isNext && (
                       <div className="flex-1 h-1.5 mx-2 sm:mx-4 relative rounded-full overflow-hidden bg-white/10">
                         <div
-                          className={`absolute inset-0 bg-green-500 transition-transform duration-700 ease-in-out origin-left ${isConnectorActive ? "scale-x-100" : "scale-x-0"
+                          className={`absolute inset-0 bg-green-500 rounded-full transition-transform duration-700 ease-in-out origin-left ${isConnectorActive ? "scale-x-100" : "scale-x-0"
                             }`}
                         />
                       </div>
@@ -469,10 +491,21 @@ export default function CheckoutPage() {
                 {/* Крок 1: Контактні дані */}
                 {currentStep === 1 && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
-                      <UserIcon className="w-6 h-6 text-green-500" />
-                      Контактні дані
-                    </h2>
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
+                        <UserIcon className="w-6 h-6 text-green-500" />
+                        Контактні дані
+                      </h2>
+                      {!isAuthenticated && (
+                        <Link
+                          href="/login?redirect=/checkout"
+                          className="text-sm font-medium text-primary hover:text-green-400 transition-colors flex items-center gap-1 group"
+                        >
+                          Вже є акаунт?
+                          <span className="underline decoration-dashed decoration-1 underline-offset-4 group-hover:decoration-solid">Увійти</span>
+                        </Link>
+                      )}
+                    </div>
 
                     <div>
                       <label className="block text-sm font-medium text-secondary mb-2">
@@ -484,10 +517,13 @@ export default function CheckoutPage() {
                           value={formData.customer_name}
                           onChange={(e) => updateField("customer_name", e.target.value)}
                           placeholder="Введіть ваше ім&apos;я"
-                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50" : ""}`}
+                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50" : ""}`}
+                          autoComplete="given-name"
                         />
                         {!errors.customer_name && formData.customer_name.length > 2 && (
-                          <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <CheckCircleSolidIcon className="w-5 h-5 text-green-500" />
+                          </div>
                         )}
                       </div>
                       {errors.customer_name && (
@@ -505,10 +541,14 @@ export default function CheckoutPage() {
                           value={formData.customer_phone}
                           onChange={(e) => updateField("customer_phone", formatPhone(e.target.value))}
                           placeholder="+38 (0__) ___-__-__"
-                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.length >= 10 ? "border-green-500/50" : ""}`}
+                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.replace(/\D/g, "").length === 12 ? "border-green-500/50" : ""}`}
+                          inputMode="tel"
+                          autoComplete="tel"
                         />
-                        {!errors.customer_phone && formData.customer_phone.length >= 18 && ( // Full formatted length
-                          <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
+                        {!errors.customer_phone && formData.customer_phone.replace(/\D/g, "").length === 12 && ( // Full formatted length
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <CheckCircleSolidIcon className="w-5 h-5 text-green-500" />
+                          </div>
                         )}
                       </div>
                       {errors.customer_phone && (
@@ -526,10 +566,13 @@ export default function CheckoutPage() {
                           value={formData.customer_email}
                           onChange={(e) => updateField("customer_email", e.target.value)}
                           placeholder="example@email.com"
-                          className={`input ${errors.customer_email ? "input-error" : ""}`}
+                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_email ? "input-error" : ""}`}
+                          autoComplete="email"
                         />
                         {formData.customer_email && !errors.customer_email && (
-                          <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <CheckCircleSolidIcon className="w-5 h-5 text-green-500" />
+                          </div>
                         )}
                       </div>
                       {errors.customer_email && (
@@ -639,7 +682,7 @@ export default function CheckoutPage() {
                       </div>
                       <div>
                         <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
-                          Під'їзд
+                          Під&apos;їзд
                         </label>
                         <input
                           type="text"
@@ -810,10 +853,10 @@ export default function CheckoutPage() {
                   {currentStep > 1 ? (
                     <button
                       onClick={prevStep}
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-300 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl border border-white/10 hover:bg-white/5 active:scale-95"
+                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-400 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl hover:bg-white/5 active:scale-95 border border-transparent hover:border-white/10"
                     >
                       <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="hidden xs:inline">Назад</span>
+                      <span className="font-medium">Назад</span>
                     </button>
                   ) : (
                     <Link
@@ -830,7 +873,7 @@ export default function CheckoutPage() {
                       onClick={nextStep}
                       className="btn-primary flex-1 sm:flex-none sm:min-w-[160px] flex items-center justify-center py-3.5 text-base shadow-[0_4px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.4)] transition-all transform hover:-translate-y-0.5"
                     >
-                      <span>Далі</span>
+                      <span>{currentStep === 1 ? "До доставки" : "Далі"}</span>
                       <ChevronRightIcon className="w-5 h-5 ml-2" />
                     </button>
                   ) : (
