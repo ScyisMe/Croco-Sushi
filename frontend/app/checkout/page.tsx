@@ -433,11 +433,11 @@ export default function CheckoutPage() {
                     {/* Step Circle */}
                     <div className="relative z-10 flex flex-col items-center group">
                       <div
-                        className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-500 ${isActive
-                          ? "bg-surface-card border-green-500 text-green-500 scale-110 shadow-[0_0_20px_rgba(34,197,94,0.4)]"
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 sm:mb-3 transition-all duration-300 relative ${isActive
+                          ? "bg-white text-black shadow-[0_0_20px_rgba(34,197,94,0.6)] scale-110 border-2 border-green-500"
                           : isCompleted
-                            ? "bg-green-500 border-green-500 text-white"
-                            : "bg-surface-card border-white/10 text-gray-500"
+                            ? "bg-green-500 text-white border-2 border-green-500"
+                            : "bg-surface-card border-2 border-white/10 text-gray-400"
                           }`}
                       >
                         {isCompleted ? (
@@ -770,146 +770,148 @@ export default function CheckoutPage() {
 
                 {/* Крок 4: Підтвердження */}
                 {currentStep === 4 && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-secondary">Підтвердження замовлення</h2>
+                  <div className="space-y-8">
+                    <h2 className="text-2xl font-bold text-white mb-6">Підтвердження даних</h2>
 
-                    {/* Перегляд даних */}
-                    <div className="space-y-4">
-                      <div className="p-4 bg-theme-secondary rounded-lg">
-                        <h3 className="font-semibold text-secondary mb-2">Контактні дані</h3>
-                        <p className="text-secondary-light">{formData.customer_name}</p>
-                        <p className="text-secondary-light">{formData.customer_phone}</p>
-                        {formData.customer_email && (
-                          <p className="text-secondary-light">{formData.customer_email}</p>
-                        )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                      {/* Контакти */}
+                      <div className="group p-4 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <UserIcon className="w-5 h-5 text-gray-400" />
+                          <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">Контакт</label>
+                        </div>
+                        <p className="text-lg text-white font-medium">{formData.customer_name}</p>
+                        <p className="text-white/80">{formData.customer_phone}</p>
+                        <p className="text-sm text-gray-500 mt-1">{formData.customer_email}</p>
                       </div>
 
-                      <div className="p-4 bg-theme-secondary rounded-lg">
-                        <h3 className="font-semibold text-secondary mb-2">Адреса доставки</h3>
-                        <p className="text-secondary-light">
-                          {formData.city}, вул. {formData.street}, буд. {formData.building}
-                          {formData.apartment && `, кв. ${formData.apartment}`}
-                        </p>
-                        {formData.comment && (
-                          <p className="text-secondary-light mt-1 text-sm">
-                            Коментар: {formData.comment}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="p-4 bg-theme-secondary rounded-lg">
-                        <h3 className="font-semibold text-secondary mb-2">Спосіб оплати</h3>
-                        <p className="text-secondary-light">
-                          {PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.label}
+                      {/* Доставка */}
+                      <div className="group p-4 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <MapPinIcon className="w-5 h-5 text-gray-400" />
+                          <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">Доставка</label>
+                        </div>
+                        <p className="text-lg text-white font-medium">{formData.city}</p>
+                        <p className="text-white/80">вул. {formData.street}, буд. {formData.building}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {formData.apartment && `кв. ${formData.apartment}`}
+                          {formData.entrance && ` • під'їзд ${formData.entrance}`}
+                          {formData.floor && ` • поверх ${formData.floor}`}
                         </p>
                       </div>
+
+                      {/* Оплата */}
+                      <div className="group md:col-span-2 p-4 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <CreditCardIcon className="w-5 h-5 text-gray-400" />
+                            <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">Оплата</label>
+                          </div>
+                          <div className="flex items-center gap-2 text-white">
+                            <span className="text-2xl">{PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.icon}</span>
+                            <span className="text-lg font-medium">{PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.label}</span>
+                          </div>
+                        </div>
+                        <button onClick={() => setCurrentStep(3)} className="text-sm text-green-400 hover:text-green-300 underline mt-2 sm:mt-0 font-medium transition-colors">
+                          Змінити
+                        </button>
+                      </div>
+
                     </div>
 
-                    {/* Чекбокси */}
-                    <div className="space-y-3">
-                      <label className="flex items-start cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.agree_terms}
-                          onChange={(e) => updateField("agree_terms", e.target.checked)}
-                          className="mt-1 mr-3 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                        />
-                        <span className="text-sm text-secondary-light">
-                          Я погоджуюсь з{" "}
-                          <Link href="/terms" className="text-primary hover:underline">
+                    <div className="border-t border-white/10 my-6" />
+
+                    {/* Чекбокси - Unified */}
+                    <div className="bg-surface-card/50 p-4 rounded-xl border border-white/5">
+                      <label className="flex items-start cursor-pointer group">
+                        <div className="relative flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={formData.agree_terms && formData.agree_privacy}
+                            onChange={(e) => {
+                              updateField("agree_terms", e.target.checked);
+                              updateField("agree_privacy", e.target.checked);
+                            }}
+                            className="peer sr-only"
+                          />
+                          <div className="w-5 h-5 border-2 border-gray-400 rounded peer-checked:bg-green-500 peer-checked:border-green-500 transition-all flex items-center justify-center mr-3 group-hover:border-green-400">
+                            <CheckIcon className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                        <span className="text-sm text-secondary-light select-none group-hover:text-gray-200 transition-colors">
+                          Я підтверджую замовлення та погоджуюсь з{" "}
+                          <Link href="/terms" className="text-primary hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
                             публічною офертою
                           </Link>{" "}
-                          *
-                        </span>
-                      </label>
-                      {errors.agree_terms && (
-                        <p className="text-sm text-accent-red ml-7">{errors.agree_terms}</p>
-                      )}
-
-                      <label className="flex items-start cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.agree_privacy}
-                          onChange={(e) => updateField("agree_privacy", e.target.checked)}
-                          className="mt-1 mr-3 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                        />
-                        <span className="text-sm text-secondary-light">
-                          Я погоджуюсь з{" "}
-                          <Link href="/privacy" className="text-primary hover:underline">
+                          та{" "}
+                          <Link href="/privacy" className="text-primary hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
                             політикою конфіденційності
-                          </Link>{" "}
-                          *
+                          </Link>
                         </span>
                       </label>
-                      {errors.agree_privacy && (
-                        <p className="text-sm text-accent-red ml-7">{errors.agree_privacy}</p>
+                      {(errors.agree_terms || errors.agree_privacy) && (
+                        <p className="text-sm text-accent-red mt-2 pl-8">Будь ласка, погодьтесь з умовами для продовження</p>
                       )}
                     </div>
+
                   </div>
                 )}
 
                 {/* Кнопки навігації - адаптивні */}
-                <div className="flex justify-between mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border gap-2">
-                  {currentStep > 1 ? (
+                <div className={`flex items-center gap-4 mt-8 pt-6 border-t border-white/5 ${currentStep === 4 ? "flex-col-reverse md:flex-row md:justify-between" : "justify-between"}`}>
+
+                  {/* Back Button */}
+                  {currentStep > 1 && (
                     <button
                       onClick={prevStep}
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-400 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl hover:bg-white/5 active:scale-95 border border-transparent hover:border-white/10"
+                      className={`flex items-center justify-center gap-2 h-12 rounded-xl transition-all duration-200 active:scale-95 group ${currentStep === 4 ? "w-full md:w-auto text-gray-400 hover:text-white px-4 hover:bg-white/5" : "px-6 text-gray-400 hover:text-white border border-transparent hover:border-white/10 hover:bg-white/5"}`}
                     >
-                      <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="font-medium">Назад</span>
+                      <ChevronLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                      <span className="font-medium text-base">Назад</span>
                     </button>
-                  ) : (
+                  )}
+
+                  {/* Home Button for Step 1 */}
+                  {currentStep === 1 && (
                     <Link
                       href="/menu"
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-300 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl border border-white/10 hover:bg-white/5 active:scale-95"
+                      className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl transition-all duration-200 active:scale-95 text-gray-400 hover:text-white border border-transparent hover:border-white/10 hover:bg-white/5 group"
                     >
-                      <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="font-medium">До меню</span>
+                      <ChevronLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                      <span className="font-medium text-base">До меню</span>
                     </Link>
                   )}
 
                   {currentStep < 4 ? (
                     <button
                       onClick={nextStep}
-                      className="btn-primary flex-1 sm:flex-none sm:min-w-[160px] flex items-center justify-center py-3.5 text-base shadow-[0_4px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.4)] transition-all transform hover:-translate-y-0.5"
+                      className="btn-primary h-12 px-8 flex items-center justify-center text-base shadow-[0_4px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.4)] transition-all transform hover:-translate-y-0.5"
                     >
-                      <span>{currentStep === 1 ? "До доставки" : "Далі"}</span>
+                      <span className="font-bold">{currentStep === 1 ? "До доставки" : "Далі"}</span>
                       <ChevronRightIcon className="w-5 h-5 ml-2" />
                     </button>
                   ) : (
-                    <button
-                      onClick={handleSubmit}
-                      disabled={isLoading}
-                      className="btn-primary text-sm sm:text-base flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                    >
-                      {isLoading ? (
-                        <>
-                          <svg
-                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
-                          Оформлення...
-                        </>
-                      ) : (
-                        "Підтвердити замовлення"
-                      )}
-                    </button>
+                    /* Sticky Mobile Footer for Confirm Button */
+                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1E1E1E]/90 backdrop-blur-lg border-t border-white/10 md:relative md:bg-transparent md:border-0 md:p-0 z-50">
+                      <button
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className="btn-primary w-full md:w-auto md:px-12 py-4 h-14 md:h-12 text-lg font-bold shadow-[0_4px_30px_rgba(34,197,94,0.4)] hover:shadow-[0_6px_40px_rgba(34,197,94,0.5)] transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            Обробка...
+                          </>
+                        ) : (
+                          "Підтвердити замовлення"
+                        )}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -994,16 +996,17 @@ export default function CheckoutPage() {
                           </div>
                           <div className="flex-1">
                             <p className="text-xs text-secondary-light">
-                              Додайте ще на <span className="text-white font-bold">{FREE_DELIVERY_FROM - totalAmount} ₴</span> і доставка буде за наш рахунок!
+                              Додайте ще на <span className="text-yellow-400 font-bold text-sm shadow-black/50 drop-shadow-md">{FREE_DELIVERY_FROM - totalAmount} ₴</span> і доставка буде за наш рахунок!
                             </p>
                             {/* Smart Suggestion (Mock for UI) */}
                             {(FREE_DELIVERY_FROM - totalAmount) < 200 && (
                               <button
                                 onClick={() => toast.success("Ця функція скоро запрацює! (Demo: Соус додано)")}
-                                className="mt-2 text-xs flex items-center gap-1 text-primary hover:text-white transition"
+                                className="mt-3 w-full bg-[#1E1E1E] hover:bg-[#2C2C2C] border border-white/10 rounded-lg py-2 px-3 flex items-center justify-center gap-2 group transition-all active:scale-95"
                               >
-                                <span className="w-4 h-4 bg-primary rounded-full text-black flex items-center justify-center font-bold text-[10px]">+</span>
-                                Додати Соус Унагі (40 ₴)
+                                <div className="w-5 h-5 bg-green-500 rounded-full text-black flex items-center justify-center font-bold text-xs shadow-lg group-hover:scale-110 transition-transform">+</div>
+                                <span className="text-xs font-bold text-white uppercase tracking-wide">Додати Соус Унагі</span>
+                                <span className="text-xs text-secondary-light">(40 ₴)</span>
                               </button>
                             )}
                           </div>
@@ -1035,9 +1038,9 @@ export default function CheckoutPage() {
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-border">
-                      <span>Разом</span>
-                      <span className="text-primary">{finalAmount} ₴</span>
+                    <div className="flex justify-between items-end border-t border-border pt-4 mt-2">
+                      <span className="text-base font-medium text-gray-400 mb-1">Разом до сплати</span>
+                      <span className="text-3xl font-bold text-white tracking-tight">{finalAmount} <span className="text-xl text-gray-400 font-normal">₴</span></span>
                     </div>
                   </div>
                 </div>
