@@ -41,6 +41,19 @@
 
 body {
   color: rgb(var(--foreground-rgb));
+
+  /* Clean dark background for mobile */
+  min-height: 100vh;
+  font-feature-settings: "pnum" on, "lnum" on;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+.fixed-background {
+  position: fixed;
+  inset: 0;
+  z-index: -50;
   background-color: #051a12;
   /* Option A: Japanese Minimalism (Seigaiha + Spotlight) */
   background-image:
@@ -51,15 +64,7 @@ body {
     radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.08) 0px, transparent 50%),
     radial-gradient(at 0% 50%, hsla(340, 100%, 76%, 0.03) 0px, transparent 50%);
 
-  background-attachment: fixed;
   background-size: 60px 60px, cover, cover, cover;
-
-  /* Clean dark background for mobile */
-  min-height: 100vh;
-  font-feature-settings: "pnum" on, "lnum" on;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 
 /* Premium Glassmorphism */
