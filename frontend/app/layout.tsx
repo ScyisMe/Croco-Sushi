@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="uk" suppressHydrationWarning>
-      <body suppressHydrationWarning className={`font-body bg-surface-dark text-white min-h-[100dvh] pb-16 md:pb-0`}>
+      <body suppressHydrationWarning className={`font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
           <div className="fixed-background" />
           <SmoothScrolling />

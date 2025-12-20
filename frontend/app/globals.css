@@ -52,7 +52,13 @@ body {
 
 .fixed-background {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  /* Using vh covers the screen and DOES NOT resize with address bar on iOS */
+  min-height: -webkit-fill-available;
+  /* Fallback for some IOS versions to ensure full coverage if needed */
   z-index: -50;
   background-color: #051a12;
   /* Option A: Japanese Minimalism (Seigaiha + Spotlight) */
