@@ -26,6 +26,20 @@ import {
 import { CheckCircleIcon as CheckCircleSolidIcon } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Simple debounce utility for autocomplete
+function useDebounceValue<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 // Типи
 interface FormData {
   // Крок 1: Контактні дані
@@ -92,6 +106,30 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // Autocomplete state
+  const [streetSuggestions, setStreetSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debouncedStreet = useDebounceValue(formData.street, 500);
+
+  // Fetch street suggestions
+  useEffect(() => {
+    const fetchStreets = async () => {
+      if (debouncedStreet.length < 3 || !showSuggestions) return;
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?street=${encodeURIComponent(debouncedStreet)}&city=Lviv&format=json&addressdetails=1&limit=5`
+        );
+        const data = await response.json();
+        setStreetSuggestions(data);
+      } catch (error) {
+        console.error("Error fetching streets:", error);
+      }
+    };
+
+    fetchStreets();
+  }, [debouncedStreet, showSuggestions]);
+
   // Завантаження збережених даних з localStorage
   useEffect(() => {
     const saved = localStorage.getItem("checkout_form");
@@ -143,7 +181,7 @@ export default function CheckoutPage() {
             customer_phone: isPhoneDefault ? (user.phone || "+380") : prev.customer_phone,
 
             // Адреса
-            city: prev.city === "Львів" && address ? address.city : prev.city,
+            city: "Львів",
             street: prev.street || (address?.street || ""),
             building: prev.building || (address?.house || ""),
             apartment: prev.apartment || (address?.apartment || ""),
@@ -411,7 +449,7 @@ export default function CheckoutPage() {
 
                     {/* Connector Line (unless last step) */}
                     {isNext && (
-                      <div className="flex-1 h-1 mx-2 sm:mx-4 relative rounded-full overflow-hidden bg-white/10">
+                      <div className="flex-1 h-1.5 mx-2 sm:mx-4 relative rounded-full overflow-hidden bg-white/10">
                         <div
                           className={`absolute inset-0 bg-green-500 transition-transform duration-700 ease-in-out origin-left ${isConnectorActive ? "scale-x-100" : "scale-x-0"
                             }`}
@@ -446,7 +484,7 @@ export default function CheckoutPage() {
                           value={formData.customer_name}
                           onChange={(e) => updateField("customer_name", e.target.value)}
                           placeholder="Введіть ваше ім&apos;я"
-                          className={`input ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50 focus:border-green-500" : ""}`}
+                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50" : ""}`}
                         />
                         {!errors.customer_name && formData.customer_name.length > 2 && (
                           <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
@@ -467,7 +505,7 @@ export default function CheckoutPage() {
                           value={formData.customer_phone}
                           onChange={(e) => updateField("customer_phone", formatPhone(e.target.value))}
                           placeholder="+38 (0__) ___-__-__"
-                          className={`input ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.length >= 10 ? "border-green-500/50 focus:border-green-500" : ""}`}
+                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.length >= 10 ? "border-green-500/50" : ""}`}
                         />
                         {!errors.customer_phone && formData.customer_phone.length >= 18 && ( // Full formatted length
                           <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
@@ -506,85 +544,123 @@ export default function CheckoutPage() {
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-secondary">Адреса доставки</h2>
 
-                    <div>
-                      <label className="block text-sm font-medium text-secondary mb-2">
-                        Місто *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.city}
-                        onChange={(e) => updateField("city", e.target.value)}
-                        placeholder="Введіть місто"
-                        className={`input ${errors.city ? "input-error" : ""}`}
-                      />
-                      {errors.city && (
-                        <p className="mt-1 text-sm text-accent-red">{errors.city}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-secondary mb-2">
-                        Вулиця *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.street}
-                        onChange={(e) => updateField("street", e.target.value)}
-                        placeholder="Введіть назву вулиці"
-                        className={`input ${errors.street ? "input-error" : ""}`}
-                      />
-                      {errors.street && (
-                        <p className="mt-1 text-sm text-accent-red">{errors.street}</p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
+                    <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
+                      <div className="relative z-20">
                         <label className="block text-sm font-medium text-secondary mb-2">
+                          Вулиця *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={formData.street}
+                            onChange={(e) => {
+                              updateField("street", e.target.value);
+                              setShowSuggestions(true);
+                            }}
+                            onFocus={() => setShowSuggestions(true)}
+                            placeholder="Почніть вводити назву вулиці..."
+                            className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.street ? "input-error" : ""}`}
+                            autoComplete="off"
+                          />
+                          {/* Autocomplete Dropdown */}
+                          <AnimatePresence>
+                            {showSuggestions && streetSuggestions.length > 0 && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="absolute top-full left-0 right-0 mt-1 bg-[#2C2C2C] border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 max-h-60 overflow-y-auto"
+                              >
+                                {streetSuggestions.map((suggestion, idx) => (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                      updateField("street", suggestion.name || suggestion.address.road || "");
+                                      setStreetSuggestions([]);
+                                      setShowSuggestions(false);
+                                    }}
+                                    className="w-full text-left px-4 py-3 hover:bg-white/5 text-sm transition-colors border-b border-white/5 last:border-0"
+                                  >
+                                    <span className="text-secondary font-medium">{suggestion.name || suggestion.address.road}</span>
+                                    {suggestion.address.suburb && (
+                                      <span className="text-secondary-light text-xs ml-2">({suggestion.address.suburb})</span>
+                                    )}
+                                  </button>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                        {errors.street && (
+                          <p className="mt-1 text-sm text-accent-red">{errors.street}</p>
+                        )}
+                      </div>
+
+                      <div className="w-[140px]">
+                        <label className="block text-sm font-medium text-secondary mb-2">
+                          Місто
+                        </label>
+                        <input
+                          type="text"
+                          value="Львів"
+                          readOnly
+                          className="input bg-surface-card opacity-50 cursor-not-allowed text-center"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 xs:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
                           Будинок *
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.building}
                           onChange={(e) => updateField("building", e.target.value)}
                           placeholder="№"
-                          className={`input ${errors.building ? "input-error" : ""}`}
+                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center ${errors.building ? "input-error" : ""}`}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary mb-2">
-                          Квартира
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
+                          Кв / Офіс
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.apartment}
                           onChange={(e) => updateField("apartment", e.target.value)}
                           placeholder="№"
-                          className="input"
+                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary mb-2">
-                          Під&apos;їзд
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
+                          Під'їзд
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.entrance}
                           onChange={(e) => updateField("entrance", e.target.value)}
                           placeholder="№"
-                          className="input"
+                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary mb-2">
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
                           Поверх
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.floor}
                           onChange={(e) => updateField("floor", e.target.value)}
                           placeholder="№"
-                          className="input"
+                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
                         />
                       </div>
                     </div>
@@ -599,7 +675,7 @@ export default function CheckoutPage() {
                         placeholder="Додаткова інформація для доставки..."
                         rows={3}
                         maxLength={500}
-                        className="input resize-none"
+                        className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors resize-none"
                       />
                       <p className="mt-1 text-xs text-secondary-light text-right">
                         {formData.comment.length}/500
@@ -745,14 +821,17 @@ export default function CheckoutPage() {
                       className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-300 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl border border-white/10 hover:bg-white/5 active:scale-95"
                     >
                       <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="hidden xs:inline">До меню</span>
+                      <span className="font-medium">До меню</span>
                     </Link>
                   )}
 
                   {currentStep < 4 ? (
-                    <button onClick={nextStep} className="btn-primary text-sm sm:text-base flex-1 sm:flex-none sm:min-w-[140px] flex items-center justify-center">
-                      Далі
-                      <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
+                    <button
+                      onClick={nextStep}
+                      className="btn-primary flex-1 sm:flex-none sm:min-w-[160px] flex items-center justify-center py-3.5 text-base shadow-[0_4px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.4)] transition-all transform hover:-translate-y-0.5"
+                    >
+                      <span>Далі</span>
+                      <ChevronRightIcon className="w-5 h-5 ml-2" />
                     </button>
                   ) : (
                     <button
@@ -794,124 +873,129 @@ export default function CheckoutPage() {
             </div>
 
             {/* Бокова панель - Sticky Glass Summary */}
-            <div className="lg:col-span-1 order-1 lg:order-2">
-              <div className="sticky top-24 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-4 sm:p-6 transition-all">
-                <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4 flex items-center justify-between">
-                  Ваше замовлення
-                  <span className="text-xs font-normal text-white/50 bg-white/10 px-2 py-1 rounded-full">Чек</span>
-                </h3>
+            <div className="lg:col-span-1 order-1 lg:order-2 h-full">
+              <div className="sticky top-24 space-y-4">
+                <div className="bg-[#1E1E1E] border border-white/10 shadow-2xl rounded-2xl p-5 sm:p-6 overflow-hidden relative">
+                  {/* Background decoration */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
-                {/* Список товарів - компактний на мобільних */}
-                <ul className="space-y-2 sm:space-y-3 mb-3 sm:mb-4 max-h-48 sm:max-h-64 overflow-y-auto">
-                  {items.map((item) => (
-                    <li
-                      key={`${item.id}-${item.sizeId || "default"}`}
-                      className="flex gap-2 sm:gap-3"
-                    >
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden bg-theme-secondary">
-                        {item.image_url ? (
-                          <Image
-                            src={item.image_url}
-                            alt={item.name}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          // Replaced sushi placeholder with Image component
-                          <Image
-                            src="/placeholder-sushi.png" // Assuming a placeholder image path
-                            alt="Sushi placeholder"
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-secondary truncate">
-                          {item.name}
-                        </p>
-                        <p className="text-[10px] sm:text-xs text-secondary-light">
-                          {item.size && `${item.size} • `}
-                          {item.quantity} шт.
-                        </p>
-                      </div>
-                      <p className="text-xs sm:text-sm font-semibold text-secondary whitespace-nowrap">
-                        {item.price * item.quantity} ₴
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between relative z-10">
+                    Ваше замовлення
+                    <span className="text-xs font-normal text-white/50 bg-white/10 px-2 py-1 rounded-full">Чек</span>
+                  </h3>
 
-                {/* Підсумок */}
-                <div className="border-t border-border pt-3 sm:pt-4 space-y-3">
-                  {/* Smart Upsell: Дожим кошика */}
-                  {deliveryCost > 0 ? (
-                    <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-                      <div className="flex justify-between text-xs mb-2">
-                        <span className="text-gray-300">До безкоштовної доставки</span>
-                        <span className="font-bold text-primary">{FREE_DELIVERY_FROM - totalAmount} ₴</span>
-                      </div>
-
-                      {/* Animated Progress */}
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
-                        <div
-                          className="h-full bg-green-500 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
-                          style={{ width: `${Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100)}%` }}
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl">
-                          🎁
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-xs text-secondary-light">
-                            Додайте ще на <span className="text-white font-bold">{FREE_DELIVERY_FROM - totalAmount} ₴</span> і доставка буде за наш рахунок!
-                          </p>
-                          {/* Smart Suggestion (Mock for UI) */}
-                          {(FREE_DELIVERY_FROM - totalAmount) < 200 && (
-                            <button
-                              onClick={() => toast.success("Ця функція скоро запрацює! (Demo: Соус додано)")}
-                              className="mt-2 text-xs flex items-center gap-1 text-primary hover:text-white transition"
-                            >
-                              <span className="w-4 h-4 bg-primary rounded-full text-black flex items-center justify-center font-bold text-[10px]">+</span>
-                              Додати Соус Унагі (40 ₴)
-                            </button>
+                  {/* Список товарів - компактний на мобільних */}
+                  <ul className="space-y-2 sm:space-y-3 mb-3 sm:mb-4 max-h-48 sm:max-h-64 overflow-y-auto">
+                    {items.map((item) => (
+                      <li
+                        key={`${item.id}-${item.sizeId || "default"}`}
+                        className="flex gap-2 sm:gap-3"
+                      >
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden bg-theme-secondary">
+                          {item.image_url ? (
+                            <Image
+                              src={item.image_url}
+                              alt={item.name}
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            // Replaced sushi placeholder with Image component
+                            <Image
+                              src="/placeholder-sushi.png" // Assuming a placeholder image path
+                              alt="Sushi placeholder"
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-cover"
+                            />
                           )}
                         </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-3">
-                      <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
-                      <div>
-                        <p className="text-sm font-bold text-white">Безкоштовна доставка активна!</p>
-                        <p className="text-xs text-green-400/70">Ми оплатимо виїзд кур&apos;єра</p>
-                      </div>
-                    </div>
-                  )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm font-medium text-secondary truncate">
+                            {item.name}
+                          </p>
+                          <p className="text-[10px] sm:text-xs text-secondary-light">
+                            {item.size && `${item.size} • `}
+                            {item.quantity} шт.
+                          </p>
+                        </div>
+                        <p className="text-xs sm:text-sm font-semibold text-secondary whitespace-nowrap">
+                          {item.price * item.quantity} ₴
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
 
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-secondary-light">Підсумок</span>
-                    <span className="font-medium">{totalAmount} ₴</span>
-                  </div>
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-secondary-light">Доставка</span>
-                    <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
-                      {deliveryCost === 0 ? (
-                        <span className="flex items-center gap-1">
-                          <span className="text-primary">✓</span> Безкоштовно
-                        </span>
-                      ) : (
-                        `${deliveryCost} ₴`
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-border">
-                    <span>Разом</span>
-                    <span className="text-primary">{finalAmount} ₴</span>
+                  {/* Підсумок */}
+                  <div className="border-t border-border pt-3 sm:pt-4 space-y-3">
+                    {/* Smart Upsell: Дожим кошика */}
+                    {deliveryCost > 0 ? (
+                      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                        <div className="flex justify-between text-xs mb-2">
+                          <span className="text-gray-300">До безкоштовної доставки</span>
+                          <span className="font-bold text-primary">{FREE_DELIVERY_FROM - totalAmount} ₴</span>
+                        </div>
+
+                        {/* Animated Progress */}
+                        <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
+                          <div
+                            className="h-full bg-green-500 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
+                            style={{ width: `${Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100)}%` }}
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl">
+                            🎁
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-xs text-secondary-light">
+                              Додайте ще на <span className="text-white font-bold">{FREE_DELIVERY_FROM - totalAmount} ₴</span> і доставка буде за наш рахунок!
+                            </p>
+                            {/* Smart Suggestion (Mock for UI) */}
+                            {(FREE_DELIVERY_FROM - totalAmount) < 200 && (
+                              <button
+                                onClick={() => toast.success("Ця функція скоро запрацює! (Demo: Соус додано)")}
+                                className="mt-2 text-xs flex items-center gap-1 text-primary hover:text-white transition"
+                              >
+                                <span className="w-4 h-4 bg-primary rounded-full text-black flex items-center justify-center font-bold text-[10px]">+</span>
+                                Додати Соус Унагі (40 ₴)
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-3">
+                        <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
+                        <div>
+                          <p className="text-sm font-bold text-white">Безкоштовна доставка активна!</p>
+                          <p className="text-xs text-green-400/70">Ми оплатимо виїзд кур&apos;єра</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-xs sm:text-sm">
+                      <span className="text-secondary-light">Підсумок</span>
+                      <span className="font-medium">{totalAmount} ₴</span>
+                    </div>
+                    <div className="flex justify-between text-xs sm:text-sm">
+                      <span className="text-secondary-light">Доставка</span>
+                      <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
+                        {deliveryCost === 0 ? (
+                          <span className="flex items-center gap-1">
+                            <span className="text-primary">✓</span> Безкоштовно
+                          </span>
+                        ) : (
+                          `${deliveryCost} ₴`
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-border">
+                      <span>Разом</span>
+                      <span className="text-primary">{finalAmount} ₴</span>
+                    </div>
                   </div>
                 </div>
               </div>
