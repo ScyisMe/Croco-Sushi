@@ -230,7 +230,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
       {/* Вага - переміщено на фото */}
       {(selectedSize?.weight || product.weight) && (
-        <div className="absolute top-3 right-12 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-lg border border-white/10 shadow-sm">
+        <div className="absolute bottom-3 right-3 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-lg border border-white/10 shadow-sm">
           {selectedSize?.weight || product.weight} г
         </div>
       )}
