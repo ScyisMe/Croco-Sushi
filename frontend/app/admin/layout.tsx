@@ -101,8 +101,9 @@ export default function AdminLayout({
           clearAuth();
           router.push("/admin/login");
         } else {
-          // Якщо менеджер намагається зайти на сторінки адміна (крім /admin/manager)
-          if (user.role === "manager" && !window.location.pathname.startsWith("/admin/manager")) {
+          // Якщо менеджер намагається зайти на сторінки адміна (крім /admin/manager та чеків)
+          const isReceiptPage = window.location.pathname.includes("/receipt");
+          if (user.role === "manager" && !window.location.pathname.startsWith("/admin/manager") && !isReceiptPage) {
             router.push("/admin/manager");
             return;
           }
@@ -155,8 +156,8 @@ export default function AdminLayout({
     return null;
   }
 
-  // Manger Layout Override - якщо ми на сторінці менеджера, рендеримо без сайдбару адміна
-  if (pathname.startsWith("/admin/manager")) {
+  // Manger Layout Override - якщо ми на сторінці менеджера або чеку, рендеримо без сайдбару адміна
+  if (pathname.startsWith("/admin/manager") || pathname.includes("/receipt")) {
     return <>{children}</>;
   }
 

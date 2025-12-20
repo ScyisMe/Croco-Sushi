@@ -6,6 +6,7 @@ import Link from "next/link";
 import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { transliterate } from "@/lib/utils";
 
 interface Category {
   id: number;
@@ -87,9 +88,9 @@ export default function NewProductPage() {
   };
 
   const generateSlug = (name: string) => {
-    return name
+    return transliterate(name)
       .toLowerCase()
-      .replace(/[^a-z0-9а-яіїєґ\s-]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "") // Removed Cyrillic range as it's now transliterated
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
       .trim();
