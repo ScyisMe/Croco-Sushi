@@ -228,6 +228,13 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         )}
       </div>
 
+      {/* Вага - переміщено на фото */}
+      {(selectedSize?.weight || product.weight) && (
+        <div className="absolute top-3 right-12 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-lg border border-white/10 shadow-sm">
+          {selectedSize?.weight || product.weight} г
+        </div>
+      )}
+
       {/* Контент */}
       <div className="p-4 flex flex-col relative bg-[#1E1E1E]/40">
         {/* Назва - посилання */}
@@ -307,11 +314,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
                 </span>
               )}
             </div>
-            {(selectedSize?.weight || product.weight) && (
-              <span className="text-xs text-gray-500 font-medium mt-0.5">
-                {selectedSize?.weight || product.weight} г
-              </span>
-            )}
+            {/* Weight moved to image */}
           </div>
 
           <ProductActions

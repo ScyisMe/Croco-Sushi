@@ -101,7 +101,7 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
             aria-label={t("product.addToCart")}
         >
             <PlusIcon className="w-6 h-6 shrink-0 transition-transform group-hover:rotate-90" />
-            <span className="max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-300 ml-0 group-hover:ml-2 whitespace-nowrap font-bold text-sm">
+            <span className="hidden sm:block max-w-0 opacity-0 group-hover:max-w-xs group-hover:opacity-100 transition-all duration-300 ml-0 group-hover:ml-2 whitespace-nowrap font-bold text-sm">
                 В кошик
             </span>
         </button>
