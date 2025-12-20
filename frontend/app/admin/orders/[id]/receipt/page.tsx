@@ -43,7 +43,7 @@ export default function OrderReceiptPage() {
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-gray-100 p-8 print:p-0 print:bg-white">
-            <div className="bg-white shadow-lg print:shadow-none mb-8 print:mb-0">
+            <div id="receipt-content" className="bg-white shadow-lg print:shadow-none mb-8 print:mb-0">
                 <Receipt order={order} />
             </div>
 
@@ -60,11 +60,25 @@ export default function OrderReceiptPage() {
                         margin: 0;
                         size: auto; 
                     }
-                    body {
+                    body, html {
                         background: white;
+                        height: auto;
+                        width: 100%;
+                        overflow: visible;
                     }
-                    /* Hide everything that is not the receipt container if needed, 
-                       but since this page ONLY contains the receipt, it's fine. */
+                    /* Ensure only the receipt content is visible if needed, though simpler strategies work too */
+                    body * {
+                        visibility: hidden;
+                    }
+                    #receipt-content, #receipt-content * {
+                        visibility: visible;
+                    }
+                    #receipt-content {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                    }
                 }
             `}</style>
         </div>

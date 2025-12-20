@@ -10,7 +10,10 @@ import {
   TrashIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
+import { ProductRow } from "@/components/admin/products/ProductRow";
 
 interface Product {
   id: number;
@@ -39,6 +42,10 @@ export default function AdminProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [deleteModalId, setDeleteModalId] = useState<number | null>(null);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   useEffect(() => {
     fetchData();
@@ -125,6 +132,18 @@ export default function AdminProductsPage() {
     return matchesSearch && matchesCategory;
   });
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -205,95 +224,50 @@ export default function AdminProductsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-white/5">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        {product.image_url ? (
-                          <img
-                            src={product.image_url}
-                            alt={product.name}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center">
-                            <span className="text-gray-500 text-xs">Фото</span>
-                          </div>
-                        )}
-                        <div>
-                          <span className="font-medium text-white block">
-                            {product.name}
-                          </span>
-                          {product.weight && (
-                            <span className="text-sm text-gray-500">
-                              {product.weight}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-gray-400">
-                      {product.category_name ||
-                        categories.find((c) => c.id === product.category_id)?.name ||
-                        "—"}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <span className="font-medium text-white">
-                          {formatPrice(product.price)}
-                        </span>
-                        {product.old_price && (
-                          <span className="text-sm text-gray-600 line-through ml-2">
-                            {formatPrice(product.old_price)}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => togglePopular(product)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${product.is_popular
-                          ? "bg-accent-gold/20 text-accent-gold hover:bg-accent-gold/30"
-                          : "bg-white/5 text-gray-400 hover:bg-white/10"
-                          }`}
-                      >
-                        {product.is_popular ? "⭐ Так" : "Ні"}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => toggleAvailable(product)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${product.is_available
-                          ? "bg-primary-500/20 text-primary-500 hover:bg-primary-500/30"
-                          : "bg-white/5 text-gray-400 hover:bg-white/10"
-                          }`}
-                      >
-                        {product.is_available ? "В наявності" : "Немає"}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end space-x-2">
-                        <Link
-                          href={`/admin/products/${product.id}/edit`}
-                          className="p-2 text-gray-400 hover:text-primary-500 hover:bg-primary-500/10 rounded-lg transition"
-                        >
-                          <PencilIcon className="w-5 h-5" />
-                        </Link>
-                        <button
-                          onClick={() => setDeleteModalId(product.id)}
-                          className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                {paginatedProducts.map((product) => (
+                  <ProductRow
+                    key={product.id}
+                    product={product}
+                    categoryName={
+                      product.category_name ||
+                      categories.find((c) => c.id === product.category_id)?.name ||
+                      "—"
+                    }
+                    onTogglePopular={togglePopular}
+                    onToggleAvailable={toggleAvailable}
+                    onDelete={setDeleteModalId}
+                    formatPrice={formatPrice}
+                  />
                 ))}
               </tbody>
             </table>
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-4">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="p-2 rounded-lg hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-white transition"
+          >
+            <ChevronLeftIcon className="w-5 h-5" />
+          </button>
+          <span className="text-gray-400">
+            Сторінка <span className="text-white font-medium">{currentPage}</span> з{" "}
+            <span className="text-white font-medium">{totalPages}</span>
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="p-2 rounded-lg hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-white transition"
+          >
+            <ChevronRightIcon className="w-5 h-5" />
+          </button>
+        </div>
+      )}
 
       {/* Модальне вікно підтвердження видалення */}
       {deleteModalId && (
