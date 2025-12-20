@@ -59,26 +59,27 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   const infoBadges = [];
 
   // Marketing Badges (Max 2)
+  // Marketing Badges (Max 2)
   if (product.is_new) {
     marketingBadges.push({
-      label: "NEW",
-      className: "bg-indigo-500 text-white border-none shadow-[0_4px_10px_rgba(99,102,241,0.4)]",
+      label: "Новинка",
+      className: "bg-[#00CC99] text-white border-none shadow-[0_4px_10px_rgba(0,204,153,0.3)] rounded-full px-2.5",
       icon: null
     });
   }
 
   if (product.is_top_seller || product.is_popular || product.is_hit) {
     marketingBadges.push({
-      label: "HIT",
-      className: "bg-amber-500 text-white border-none shadow-[0_4px_10px_rgba(245,158,11,0.4)]",
+      label: "Хіт",
+      className: "bg-[#FFA500] text-white border-none shadow-[0_4px_10px_rgba(255,165,0,0.3)] rounded-full px-2.5",
       icon: null
     });
   }
 
   if ((product.is_promotion || hasDiscount) && marketingBadges.length < 2) {
     marketingBadges.push({
-      label: "SALE",
-      className: "bg-rose-600 text-white border-none shadow-[0_4px_10px_rgba(225,29,72,0.4)]",
+      label: "Акція",
+      className: "bg-rose-600 text-white border-none shadow-[0_4px_10px_rgba(225,29,72,0.4)] rounded-full px-2.5",
       icon: null
     });
   }
@@ -87,17 +88,17 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   if (isSpicy) {
     infoBadges.push({
       id: "spicy",
-      icon: "🌶️",
+      icon: <FireIcon className="w-4 h-4" />,
       label: "Гостре",
-      className: "bg-red-500/20 text-red-200 border-red-500/30"
+      className: "bg-red-500/20 text-red-500 border-red-500/30 rounded-full"
     });
   }
   if (isVegan) {
     infoBadges.push({
       id: "vegan",
-      icon: "🌱",
+      icon: <SparklesIcon className="w-4 h-4" />, // Fallback to Sparkles if Leaf not available
       label: "Веган",
-      className: "bg-green-500/20 text-green-200 border-green-500/30"
+      className: "bg-green-500/20 text-green-500 border-green-500/30 rounded-full"
     });
   }
 
@@ -188,7 +189,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           {marketingBadges.slice(0, 2).map((badge, index) => (
             <span
               key={index}
-              className={`px-3 py-1 rounded-md text-[10px] font-extrabold tracking-widest uppercase ${badge.className}`}
+              className={`px-3 py-1 text-[10px] font-bold tracking-wide ${badge.className}`}
             >
               {badge.label}
             </span>
