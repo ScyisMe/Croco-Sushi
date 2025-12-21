@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"  # development, production, testing
     
     # Database
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/croco_sushi"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@postgres:5432/croco_sushi" if ENVIRONMENT == "production" else "postgresql+asyncpg://postgres:postgres@localhost:5432/croco_sushi"
     
     # Database Connection Settings
     POSTGRES_POOL_SIZE: int = 5
@@ -50,15 +50,15 @@ class Settings(BaseSettings):
         return []
     
     # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str = "redis://redis:6379/0" if ENVIRONMENT == "production" else "redis://localhost:6379/0"
     
     # File Upload
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE: int = 5 * 1024 * 1024  # 5MB
     
     # Celery
-    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
+    CELERY_BROKER_URL: str = "redis://redis:6379/0" if ENVIRONMENT == "production" else "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://redis:6379/0" if ENVIRONMENT == "production" else "redis://localhost:6379/0"
     
     # Logging
     LOG_LEVEL: str = "INFO"
