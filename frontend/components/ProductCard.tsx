@@ -158,50 +158,52 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Зображення - Edge to Edge */}
-      <Link href={`/products/${product.slug}`} className="block relative aspect-[4/5] overflow-hidden mb-0">
-        {product.image_url ? (
-          <Image
-            src={product.image_url}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            priority={priority}
-          />
-        ) : (
-          <div className="w-full h-full bg-surface-lighter flex items-center justify-center p-8">
-            <div className="relative w-full h-full">
-              <Image
-                src="/logo.png"
-                alt={product.name}
-                fill
-                className="object-contain opacity-20 grayscale"
-              />
+      <div className="relative aspect-[4/5] overflow-hidden mb-0">
+        <Link href={`/products/${product.slug}`} className="block w-full h-full relative">
+          {product.image_url ? (
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              priority={priority}
+            />
+          ) : (
+            <div className="w-full h-full bg-surface-lighter flex items-center justify-center p-8">
+              <div className="relative w-full h-full">
+                <Image
+                  src="/logo.png"
+                  alt={product.name}
+                  fill
+                  className="object-contain opacity-20 grayscale"
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60" />
+          {/* Gradient Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60" />
 
-        {/* Бейджі */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2 items-start z-10">
-          {marketingBadges.slice(0, 2).map((badge, index) => (
-            <span
-              key={index}
-              className={`px-3 py-1 text-[10px] font-bold tracking-wide ${badge.className}`}
-            >
-              {badge.label}
-            </span>
-          ))}
-        </div>
-        {/* Вага - переміщено на фото */}
-        {(selectedSize?.weight || product.weight) && (
-          <div className="absolute bottom-3 right-3 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-lg border border-white/10 shadow-sm">
-            {selectedSize?.weight || product.weight} г
+          {/* Бейджі */}
+          <div className="absolute top-3 left-3 flex flex-col gap-2 items-start z-10">
+            {marketingBadges.slice(0, 2).map((badge, index) => (
+              <span
+                key={index}
+                className={`px-3 py-1 text-[10px] font-bold tracking-wide ${badge.className}`}
+              >
+                {badge.label}
+              </span>
+            ))}
           </div>
-        )}
-      </Link>
+          {/* Вага - переміщено на фото */}
+          {(selectedSize?.weight || product.weight) && (
+            <div className="absolute bottom-3 right-3 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-lg border border-white/10 shadow-sm">
+              {selectedSize?.weight || product.weight} г
+            </div>
+          )}
+        </Link>
+      </div>
 
       {/* Кнопки дій (Favorite/QuickView) */}
       <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
