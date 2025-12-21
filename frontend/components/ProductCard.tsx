@@ -305,7 +305,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between gap-3">
           <div className="flex flex-col justify-center">
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-2xl font-bold text-white tracking-tight">
+              <span className="text-2xl font-bold text-white tracking-tight whitespace-nowrap">
                 {currentPrice} <span className="text-sm text-gray-500 font-normal">₴</span>
               </span>
 
