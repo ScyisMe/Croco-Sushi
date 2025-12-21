@@ -26,6 +26,20 @@ import {
 import { CheckCircleIcon as CheckCircleSolidIcon } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Simple debounce utility for autocomplete
+function useDebounceValue<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+}
+
 // Типи
 interface FormData {
   // Крок 1: Контактні дані
@@ -91,6 +105,31 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Autocomplete state
+  const [streetSuggestions, setStreetSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debouncedStreet = useDebounceValue(formData.street, 500);
+
+  // Fetch street suggestions
+  useEffect(() => {
+    const fetchStreets = async () => {
+      if (debouncedStreet.length < 3 || !showSuggestions) return;
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?street=${encodeURIComponent(debouncedStreet)}&city=Lviv&format=json&addressdetails=1&limit=5`
+        );
+        const data = await response.json();
+        setStreetSuggestions(data);
+      } catch (error) {
+        console.error("Error fetching streets:", error);
+      }
+    };
+
+    fetchStreets();
+  }, [debouncedStreet, showSuggestions]);
 
   // Завантаження збережених даних з localStorage
   useEffect(() => {
@@ -116,7 +155,11 @@ export default function CheckoutPage() {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("access_token");
-        if (!token) return;
+        if (!token) {
+          setIsAuthenticated(false);
+          return;
+        }
+        setIsAuthenticated(true);
 
         // Отримання профілю
         const { data: user } = await apiClient.get("/users/me");
@@ -143,7 +186,7 @@ export default function CheckoutPage() {
             customer_phone: isPhoneDefault ? (user.phone || "+380") : prev.customer_phone,
 
             // Адреса
-            city: prev.city === "Львів" && address ? address.city : prev.city,
+            city: "Львів",
             street: prev.street || (address?.street || ""),
             building: prev.building || (address?.house || ""),
             apartment: prev.apartment || (address?.apartment || ""),
@@ -172,17 +215,34 @@ export default function CheckoutPage() {
     }
   };
 
-  // Форматування телефону
+  // Форматування телефону - Strict Mask +380 (XX) XXX-XX-XX
   const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, "");
-    if (digits.length === 0) return "+380";
-    if (digits.length <= 2) return `+${digits}`;
-    if (digits.length <= 5) return `+${digits.slice(0, 2)} (${digits.slice(2)}`;
-    if (digits.length <= 8)
-      return `+${digits.slice(0, 2)} (${digits.slice(2, 5)}) ${digits.slice(5)}`;
-    if (digits.length <= 10)
-      return `+${digits.slice(0, 2)} (${digits.slice(2, 5)}) ${digits.slice(5, 8)}-${digits.slice(8)}`;
-    return `+${digits.slice(0, 2)} (${digits.slice(2, 5)}) ${digits.slice(5, 8)}-${digits.slice(8, 10)}-${digits.slice(10, 12)}`;
+    // Remove all non-digit characters
+    let digits = value.replace(/\D/g, "");
+
+    // If empty or just starting, return default prefix
+    if (!digits) return "+380";
+
+    // Ensure it starts with 380
+    if (digits.startsWith("0")) {
+      digits = "38" + digits; // Convert 0XX to 380XX
+    } else if (digits.startsWith("80")) {
+      digits = "38" + digits.substring(1); // Convert 80XX to 380XX
+    } else if (!digits.startsWith("380")) {
+      digits = "380" + digits; // Prepend 380 if not present
+    }
+
+    // Limit to 12 digits (380 + 9 digits)
+    digits = digits.slice(0, 12);
+
+    // Format
+    let formatted = "+380";
+    if (digits.length > 3) formatted += ` (${digits.slice(3, 5)}`;
+    if (digits.length > 5) formatted += `) ${digits.slice(5, 8)}`;
+    if (digits.length > 8) formatted += `-${digits.slice(8, 10)}`;
+    if (digits.length > 10) formatted += `-${digits.slice(10, 12)}`;
+
+    return formatted;
   };
 
   // Валідація кроку
@@ -342,64 +402,82 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-32 md:pb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-secondary mb-4 sm:mb-8">
             Оформлення замовлення
           </h1>
 
           {/* Індикатор прогресу - Живий шлях кур'єра */}
-          <div className="mb-6 sm:mb-10">
-            <div className="relative flex items-center justify-between max-w-3xl mx-auto px-4">
-              {/* Background Line */}
-              <div className="absolute top-1/2 left-4 right-4 h-1 bg-white/10 -translate-y-1/2 rounded-full" />
-
-              {/* Active Line (Progress) */}
-              <div
-                className="absolute top-1/2 left-4 h-1 bg-green-500 -translate-y-1/2 rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }} // Approximate width relative to container
-              />
-
+          {/* Індикатор прогресу - Живий шлях кур'єра */}
+          <div className="mb-6 sm:mb-10 max-w-3xl mx-auto px-4">
+            <div className="flex items-center justify-between w-full relative">
               {STEPS.map((step, index) => {
                 const isActive = currentStep === step.id;
                 const isCompleted = currentStep > step.id;
+                const isNext = index < STEPS.length - 1;
+                const nextStepCompleted = currentStep > STEPS[index + 1]?.id;
+
+                // Determine connector active state
+                // Connector is active if CURRENT step is greater than the NEXT step index (meaning we passed this segment)
+                // Actually simpler: if the next step is at least active, the connector leading to it (from current) is active?
+                // No, we want structure: Step1 --[active]-- Step2 --[inactive]-- Step3
+                // Connector i connects Step i and Step i+1.
+                // It should be green if Step i+1 is either Completed or Active?
+                // If we are on Step 2:
+                // Struct: Step1 --[green]-- Step2 --[gray]-- Step3
+                // Connector i (after step i) is green if currentStep > step.id.
+                const isConnectorActive = currentStep > step.id;
 
                 return (
-                  <div key={step.id} className="relative z-10 flex flex-col items-center group">
-                    <div
-                      className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 transition-all duration-500 ${isActive
-                        ? "bg-surface-card border-green-500 text-green-500 scale-110 shadow-[0_0_20px_rgba(34,197,94,0.4)]"
-                        : isCompleted
-                          ? "bg-green-500 border-green-500 text-white"
-                          : "bg-surface-card border-white/10 text-gray-500"
-                        }`}
-                    >
-                      {isCompleted ? (
-                        <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                      ) : isActive ? (
-                        index === 1 ? <TruckIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
-                          index === 2 ? <BanknotesIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
-                            <step.icon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
-                      ) : (
-                        <step.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                      )}
+                  <div key={step.id} className={`flex items-center ${isNext ? "flex-1 w-full" : ""}`}>
+                    {/* Step Circle */}
+                    <div className="relative z-10 flex flex-col items-center group">
+                      <div
+                        className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-2 sm:mb-3 transition-all duration-300 relative ${isActive
+                          ? "bg-white text-black shadow-[0_0_20px_rgba(34,197,94,0.6)] scale-110 border-2 border-green-500"
+                          : isCompleted
+                            ? "bg-green-500 text-white border-2 border-green-500"
+                            : "bg-surface-card border-2 border-white/10 text-gray-400"
+                          }`}
+                      >
+                        {isCompleted ? (
+                          <CheckIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        ) : isActive ? (
+                          index === 1 ? <TruckIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
+                            index === 2 ? <BanknotesIcon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" /> :
+                              <step.icon className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
+                        ) : (
+                          <step.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                        )}
 
-                      {/* Moped/Croco Icon moving */}
-                      {isActive && (
-                        <motion.div
-                          layoutId="moving-icon"
-                          className="absolute -top-6 text-2xl"
-                          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        >
-                          🐊
-                        </motion.div>
-                      )}
+                        {/* Moped/Croco Icon moving */}
+                        {isActive && (
+                          <motion.div
+                            layoutId="moving-icon"
+                            className="absolute -top-8 text-3xl filter drop-shadow-lg"
+                            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                          >
+                            🐊
+                          </motion.div>
+                        )}
+                      </div>
+                      <span
+                        className={`absolute top-full mt-2 w-max text-xs sm:text-sm font-medium transition-colors duration-300 ${isActive ? "text-green-500" : isCompleted ? "text-white" : "text-gray-500"
+                          }`}
+                      >
+                        {step.name}
+                      </span>
                     </div>
-                    <span
-                      className={`mt-2 text-xs sm:text-sm font-medium transition-colors duration-300 ${isActive ? "text-green-500" : isCompleted ? "text-white" : "text-gray-500"
-                        }`}
-                    >
-                      {step.name}
-                    </span>
+
+                    {/* Connector Line (unless last step) */}
+                    {isNext && (
+                      <div className="flex-1 h-1.5 mx-2 sm:mx-4 relative rounded-full overflow-hidden bg-white/10">
+                        <div
+                          className={`absolute inset-0 bg-green-500 rounded-full transition-transform duration-700 ease-in-out origin-left ${isConnectorActive ? "scale-x-100" : "scale-x-0"
+                            }`}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -413,10 +491,21 @@ export default function CheckoutPage() {
                 {/* Крок 1: Контактні дані */}
                 {currentStep === 1 && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
-                      <UserIcon className="w-6 h-6 text-green-500" />
-                      Контактні дані
-                    </h2>
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
+                        <UserIcon className="w-6 h-6 text-green-500" />
+                        Контактні дані
+                      </h2>
+                      {!isAuthenticated && (
+                        <Link
+                          href="/login?redirect=/checkout"
+                          className="text-sm font-medium text-primary hover:text-green-400 transition-colors flex items-center gap-1 group"
+                        >
+                          Вже є акаунт?
+                          <span className="underline decoration-dashed decoration-1 underline-offset-4 group-hover:decoration-solid">Увійти</span>
+                        </Link>
+                      )}
+                    </div>
 
                     <div>
                       <label className="block text-sm font-medium text-secondary mb-2">
@@ -428,10 +517,13 @@ export default function CheckoutPage() {
                           value={formData.customer_name}
                           onChange={(e) => updateField("customer_name", e.target.value)}
                           placeholder="Введіть ваше ім&apos;я"
-                          className={`input ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50 focus:border-green-500" : ""}`}
+                          className={`input text-base bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_name ? "input-error" : ""} ${!errors.customer_name && formData.customer_name.length > 2 ? "border-green-500/50" : ""}`}
+                          autoComplete="given-name"
                         />
                         {!errors.customer_name && formData.customer_name.length > 2 && (
-                          <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <CheckCircleSolidIcon className="w-5 h-5 text-green-500" />
+                          </div>
                         )}
                       </div>
                       {errors.customer_name && (
@@ -449,10 +541,14 @@ export default function CheckoutPage() {
                           value={formData.customer_phone}
                           onChange={(e) => updateField("customer_phone", formatPhone(e.target.value))}
                           placeholder="+38 (0__) ___-__-__"
-                          className={`input ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.length >= 10 ? "border-green-500/50 focus:border-green-500" : ""}`}
+                          className={`input text-base bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_phone ? "input-error" : ""} ${!errors.customer_phone && formData.customer_phone.replace(/\D/g, "").length === 12 ? "border-green-500/50" : ""}`}
+                          inputMode="tel"
+                          autoComplete="tel"
                         />
-                        {!errors.customer_phone && formData.customer_phone.length >= 18 && ( // Full formatted length
-                          <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
+                        {!errors.customer_phone && formData.customer_phone.replace(/\D/g, "").length === 12 && ( // Full formatted length
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <CheckCircleSolidIcon className="w-5 h-5 text-green-500" />
+                          </div>
                         )}
                       </div>
                       {errors.customer_phone && (
@@ -470,10 +566,13 @@ export default function CheckoutPage() {
                           value={formData.customer_email}
                           onChange={(e) => updateField("customer_email", e.target.value)}
                           placeholder="example@email.com"
-                          className={`input ${errors.customer_email ? "input-error" : ""}`}
+                          className={`input text-base bg-[#2C2C2C] border-white/10 focus:border-green-500 focus:ring-1 focus:ring-green-500 hover:border-white/20 transition-all pr-10 ${errors.customer_email ? "input-error" : ""}`}
+                          autoComplete="email"
                         />
                         {formData.customer_email && !errors.customer_email && (
-                          <CheckCircleSolidIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500 pointer-events-none" />
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <CheckCircleSolidIcon className="w-5 h-5 text-green-500" />
+                          </div>
                         )}
                       </div>
                       {errors.customer_email && (
@@ -488,85 +587,123 @@ export default function CheckoutPage() {
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-secondary">Адреса доставки</h2>
 
-                    <div>
-                      <label className="block text-sm font-medium text-secondary mb-2">
-                        Місто *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.city}
-                        onChange={(e) => updateField("city", e.target.value)}
-                        placeholder="Введіть місто"
-                        className={`input ${errors.city ? "input-error" : ""}`}
-                      />
-                      {errors.city && (
-                        <p className="mt-1 text-sm text-accent-red">{errors.city}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-secondary mb-2">
-                        Вулиця *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.street}
-                        onChange={(e) => updateField("street", e.target.value)}
-                        placeholder="Введіть назву вулиці"
-                        className={`input ${errors.street ? "input-error" : ""}`}
-                      />
-                      {errors.street && (
-                        <p className="mt-1 text-sm text-accent-red">{errors.street}</p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
+                    <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
+                      <div className="relative z-20">
                         <label className="block text-sm font-medium text-secondary mb-2">
+                          Вулиця *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={formData.street}
+                            onChange={(e) => {
+                              updateField("street", e.target.value);
+                              setShowSuggestions(true);
+                            }}
+                            onFocus={() => setShowSuggestions(true)}
+                            placeholder="Почніть вводити назву вулиці..."
+                            className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.street ? "input-error" : ""}`}
+                            autoComplete="off"
+                          />
+                          {/* Autocomplete Dropdown */}
+                          <AnimatePresence>
+                            {showSuggestions && streetSuggestions.length > 0 && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                className="absolute top-full left-0 right-0 mt-1 bg-[#2C2C2C] border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 max-h-60 overflow-y-auto"
+                              >
+                                {streetSuggestions.map((suggestion, idx) => (
+                                  <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                      updateField("street", suggestion.name || suggestion.address.road || "");
+                                      setStreetSuggestions([]);
+                                      setShowSuggestions(false);
+                                    }}
+                                    className="w-full text-left px-4 py-3 hover:bg-white/5 text-sm transition-colors border-b border-white/5 last:border-0"
+                                  >
+                                    <span className="text-secondary font-medium">{suggestion.name || suggestion.address.road}</span>
+                                    {suggestion.address.suburb && (
+                                      <span className="text-secondary-light text-xs ml-2">({suggestion.address.suburb})</span>
+                                    )}
+                                  </button>
+                                ))}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                        {errors.street && (
+                          <p className="mt-1 text-sm text-accent-red">{errors.street}</p>
+                        )}
+                      </div>
+
+                      <div className="w-[140px]">
+                        <label className="block text-sm font-medium text-secondary mb-2">
+                          Місто
+                        </label>
+                        <input
+                          type="text"
+                          value="Львів"
+                          readOnly
+                          className="input bg-surface-card opacity-50 cursor-not-allowed text-center"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 xs:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
                           Будинок *
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.building}
                           onChange={(e) => updateField("building", e.target.value)}
                           placeholder="№"
-                          className={`input ${errors.building ? "input-error" : ""}`}
+                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center ${errors.building ? "input-error" : ""}`}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary mb-2">
-                          Квартира
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
+                          Кв / Офіс
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.apartment}
                           onChange={(e) => updateField("apartment", e.target.value)}
                           placeholder="№"
-                          className="input"
+                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary mb-2">
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
                           Під&apos;їзд
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.entrance}
                           onChange={(e) => updateField("entrance", e.target.value)}
                           placeholder="№"
-                          className="input"
+                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-secondary mb-2">
+                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
                           Поверх
                         </label>
                         <input
                           type="text"
+                          inputMode="numeric"
                           value={formData.floor}
                           onChange={(e) => updateField("floor", e.target.value)}
                           placeholder="№"
-                          className="input"
+                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
                         />
                       </div>
                     </div>
@@ -581,7 +718,7 @@ export default function CheckoutPage() {
                         placeholder="Додаткова інформація для доставки..."
                         rows={3}
                         maxLength={500}
-                        className="input resize-none"
+                        className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors resize-none"
                       />
                       <p className="mt-1 text-xs text-secondary-light text-right">
                         {formData.comment.length}/500
@@ -633,267 +770,278 @@ export default function CheckoutPage() {
 
                 {/* Крок 4: Підтвердження */}
                 {currentStep === 4 && (
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-secondary">Підтвердження замовлення</h2>
+                  <div className="space-y-8">
+                    <h2 className="text-2xl font-bold text-white mb-6">Підтвердження даних</h2>
 
-                    {/* Перегляд даних */}
-                    <div className="space-y-4">
-                      <div className="p-4 bg-theme-secondary rounded-lg">
-                        <h3 className="font-semibold text-secondary mb-2">Контактні дані</h3>
-                        <p className="text-secondary-light">{formData.customer_name}</p>
-                        <p className="text-secondary-light">{formData.customer_phone}</p>
-                        {formData.customer_email && (
-                          <p className="text-secondary-light">{formData.customer_email}</p>
-                        )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                      {/* Контакти */}
+                      <div className="group p-4 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <UserIcon className="w-5 h-5 text-gray-400" />
+                          <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">Контакт</label>
+                        </div>
+                        <p className="text-lg text-white font-medium">{formData.customer_name}</p>
+                        <p className="text-white/80">{formData.customer_phone}</p>
+                        <p className="text-sm text-gray-500 mt-1">{formData.customer_email}</p>
                       </div>
 
-                      <div className="p-4 bg-theme-secondary rounded-lg">
-                        <h3 className="font-semibold text-secondary mb-2">Адреса доставки</h3>
-                        <p className="text-secondary-light">
-                          {formData.city}, вул. {formData.street}, буд. {formData.building}
-                          {formData.apartment && `, кв. ${formData.apartment}`}
-                        </p>
-                        {formData.comment && (
-                          <p className="text-secondary-light mt-1 text-sm">
-                            Коментар: {formData.comment}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="p-4 bg-theme-secondary rounded-lg">
-                        <h3 className="font-semibold text-secondary mb-2">Спосіб оплати</h3>
-                        <p className="text-secondary-light">
-                          {PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.label}
+                      {/* Доставка */}
+                      <div className="group p-4 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <MapPinIcon className="w-5 h-5 text-gray-400" />
+                          <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">Доставка</label>
+                        </div>
+                        <p className="text-lg text-white font-medium">{formData.city}</p>
+                        <p className="text-white/80">вул. {formData.street}, буд. {formData.building}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {formData.apartment && `кв. ${formData.apartment}`}
+                          {formData.entrance && ` • під'їзд ${formData.entrance}`}
+                          {formData.floor && ` • поверх ${formData.floor}`}
                         </p>
                       </div>
+
+                      {/* Оплата */}
+                      <div className="group md:col-span-2 p-4 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <CreditCardIcon className="w-5 h-5 text-gray-400" />
+                            <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">Оплата</label>
+                          </div>
+                          <div className="flex items-center gap-2 text-white">
+                            <span className="text-2xl">{PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.icon}</span>
+                            <span className="text-lg font-medium">{PAYMENT_METHODS.find((m) => m.value === formData.payment_method)?.label}</span>
+                          </div>
+                        </div>
+                        <button onClick={() => setCurrentStep(3)} className="text-sm text-green-400 hover:text-green-300 underline mt-2 sm:mt-0 font-medium transition-colors">
+                          Змінити
+                        </button>
+                      </div>
+
                     </div>
 
-                    {/* Чекбокси */}
-                    <div className="space-y-3">
-                      <label className="flex items-start cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.agree_terms}
-                          onChange={(e) => updateField("agree_terms", e.target.checked)}
-                          className="mt-1 mr-3 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                        />
-                        <span className="text-sm text-secondary-light">
-                          Я погоджуюсь з{" "}
-                          <Link href="/terms" className="text-primary hover:underline">
+                    <div className="border-t border-white/10 my-6" />
+
+                    {/* Чекбокси - Unified */}
+                    <div className="bg-surface-card/50 p-4 rounded-xl border border-white/5">
+                      <label className="flex items-start cursor-pointer group">
+                        <div className="relative flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={formData.agree_terms && formData.agree_privacy}
+                            onChange={(e) => {
+                              updateField("agree_terms", e.target.checked);
+                              updateField("agree_privacy", e.target.checked);
+                            }}
+                            className="peer sr-only"
+                          />
+                          <div className="w-5 h-5 border-2 border-gray-400 rounded peer-checked:bg-green-500 peer-checked:border-green-500 transition-all flex items-center justify-center mr-3 group-hover:border-green-400">
+                            <CheckIcon className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          </div>
+                        </div>
+                        <span className="text-sm text-secondary-light select-none group-hover:text-gray-200 transition-colors">
+                          Я підтверджую замовлення та погоджуюсь з{" "}
+                          <Link href="/terms" className="text-primary hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
                             публічною офертою
                           </Link>{" "}
-                          *
-                        </span>
-                      </label>
-                      {errors.agree_terms && (
-                        <p className="text-sm text-accent-red ml-7">{errors.agree_terms}</p>
-                      )}
-
-                      <label className="flex items-start cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.agree_privacy}
-                          onChange={(e) => updateField("agree_privacy", e.target.checked)}
-                          className="mt-1 mr-3 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-                        />
-                        <span className="text-sm text-secondary-light">
-                          Я погоджуюсь з{" "}
-                          <Link href="/privacy" className="text-primary hover:underline">
+                          та{" "}
+                          <Link href="/privacy" className="text-primary hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
                             політикою конфіденційності
-                          </Link>{" "}
-                          *
+                          </Link>
                         </span>
                       </label>
-                      {errors.agree_privacy && (
-                        <p className="text-sm text-accent-red ml-7">{errors.agree_privacy}</p>
+                      {(errors.agree_terms || errors.agree_privacy) && (
+                        <p className="text-sm text-accent-red mt-2 pl-8">Будь ласка, погодьтесь з умовами для продовження</p>
                       )}
                     </div>
+
                   </div>
                 )}
 
                 {/* Кнопки навігації - адаптивні */}
-                <div className="flex justify-between mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border gap-2">
-                  {currentStep > 1 ? (
+                <div className={`flex items-center gap-4 mt-8 pt-6 border-t border-white/5 ${currentStep === 4 ? "flex-col-reverse md:flex-row md:justify-between" : "justify-between"}`}>
+
+                  {/* Back Button */}
+                  {currentStep > 1 && (
                     <button
                       onClick={prevStep}
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-300 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl border border-white/10 hover:bg-white/5 active:scale-95"
+                      className={`flex items-center justify-center gap-2 h-12 rounded-xl transition-all duration-200 active:scale-95 group ${currentStep === 4 ? "w-full md:w-auto text-gray-400 hover:text-white px-4 hover:bg-white/5" : "px-6 text-gray-400 hover:text-white border border-transparent hover:border-white/10 hover:bg-white/5"}`}
                     >
-                      <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="hidden xs:inline">Назад</span>
+                      <ChevronLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                      <span className="font-medium text-base">Назад</span>
                     </button>
-                  ) : (
+                  )}
+
+                  {/* Home Button for Step 1 */}
+                  {currentStep === 1 && (
                     <Link
                       href="/menu"
-                      className="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-300 hover:text-white transition-all duration-200 min-h-[44px] rounded-xl border border-white/10 hover:bg-white/5 active:scale-95"
+                      className="flex items-center justify-center gap-2 h-12 px-6 rounded-xl transition-all duration-200 active:scale-95 text-gray-400 hover:text-white border border-transparent hover:border-white/10 hover:bg-white/5 group"
                     >
-                      <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="hidden xs:inline">До меню</span>
+                      <ChevronLeftIcon className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                      <span className="font-medium text-base">До меню</span>
                     </Link>
                   )}
 
                   {currentStep < 4 ? (
-                    <button onClick={nextStep} className="btn-primary text-sm sm:text-base flex-1 sm:flex-none sm:min-w-[140px] flex items-center justify-center">
-                      Далі
-                      <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
+                    <button
+                      onClick={nextStep}
+                      className="btn-primary h-12 px-8 flex items-center justify-center text-base shadow-[0_4px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.4)] transition-all transform hover:-translate-y-0.5"
+                    >
+                      <span className="font-bold">{currentStep === 1 ? "До доставки" : "Далі"}</span>
+                      <ChevronRightIcon className="w-5 h-5 ml-2" />
                     </button>
                   ) : (
-                    <button
-                      onClick={handleSubmit}
-                      disabled={isLoading}
-                      className="btn-primary text-sm sm:text-base flex-1 sm:flex-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                    >
-                      {isLoading ? (
-                        <>
-                          <svg
-                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
-                          Оформлення...
-                        </>
-                      ) : (
-                        "Підтвердити замовлення"
-                      )}
-                    </button>
+                    /* Sticky Mobile Footer for Confirm Button */
+                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1E1E1E]/90 backdrop-blur-lg border-t border-white/10 md:relative md:bg-transparent md:border-0 md:p-0 z-50">
+                      <button
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                        className="btn-primary w-full md:w-auto md:px-12 py-4 h-14 md:h-12 text-lg font-bold shadow-[0_4px_30px_rgba(34,197,94,0.4)] hover:shadow-[0_6px_40px_rgba(34,197,94,0.5)] transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            Обробка...
+                          </>
+                        ) : (
+                          "Підтвердити замовлення"
+                        )}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Бокова панель - Sticky Glass Summary */}
-            <div className="lg:col-span-1 order-1 lg:order-2">
-              <div className="sticky top-24 bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-4 sm:p-6 transition-all">
-                <h3 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4 flex items-center justify-between">
-                  Ваше замовлення
-                  <span className="text-xs font-normal text-white/50 bg-white/10 px-2 py-1 rounded-full">Чек</span>
-                </h3>
+            <div className="lg:col-span-1 order-1 lg:order-2 h-full">
+              <div className="sticky top-24 space-y-4">
+                <div className="bg-[#1E1E1E] border border-white/10 shadow-2xl rounded-2xl p-4 sm:p-6 overflow-hidden relative">
+                  {/* Background decoration */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
-                {/* Список товарів - компактний на мобільних */}
-                <ul className="space-y-2 sm:space-y-3 mb-3 sm:mb-4 max-h-48 sm:max-h-64 overflow-y-auto">
-                  {items.map((item) => (
-                    <li
-                      key={`${item.id}-${item.sizeId || "default"}`}
-                      className="flex gap-2 sm:gap-3"
-                    >
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden bg-theme-secondary">
-                        {item.image_url ? (
-                          <Image
-                            src={item.image_url}
-                            alt={item.name}
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          // Replaced sushi placeholder with Image component
-                          <Image
-                            src="/placeholder-sushi.png" // Assuming a placeholder image path
-                            alt="Sushi placeholder"
-                            width={48}
-                            height={48}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-medium text-secondary truncate">
-                          {item.name}
-                        </p>
-                        <p className="text-[10px] sm:text-xs text-secondary-light">
-                          {item.size && `${item.size} • `}
-                          {item.quantity} шт.
-                        </p>
-                      </div>
-                      <p className="text-xs sm:text-sm font-semibold text-secondary whitespace-nowrap">
-                        {item.price * item.quantity} ₴
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between relative z-10">
+                    Ваше замовлення
+                    <span className="text-xs font-normal text-white/50 bg-white/10 px-2 py-1 rounded-full">Чек</span>
+                  </h3>
 
-                {/* Підсумок */}
-                <div className="border-t border-border pt-3 sm:pt-4 space-y-3">
-                  {/* Smart Upsell: Дожим кошика */}
-                  {deliveryCost > 0 ? (
-                    <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-                      <div className="flex justify-between text-xs mb-2">
-                        <span className="text-gray-300">До безкоштовної доставки</span>
-                        <span className="font-bold text-primary">{FREE_DELIVERY_FROM - totalAmount} ₴</span>
-                      </div>
-
-                      {/* Animated Progress */}
-                      <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
-                        <div
-                          className="h-full bg-green-500 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
-                          style={{ width: `${Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100)}%` }}
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl">
-                          🎁
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-xs text-secondary-light">
-                            Додайте ще на <span className="text-white font-bold">{FREE_DELIVERY_FROM - totalAmount} ₴</span> і доставка буде за наш рахунок!
-                          </p>
-                          {/* Smart Suggestion (Mock for UI) */}
-                          {(FREE_DELIVERY_FROM - totalAmount) < 200 && (
-                            <button
-                              onClick={() => toast.success("Ця функція скоро запрацює! (Demo: Соус додано)")}
-                              className="mt-2 text-xs flex items-center gap-1 text-primary hover:text-white transition"
-                            >
-                              <span className="w-4 h-4 bg-primary rounded-full text-black flex items-center justify-center font-bold text-[10px]">+</span>
-                              Додати Соус Унагі (40 ₴)
-                            </button>
+                  {/* Список товарів - компактний на мобільних */}
+                  <ul className="space-y-2 sm:space-y-3 mb-3 sm:mb-4 max-h-48 sm:max-h-64 overflow-y-auto">
+                    {items.map((item) => (
+                      <li
+                        key={`${item.id}-${item.sizeId || "default"}`}
+                        className="flex gap-2 sm:gap-3"
+                      >
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-lg overflow-hidden bg-theme-secondary">
+                          {item.image_url ? (
+                            <Image
+                              src={item.image_url}
+                              alt={item.name}
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            // Replaced sushi placeholder with Image component
+                            <Image
+                              src="/placeholder-sushi.png" // Assuming a placeholder image path
+                              alt="Sushi placeholder"
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-cover"
+                            />
                           )}
                         </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-3">
-                      <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
-                      <div>
-                        <p className="text-sm font-bold text-white">Безкоштовна доставка активна!</p>
-                        <p className="text-xs text-green-400/70">Ми оплатимо виїзд кур&apos;єра</p>
-                      </div>
-                    </div>
-                  )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs sm:text-sm font-medium text-secondary truncate">
+                            {item.name}
+                          </p>
+                          <p className="text-[10px] sm:text-xs text-secondary-light">
+                            {item.size && `${item.size} • `}
+                            {item.quantity} шт.
+                          </p>
+                        </div>
+                        <p className="text-xs sm:text-sm font-semibold text-secondary whitespace-nowrap">
+                          {item.price * item.quantity} ₴
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
 
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-secondary-light">Підсумок</span>
-                    <span className="font-medium">{totalAmount} ₴</span>
-                  </div>
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-secondary-light">Доставка</span>
-                    <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
-                      {deliveryCost === 0 ? (
-                        <span className="flex items-center gap-1">
-                          <span className="text-primary">✓</span> Безкоштовно
-                        </span>
-                      ) : (
-                        `${deliveryCost} ₴`
-                      )}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-border">
-                    <span>Разом</span>
-                    <span className="text-primary">{finalAmount} ₴</span>
+                  {/* Підсумок */}
+                  <div className="border-t border-border pt-3 sm:pt-4 space-y-3">
+                    {/* Smart Upsell: Дожим кошика */}
+                    {deliveryCost > 0 ? (
+                      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                        <div className="flex justify-between text-xs mb-2">
+                          <span className="text-gray-300">До безкоштовної доставки</span>
+                          <span className="font-bold text-primary">{FREE_DELIVERY_FROM - totalAmount} ₴</span>
+                        </div>
+
+                        {/* Animated Progress */}
+                        <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-3">
+                          <div
+                            className="h-full bg-green-500 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
+                            style={{ width: `${Math.min((totalAmount / FREE_DELIVERY_FROM) * 100, 100)}%` }}
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xl">
+                            🎁
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-xs text-secondary-light">
+                              Додайте ще на <span className="text-yellow-400 font-bold text-sm shadow-black/50 drop-shadow-md">{FREE_DELIVERY_FROM - totalAmount} ₴</span> і доставка буде за наш рахунок!
+                            </p>
+                            {/* Smart Suggestion (Mock for UI) */}
+                            {(FREE_DELIVERY_FROM - totalAmount) < 200 && (
+                              <button
+                                onClick={() => toast.success("Ця функція скоро запрацює! (Demo: Соус додано)")}
+                                className="mt-3 w-full bg-[#1E1E1E] hover:bg-[#2C2C2C] border border-white/10 rounded-lg py-2 px-3 flex items-center justify-center gap-2 group transition-all active:scale-95"
+                              >
+                                <div className="w-5 h-5 bg-green-500 rounded-full text-black flex items-center justify-center font-bold text-xs shadow-lg group-hover:scale-110 transition-transform">+</div>
+                                <span className="text-xs font-bold text-white uppercase tracking-wide">Додати Соус Унагі</span>
+                                <span className="text-xs text-secondary-light">(40 ₴)</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 flex items-center gap-3">
+                        <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
+                        <div>
+                          <p className="text-sm font-bold text-white">Безкоштовна доставка активна!</p>
+                          <p className="text-xs text-green-400/70">Ми оплатимо виїзд кур&apos;єра</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-xs sm:text-sm">
+                      <span className="text-secondary-light">Підсумок</span>
+                      <span className="font-medium">{totalAmount} ₴</span>
+                    </div>
+                    <div className="flex justify-between text-xs sm:text-sm">
+                      <span className="text-secondary-light">Доставка</span>
+                      <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
+                        {deliveryCost === 0 ? (
+                          <span className="flex items-center gap-1">
+                            <span className="text-primary">✓</span> Безкоштовно
+                          </span>
+                        ) : (
+                          `${deliveryCost} ₴`
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-end border-t border-border pt-4 mt-2">
+                      <span className="text-base font-medium text-gray-400 mb-1">Разом до сплати</span>
+                      <span className="text-3xl font-bold text-white tracking-tight">{finalAmount} <span className="text-xl text-gray-400 font-normal">₴</span></span>
+                    </div>
                   </div>
                 </div>
               </div>

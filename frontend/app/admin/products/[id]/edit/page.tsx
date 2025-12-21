@@ -6,6 +6,7 @@ import Link from "next/link";
 import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { transliterate } from "@/lib/utils";
 
 interface Category {
   id: number;
@@ -23,6 +24,10 @@ interface Product {
   category_id: number;
   is_available: boolean;
   is_popular: boolean;
+  is_new?: boolean;
+  is_spicy?: boolean;
+  is_vegan?: boolean;
+  is_top_seller?: boolean;
   weight?: string;
   ingredients?: string;
 }
@@ -46,6 +51,10 @@ export default function EditProductPage() {
     category_id: 0,
     is_available: true,
     is_popular: false,
+    is_new: false,
+    is_spicy: false,
+    is_vegan: false,
+    is_top_seller: false,
     weight: "",
     ingredients: "",
   });
@@ -111,6 +120,10 @@ export default function EditProductPage() {
         category_id: product.category_id || 0,
         is_available: product.is_available ?? true,
         is_popular: product.is_popular ?? false,
+        is_new: product.is_new ?? false,
+        is_spicy: product.is_spicy ?? false,
+        is_vegan: product.is_vegan ?? false,
+        is_top_seller: product.is_top_seller ?? false,
         weight: product.weight || "",
         ingredients: product.ingredients || "",
       });
@@ -124,9 +137,9 @@ export default function EditProductPage() {
   };
 
   const generateSlug = (name: string) => {
-    return name
+    return transliterate(name)
       .toLowerCase()
-      .replace(/[^a-z0-9а-яіїєґ\s-]/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-")
       .trim();
@@ -417,6 +430,66 @@ export default function EditProductPage() {
             <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-gold"></div>
             <span className="ml-3 text-sm font-medium text-gray-300">
               ⭐ Популярний товар
+            </span>
+          </label>
+
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.is_top_seller}
+              onChange={(e) =>
+                setFormData({ ...formData, is_top_seller: e.target.checked })
+              }
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-gold"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
+              🏆 Хіт продажу
+            </span>
+          </label>
+
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.is_new}
+              onChange={(e) =>
+                setFormData({ ...formData, is_new: e.target.checked })
+              }
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
+              🆕 Новинка
+            </span>
+          </label>
+
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.is_spicy}
+              onChange={(e) =>
+                setFormData({ ...formData, is_spicy: e.target.checked })
+              }
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
+              🌶️ Гостре
+            </span>
+          </label>
+
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.is_vegan}
+              onChange={(e) =>
+                setFormData({ ...formData, is_vegan: e.target.checked })
+              }
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-white/10 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+            <span className="ml-3 text-sm font-medium text-gray-300">
+              🌱 Веганське
             </span>
           </label>
         </div>

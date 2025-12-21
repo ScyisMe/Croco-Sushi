@@ -213,7 +213,7 @@ export default function OrderDetailPage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => window.print()}
+            onClick={() => window.open(`/admin/orders/${order.id}/receipt`, '_blank')}
             className="p-2 text-gray-400 hover:text-primary-500 hover:bg-white/5 rounded-lg transition"
             title="Друк"
           >

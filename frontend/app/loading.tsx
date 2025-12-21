@@ -4,13 +4,13 @@ export default function Loading() {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md">
             <div className="relative flex flex-col items-center justify-center">
-                {/* Logo Container with Pulse */}
-                <div className="relative w-32 h-32 mb-8 animate-pulse">
+                {/* Logo Container with Pulse and Round Frame */}
+                <div className="relative w-32 h-32 mb-8 animate-pulse rounded-full overflow-hidden bg-[#343434] ring-4 ring-primary/20 flex items-center justify-center">
                     <Image
                         src="/logo.png"
                         alt="Loading..."
                         fill
-                        className="object-contain drop-shadow-[0_0_25px_rgba(16,185,129,0.4)]"
+                        className="object-cover p-4"
                         priority
                     />
                 </div>

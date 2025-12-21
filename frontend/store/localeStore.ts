@@ -2,15 +2,12 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 // Типи для локалізації
-export type Locale = "ua" | "ru";
+export type Locale = "ua";
 
 // Імпортуємо переклади
 import ua from "@/locales/ua.json";
-import ru from "@/locales/ru.json";
-
 const translations: Record<Locale, typeof ua> = {
   ua,
-  ru,
 };
 
 // Типи для вкладених ключів перекладу
@@ -76,12 +73,8 @@ export const useLocaleStore = create<LocaleStore>()(
       },
 
       t: (key: string, params?: Record<string, string | number>) => {
-        const { locale, _hasHydrated } = get();
-        // Fix hydration mismatch: use default locale until hydrated
-        // During server rendering and first client render, _hasHydrated is false (default)
-        // This ensures both server and client render 'ua' initially
-        const effectiveLocale = _hasHydrated ? locale : "ua";
-        const translation = translations[effectiveLocale];
+        // Always use ua
+        const translation = translations["ua"];
         const value = getNestedValue(translation as Record<string, unknown>, key);
         return interpolate(value, params);
       },

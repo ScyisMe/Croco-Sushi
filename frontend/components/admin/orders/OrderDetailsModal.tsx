@@ -60,7 +60,7 @@ export const OrderDetailsModal = ({ isOpen, onClose, order, statusConfig, onStat
                     <div>
                         <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                             Замовлення #{order.order_number}
-                            <button onClick={() => window.print()} className="p-1 hover:text-primary-500 transition text-gray-500" title="Друк">
+                            <button onClick={() => window.open(`/admin/orders/${order.id}/receipt`, '_blank')} className="p-1 hover:text-primary-500 transition text-gray-500" title="Друк">
                                 <PrinterIcon className="w-5 h-5" />
                             </button>
                         </h2>

@@ -10,7 +10,7 @@ import Image from "next/image";
 import { StarIcon as StarSolidIcon, FaceFrownIcon, FaceSmileIcon, SparklesIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon, ChevronRightIcon, PencilSquareIcon, FaceSmileIcon as FaceNeutralIcon } from "@heroicons/react/24/outline";
 import { format } from "date-fns";
-import { uk, ru } from "date-fns/locale";
+import { uk } from "date-fns/locale";
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";
 import ReviewForm, { ReviewFormData } from "@/components/ReviewForm";
@@ -66,7 +66,7 @@ function ImageModal({ src, isOpen, onClose }: { src: string; isOpen: boolean; on
 function ReviewCard({ review, onImageClick }: { review: Review; onImageClick: (src: string) => void }) {
   const { t } = useTranslation();
   const locale = useLocaleStore((state) => state.locale);
-  const dateLocale = locale === "ru" ? ru : uk;
+  const dateLocale = uk;
 
   const initials = review.user_name
     ? review.user_name
@@ -258,7 +258,7 @@ export default function ReviewsPage() {
   }, [reviews]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-theme-secondary transition-colors">
+    <div className="min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#0f291e] via-[#05140e] to-[#000000] transition-colors">
       {/* Schema.org markup для SEO */}
       <JsonLd
         schema={getBreadcrumbSchema([
@@ -351,9 +351,9 @@ export default function ReviewsPage() {
               <button
                 key={filter.value}
                 onClick={() => setRatingFilter(filter.value)}
-                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${ratingFilter === filter.value
-                  ? "bg-primary text-white shadow-md shadow-primary/30"
-                  : "bg-surface text-foreground-secondary border border-border hover:border-primary hover:text-primary"
+                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${ratingFilter === filter.value
+                  ? "bg-primary text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] scale-105"
+                  : "bg-transparent text-foreground-muted hover:text-white hover:bg-white/5"
                   }`}
               >
                 {filter.label}
@@ -424,7 +424,7 @@ export default function ReviewsPage() {
           )}
 
           {/* CTA для залишення відгуку */}
-          <div className="mt-12 bg-gradient-to-br from-surface via-surface to-primary/5 rounded-2xl shadow-xl p-8 md:p-12 text-center border border-border">
+          <div className="mt-12 bg-gradient-to-br from-surface via-surface to-primary/5 rounded-2xl shadow-xl px-8 pb-8 pt-14 md:px-12 md:pb-12 md:pt-20 text-center border border-border">
             <div className="max-w-xl mx-auto">
               {/* Інтерактивні зірки */}
               <div className="flex justify-center mb-6">

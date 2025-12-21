@@ -50,7 +50,7 @@ export default function TopProducts({ products = [], isLoading = false }: TopPro
                     {displayProducts.map((product, index) => (
                         <div key={product.id} className="flex items-center gap-4 py-3 border-b border-white/10 last:border-0">
                             <div className="flex items-center gap-2 flex-shrink-0">
-                                <span className="w-6 h-6 flex items-center justify-center bg-surface text-gray-400 text-xs font-bold rounded">
+                                <span className="w-6 h-6 flex items-center justify-center bg-white/10 text-gray-400 text-xs font-bold rounded">
                                     {index + 1}
                                 </span>
                                 {product.image_url ? (
@@ -63,7 +63,7 @@ export default function TopProducts({ products = [], isLoading = false }: TopPro
                                         }}
                                     />
                                 ) : (
-                                    <div className="w-12 h-12 rounded bg-surface flex items-center justify-center p-2">
+                                    <div className="w-12 h-12 rounded bg-white/5 flex items-center justify-center p-2">
                                         <div className="relative w-full h-full">
                                             <Image
                                                 src="/logo.png"

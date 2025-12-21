@@ -116,7 +116,7 @@ export default function AdminPromotionsPage() {
                                 <span
                                     className={`px-2 py-1 rounded text-xs font-semibold ${promo.is_active
                                         ? "bg-green-500/20 text-green-400"
-                                        : "bg-surface text-gray-400"
+                                        : "bg-white/10 text-gray-400"
                                         }`}
                                 >
                                     {promo.is_active ? "Активна" : "Неактивна"}

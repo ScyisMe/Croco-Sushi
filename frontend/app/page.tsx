@@ -5,6 +5,7 @@ import Footer from "@/components/AppFooter";
 import CategoryFeed from "@/components/CategoryFeed";
 
 import Stories from "@/components/Stories";
+import PromoBanner from "@/components/PromoBanner";
 
 const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"), {
   loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
@@ -23,6 +24,7 @@ export default function Home() {
         <div className="md:hidden">
           <Stories />
         </div>
+        <PromoBanner />
         <Promotions />
         <CategoryFeed />
         <ReviewsCarousel />

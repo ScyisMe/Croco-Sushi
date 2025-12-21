@@ -73,6 +73,13 @@ class OrderHistoryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class OrderHistoryLogResponse(OrderHistoryResponse):
+    """Розширена відповідь для журналу історії"""
+    order_number: str
+    customer_name: str
+    total_amount: Decimal
+
+
 class OrderUpdate(BaseModel):
     status: Optional[str] = None
     payment_method: Optional[str] = None

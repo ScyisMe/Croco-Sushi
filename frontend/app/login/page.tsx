@@ -72,35 +72,39 @@ export default function LoginPage() {
                   src="/logo.jpg"
                   alt="Croco Sushi"
                   fill
-                  className="object-contain rounded-full"
+                  className="object-contain rounded-full shadow-2xl"
                   priority
                 />
               </div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               {t("auth.login")}
             </h1>
-            <p className="text-foreground-secondary">
+            <p className="text-foreground-secondary text-lg">
               {t("auth.loginDescription") || "Увійдіть, щоб переглянути замовлення та бонуси"}
             </p>
           </div>
 
           {/* Форма */}
-          <div className="bg-surface rounded-2xl shadow-card p-6 md:p-8 border border-border">
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-8 border border-white/10 relative overflow-hidden">
+            {/* Background Glow Effect */}
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-accent-gold/10 rounded-full blur-3xl pointer-events-none" />
+
+            <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
               {/* Телефон */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   {t("auth.phone")}
                 </label>
-                <div className="relative">
-                  <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
+                <div className="relative group">
+                  <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted group-focus-within:text-primary transition-colors" />
                   <input
                     type="tel"
                     value={phone}
                     onChange={handlePhoneChange}
                     required
-                    className="input pl-12"
+                    className="input pl-12 bg-surface-card/50 focus:bg-surface-card transition-colors border-white/5 focus:border-primary/50"
                     placeholder="+380 XX XXX XX XX"
                   />
                 </div>
@@ -111,14 +115,14 @@ export default function LoginPage() {
                 <label className="block text-sm font-medium text-foreground mb-2">
                   {t("auth.password")}
                 </label>
-                <div className="relative">
-                  <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
+                <div className="relative group">
+                  <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted group-focus-within:text-primary transition-colors" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="input pl-12"
+                    className="input pl-12 bg-surface-card/50 focus:bg-surface-card transition-colors border-white/5 focus:border-primary/50"
                     placeholder={t("auth.enterPassword") || "Введіть пароль"}
                   />
                 </div>
@@ -128,7 +132,7 @@ export default function LoginPage() {
               <div className="flex justify-end">
                 <Link
                   href="/reset-password"
-                  className="text-sm text-primary hover:text-primary-600 transition"
+                  className="text-sm text-primary hover:text-primary-400 transition hover:underline"
                 >
                   {t("auth.forgotPassword")}
                 </Link>
@@ -138,7 +142,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] transition-all duration-300"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -152,40 +156,25 @@ export default function LoginPage() {
             </form>
 
             {/* Роздільник */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-surface text-foreground-muted">
-                  {t("common.or")}
-                </span>
-              </div>
+            <div className="flex items-center gap-4 my-8">
+              <div className="h-px bg-white/10 flex-1" />
+              <span className="text-sm text-foreground-muted">
+                {t("common.or") || "або"}
+              </span>
+              <div className="h-px bg-white/10 flex-1" />
             </div>
 
             {/* Реєстрація */}
-            <div className="text-center">
+            <div className="text-center relative z-10">
               <p className="text-foreground-secondary">
                 {t("auth.noAccount")}{" "}
                 <Link
                   href="/register"
-                  className="text-primary hover:text-primary-600 font-semibold transition"
+                  className="text-primary hover:text-primary-400 font-semibold transition hover:underline"
                 >
                   {t("auth.signUp")}
                 </Link>
               </p>
-            </div>
-          </div>
-
-          {/* Переваги */}
-          <div className="mt-8 grid grid-cols-2 gap-4 text-center">
-            <div className="p-4 bg-surface rounded-xl border border-border">
-              <div className="text-2xl mb-2">🎁</div>
-              <p className="text-sm text-foreground-secondary">{t("auth.benefits.loyalty") || "Бонуси за замовлення"}</p>
-            </div>
-            <div className="p-4 bg-surface rounded-xl border border-border">
-              <div className="text-2xl mb-2">📦</div>
-              <p className="text-sm text-foreground-secondary">{t("auth.benefits.history")}</p>
             </div>
           </div>
         </div>

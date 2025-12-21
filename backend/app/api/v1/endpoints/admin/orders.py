@@ -14,7 +14,7 @@ from app.core.exceptions import NotFoundException, BadRequestException
 from app.models.user import User
 from app.models.order import Order, OrderItem
 from app.models.order_history import OrderHistory
-from app.schemas.order import OrderResponse, OrderStatusUpdate
+from app.schemas.order import OrderResponse, OrderStatusUpdate, OrderHistoryLogResponse
 
 router = APIRouter()
 
@@ -91,6 +91,68 @@ async def get_orders(
     orders = result.scalars().all()
     
     return orders
+
+
+@router.get("/history-log", response_model=List[OrderHistoryLogResponse])
+async def get_history_log(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    search: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_manager_user)
+):
+    """
+    Отримати повний журнал змін статусів (Audit Log).
+    """
+    query = select(OrderHistory).options(
+        selectinload(OrderHistory.order)
+    ).join(OrderHistory.order)
+
+    if search:
+        query = query.where(
+            (Order.order_number.ilike(f"%{search}%")) |
+            (Order.customer_name.ilike(f"%{search}%")) |
+            (OrderHistory.manager_name.ilike(f"%{search}%"))
+        )
+
+    query = query.order_by(OrderHistory.changed_at.desc()).offset(skip).limit(limit)
+
+    result = await db.execute(query)
+    history_items = result.scalars().all()
+
+    # Map to schema manually or let Pydantic handle it if structure matches
+    # We need to flattened structure so we construct it
+    response = []
+    for item in history_items:
+        response.append({
+            "id": item.id,
+            "order_id": item.order_id,
+            "manager_name": item.manager_name,
+            "previous_status": item.previous_status,
+            "new_status": item.new_status,
+            "comment": item.comment,
+            "changed_at": item.changed_at,
+            "order_number": item.order.order_number,
+            "customer_name": item.order.customer_name,
+            "total_amount": item.order.total_amount
+        })
+
+    return response
+
+
+@router.get("/export", status_code=status.HTTP_200_OK)
+async def export_orders(
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    format: str = Query("csv", pattern="^(csv|excel)$"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_manager_user)
+):
+    """Експорт замовлень"""
+    # TODO: Реалізувати експорт в CSV/Excel
+    # Поки що повертаємо пустий список
+    
+    return {"message": "Експорт буде реалізовано", "format": format}
 
 
 @router.get("/{order_id}", response_model=OrderResponse)
@@ -210,6 +272,9 @@ async def update_order_status(
     return order
 
 
+
+
+
 @router.post("/{order_id}/comment", status_code=status.HTTP_204_NO_CONTENT)
 async def add_order_comment(
     order_id: int,
@@ -257,17 +322,5 @@ async def assign_courier(
     return order
 
 
-@router.get("/export", status_code=status.HTTP_200_OK)
-async def export_orders(
-    date_from: Optional[date] = None,
-    date_to: Optional[date] = None,
-    format: str = Query("csv", pattern="^(csv|excel)$"),
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_manager_user)
-):
-    """Експорт замовлень"""
-    # TODO: Реалізувати експорт в CSV/Excel
-    # Поки що повертаємо пустий список
-    
-    return {"message": "Експорт буде реалізовано", "format": format}
+
 

@@ -105,7 +105,7 @@ export default function Hero() {
       <motion.div
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-white/50"
+        className="hidden md:block absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-white/50"
       >
         <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-2">
           <div className="w-1 h-1 bg-white rounded-full" />

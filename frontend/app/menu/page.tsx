@@ -25,6 +25,7 @@ import QuickViewModal from "@/components/QuickViewModal";
 import toast from "react-hot-toast";
 import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 import { Button } from "@/components/ui/Button";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 
 // Кількість товарів на сторінку
 const PRODUCTS_PER_PAGE = 24;
@@ -55,22 +56,34 @@ function MenuContent() {
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
   // Filters State
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const filterParam = searchParams.get("filter");
+  const [selectedProperties, setSelectedProperties] = useState<string[]>(
+    filterParam ? filterParam.split(",") : []
+  );
+
+  // Sync with URL when params change (e.g. navigation from Home)
+  useEffect(() => {
+    const filterParam = searchParams.get("filter");
+    if (filterParam) {
+      setSelectedProperties(filterParam.split(","));
+    } else {
+      // Only clear if we explicitly navigated to a URL without filters (optional, depends on UX)
+      // But if we want to support clearing via back button:
+      setSelectedProperties([]);
+    }
+  }, [searchParams]);
 
   // Filter Options
-  const TYPE_FILTERS = [
-    { id: "warm", label: "Теплі", keywords: ["теплий", "тепла", "смажений"] },
-    { id: "baked", label: "Запечені", keywords: ["запечений", "запечена", "гріль"] },
-    { id: "classic", label: "Класичні", keywords: [] }, // Fallback or negation? Handling as specific keywords might be tricky, maybe just exclude others?
-  ];
-
-  const INGREDIENT_FILTERS = [
-    { id: "salmon", label: "З лососем", keyword: "лосось" },
-    { id: "eel", label: "З вугром", keyword: "вугор" },
-    { id: "no_cheese", label: "Без сиру", exclude: "сир" },
-    { id: "spicy", label: "Гострі", checkProp: "is_spicy" },
-    { id: "vegan", label: "Веган", checkProp: "is_vegan" },
+  // Filter Options
+  const PROPERTY_FILTERS = [
+    { id: "is_spicy", label: "Гострі 🌶️", type: "boolean", prop: "is_spicy" },
+    { id: "no_cheese", label: "Без сиру 🧀❌", type: "exclude", keyword: "сир" },
+    { id: "salmon", label: "З лососем 🐟", type: "include", keyword: "лосось" },
+    { id: "eel", label: "З вугром 🐍", type: "include", keyword: "вугор" },
+    { id: "shrimp", label: "З креветкою 🍤", type: "include", keyword: "креветк" },
+    { id: "is_vegan", label: "Вегетаріанські 🥬", type: "boolean", prop: "is_vegan" },
+    { id: "is_popular", label: "Топ продажів 🔥", type: "boolean", prop: "is_popular" },
+    { id: "is_new", label: "Новинки 🆕", type: "boolean", prop: "is_new" },
   ];
 
   // Ref для Intersection Observer (infinite scroll)
@@ -134,11 +147,15 @@ function MenuContent() {
       const response = await apiClient.get("/products", { params });
       // API може повертати { items: [...], total: ... } або просто [...]
       const items = response.data.items || response.data;
-      const total = response.data.total ?? items.length;
+
+      // Fix: Backend does not return total count, so we assume more items if we got a full page
+      const hasMore = items.length === PRODUCTS_PER_PAGE;
+      const total = response.data.total ?? (hasMore ? pageParam + items.length + 1 : pageParam + items.length);
+
       return {
         items: items as Product[],
         nextOffset: pageParam + PRODUCTS_PER_PAGE,
-        hasMore: pageParam + PRODUCTS_PER_PAGE < total,
+        hasMore,
         total,
       };
     },
@@ -147,7 +164,7 @@ function MenuContent() {
       return lastPage.hasMore ? lastPage.nextOffset : undefined;
     },
     // Не робити запит, якщо вибрана категорія, але її ID ще не знайдено (крім випадку "Всі меню")
-    enabled: !selectedCategory || !!selectedCategoryId || categoriesQuery.isLoading,
+    enabled: (!selectedCategory || !!selectedCategoryId) || categoriesQuery.isLoading,
   });
 
   // Всі завантажені товари
@@ -198,6 +215,9 @@ function MenuContent() {
   // Мутація для додавання/видалення з обраного
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (productId: number) => {
+      // Logic inside mutationFn remains the same, but we rely on the previous state
+      // However, for strict correctness with optimistic updates, we can just try to toggle based on what we think is the state
+      // Or simply maintain ID-based endpoints if available. Assuming existing logic is correct.
       if (favoriteIds.has(productId)) {
         await apiClient.delete(`/users/me/favorites/${productId}`);
         return { action: "removed", productId };
@@ -206,13 +226,52 @@ function MenuContent() {
         return { action: "added", productId };
       }
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["favorites"] });
-      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
+    onMutate: async (productId) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["favorites"] });
+
+      // Snapshot the previous value
+      const previousFavorites = queryClient.getQueryData<Favorite[]>(["favorites"]);
+
+      // Optimistically update
+      queryClient.setQueryData<Favorite[]>(["favorites"], (old = []) => {
+        const exists = old.find((f) => f.product_id === productId);
+        if (exists) {
+          // Remove
+          return old.filter((f) => f.product_id !== productId);
+        } else {
+          // Add (mocking the favorite object)
+          const newFavorite: Favorite = {
+            id: Date.now(), // temporary ID
+            user_id: 0, // placeholder
+            product_id: productId,
+            created_at: new Date().toISOString(),
+          };
+          return [...old, newFavorite];
+        }
+      });
+
+      // Return context
+      return { previousFavorites };
     },
-    onError: () => {
+    onError: (err, productId, context) => {
+      // Rollback
+      if (context?.previousFavorites) {
+        queryClient.setQueryData(["favorites"], context.previousFavorites);
+      }
       toast.error("Помилка. Спробуйте ще раз");
     },
+    onSettled: () => {
+      // Invalidate to refetch strict data
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
+    },
+    onSuccess: (data) => {
+      // Optional: Toast msg
+      // toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
+      // Keeping toast might be noisy if it's instant, but user expects confirmation? Let's keep it but maybe debounced or simple.
+      // User didn't complain about toast.
+      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного", { id: 'fav-toast' });
+    }
   });
 
   // Обробник перемикання обраного
@@ -239,42 +298,26 @@ function MenuContent() {
     let result = [...allProducts];
 
     // Client-side filtering
-    if (selectedType) {
-      const typeFilter = TYPE_FILTERS.find(f => f.id === selectedType);
-      if (typeFilter) {
-        if (typeFilter.id === 'classic') {
-          // Classic = NOT warm AND NOT baked (simplistic logic)
-          result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
-            return !text.includes("теплий") && !text.includes("запечен");
-          });
-        } else {
-          result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
-            return typeFilter.keywords.some(k => text.includes(k));
-          });
-        }
-      }
-    }
-
-    if (selectedIngredients.length > 0) {
-      selectedIngredients.forEach(filterId => {
-        const filter = INGREDIENT_FILTERS.find(f => f.id === filterId);
+    if (selectedProperties.length > 0) {
+      selectedProperties.forEach(filterId => {
+        const filter = PROPERTY_FILTERS.find(f => f.id === filterId);
         if (!filter) return;
 
-        if (filter.exclude) {
+        if (filter.type === "exclude") {
           result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
-            return !text.includes(filter.exclude!);
+            const text = (p.name + (p.description || "") + (p.ingredients || "")).toLowerCase();
+            // @ts-ignore
+            return !text.includes(filter.keyword!);
           });
-        } else if (filter.keyword) {
+        } else if (filter.type === "include") {
           result = result.filter(p => {
-            const text = (p.name + p.description).toLowerCase();
+            const text = (p.name + (p.description || "") + (p.ingredients || "")).toLowerCase();
+            // @ts-ignore
             return text.includes(filter.keyword!);
           });
-        } else if (filter.checkProp) {
-          // @ts-ignore - props might be optional/missing in strict types but present in runtime/mocks
-          result = result.filter(p => !!p[filter.checkProp]);
+        } else if (filter.type === "boolean") {
+          // @ts-ignore
+          result = result.filter(p => !!p[filter.prop]);
         }
       });
     }
@@ -297,11 +340,11 @@ function MenuContent() {
       default:
         return result.sort((a, b) => a.position - b.position);
     }
-  }, [allProducts, sortBy, selectedType, selectedIngredients]);
+  }, [allProducts, sortBy, selectedProperties]);
 
   // Handle Filter Toggles
-  const toggleIngredient = (id: string) => {
-    setSelectedIngredients(prev =>
+  const toggleProperty = (id: string) => {
+    setSelectedProperties(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -395,30 +438,13 @@ function MenuContent() {
 
               {/* Фільтри (Quick Access Buttons) - Desktop */}
               <div className="hidden md:flex gap-3 flex-wrap items-center">
-                {TYPE_FILTERS.map(filter => (
+                {PROPERTY_FILTERS.map(filter => (
                   <motion.button
                     key={filter.id}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setSelectedType(selectedType === filter.id ? null : filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedType === filter.id
-                      ? "bg-primary text-white border-primary shadow-[0_0_20px_rgba(34,197,94,0.4)]"
-                      : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-primary/50 hover:text-white"
-                      }`}
-                  >
-                    {filter.label}
-                  </motion.button>
-                ))}
-
-                <div className="w-px bg-white/10 mx-2 h-6 self-center" />
-
-                {INGREDIENT_FILTERS.slice(0, 3).map(filter => (
-                  <motion.button
-                    key={filter.id}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleIngredient(filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedIngredients.includes(filter.id)
+                    onClick={() => toggleProperty(filter.id)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedProperties.includes(filter.id)
                       ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
                       : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-secondary/50 hover:text-white"
                       }`}
@@ -537,14 +563,33 @@ function MenuContent() {
                 </div>
               </div>
 
+              {/* Фільтри (Mobile) - Horizontal Scroll */}
+              <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto no-scrollbar">
+                <div className="flex gap-2">
+                  {PROPERTY_FILTERS.map((filter) => (
+                    <button
+                      key={filter.id}
+                      onClick={() => toggleProperty(filter.id)}
+                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap border ${selectedProperties.includes(filter.id)
+                        ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
+                        : "bg-white/5 text-gray-300 border-white/10 hover:border-white/20 active:bg-white/10"
+                        }`}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Результати пошуку та кількість */}
               {debouncedSearch ? (
                 <p className="text-secondary-light text-xs mb-4">
-                  Результати пошуку для &quot;{debouncedSearch}&quot;: {totalProducts} страв
+                  Результати пошуку для &quot;{debouncedSearch}&quot;: {filteredAndSortedProducts.length} страв
                 </p>
-              ) : totalProducts > 0 && (
+              ) : (
                 <p className="text-secondary-light text-xs mb-4">
-                  Показано {filteredAndSortedProducts.length} з {totalProducts} страв
+                  Показано {filteredAndSortedProducts.length} страв
+                  {productsQuery.hasNextPage ? " (завантаження...)" : ""}
                 </p>
               )}
 
@@ -664,6 +709,7 @@ function MenuContent() {
       </main >
 
       <Footer />
+      <ScrollToTop />
 
       {/* Мобільний фільтр */}
       {
@@ -734,31 +780,13 @@ function MenuContent() {
 
                 {/* Фільтри Mobile */}
                 <div>
-                  <h4 className="font-semibold text-secondary mb-3">Тип страви</h4>
+                  <h4 className="font-semibold text-secondary mb-3">Властивості</h4>
                   <div className="flex flex-wrap gap-2">
-                    {TYPE_FILTERS.map(filter => (
+                    {PROPERTY_FILTERS.map(filter => (
                       <button
                         key={filter.id}
-                        onClick={() => setSelectedType(selectedType === filter.id ? null : filter.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedType === filter.id
-                          ? "bg-primary text-white border-primary"
-                          : "bg-surface text-secondary border-border"
-                          }`}
-                      >
-                        {filter.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-secondary mb-3">Інгредієнти</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {INGREDIENT_FILTERS.map(filter => (
-                      <button
-                        key={filter.id}
-                        onClick={() => toggleIngredient(filter.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedIngredients.includes(filter.id)
+                        onClick={() => toggleProperty(filter.id)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedProperties.includes(filter.id)
                           ? "bg-secondary text-white border-secondary"
                           : "bg-surface text-secondary border-border"
                           }`}
@@ -768,6 +796,8 @@ function MenuContent() {
                     ))}
                   </div>
                 </div>
+
+
               </div>
 
               {/* Кнопка застосувати */}

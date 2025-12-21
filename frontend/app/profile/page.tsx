@@ -797,7 +797,7 @@ export default function ProfilePage() {
                         {/* Баланс балів */}
                         <div className="relative overflow-hidden rounded-2xl p-8 border border-white/10">
                           <div className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-800 opacity-80" />
-                          <div className="absolute inset-0 bg-[url('/pattern.png')] opacity-10" />
+                          {/* Pattern removed to fix 404 and match clean design */}
 
                           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                             <div>
