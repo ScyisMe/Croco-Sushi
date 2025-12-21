@@ -16,19 +16,26 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'http://backend:8000' : 'http://localhost:8000');
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.crocosushi.com';
+    // For rewrites, we prefer the internal Docker network URL in production to avoid DNS issues
+    // with the public domain (api.crocosushi.com) inside the container.
+    const internalApiUrl = process.env.NODE_ENV === 'production'
+      ? 'http://backend:8000'
+      : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
+
+    // Use internalApiUrl for destinations to ensure connectivity
     return [
       {
         source: '/api/:path*',
-        destination: `${apiUrl}/api/:path*`,
+        destination: `${internalApiUrl}/api/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: `${apiUrl}/static/uploads/:path*`,
+        destination: `${internalApiUrl}/static/uploads/:path*`,
       },
       {
         source: '/static/uploads/:path*',
-        destination: `${apiUrl}/static/uploads/:path*`,
+        destination: `${internalApiUrl}/static/uploads/:path*`,
       },
     ];
   },
