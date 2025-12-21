@@ -50,6 +50,13 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   cancelled: { label: "Скасовано", color: "bg-red-500/10 text-red-500 border border-red-500/20" },
 };
 
+const PAYMENT_CONFIG: Record<string, { label: string; icon: string }> = {
+  cash: { label: "Готівка", icon: "💵" },
+  card: { label: "Карткою", icon: "💳" },
+  card_courier: { label: "Карткою кур'єру", icon: "💳" },
+  card_online: { label: "Онлайн", icon: "🌐" },
+};
+
 export default function AdminOrdersPage() {
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -285,11 +292,10 @@ export default function AdminOrdersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-400">
-                      {order.payment_method === "cash"
-                        ? "💵 Готівка"
-                        : order.payment_method === "card"
-                          ? "💳 Карткою"
-                          : order.payment_method}
+                      <span className="flex items-center gap-2">
+                        <span>{PAYMENT_CONFIG[order.payment_method]?.icon || "❓"}</span>
+                        <span>{PAYMENT_CONFIG[order.payment_method]?.label || order.payment_method}</span>
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-gray-500 text-sm">
                       {formatDate(order.created_at)}
