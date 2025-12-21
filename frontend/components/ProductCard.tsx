@@ -237,7 +237,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
 
 
       {/* Контент */}
-      <div className="p-4 flex flex-col relative bg-[#1E1E1E]/40">
+      <div className="p-3 sm:p-4 flex flex-col relative bg-[#1E1E1E]/40">
         {/* Назва - посилання */}
         <Link href={`/products/${product.slug}`} className="block mb-2 relative z-30">
           <div className="flex items-start justify-between gap-2">
