@@ -343,13 +343,28 @@ async def track_order(
     db: AsyncSession = Depends(get_db)
 ):
     """Відстеження замовлення за номером (публічний endpoint)"""
-    result = await db.execute(select(Order).where(Order.order_number == order_number))
+    result = await db.execute(
+        select(Order)
+        .where(Order.order_number == order_number)
+        .options(selectinload(Order.address))
+    )
     order = result.scalar_one_or_none()
     
     if not order:
         raise NotFoundException("Замовлення не знайдено")
     
-    return order
+    # Мапимо адресу якщо вона є
+    response_data = OrderTrack.model_validate(order)
+    
+    if order.address:
+        response_data.city = order.address.city
+        response_data.street = order.address.street
+        response_data.building = order.address.house
+        response_data.apartment = order.address.apartment
+        response_data.entrance = order.address.entrance
+        response_data.floor = order.address.floor
+    
+    return response_data
 
 
 @router.get("/me", response_model=List[OrderResponse])

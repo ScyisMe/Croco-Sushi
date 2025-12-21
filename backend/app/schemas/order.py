@@ -137,6 +137,9 @@ class OrderTrack(BaseModel):
     entrance: Optional[str] = None
     floor: Optional[str] = None
     
+    # Історія статусів
+    status_history: Optional[List[dict]] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
