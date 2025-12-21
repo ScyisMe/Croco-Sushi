@@ -162,12 +162,13 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         <Link href={`/products/${product.slug}`} className="block w-full h-full relative">
           {product.image_url ? (
             <Image
-              src={product.image_url.replace('/products/', '/')}
+              src={product.image_url.replace('/products/', '/admin/')}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               priority={priority}
+              unoptimized={true}
             />
           ) : (
             <div className="w-full h-full bg-surface-lighter flex items-center justify-center p-8">
