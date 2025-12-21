@@ -34,14 +34,14 @@ const ORDER_STATUSES = {
     bg: "bg-blue-500",
     step: 2,
   },
-  kitchen: {
+  preparing: {
     label: "Готується",
     icon: HomeIcon, // Можна замінити на іконку кухні/плити якщо є
     color: "text-orange-500",
     bg: "bg-orange-500",
     step: 3,
   },
-  courier: {
+  delivering: {
     label: "Доставляється",
     icon: TruckIcon,
     color: "text-purple-500",
@@ -91,8 +91,8 @@ export default function OrderTrackPage() {
   const steps = [
     ORDER_STATUSES.pending,
     ORDER_STATUSES.confirmed,
-    ORDER_STATUSES.kitchen,
-    ORDER_STATUSES.courier,
+    ORDER_STATUSES.preparing,
+    ORDER_STATUSES.delivering,
     ORDER_STATUSES.completed,
   ];
 

@@ -51,13 +51,16 @@ class OrderCreate(OrderBase):
 
     @model_validator(mode='after')
     def validate_address_fields(self) -> 'OrderCreate':
-        if not self.address_id:
-            if not self.city:
-                raise ValueError('City is required when address_id is not provided')
-            if not self.street:
-                raise ValueError('Street is required when address_id is not provided')
+        # Якщо вказана вулиця - це завжди створення нової адреси (або разова адреса)
+        # Тому обов'язково потрібні номер будинку (місто має дефолт)
+        if self.street:
             if not self.house:
-                raise ValueError('House number is required when address_id is not provided')
+                raise ValueError("Будь ласка, вкажіть номер будинку")
+        
+        # Якщо вулиця не вказана - має бути address_id (для авторизованих)
+        elif not self.address_id:
+             raise ValueError("Необхідно вказати адресу доставки")
+             
         return self
 
 

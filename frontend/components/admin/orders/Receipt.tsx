@@ -76,7 +76,7 @@ export const Receipt: React.FC<ReceiptProps> = ({ order }) => {
             <div className="text-center mb-4 uppercase">
                 <h1 className="font-bold text-base mb-1">ФОП &quot;Croco Sushi&quot;</h1>
                 <p>Україна, м. Львів</p>
-                <p>вул. Шевченка, 1</p>
+                <p>вул. Володимира Янева, 31</p>
                 <p>МАГАЗИН</p>
             </div>
 
