@@ -168,6 +168,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               priority={priority}
+              unoptimized={true}
             />
           ) : (
             <div className="w-full h-full bg-surface-lighter flex items-center justify-center p-8">
@@ -177,6 +178,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
                   alt={product.name}
                   fill
                   className="object-contain opacity-20 grayscale"
+                  unoptimized={true}
                 />
               </div>
             </div>
