@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from datetime import datetime
 from typing import Optional, List
 from decimal import Decimal
@@ -48,6 +48,17 @@ class OrderCreate(OrderBase):
     apartment: Optional[str] = None
     address_comment: Optional[str] = None
     promo_code: Optional[str] = None # Промокод, введений користувачем
+
+    @model_validator(mode='after')
+    def validate_address_fields(self) -> 'OrderCreate':
+        if not self.address_id:
+            if not self.city:
+                raise ValueError('City is required when address_id is not provided')
+            if not self.street:
+                raise ValueError('Street is required when address_id is not provided')
+            if not self.house:
+                raise ValueError('House number is required when address_id is not provided')
+        return self
 
 
 class OrderHistoryResponse(BaseModel):

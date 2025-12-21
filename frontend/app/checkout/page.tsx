@@ -269,7 +269,7 @@ export default function CheckoutPage() {
         payment_method: formData.payment_method,
         city: formData.city,
         street: formData.street,
-        building: formData.building,
+        house: formData.building,
         apartment: formData.apartment || undefined,
         entrance: formData.entrance || undefined,
         floor: formData.floor || undefined,
