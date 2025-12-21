@@ -162,7 +162,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
         <Link href={`/products/${product.slug}`} className="block w-full h-full relative">
           {product.image_url ? (
             <Image
-              src={`${product.image_url.startsWith('http') ? '' : (process.env.NEXT_PUBLIC_API_URL || 'https://api.crocosushi.com')}${product.image_url.replace('/products/', '/admin/')}`}
+              src={`/static/uploads${product.image_url.replace('/products/', '/admin/')}`}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
