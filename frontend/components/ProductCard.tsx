@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import { GlassCard } from "./ui/GlassCard";
 import { Button } from "./ui/Button";
 import { ProductActions } from "./ProductActions";
-import { FireIcon } from "@heroicons/react/24/solid";
+
 // Use Leaf icon or similar for Vegan if no specific Vegan icon available in Outline/Solid standard set, or import from another lib if available. 
 // Assuming SparklesIcon or similar as placeholder if specific one missing, but Heroicons has rudimentary support.
 // Let's use Sparkles for "Hit"/Popular if not already defined.
@@ -88,7 +88,16 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   if (isSpicy) {
     infoBadges.push({
       id: "spicy",
-      icon: <FireIcon className="w-4 h-4" />,
+      icon: (
+        <div className="relative w-4 h-4">
+          <Image
+            src="/badges/spicy_custom.png"
+            alt="Spicy"
+            fill
+            className="object-contain"
+          />
+        </div>
+      ),
       label: "Гостре",
       className: "bg-red-500/20 text-red-500 border-red-500/30 rounded-full"
     });
