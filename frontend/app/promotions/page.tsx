@@ -82,7 +82,7 @@ export default function PromotionsPage() {
 
           <div className="container mx-auto px-4 text-center relative z-10">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">
-              🔥 {t("promotions.pageTitle")}
+              {t("promotions.pageTitle")}
             </h1>
             <p className="text-lg text-gray-300 max-w-2xl mx-auto">
               {t("promotions.subtitle")}
@@ -223,11 +223,18 @@ export default function PromotionsPage() {
             // EMPTY STATE REVAMPED
             <div className="flex flex-col items-center justify-center py-12 md:py-20 text-center relative z-10">
 
-              {/* Animated Gift Icon */}
-              <div className="relative w-32 h-32 mb-8 animate-bounce-slow">
+              {/* Animated Sale Tag Icon */}
+              <div className="relative w-40 h-40 mb-8 animate-bounce-slow">
                 {/* Glow effect under the icon */}
                 <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-                <div className="relative text-8xl drop-shadow-2xl grayscale-[0.3]">🎁</div>
+                <div className="relative w-full h-full drop-shadow-2xl">
+                  <Image
+                    src="/images/sale-tag.png"
+                    alt="Sale Tag"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </div>
 
               <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 max-w-lg mx-auto leading-tight">

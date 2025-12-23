@@ -141,6 +141,7 @@ export interface Order {
   order_number: string;
   user_id?: number;
   status: OrderStatus;
+  delivery_type: "delivery" | "pickup";
   total_amount: string;
   delivery_cost: string;
   items: OrderItem[];

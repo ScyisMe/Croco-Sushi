@@ -10,13 +10,14 @@ import {
     PhoneIcon,
     BanknotesIcon,
     MapPinIcon,
+    ShoppingBagIcon,
 } from "@heroicons/react/24/outline";
 
 // Extended interface for Manager view (simulated for now until API is ready)
 export interface ManagerOrder extends Order {
     customer_name?: string;
     customer_phone?: string;
-    customer_address?: string;
+    delivery_address?: string;
     payment_method?: string;
     comment?: string;
     history?: {
@@ -117,11 +118,18 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
                             <span>{order.customer_phone}</span>
                         </div>
                     )}
-                    {order.customer_address && (
+                    {order.delivery_type === 'pickup' ? (
                         <div className="flex items-center gap-2">
-                            <MapPinIcon className="w-3 h-3" />
-                            <span className="truncate">{order.customer_address}</span>
+                            <ShoppingBagIcon className="w-3 h-3 text-primary-500" />
+                            <span className="font-medium text-white">Самовивіз</span>
                         </div>
+                    ) : (
+                        order.delivery_address && (
+                            <div className="flex items-center gap-2">
+                                <MapPinIcon className="w-3 h-3" />
+                                <span className="truncate">{order.delivery_address}</span>
+                            </div>
+                        )
                     )}
                 </div>
             </div>

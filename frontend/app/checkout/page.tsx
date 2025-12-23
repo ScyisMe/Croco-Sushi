@@ -45,8 +45,10 @@ interface FormData {
   // Крок 1: Контактні дані
   customer_name: string;
   customer_phone: string;
+
   customer_email: string;
   // Крок 2: Адреса доставки
+  delivery_type: "delivery" | "pickup";
   city: string;
   street: string;
   building: string;
@@ -66,6 +68,7 @@ const initialFormData: FormData = {
   customer_name: "",
   customer_phone: "+380",
   customer_email: "",
+  delivery_type: "delivery",
   city: "Львів",
   street: "",
   building: "",
@@ -203,7 +206,7 @@ export default function CheckoutPage() {
   }, []);
 
   // Розрахунок доставки
-  const deliveryCost = totalAmount >= FREE_DELIVERY_FROM ? 0 : DELIVERY_COST;
+  const deliveryCost = formData.delivery_type === 'pickup' ? 0 : (totalAmount >= FREE_DELIVERY_FROM ? 0 : DELIVERY_COST);
   const finalAmount = totalAmount + deliveryCost;
 
   // Оновлення поля форми
@@ -263,14 +266,16 @@ export default function CheckoutPage() {
     }
 
     if (step === 2) {
-      if (!formData.city.trim()) {
-        newErrors.city = "Введіть місто";
-      }
-      if (!formData.street.trim()) {
-        newErrors.street = "Введіть вулицю";
-      }
-      if (!formData.building.trim()) {
-        newErrors.building = "Введіть номер будинку";
+      if (formData.delivery_type === 'delivery') {
+        if (!formData.city.trim()) {
+          newErrors.city = "Введіть місто";
+        }
+        if (!formData.street.trim()) {
+          newErrors.street = "Введіть вулицю";
+        }
+        if (!formData.building.trim()) {
+          newErrors.building = "Введіть номер будинку";
+        }
       }
     }
 
@@ -327,12 +332,13 @@ export default function CheckoutPage() {
         customer_phone: formData.customer_phone.replace(/\D/g, ""),
         customer_email: formData.customer_email || undefined,
         payment_method: formData.payment_method,
-        city: formData.city,
-        street: formData.street,
-        house: formData.building,
-        apartment: formData.apartment || undefined,
-        entrance: formData.entrance || undefined,
-        floor: formData.floor || undefined,
+        delivery_type: formData.delivery_type,
+        city: formData.delivery_type === 'delivery' ? formData.city : undefined,
+        street: formData.delivery_type === 'delivery' ? formData.street : undefined,
+        house: formData.delivery_type === 'delivery' ? formData.building : undefined,
+        apartment: formData.delivery_type === 'delivery' ? formData.apartment || undefined : undefined,
+        entrance: formData.delivery_type === 'delivery' ? formData.entrance || undefined : undefined,
+        floor: formData.delivery_type === 'delivery' ? formData.floor : undefined,
         comment: formData.comment || undefined,
       };
 
@@ -585,145 +591,192 @@ export default function CheckoutPage() {
                 {/* Крок 2: Адреса доставки */}
                 {currentStep === 2 && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-secondary">Адреса доставки</h2>
+                    <h2 className="text-xl font-bold text-secondary">Дані доставки</h2>
 
-                    <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
-                      <div className="relative z-20">
-                        <label className="block text-sm font-medium text-secondary mb-2">
-                          Вулиця *
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={formData.street}
-                            onChange={(e) => {
-                              updateField("street", e.target.value);
-                              setShowSuggestions(true);
-                            }}
-                            onFocus={() => setShowSuggestions(true)}
-                            placeholder="Почніть вводити назву вулиці..."
-                            className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.street ? "input-error" : ""}`}
-                            autoComplete="off"
-                          />
-                          {/* Autocomplete Dropdown */}
-                          <AnimatePresence>
-                            {showSuggestions && streetSuggestions.length > 0 && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="absolute top-full left-0 right-0 mt-1 bg-[#2C2C2C] border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 max-h-60 overflow-y-auto"
-                              >
-                                {streetSuggestions.map((suggestion, idx) => (
-                                  <button
-                                    key={idx}
-                                    type="button"
-                                    onClick={() => {
-                                      updateField("street", suggestion.name || suggestion.address.road || "");
-                                      setStreetSuggestions([]);
-                                      setShowSuggestions(false);
-                                    }}
-                                    className="w-full text-left px-4 py-3 hover:bg-white/5 text-sm transition-colors border-b border-white/5 last:border-0"
-                                  >
-                                    <span className="text-secondary font-medium">{suggestion.name || suggestion.address.road}</span>
-                                    {suggestion.address.suburb && (
-                                      <span className="text-secondary-light text-xs ml-2">({suggestion.address.suburb})</span>
-                                    )}
-                                  </button>
-                                ))}
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                    {/* Delivery Type Toggle */}
+                    <div className="grid grid-cols-2 gap-4 p-1 bg-black/20 rounded-xl mb-6">
+                      <button
+                        type="button"
+                        onClick={() => updateField("delivery_type", "delivery")}
+                        className={`py-3 px-4 rounded-lg text-sm font-medium transition-all ${formData.delivery_type === "delivery"
+                          ? "bg-green-500 text-white shadow-lg"
+                          : "text-gray-400 hover:text-white hover:bg-white/5"
+                          }`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <TruckIcon className="w-5 h-5" />
+                          <span>Доставка</span>
                         </div>
-                        {errors.street && (
-                          <p className="mt-1 text-sm text-accent-red">{errors.street}</p>
-                        )}
-                      </div>
-
-                      <div className="w-[140px]">
-                        <label className="block text-sm font-medium text-secondary mb-2">
-                          Місто
-                        </label>
-                        <input
-                          type="text"
-                          value="Львів"
-                          readOnly
-                          className="input bg-surface-card opacity-50 cursor-not-allowed text-center"
-                        />
-                      </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateField("delivery_type", "pickup")}
+                        className={`py-3 px-4 rounded-lg text-sm font-medium transition-all ${formData.delivery_type === "pickup"
+                          ? "bg-green-500 text-white shadow-lg"
+                          : "text-gray-400 hover:text-white hover:bg-white/5"
+                          }`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <ShoppingBagIcon className="w-5 h-5" />
+                          <span>Самовивіз</span>
+                        </div>
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-2 xs:grid-cols-4 gap-3">
-                      <div>
-                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
-                          Будинок *
-                        </label>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={formData.building}
-                          onChange={(e) => updateField("building", e.target.value)}
-                          placeholder="№"
-                          className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center ${errors.building ? "input-error" : ""}`}
-                        />
+                    {formData.delivery_type === "pickup" ? (
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
+                        <MapPinIcon className="w-12 h-12 text-primary mx-auto mb-4" />
+                        <h3 className="text-lg font-bold text-white mb-2">Самовивіз з ресторану</h3>
+                        <p className="text-gray-400 mb-4">
+                          Заберіть замовлення за адресою:
+                          <br />
+                          <span className="text-white font-medium">м. Львів, вул. Героїв УПА, 73</span>
+                        </p>
+                        <div className="text-sm text-green-500 bg-green-500/10 py-2 px-4 rounded-lg inline-block">
+                          Час приготування: ~30-40 хв
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
-                          Кв / Офіс
-                        </label>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={formData.apartment}
-                          onChange={(e) => updateField("apartment", e.target.value)}
-                          placeholder="№"
-                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
-                          Під&apos;їзд
-                        </label>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={formData.entrance}
-                          onChange={(e) => updateField("entrance", e.target.value)}
-                          placeholder="№"
-                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
-                          Поверх
-                        </label>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={formData.floor}
-                          onChange={(e) => updateField("floor", e.target.value)}
-                          placeholder="№"
-                          className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
-                        />
-                      </div>
-                    </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-[1fr_auto] gap-4 items-start">
+                          <div className="relative z-20">
+                            <label className="block text-sm font-medium text-secondary mb-2">
+                              Вулиця *
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                value={formData.street}
+                                onChange={(e) => {
+                                  updateField("street", e.target.value);
+                                  setShowSuggestions(true);
+                                }}
+                                onFocus={() => setShowSuggestions(true)}
+                                placeholder="Почніть вводити назву вулиці..."
+                                className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors ${errors.street ? "input-error" : ""}`}
+                                autoComplete="off"
+                              />
+                              {/* Autocomplete Dropdown */}
+                              <AnimatePresence>
+                                {showSuggestions && streetSuggestions.length > 0 && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="absolute top-full left-0 right-0 mt-1 bg-[#2C2C2C] border border-white/10 rounded-xl shadow-xl overflow-hidden z-50 max-h-60 overflow-y-auto"
+                                  >
+                                    {streetSuggestions.map((suggestion, idx) => (
+                                      <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => {
+                                          updateField("street", suggestion.name || suggestion.address.road || "");
+                                          setStreetSuggestions([]);
+                                          setShowSuggestions(false);
+                                        }}
+                                        className="w-full text-left px-4 py-3 hover:bg-white/5 text-sm transition-colors border-b border-white/5 last:border-0"
+                                      >
+                                        <span className="text-secondary font-medium">{suggestion.name || suggestion.address.road}</span>
+                                        {suggestion.address.suburb && (
+                                          <span className="text-secondary-light text-xs ml-2">({suggestion.address.suburb})</span>
+                                        )}
+                                      </button>
+                                    ))}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                            {errors.street && (
+                              <p className="mt-1 text-sm text-accent-red">{errors.street}</p>
+                            )}
+                          </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-secondary mb-2">
-                        Коментар для кур&apos;єра
-                      </label>
-                      <textarea
-                        value={formData.comment}
-                        onChange={(e) => updateField("comment", e.target.value)}
-                        placeholder="Додаткова інформація для доставки..."
-                        rows={3}
-                        maxLength={500}
-                        className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors resize-none"
-                      />
-                      <p className="mt-1 text-xs text-secondary-light text-right">
-                        {formData.comment.length}/500
-                      </p>
-                    </div>
+                          <div className="w-[140px]">
+                            <label className="block text-sm font-medium text-secondary mb-2">
+                              Місто
+                            </label>
+                            <input
+                              type="text"
+                              value="Львів"
+                              readOnly
+                              className="input bg-surface-card opacity-50 cursor-not-allowed text-center"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 xs:grid-cols-4 gap-3">
+                          <div>
+                            <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
+                              Будинок *
+                            </label>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={formData.building}
+                              onChange={(e) => updateField("building", e.target.value)}
+                              placeholder="№"
+                              className={`input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center ${errors.building ? "input-error" : ""}`}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
+                              Кв / Офіс
+                            </label>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={formData.apartment}
+                              onChange={(e) => updateField("apartment", e.target.value)}
+                              placeholder="№"
+                              className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
+                              Під&apos;їзд
+                            </label>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={formData.entrance}
+                              onChange={(e) => updateField("entrance", e.target.value)}
+                              placeholder="№"
+                              className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs uppercase tracking-wider text-secondary-light mb-1.5">
+                              Поверх
+                            </label>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={formData.floor}
+                              onChange={(e) => updateField("floor", e.target.value)}
+                              placeholder="№"
+                              className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors text-center"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-secondary mb-2">
+                            Коментар для кур&apos;єра
+                          </label>
+                          <textarea
+                            value={formData.comment}
+                            onChange={(e) => updateField("comment", e.target.value)}
+                            placeholder="Додаткова інформація для доставки..."
+                            rows={3}
+                            maxLength={500}
+                            className="input bg-[#2C2C2C] border-white/10 focus:border-green-500 hover:border-white/20 transition-colors resize-none"
+                          />
+                          <p className="mt-1 text-xs text-secondary-light text-right">
+                            {formData.comment.length}/500
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

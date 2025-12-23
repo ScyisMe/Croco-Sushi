@@ -158,7 +158,14 @@ export default function OrderDetailsModal({
                                             <div className="flex items-start gap-3 text-white">
                                                 <MapPinIcon className="w-5 h-5 text-primary mt-0.5" />
                                                 <div>
-                                                    <div className="font-medium">{order.customer_address || "Самовивіз"}</div>
+                                                    <div className="font-medium">
+                                                        {order.delivery_type === 'pickup' ? 'Самовивіз' : 'Доставка'}
+                                                    </div>
+                                                    {order.delivery_type === 'delivery' && order.delivery_address && (
+                                                        <div className="text-sm text-gray-400 mt-1">
+                                                            {order.delivery_address}
+                                                        </div>
+                                                    )}
                                                     {order.comment && (
                                                         <div className="mt-2 text-sm text-yellow-500/80 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
                                                             &quot;{order.comment}&quot;
