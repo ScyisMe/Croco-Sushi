@@ -96,7 +96,16 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   if (isVegan) {
     infoBadges.push({
       id: "vegan",
-      icon: <SparklesIcon className="w-4 h-4" />, // Fallback to Sparkles if Leaf not available
+      icon: (
+        <div className="relative w-4 h-4">
+          <Image
+            src="/images/vegetarian.png"
+            alt="Vegetarian"
+            fill
+            className="object-contain"
+          />
+        </div>
+      ),
       label: "Веган",
       className: "bg-green-500/20 text-green-500 border-green-500/30 rounded-full"
     });
