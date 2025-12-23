@@ -108,7 +108,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       icon: (
         <div className="relative w-4 h-4">
           <Image
-            src="/images/vegetarian.png"
+            src="/badges/vegan_custom.png"
             alt="Vegetarian"
             fill
             className="object-contain"
