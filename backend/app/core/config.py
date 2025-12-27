@@ -1,7 +1,10 @@
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict, field_validator
 from typing import List, Optional, Any, Union
+import os
 
+# Internal: Detect if running in Docker
+IN_DOCKER = os.path.exists("/.dockerenv") or os.path.exists("/proc/self/cgroup")
 
 class Settings(BaseSettings):
     # App
@@ -10,39 +13,19 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     ENVIRONMENT: str = "development"  # development, production, testing
     
-    # Internal: Detect if running in Docker
-    import os
-    _IN_DOCKER: bool = os.path.exists("/.dockerenv") or os.path.exists("/proc/self/cgroup")
-    
     # Database
-    # Logic: If in Docker, default to production service names and credentials (admin_croco).
-    # If Local, default to localhost and standard credentials.
-    # explicit ENV vars (if present and correct) will still override due to Pydantic behavior,
-    # but we provide the correct defaults for the VPS context.
-    
     DATABASE_URL: str = (
         "postgresql+asyncpg://admin_croco:Spicy-Tuna-Roll-2025-Tasty!@postgres:5432/croco_sushi"
-        if _IN_DOCKER
+        if IN_DOCKER
         else "postgresql+asyncpg://postgres:postgres@localhost:5432/croco_sushi"
     )
     
-    # Remove the previous complex validator as this default is safer
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def validate_database_url(cls, v: Optional[str], info: Any) -> Any:
-        # If a value is provided (from env), use it, UNLESS it looks like the broken default
-        # injected by some VPS environments (postgres user on production host)
-        
-        # Check for context
-        import os
-        in_docker = os.path.exists("/.dockerenv") or os.path.exists("/proc/self/cgroup")
-        
-        if in_docker and v and "postgres:postgres" in v:
-            # Dangerous default detected in Docker.
-            # We suspect this is WRONG for this specific VPS.
-            # Override with the known good production URI.
+        # If in Docker and using typical broken default, override
+        if IN_DOCKER and v and "postgres:postgres" in v:
             return "postgresql+asyncpg://admin_croco:Spicy-Tuna-Roll-2025-Tasty!@postgres:5432/croco_sushi"
-            
         return v
 
     # Database Connection Settings
@@ -82,16 +65,15 @@ class Settings(BaseSettings):
         return []
     
     # Redis
-    # Use "redis" host if in Docker, "localhost" if not.
-    REDIS_URL: str = "redis://redis:6379/0" if _IN_DOCKER else "redis://localhost:6379/0"
+    REDIS_URL: str = "redis://redis:6379/0" if IN_DOCKER else "redis://localhost:6379/0"
     
     # File Upload
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE: int = 5 * 1024 * 1024  # 5MB
     
     # Celery
-    CELERY_BROKER_URL: str = "redis://redis:6379/0" if _IN_DOCKER else "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://redis:6379/0" if _IN_DOCKER else "redis://localhost:6379/0"
+    CELERY_BROKER_URL: str = "redis://redis:6379/0" if IN_DOCKER else "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://redis:6379/0" if IN_DOCKER else "redis://localhost:6379/0"
     
     # Logging
     LOG_LEVEL: str = "INFO"
