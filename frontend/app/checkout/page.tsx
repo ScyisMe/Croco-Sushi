@@ -630,7 +630,7 @@ export default function CheckoutPage() {
                         <p className="text-gray-400 mb-4">
                           Заберіть замовлення за адресою:
                           <br />
-                          <span className="text-white font-medium">м. Львів, вул. Героїв УПА, 73</span>
+                          <span className="text-white font-medium">м. Львів, вул. Володимира Янева, 31</span>
                         </p>
                         <div className="text-sm text-green-500 bg-green-500/10 py-2 px-4 rounded-lg inline-block">
                           Час приготування: ~30-40 хв
@@ -843,15 +843,26 @@ export default function CheckoutPage() {
                       <div className="group p-4 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10">
                         <div className="flex items-center gap-2 mb-2">
                           <MapPinIcon className="w-5 h-5 text-gray-400" />
-                          <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">Доставка</label>
+                          <label className="text-sm text-gray-400 uppercase tracking-wide font-bold">
+                            {formData.delivery_type === "pickup" ? "Самовивіз" : "Доставка"}
+                          </label>
                         </div>
-                        <p className="text-lg text-white font-medium">{formData.city}</p>
-                        <p className="text-white/80">вул. {formData.street}, буд. {formData.building}</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {formData.apartment && `кв. ${formData.apartment}`}
-                          {formData.entrance && ` • під'їзд ${formData.entrance}`}
-                          {formData.floor && ` • поверх ${formData.floor}`}
-                        </p>
+                        {formData.delivery_type === "pickup" ? (
+                          <>
+                            <p className="text-lg text-white font-medium">Самовивіз з ресторану</p>
+                            <p className="text-white/80">м. Львів, вул. Володимира Янева, 31</p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-lg text-white font-medium">{formData.city}</p>
+                            <p className="text-white/80">вул. {formData.street}, буд. {formData.building}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {formData.apartment && `кв. ${formData.apartment}`}
+                              {formData.entrance && ` • під'їзд ${formData.entrance}`}
+                              {formData.floor && ` • поверх ${formData.floor}`}
+                            </p>
+                          </>
+                        )}
                       </div>
 
                       {/* Оплата */}
