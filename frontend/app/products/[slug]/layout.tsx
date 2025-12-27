@@ -1,5 +1,6 @@
 
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 type Props = {
     params: { slug: string };
@@ -49,7 +50,7 @@ export default async function ProductLayout({ params, children }: Props) {
     const product = await getProduct(params.slug);
 
     if (!product) {
-        return <>{children}</>;
+        return notFound();
     }
 
     const jsonLd = {

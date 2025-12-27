@@ -1,4 +1,13 @@
-﻿"use client";
+﻿
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Про нас | Croco Sushi",
+  description: "Дізнайтеся більше про Croco Sushi. Наша історія, команда та цінності. Готуємо з любов'ю у Львові.",
+  alternates: {
+    canonical: "https://crocosushi.com/about",
+  }
+};
 
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";

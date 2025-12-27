@@ -1,4 +1,13 @@
-﻿"use client";
+﻿
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Політика конфіденційності | Croco Sushi",
+  description: "Політика конфіденційності Croco Sushi. Як ми збираємо, обробляємо та захищаємо ваші персональні дані.",
+  alternates: {
+    canonical: "https://crocosushi.com/privacy",
+  }
+};
 
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";
