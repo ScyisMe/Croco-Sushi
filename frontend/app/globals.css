@@ -123,6 +123,16 @@ body {
     background-color: rgba(5, 5, 5, 0.95);
     /* High opacity surface-dark */
   }
+
+  /* Optimize background for mobile */
+  .fixed-background {
+    height: 100dvh;
+    /* Use dynamic viewport height */
+    background-attachment: scroll;
+    /* Prevent scroll jitter on mobile */
+    background-size: cover;
+    /* Ensure it covers height properly */
+  }
 }
 
 /* Custom Scrollbar */
