@@ -243,7 +243,18 @@ async def update_order_status(
     order.status_history = history
     
     await db.commit()
-    await db.refresh(order)
+    # Reload with full options to ensure relationships (like items.product) are loaded for Pydantic
+    result = await db.execute(
+        select(Order)
+        .where(Order.id == order_id)
+        .options(
+            selectinload(Order.history),
+            selectinload(Order.items).selectinload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.user)
+        )
+    )
+    order = result.scalar_one_or_none()
     
     # Відправка сповіщень клієнту через Celery (асинхронно)
     try:
@@ -323,7 +334,19 @@ async def assign_courier(
     
     order.courier_id = courier_data.courier_id
     await db.commit()
-    await db.refresh(order)
+    
+    # Reload with full options for response
+    result = await db.execute(
+        select(Order)
+        .where(Order.id == order_id)
+        .options(
+            selectinload(Order.history),
+            selectinload(Order.items).selectinload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.user)
+        )
+    )
+    order = result.scalar_one_or_none()
     
     return order
 
