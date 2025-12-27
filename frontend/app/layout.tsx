@@ -32,6 +32,53 @@ export default function RootLayout({
           </div>
           <BottomNav />
         </Providers>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Restaurant",
+              "name": "Croco Sushi",
+              "image": "https://crocosushi.com/logo.png",
+              "@id": "https://crocosushi.com",
+              "url": "https://crocosushi.com",
+              "telephone": "+380980970003",
+              "email": "crocosushi0003@gmail.com",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "вул. Володимира Янева, 31",
+                "addressLocality": "Lviv",
+                "addressCountry": "UA"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 49.811986,
+                "longitude": 24.004456
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday"
+                ],
+                "opens": "11:00",
+                "closes": "23:00"
+              },
+              "sameAs": [
+                "https://www.instagram.com/crocosushi/",
+                "https://t.me/CrocoSushi",
+                "https://maps.app.goo.gl/FVwFa238ugXyDEDj7"
+              ],
+              "servesCuisine": "Sushi, Japanese",
+              "priceRange": "$$"
+            })
+          }}
+        />
       </body>
     </html>
   );
