@@ -42,6 +42,7 @@ class OrderBase(BaseModel):
 class OrderCreate(OrderBase):
     """Створення замовлення"""
     # Додатково для неавторизованих користувачів
+    delivery_type: Optional[str] = "delivery"  # delivery або pickup
     city: Optional[str] = None
     street: Optional[str] = None
     house: Optional[str] = None
@@ -51,6 +52,10 @@ class OrderCreate(OrderBase):
 
     @model_validator(mode='after')
     def validate_address_fields(self) -> 'OrderCreate':
+        # Якщо тип доставки - самовивіз, адреса не потрібна
+        if self.delivery_type == "pickup":
+            return self
+        
         # Якщо вказана вулиця - це завжди створення нової адреси (або разова адреса)
         # Тому обов'язково потрібні номер будинку (місто має дефолт)
         if self.street:
