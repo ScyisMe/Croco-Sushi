@@ -303,7 +303,7 @@ export default function ProductPage() {
               {/* Features */}
               <div className="grid grid-cols-2 gap-4">
                 {product.is_spicy && (
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                     <div className="w-10 h-10 flex items-center justify-center">
                       <Image
                         src="/images/filters/filter-spicy.png"
@@ -315,12 +315,12 @@ export default function ProductPage() {
                     </div>
                     <div>
                       <h4 className="text-white font-medium text-sm">Гостре</h4>
-                      <p className="text-xs text-gray-500">з перчинкою</p>
+                      <p className="text-xs text-gray-400">з перчинкою</p>
                     </div>
                   </div>
                 )}
                 {product.is_vegan && (
-                  <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                     <div className="w-10 h-10 flex items-center justify-center">
                       <Image
                         src="/images/filters/filter-vegan.png"
@@ -332,26 +332,26 @@ export default function ProductPage() {
                     </div>
                     <div>
                       <h4 className="text-white font-medium text-sm">Вегетаріанське</h4>
-                      <p className="text-xs text-gray-500">без м&apos;яса та риби</p>
+                      <p className="text-xs text-gray-400">без м&apos;яса та риби</p>
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                     <TruckIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="text-white font-medium text-sm">Безкоштовна доставка</h4>
-                    <p className="text-xs text-gray-500">від 1000 ₴</p>
+                    <p className="text-xs text-gray-400">від 1000 ₴</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                   <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
                     <ClockIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="text-white font-medium text-sm">Час доставки</h4>
-                    <p className="text-xs text-gray-500">40-60 хв</p>
+                    <p className="text-xs text-gray-400">40-60 хв</p>
                   </div>
                 </div>
               </div>
