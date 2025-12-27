@@ -76,14 +76,14 @@ function MenuContent() {
   // Filter Options
   // Filter Options
   const PROPERTY_FILTERS = [
-    { id: "is_spicy", label: "Гострі 🌶️", type: "boolean", prop: "is_spicy" },
-    { id: "no_cheese", label: "Без сиру 🧀❌", type: "exclude", keyword: "сир" },
-    { id: "salmon", label: "З лососем 🐟", type: "include", keyword: "лосось" },
-    { id: "eel", label: "З вугром 🐍", type: "include", keyword: "вугор" },
-    { id: "shrimp", label: "З креветкою 🍤", type: "include", keyword: "креветк" },
-    { id: "is_vegan", label: "Вегетаріанські 🥬", type: "boolean", prop: "is_vegan" },
-    { id: "is_popular", label: "Топ продажів 🔥", type: "boolean", prop: "is_popular" },
-    { id: "is_new", label: "Новинки 🆕", type: "boolean", prop: "is_new" },
+    { id: "is_spicy", label: "Гострі 🌶️", type: "boolean", prop: "is_spicy", icon: null },
+    { id: "no_cheese", label: "Без сиру", type: "exclude", keyword: "сир", icon: null },
+    { id: "is_popular", label: "Топ продажів", type: "boolean", prop: "is_popular", icon: "/images/filters/filter-popular.png" },
+    { id: "is_new", label: "Новинки", type: "boolean", prop: "is_new", icon: "/images/filters/filter-new.png" },
+    { id: "salmon", label: "З лососем", type: "include", keyword: "лосось", icon: "/images/filters/filter-salmon.png" },
+    { id: "eel", label: "З вугром", type: "include", keyword: "вугор", icon: "/images/filters/filter-eel.png" },
+    { id: "shrimp", label: "З креветкою", type: "include", keyword: "креветк", icon: "/images/filters/filter-shrimp.png" },
+    { id: "is_vegan", label: "Вегетаріанські 🥬", type: "boolean", prop: "is_vegan", icon: null },
   ];
 
   // Ref для Intersection Observer (infinite scroll)
@@ -444,11 +444,16 @@ function MenuContent() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => toggleProperty(filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedProperties.includes(filter.id)
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md flex items-center gap-2 ${selectedProperties.includes(filter.id)
                       ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
                       : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-secondary/50 hover:text-white"
                       }`}
                   >
+                    {filter.icon && (
+                      <div className="relative w-5 h-5">
+                        <Image src={filter.icon} alt={filter.label} fill className="object-contain" />
+                      </div>
+                    )}
                     {filter.label}
                   </motion.button>
                 ))}
@@ -570,11 +575,16 @@ function MenuContent() {
                     <button
                       key={filter.id}
                       onClick={() => toggleProperty(filter.id)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap border ${selectedProperties.includes(filter.id)
+                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap border flex items-center gap-2 ${selectedProperties.includes(filter.id)
                         ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
                         : "bg-white/5 text-gray-300 border-white/10 hover:border-white/20 active:bg-white/10"
                         }`}
                     >
+                      {filter.icon && (
+                        <div className="relative w-5 h-5">
+                          <Image src={filter.icon} alt={filter.label} fill className="object-contain" />
+                        </div>
+                      )}
                       {filter.label}
                     </button>
                   ))}
@@ -786,11 +796,16 @@ function MenuContent() {
                       <button
                         key={filter.id}
                         onClick={() => toggleProperty(filter.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedProperties.includes(filter.id)
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border flex items-center gap-2 ${selectedProperties.includes(filter.id)
                           ? "bg-secondary text-white border-secondary"
                           : "bg-surface text-secondary border-border"
                           }`}
                       >
+                        {filter.icon && (
+                          <div className="relative w-5 h-5">
+                            <Image src={filter.icon} alt={filter.label} fill className="object-contain" />
+                          </div>
+                        )}
                         {filter.label}
                       </button>
                     ))}
