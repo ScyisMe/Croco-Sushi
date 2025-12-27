@@ -16,7 +16,9 @@ import { useCartStore } from "@/store/cartStore";
 import { useTranslation, Locale } from "@/store/localeStore";
 import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
+import NonWorkingHoursPopup from "./NonWorkingHoursPopup";
 import { throttle } from "@/lib/utils";
+import { useWorkingHours } from "@/hooks/useWorkingHours";
 import Image from "next/image";
 import { NavLink } from "./ui/NavLink";
 
@@ -48,51 +50,29 @@ export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCallbackOpen, setIsCallbackOpen] = useState(false);
+  const [isNonWorkingPopupOpen, setIsNonWorkingPopupOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isMounted, setIsMounted] = useState(false); // Для уникнення hydration mismatch
-  const [isOpen, setIsOpen] = useState<boolean | null>(null); // Статус роботи
+
+  const { isOpen, isMounted } = useWorkingHours();
   const getItemCount = useCartStore((state) => state.totalItems);
 
   // Використовуємо локалізацію
   const { t } = useTranslation();
 
   // Позначаємо компонент як змонтований після першого рендеру на клієнті
+  // Auto-open non-working popup if closed
   useEffect(() => {
-    setIsMounted(true);
-    // Перевіряємо робочий час тільки на клієнті
-    const checkWorkingHours = () => {
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      // Відкрито з 10:00 до 21:45
-      if (hours < 10) return false;
-      if (hours > 21) return false;
-      if (hours === 21 && minutes > 45) return false;
-      return true;
-    };
-
-    const openStatus = checkWorkingHours();
-    setIsOpen(openStatus);
-
-    // Auto-open modal if closed
-    if (!openStatus) {
+    if (isMounted && isOpen === false) {
       const hasShown = sessionStorage.getItem("hasShownClosedPopup");
       if (!hasShown) {
-        // Small delay to ensure UI is ready and it's not too jarring
-        setTimeout(() => {
-          setIsCallbackOpen(true);
+        const timer = setTimeout(() => {
+          setIsNonWorkingPopupOpen(true);
           sessionStorage.setItem("hasShownClosedPopup", "true");
         }, 2000);
+        return () => clearTimeout(timer);
       }
     }
-
-    // Оновлюємо статус кожну хвилину
-    const interval = setInterval(() => {
-      setIsOpen(checkWorkingHours());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [isMounted, isOpen]);
 
   // Sticky header при прокрутці
   useEffect(() => {
@@ -412,6 +392,11 @@ export default function Header() {
         isOpen={isCallbackOpen}
         onClose={() => setIsCallbackOpen(false)}
         isClosed={isMounted && isOpen === false}
+      />
+
+      <NonWorkingHoursPopup
+        isOpen={isNonWorkingPopupOpen}
+        onClose={() => setIsNonWorkingPopupOpen(false)}
       />
     </>
   );

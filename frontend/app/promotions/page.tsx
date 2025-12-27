@@ -223,14 +223,14 @@ export default function PromotionsPage() {
             // EMPTY STATE REVAMPED
             <div className="flex flex-col items-center justify-center py-12 md:py-20 text-center relative z-10">
 
-              {/* Animated Sale Tag Icon */}
-              <div className="relative w-40 h-40 mb-8 animate-bounce-slow">
+              {/* Animated Promo Icon */}
+              <div className="relative w-48 h-48 mb-8 animate-bounce-slow">
                 {/* Glow effect under the icon */}
                 <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
                 <div className="relative w-full h-full drop-shadow-2xl">
                   <Image
-                    src="/images/sale-tag.png"
-                    alt="Sale Tag"
+                    src="/images/promo-calendar.png"
+                    alt="Promo Calendar"
                     fill
                     className="object-contain"
                   />
