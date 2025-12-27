@@ -45,7 +45,7 @@ async def get_orders(
 ):
     """Отримати список замовлень з фільтрацією"""
     query = select(Order).options(
-        selectinload(Order.items),
+        selectinload(Order.items).selectinload(OrderItem.product),
         selectinload(Order.address),
         selectinload(Order.user),
         selectinload(Order.history)
@@ -166,7 +166,7 @@ async def get_order(
         select(Order)
         .where(Order.id == order_id)
         .options(
-            selectinload(Order.items),
+            selectinload(Order.items).selectinload(OrderItem.product),
             selectinload(Order.address),
             selectinload(Order.user),
             selectinload(Order.history)  # Already here, but ensuring it's used
@@ -194,7 +194,13 @@ async def update_order_status(
     result = await db.execute(
         select(Order)
         .where(Order.id == order_id)
-        .options(selectinload(Order.history))
+        .where(Order.id == order_id)
+        .options(
+            selectinload(Order.history),
+            selectinload(Order.items).selectinload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.user)
+        )
     )
     order = result.scalar_one_or_none()
     
