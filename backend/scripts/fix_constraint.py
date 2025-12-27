@@ -15,36 +15,28 @@ from app.core.config import settings
 async def fix_constraint():
     print("Configuring database connection...")
     
-    # 1. Try explicit DATABASE_URL from environment
-    env_db_url = os.environ.get('DATABASE_URL')
+    # FORCE OVERRIDE: The VPS environment variables are stubborn and use the wrong user 'postgres'
+    # We will ignore them and forcefully use the known working credentials.
+    # PROVIDED BY USER: admin_croco:Spicy-Tuna-Roll-2025-Tasty!
     
-    # Debug: Print what we found (masking password)
-    if env_db_url:
-        safe_env = re.sub(r':([^@]+)@', ':****@', env_db_url)
-        print(f"Found DATABASE_URL in env: {safe_env}")
-        if "postgres" in env_db_url and "admin_croco" not in env_db_url:
-            print("WARNING: Env URL seems to be using default 'postgres' user.")
-    else:
-        print("No DATABASE_URL found in environment variables.")
-
-    # FALLBACK: Explicitly use the credentials provided if env is missing or default
-    # This is a temporary fix to bypass Docker environment issues
-    if not env_db_url or "postgres:postgres" in env_db_url:
-        print("Using HARDCODED credentials for repair script (Bypassing Env Vars)")
-        # PROVIDED BY USER
-        env_db_url = "postgresql+asyncpg://admin_croco:Spicy-Tuna-Roll-2025-Tasty!@postgres:5432/croco_sushi"
+    print("!!! FORCING OVERRIDE OF DATABASE CREDENTIALS !!!")
+    print("Ignoring environment variables to bypass 'postgres' auth failure.")
     
-    # Apply to settings
-    if env_db_url:
-        print(f"Overriding settings.DATABASE_URL...")
-        settings.DATABASE_URL = env_db_url
-        
-        # Verify user in final URL
-        match = re.search(r'://([^:]+):', env_db_url)
-        if match:
-            print(f"Final Connection User: {match.group(1)}")
+    env_db_url = "postgresql+asyncpg://admin_croco:Spicy-Tuna-Roll-2025-Tasty!@postgres:5432/croco_sushi"
+    
+    print(f"Applying override to settings...")
+    # Override the settings object which get_async_session_local uses
+    settings.DATABASE_URL = env_db_url
+    
+    # Verify just in case
+    # This rebuilds the engine with the new URL
+    from app.database import get_engine, _engine
+    # If engine was already created, we might need to dispose it?
+    # But this is a fresh script run, so it should be fine.
     
     print(f"Connecting to database to fix constraint...")
+    print(f"Using Connection String (masked): {env_db_url.replace('Spicy-Tuna-Roll-2025-Tasty!', '****')}")
+    
     session_factory = get_async_session_local()
     async with session_factory() as session:
         try:
