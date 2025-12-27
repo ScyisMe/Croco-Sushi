@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from datetime import datetime
 from typing import Optional, List
 from decimal import Decimal
+from app.schemas.address import AddressResponse
 
 
 class OrderItemBase(BaseModel):
@@ -110,16 +111,20 @@ class OrderResponse(BaseModel):
     customer_phone: str
     customer_email: Optional[str] = None  # Email для сповіщень
     comment: Optional[str]
+    internal_comment: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     items: List[OrderItemResponse] = []
     history: List[OrderHistoryResponse] = []
 
+    delivery_type: Optional[str] = "delivery"
+    address: Optional[AddressResponse] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class OrderStatusUpdate(BaseModel):
-    status: str = Field(..., pattern="^(pending|confirmed|preparing|delivering|completed|cancelled)$")
+    status: str = Field(..., pattern="^(pending|confirmed|preparing|ready|delivering|completed|cancelled)$")
     comment: Optional[str] = None
     reason: Optional[str] = Field(None, max_length=500, description="Причина зміни статусу (обов'язкова для скасування)")
 

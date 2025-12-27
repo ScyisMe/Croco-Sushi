@@ -157,17 +157,41 @@ export default function OrderDetailsModal({
                                             <h4 className="font-semibold text-white text-sm uppercase tracking-wider text-gray-400">Доставка</h4>
                                             <div className="flex items-start gap-3 text-white">
                                                 <MapPinIcon className="w-5 h-5 text-primary mt-0.5" />
-                                                <div>
-                                                    <div className="font-medium">
-                                                        {order.delivery_type === 'pickup' ? 'Самовивіз' : 'Доставка'}
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-lg mb-1">
+                                                        {order.delivery_type === 'pickup' ? (
+                                                            <span className="text-primary">Самовивіз</span>
+                                                        ) : (
+                                                            'Доставка'
+                                                        )}
                                                     </div>
-                                                    {order.delivery_type === 'delivery' && order.delivery_address && (
-                                                        <div className="text-sm text-gray-400 mt-1">
-                                                            {order.delivery_address}
+
+                                                    {order.delivery_type === 'delivery' && (
+                                                        <div className="text-sm text-gray-300">
+                                                            {order.address ? (
+                                                                <>
+                                                                    <div className="font-medium text-white">
+                                                                        {order.address.city}, {order.address.street}, {order.address.house}
+                                                                        {order.address.building ? ` ${order.address.building}` : ''}
+                                                                    </div>
+                                                                    {(order.address.apartment || order.address.entrance || order.address.floor || order.address.intercom) && (
+                                                                        <div className="mt-1 text-gray-400 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                                                                            {order.address.apartment && <span>Кв: {order.address.apartment}</span>}
+                                                                            {order.address.entrance && <span>Під'їзд: {order.address.entrance}</span>}
+                                                                            {order.address.floor && <span>Поверх: {order.address.floor}</span>}
+                                                                            {order.address.intercom && <span>Домофон: {order.address.intercom}</span>}
+                                                                        </div>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                // Fallback to delivery_address string if address object is missing
+                                                                <span>{order.delivery_address || 'Адреса не вказана'}</span>
+                                                            )}
                                                         </div>
                                                     )}
+
                                                     {order.comment && (
-                                                        <div className="mt-2 text-sm text-yellow-500/80 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
+                                                        <div className="mt-3 text-sm text-yellow-500/90 bg-yellow-500/10 p-2.5 rounded border border-yellow-500/20 italic">
                                                             &quot;{order.comment}&quot;
                                                         </div>
                                                     )}
