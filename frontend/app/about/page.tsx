@@ -2,8 +2,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Про нас | Croco Sushi",
-  description: "Дізнайтеся більше про Croco Sushi. Наша історія, команда та цінності. Готуємо з любов'ю у Львові.",
+  title: "Про нас | Історія успіху Croco Sushi | Доставка суші Львів",
+  description: "Дізнайтеся більше про команду Croco Sushi. Наша місія - готувати найсмачніші суші у Львові з любов'ю та повагою до клієнтів.",
   alternates: {
     canonical: "https://crocosushi.com/about",
   }

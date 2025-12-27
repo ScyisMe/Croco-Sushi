@@ -14,13 +14,22 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     ? category.charAt(0).toUpperCase() + category.slice(1)
     : 'Menu';
 
-  const title = category
-    ? `${categoryName} | Croco Sushi`
-    : 'Menu | Croco Sushi';
+  let title = "Меню Croco Sushi | Доставка суші та ролів у Львові";
+  let description = "Замовляйте найсмачніші суші та роли у Львові. Безкоштовна доставка від 1000 грн. Великий вибір сетів, суші та ролів.";
 
-  const description = category
-    ? `Order delicious ${categoryName} from Croco Sushi. Fresh ingredients, fast delivery in Lviv.`
-    : 'Explore our full menu at Croco Sushi. Sushi, rolls, sets, and more available for delivery in Lviv.';
+  if (category === 'sushi') {
+    title = "Суші у Львові: Замовити з доставкою додому | Меню Croco Sushi";
+    description = "Свіжі нігірі та гункани з лососем, тунцем, вугрем. Замовляйте суші з доставкою по Львову. Тільки свіжа риба!";
+  } else if (category === 'rolls') {
+    title = "Роли Філадельфія та Дракон | Доставка ролів Львів | Croco Sushi";
+    description = "Авторські роли, Філадельфія, Каліфорнія, Дракони. Найбільшe начинки та найкращий рис. Швидка доставка ролів у Львові.";
+  } else if (category === 'sets') {
+    title = "Сети суші та ролів у Львові | Вигідні ціни | Croco Sushi";
+    description = "Великі сети суші для компаній. Замовляйте набори ролів зі знижкою. Ідеально для вечірок та святкувань.";
+  } else if (category) {
+    title = `${categoryName} | Доставка їжі Львів | Croco Sushi`;
+    description = `Замовляйте ${categoryName} з доставкою по Львову. Свіжі інгредієнти та швидка доставка від Croco Sushi.`;
+  }
 
   return {
     title,

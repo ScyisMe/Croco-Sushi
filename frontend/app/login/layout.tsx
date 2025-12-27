@@ -4,6 +4,10 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Вхід | Croco Sushi",
     description: "Вхід в особистий кабінет Croco Sushi. Відстежуйте замовлення та зберігайте улюблені страви.",
+    robots: {
+        index: false,
+        follow: true,
+    },
     alternates: {
         canonical: "https://crocosushi.com/login",
     }

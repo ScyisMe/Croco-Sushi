@@ -4,6 +4,10 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Відновлення пароля | Croco Sushi",
     description: "Відновлення доступу до особистого кабінету Croco Sushi.",
+    robots: {
+        index: false,
+        follow: true,
+    },
     alternates: {
         canonical: "https://crocosushi.com/reset-password",
     }
