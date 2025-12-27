@@ -177,7 +177,7 @@ export default function OrderDetailsModal({
                                                                     {(order.address.apartment || order.address.entrance || order.address.floor || order.address.intercom) && (
                                                                         <div className="mt-1 text-gray-400 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                                                                             {order.address.apartment && <span>Кв: {order.address.apartment}</span>}
-                                                                            {order.address.entrance && <span>Під'їзд: {order.address.entrance}</span>}
+                                                                            {order.address.entrance && <span>Під&apos;їзд: {order.address.entrance}</span>}
                                                                             {order.address.floor && <span>Поверх: {order.address.floor}</span>}
                                                                             {order.address.intercom && <span>Домофон: {order.address.intercom}</span>}
                                                                         </div>
