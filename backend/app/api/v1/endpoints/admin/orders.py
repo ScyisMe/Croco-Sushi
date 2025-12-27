@@ -258,35 +258,34 @@ async def update_order_status(
         order = result.scalar_one_or_none()
         
         # Відправка сповіщень клієнту через Celery (асинхронно)
-        # TEMPORARILY DISABLED FOR DEBUGGING
-        # try:
-        #     # Email сповіщення
-        #     if order.customer_email:
-        #         from app.tasks.email import schedule_order_status_update
-        #         status_names = {
-        #             "pending": "Очікує підтвердження",
-        #             "confirmed": "Підтверджено",
-        #             "preparing": "Готується",
-        #             "delivering": "Доставляється",
-        #             "completed": "Завершено",
-        #             "cancelled": "Скасовано"
-        #         }
-        #         status_name = status_names.get(status_data.status, status_data.status)
-        #         schedule_order_status_update(order_id, order.customer_email, status_name)
-        #     
-        #     # SMS сповіщення
-        #     if order.customer_phone:
-        #         from app.tasks.sms import send_order_notification
-        #         send_order_notification.delay(
-        #             order.customer_phone,
-        #             order.order_number,
-        #             status_data.status
-        #         )
-        # except Exception as e:
-        #     # Log error but don't fail the request
-        #     import logging
-        #     logger = logging.getLogger(__name__)
-        #     logger.error(f"Failed to send notifications for order {order_id}: {e}")
+        try:
+            # Email сповіщення
+            if order.customer_email:
+                from app.tasks.email import schedule_order_status_update
+                status_names = {
+                    "pending": "Очікує підтвердження",
+                    "confirmed": "Підтверджено",
+                    "preparing": "Готується",
+                    "delivering": "Доставляється",
+                    "completed": "Завершено",
+                    "cancelled": "Скасовано"
+                }
+                status_name = status_names.get(status_data.status, status_data.status)
+                schedule_order_status_update(order_id, order.customer_email, status_name)
+            
+            # SMS сповіщення
+            if order.customer_phone:
+                from app.tasks.sms import send_order_notification
+                send_order_notification.delay(
+                    order.customer_phone,
+                    order.order_number,
+                    status_data.status
+                )
+        except Exception as e:
+            # Log error but don't fail the request
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send notifications for order {order_id}: {e}")
         
         return order
     except Exception as e:
