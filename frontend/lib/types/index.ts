@@ -83,6 +83,8 @@ export interface Product {
   weight?: string;
   calories?: number;
   ingredients?: string;
+  is_spicy?: boolean;
+  is_vegan?: boolean;
   is_available: boolean;
   is_new: boolean;
   is_popular: boolean;

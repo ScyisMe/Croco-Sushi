@@ -174,16 +174,27 @@ export default function ProductPage() {
                 )}
 
                 {/* Badges */}
+                {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                   {product.is_new && (
-                    <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 text-white text-sm font-bold shadow-lg">
-                      Новинка
-                    </span>
+                    <div className="relative w-12 h-12 drop-shadow-md">
+                      <Image
+                        src="/images/filters/filter-new.png"
+                        alt="Новинка"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   )}
                   {product.is_popular && (
-                    <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-white text-sm font-bold shadow-lg">
-                      Хіт
-                    </span>
+                    <div className="relative w-12 h-12 drop-shadow-md">
+                      <Image
+                        src="/images/filters/filter-popular.png"
+                        alt="Хіт"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   )}
                   {product.is_promotion && (
                     <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-400 to-rose-600 text-white text-sm font-bold shadow-lg">
@@ -291,6 +302,40 @@ export default function ProductPage() {
 
               {/* Features */}
               <div className="grid grid-cols-2 gap-4">
+                {product.is_spicy && (
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <Image
+                        src="/images/filters/filter-spicy.png"
+                        alt="Гостре"
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-medium text-sm">Гостре</h4>
+                      <p className="text-xs text-gray-500">з перчинкою</p>
+                    </div>
+                  </div>
+                )}
+                {product.is_vegan && (
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <Image
+                        src="/images/filters/filter-vegan.png"
+                        alt="Вегетаріанське"
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-medium text-sm">Вегетаріанське</h4>
+                      <p className="text-xs text-gray-500">без м'яса та риби</p>
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                     <TruckIcon className="w-5 h-5" />
