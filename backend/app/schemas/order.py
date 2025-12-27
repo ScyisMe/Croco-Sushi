@@ -26,7 +26,8 @@ class OrderItemResponse(OrderItemBase):
     order_id: int
     size_id: Optional[int] = None  # ID розміру порції
     size_name: Optional[str] = None  # Назва розміру порції
-    
+    product_image: Optional[str] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -149,3 +149,7 @@ class OrderItem(Base):
         CheckConstraint("quantity > 0", name="check_quantity_positive"),
     )
 
+    @property
+    def product_image(self) -> Optional[str]:
+        return self.product.image_url if self.product else None
+
