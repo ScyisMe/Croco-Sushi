@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     title: "Відновлення пароля | Croco Sushi",
     description: "Відновлення доступу до особистого кабінету Croco Sushi.",
     robots: {
-        index: false,
+        index: true,
         follow: true,
     },
     alternates: {

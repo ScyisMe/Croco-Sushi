@@ -5,7 +5,7 @@ export const metadata: Metadata = {
     title: "Реєстрація | Croco Sushi",
     description: "Створіть акаунт Croco Sushi. Швидке замовлення, історія покупок та бонусна програма.",
     robots: {
-        index: false,
+        index: true,
         follow: true,
     },
     alternates: {
