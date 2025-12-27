@@ -41,20 +41,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const staticRoutes = [
-        '',
-        '/menu',
-        '/delivery',
-        '/about',
-        '/reviews',
-        '/terms',
-        '/privacy',
-        '/promotions',
-    ].map((route) => ({
-        url: `${BASE_URL}${route}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 1.0,
-    }));
+        {
+            url: `${BASE_URL}`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 1.0,
+        },
+        {
+            url: `${BASE_URL}/menu`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 1.0,
+        },
+        {
+            url: `${BASE_URL}/delivery`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 1.0,
+        },
+        {
+            url: `${BASE_URL}/about`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 1.0,
+        },
+        {
+            url: `${BASE_URL}/terms`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 1.0,
+        },
+        {
+            url: `${BASE_URL}/privacy`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 1.0,
+        },
+        {
+            url: `${BASE_URL}/promotions`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: 0.9,
+        },
+        {
+            url: `${BASE_URL}/reviews`,
+            lastModified: new Date(),
+            changeFrequency: 'daily' as const,
+            priority: 0.8,
+        },
+    ];
 
     return [...staticRoutes, ...categoryEntries, ...productEntries];
 }
+

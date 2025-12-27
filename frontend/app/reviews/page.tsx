@@ -55,8 +55,14 @@ function ImageModal({ src, isOpen, onClose }: { src: string; isOpen: boolean; on
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-      <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center p-2" onClick={(e) => e.stopPropagation()}>
-        <img src={src} alt="Review full size" className="max-w-full max-h-full object-contain rounded-lg shadow-2xl" />
+      <div className="relative w-full h-full max-w-4xl max-h-[90vh] flex items-center justify-center p-2" onClick={(e) => e.stopPropagation()}>
+        <Image
+          src={src}
+          alt="Review full size"
+          className="object-contain rounded-lg shadow-2xl"
+          fill
+          sizes="(max-width: 768px) 100vw, 800px"
+        />
       </div>
     </div>
   );
@@ -113,10 +119,12 @@ function ReviewCard({ review, onImageClick }: { review: Review; onImageClick: (s
                 className="relative w-20 h-20 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 active:scale-95 transition-all border border-border"
                 onClick={() => onImageClick(img)}
               >
-                <img
+                <Image
                   src={img}
                   alt={`Review attachment ${idx + 1}`}
-                  className="w-full h-full object-cover"
+                  className="object-cover"
+                  fill
+                  sizes="80px"
                 />
               </div>
             ))}
