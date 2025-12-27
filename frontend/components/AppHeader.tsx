@@ -198,6 +198,7 @@ export default function Header() {
                 className="flex items-center justify-center w-10 h-10 text-secondary hover:text-primary hover:bg-surface-hover rounded-full transition"
                 aria-label={isAuthenticated ? t("header.profile") : t("header.login")}
               >
+                <span className="sr-only">{isAuthenticated ? t("header.profile") : t("header.login")}</span>
                 <UserIcon className="w-6 h-6" />
               </Link>
 

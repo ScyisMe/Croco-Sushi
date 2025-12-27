@@ -67,8 +67,9 @@ export default function Stories() {
                                             <Image
                                                 src={story.image}
                                                 alt={story.title}
-                                                fill
-                                                className="object-cover"
+                                                width={64}
+                                                height={64}
+                                                className="w-full h-full object-cover"
                                                 sizes="64px"
                                                 priority={index < 4}
                                             />
@@ -93,8 +94,9 @@ export default function Stories() {
                                         <Image
                                             src={story.image}
                                             alt={story.title}
-                                            fill
-                                            className="object-cover"
+                                            width={64}
+                                            height={64}
+                                            className="w-full h-full object-cover"
                                             sizes="64px"
                                             priority={index < 4}
                                         />

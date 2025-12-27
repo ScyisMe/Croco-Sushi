@@ -24,6 +24,7 @@ export default function Home() {
         <div className="md:hidden">
           <Stories />
         </div>
+        <h2 className="sr-only">Актуальні пропозиції</h2>
         <PromoBanner />
         <Promotions />
         <CategoryFeed />

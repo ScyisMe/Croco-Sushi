@@ -105,9 +105,9 @@ export default function ResetPasswordPage() {
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validatePhone(phone)) return;
-    
+
     setIsLoading(true);
     try {
       const cleanPhone = phone.replace(/\s/g, "");
@@ -119,7 +119,7 @@ export default function ResetPasswordPage() {
       const err = error as { response?: { data?: { detail?: string } } };
       const message = err.response?.data?.detail || "Помилка відправки коду";
       toast.error(message);
-      
+
       // Якщо номер не знайдено
       if (message.includes("не знайдено") || message.includes("not found")) {
         setPhoneError("Користувача з таким номером не знайдено");
@@ -131,7 +131,7 @@ export default function ResetPasswordPage() {
 
   const handleResendCode = async () => {
     if (resendTimer > 0) return;
-    
+
     setIsLoading(true);
     try {
       const cleanPhone = phone.replace(/\s/g, "");
@@ -148,20 +148,20 @@ export default function ResetPasswordPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setCodeError("");
     setPasswordError("");
-    
+
     if (!validateCode(code)) return;
     if (!validatePassword()) return;
-    
+
     setIsLoading(true);
     try {
       const cleanPhone = phone.replace(/\s/g, "");
-      await apiClient.post("/auth/change-password", { 
+      await apiClient.post("/auth/change-password", {
         phone: cleanPhone,
-        new_password: newPassword, 
-        reset_code: code 
+        new_password: newPassword,
+        reset_code: code
       });
       toast.success("Пароль успішно змінено! Тепер увійдіть з новим паролем.");
       router.push("/login");
@@ -169,7 +169,7 @@ export default function ResetPasswordPage() {
       const err = error as { response?: { data?: { detail?: string } } };
       const message = err.response?.data?.detail || "Помилка зміни пароля";
       toast.error(message);
-      
+
       // Якщо код невірний
       if (message.includes("код") || message.includes("code")) {
         setCodeError("Невірний або прострочений код");
@@ -200,8 +200,8 @@ export default function ResetPasswordPage() {
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Відновлення пароля</h1>
             <p className="text-gray-600">
-              {step === "request" 
-                ? "Введіть номер телефону для отримання коду" 
+              {step === "request"
+                ? "Введіть номер телефону для отримання коду"
                 : "Введіть код з SMS та новий пароль"
               }
             </p>
@@ -209,10 +209,11 @@ export default function ResetPasswordPage() {
 
           {/* Форма */}
           <div className="bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="sr-only">Форма відновлення пароля</h2>
             {step === "request" ? (
               <form onSubmit={handleRequestCode} className="space-y-5">
                 <div>
-                  <label 
+                  <label
                     htmlFor="phone"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
@@ -226,9 +227,8 @@ export default function ResetPasswordPage() {
                     required
                     aria-describedby={phoneError ? "phone-error" : undefined}
                     aria-invalid={!!phoneError}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition ${
-                      phoneError ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition ${phoneError ? "border-red-500" : "border-gray-300"
+                      }`}
                     placeholder="+380 XX XXX XX XX"
                   />
                   {phoneError && (
@@ -237,7 +237,7 @@ export default function ResetPasswordPage() {
                     </p>
                   )}
                 </div>
-                
+
                 <button
                   type="submit"
                   disabled={isLoading || !phone}
@@ -276,7 +276,7 @@ export default function ResetPasswordPage() {
 
                 {/* SMS код */}
                 <div>
-                  <label 
+                  <label
                     htmlFor="code"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
@@ -297,9 +297,8 @@ export default function ResetPasswordPage() {
                     required
                     aria-describedby={codeError ? "code-error" : undefined}
                     aria-invalid={!!codeError}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-center text-2xl tracking-widest font-mono ${
-                      codeError ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-center text-2xl tracking-widest font-mono ${codeError ? "border-red-500" : "border-gray-300"
+                      }`}
                     placeholder="• • • • • •"
                   />
                   {codeError && (
@@ -307,7 +306,7 @@ export default function ResetPasswordPage() {
                       {codeError}
                     </p>
                   )}
-                  
+
                   {/* Повторна відправка */}
                   <div className="mt-2 text-center">
                     {resendTimer > 0 ? (
@@ -329,7 +328,7 @@ export default function ResetPasswordPage() {
 
                 {/* Новий пароль */}
                 <div>
-                  <label 
+                  <label
                     htmlFor="newPassword"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
@@ -362,7 +361,7 @@ export default function ResetPasswordPage() {
                       )}
                     </button>
                   </div>
-                  
+
                   {/* Індикатор сили пароля */}
                   {newPassword && (
                     <div className="mt-2">
@@ -370,9 +369,8 @@ export default function ResetPasswordPage() {
                         {[...Array(5)].map((_, i) => (
                           <div
                             key={i}
-                            className={`h-1 flex-1 rounded-full transition ${
-                              i < passwordStrength ? strengthColors[Math.max(0, passwordStrength - 1)] : "bg-gray-200"
-                            }`}
+                            className={`h-1 flex-1 rounded-full transition ${i < passwordStrength ? strengthColors[Math.max(0, passwordStrength - 1)] : "bg-gray-200"
+                              }`}
                           />
                         ))}
                       </div>
@@ -385,7 +383,7 @@ export default function ResetPasswordPage() {
 
                 {/* Підтвердження пароля */}
                 <div>
-                  <label 
+                  <label
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
@@ -404,11 +402,10 @@ export default function ResetPasswordPage() {
                       minLength={8}
                       aria-describedby={passwordError ? "password-error" : undefined}
                       aria-invalid={!!passwordError}
-                      className={`w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-green-500 transition ${
-                        confirmPassword && newPassword !== confirmPassword 
-                          ? "border-red-500 focus:border-red-500" 
+                      className={`w-full px-4 py-3 pr-12 border rounded-xl focus:ring-2 focus:ring-green-500 transition ${confirmPassword && newPassword !== confirmPassword
+                          ? "border-red-500 focus:border-red-500"
                           : "border-gray-300 focus:border-green-500"
-                      }`}
+                        }`}
                       placeholder="Повторіть пароль"
                     />
                     <button

@@ -473,9 +473,9 @@ export default function ReviewsPage() {
                 )}
               </p>
 
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                 {t("reviews.shareExperience")}
-              </h2>
+              </h3>
               <p className="text-foreground-secondary mb-8 leading-relaxed">
                 {t("reviews.yourOpinionMatters")} {t("reviews.helpOthers")}
               </p>

@@ -93,7 +93,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           <Image
             src="/badges/spicy_custom.png"
             alt="Spicy"
-            fill
+            width={16}
+            height={16}
             className="object-contain"
           />
         </div>
@@ -110,7 +111,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           <Image
             src="/badges/vegan_custom.png"
             alt="Vegetarian"
-            fill
+            width={16}
+            height={16}
             className="object-contain"
           />
         </div>
@@ -182,8 +184,9 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             <Image
               src={product.image_url}
               alt={product.name}
-              fill
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+              width={500}
+              height={625}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               priority={priority}
               onError={(e) => console.error(`Failed to load image: ${product.image_url}`, e)}

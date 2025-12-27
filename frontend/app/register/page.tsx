@@ -438,7 +438,7 @@ export default function RegisterPage() {
 
           {/* Переваги реєстрації */}
           <div className="mt-8 bg-surface rounded-2xl shadow-card p-6 border border-border">
-            <h3 className="font-semibold text-foreground mb-4">{t("auth.benefits.title")}</h3>
+            <h2 className="font-semibold text-foreground mb-4">{t("auth.benefits.title")}</h2>
             <ul className="space-y-3">
               <li className="flex items-center text-foreground-secondary">
                 <span className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-3 text-primary text-sm">✓</span>

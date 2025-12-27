@@ -1,5 +1,15 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import { HomeIcon } from "@heroicons/react/24/outline";
+
+export const metadata: Metadata = {
+    title: "Сторінку не знайдено (404) | Croco Sushi",
+    description: "Вибачте, запитувана сторінка не знайдена. Перевірте адресу або перейдіть на головну.",
+    robots: {
+        index: false,
+        follow: true,
+    }
+};
 
 export default function NotFound() {
     return (

@@ -163,8 +163,9 @@ export default function ProductPage() {
                   <Image
                     src={product.image_url}
                     alt={product.name}
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-700"
+                    width={800}
+                    height={800}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                     priority
                   />
                 ) : (

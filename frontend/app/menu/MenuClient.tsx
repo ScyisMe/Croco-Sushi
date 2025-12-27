@@ -37,16 +37,17 @@ const SORT_OPTIONS = [
     { value: "price_desc", label: "Спочатку дорожчі" },
 ];
 
-export default function MenuClient() {
+export default function MenuClient({ initialCategoryName, activeCategorySlug }: { initialCategoryName?: string, activeCategorySlug?: string }) {
     const router = useRouter();
     const queryClient = useQueryClient();
     const searchParams = useSearchParams();
-    const categorySlug = searchParams.get("category");
+    const urlCategoryParam = searchParams.get("category");
     const sortParam = searchParams.get("sort");
 
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(categorySlug);
+    // Use activeCategorySlug (path) or searchParams (legacy query)
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(activeCategorySlug || urlCategoryParam);
     const [sortBy, setSortBy] = useState<string>(sortParam || "position");
     const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -69,39 +70,14 @@ export default function MenuClient() {
         }
     }, [searchParams]);
 
-    // Filter Options
-    const PROPERTY_FILTERS = [
-        { id: "is_spicy", label: "Гострі", type: "boolean", prop: "is_spicy", icon: "/images/filters/filter-spicy.png" },
-        { id: "no_cheese", label: "Без сиру", type: "exclude", keyword: "сир", icon: "/images/filters/filter-no-cheese.png" },
-        { id: "is_popular", label: "Топ продажів", type: "boolean", prop: "is_popular", icon: "/images/filters/filter-popular.png" },
-        { id: "is_new", label: "Новинки", type: "boolean", prop: "is_new", icon: "/images/filters/filter-new.png" },
-        { id: "salmon", label: "З лососем", type: "include", keyword: "лосось", icon: "/images/filters/filter-salmon.png" },
-        { id: "eel", label: "З вугром", type: "include", keyword: "вугор", icon: "/images/filters/filter-eel.png" },
-        { id: "shrimp", label: "З креветкою", type: "include", keyword: "креветк", icon: "/images/filters/filter-shrimp.png" },
-        { id: "is_vegan", label: "Вегетаріанські", type: "boolean", prop: "is_vegan", icon: "/images/filters/filter-vegan.png" },
-    ];
-
-    // Ref для Intersection Observer (infinite scroll)
-    const loadMoreRef = useRef<HTMLDivElement>(null);
-
-    // Перевірка авторизації
+    // Update selected category if prop changes (navigation between static routes)
     useEffect(() => {
-        const token = localStorage.getItem("access_token");
-        setIsAuthenticated(!!token);
-    }, []);
-
-    // Debounce для пошуку
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(searchQuery);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
-
-    // Синхронізація з URL
-    useEffect(() => {
-        setSelectedCategory(categorySlug);
-    }, [categorySlug]);
+        if (activeCategorySlug !== undefined) {
+            setSelectedCategory(activeCategorySlug);
+        } else if (urlCategoryParam) {
+            setSelectedCategory(urlCategoryParam);
+        }
+    }, [activeCategorySlug, urlCategoryParam]);
 
     // Завантаження категорій
     const categoriesQuery = useQuery<Category[]>({
@@ -157,6 +133,21 @@ export default function MenuClient() {
         },
         enabled: (!selectedCategory || !!selectedCategoryId) || categoriesQuery.isLoading,
     });
+
+    // Filter Options
+    const PROPERTY_FILTERS = [
+        { id: "is_spicy", label: "Гострі", type: "boolean", prop: "is_spicy", icon: "/images/filters/filter-spicy.png" },
+        { id: "no_cheese", label: "Без сиру", type: "exclude", keyword: "сир", icon: "/images/filters/filter-no-cheese.png" },
+        { id: "is_popular", label: "Топ продажів", type: "boolean", prop: "is_popular", icon: "/images/filters/filter-popular.png" },
+        { id: "is_new", label: "Новинки", type: "boolean", prop: "is_new", icon: "/images/filters/filter-new.png" },
+        { id: "salmon", label: "З лососем", type: "include", keyword: "лосось", icon: "/images/filters/filter-salmon.png" },
+        { id: "eel", label: "З вугром", type: "include", keyword: "вугор", icon: "/images/filters/filter-eel.png" },
+        { id: "shrimp", label: "З креветкою", type: "include", keyword: "креветк", icon: "/images/filters/filter-shrimp.png" },
+        { id: "is_vegan", label: "Вегетаріанські", type: "boolean", prop: "is_vegan", icon: "/images/filters/filter-vegan.png" },
+    ];
+
+    // Ref для Intersection Observer (infinite scroll)
+    const loadMoreRef = useRef<HTMLDivElement>(null);
 
     // Всі завантажені товари
     const allProducts = useMemo(() => {
@@ -315,7 +306,7 @@ export default function MenuClient() {
     const handleCategoryChange = (slug: string | null) => {
         setSelectedCategory(slug);
         if (slug) {
-            router.push(`/menu?category=${slug}`, { scroll: false });
+            router.push(`/menu/${slug}`, { scroll: false });
         } else {
             router.push("/menu", { scroll: false });
         }
@@ -323,7 +314,7 @@ export default function MenuClient() {
     };
 
     const currentCategoryName = selectedCategory
-        ? categories.find((c) => c.slug === selectedCategory)?.name || "Меню"
+        ? categories.find((c) => c.slug === selectedCategory)?.name || initialCategoryName || "Меню"
         : "Все меню";
 
     const breadcrumbItems = [
@@ -370,7 +361,7 @@ export default function MenuClient() {
                             {currentCategoryName}
                         </h1>
 
-                        <h2 className="sr-only">Каталог страв та фільтри</h2>
+                        <h2 className="sr-only">Каталог страв: {currentCategoryName}</h2>
 
                         <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:items-center justify-between">
                         </div>
@@ -411,7 +402,7 @@ export default function MenuClient() {
                                     >
                                         {filter.icon && (
                                             <div className="relative w-5 h-5">
-                                                <Image src={filter.icon} alt={filter.label} fill className="object-contain" />
+                                                <Image src={filter.icon} alt={filter.label} width={20} height={20} className="object-contain" />
                                             </div>
                                         )}
                                         {filter.label}
@@ -537,7 +528,7 @@ export default function MenuClient() {
                                         >
                                             {filter.icon && (
                                                 <div className="relative w-5 h-5">
-                                                    <Image src={filter.icon} alt={filter.label} fill className="object-contain" />
+                                                    <Image src={filter.icon} alt={filter.label} width={20} height={20} className="object-contain" />
                                                 </div>
                                             )}
                                             {filter.label}

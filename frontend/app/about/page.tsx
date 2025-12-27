@@ -121,9 +121,9 @@ export default function AboutPage() {
         {/* Наші переваги */}
         <section className="py-16 md:py-24 bg-surface">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-4">
+            <h3 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-4">
               Чому обирають нас?
-            </h2>
+            </h3>
             <p className="text-foreground-secondary text-center mb-12 max-w-2xl mx-auto">
               Ми робимо все, щоб кожне ваше замовлення було ідеальним
             </p>
@@ -153,9 +153,9 @@ export default function AboutPage() {
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
                 Наша історія
-              </h2>
+              </h3>
               <div className="space-y-6 text-foreground-secondary leading-relaxed">
                 <p>
                   Croco Sushi народився з простої ідеї — створити місце, де кожен
@@ -207,9 +207,9 @@ export default function AboutPage() {
         {/* Контакти */}
         <section className="py-16 md:py-24 bg-surface">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-12">
+            <h3 className="text-3xl md:text-4xl font-bold text-foreground text-center mb-12">
               Зв&apos;яжіться з нами
-            </h2>
+            </h3>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {/* Контактна інформація */}
@@ -295,9 +295,9 @@ export default function AboutPage() {
         {/* CTA секція */}
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Готові спробувати?
-            </h2>
+            </h3>
             <p className="text-foreground-secondary mb-8 max-w-xl mx-auto">
               Замовте смачні суші та роли з доставкою прямо до вашого дому!
               Безкоштовна доставка від 1000 грн.

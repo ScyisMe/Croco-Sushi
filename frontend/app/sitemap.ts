@@ -34,7 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Categories based on footer links
     const categories = ["rolls", "sets", "sushi", "drinks", "bowls"];
     const categoryEntries = categories.map((cat) => ({
-        url: `${BASE_URL}/menu?category=${cat}`,
+        url: `${BASE_URL}/menu/${cat}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.8,
