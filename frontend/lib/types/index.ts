@@ -193,6 +193,7 @@ export interface OrderTrackResponse {
   updated_at: string;
   estimated_delivery_time?: string;
   comment?: string;
+  delivery_type: "delivery" | "pickup";
 
   // Custom fields
   customer_name?: string;

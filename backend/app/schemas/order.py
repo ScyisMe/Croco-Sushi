@@ -132,6 +132,7 @@ class OrderTrack(BaseModel):
     total_amount: Decimal
     
     # Додаткові поля для відображення
+    delivery_type: str = "delivery" # delivery або pickup
     customer_name: Optional[str] = None
     customer_phone: Optional[str] = None
     delivery_time: Optional[datetime] = None

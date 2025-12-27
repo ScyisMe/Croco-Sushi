@@ -260,13 +260,15 @@ export default function OrderTrackPage() {
               {/* Деталі замовлення */}
               <div className="glass-card p-6 rounded-2xl">
                 <h3 className="text-xl font-bold text-secondary mb-6">
-                  Деталі доставки
+                  {order.delivery_type === "pickup" ? "Деталі самовивозу" : "Деталі доставки"}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <UserIcon className="w-5 h-5 text-secondary-light shrink-0" />
                     <div>
-                      <p className="text-sm text-secondary-light">Отримувач</p>
+                      <p className="text-sm text-secondary-light">
+                        {order.delivery_type === "pickup" ? "Замовник" : "Отримувач"}
+                      </p>
                       <p className="text-secondary font-medium">
                         {order.customer_name || "Гість"}
                       </p>
@@ -275,22 +277,34 @@ export default function OrderTrackPage() {
                       </p>
                     </div>
                   </div>
+
                   <div className="flex gap-3">
                     <HomeIcon className="w-5 h-5 text-secondary-light shrink-0" />
                     <div>
-                      <p className="text-sm text-secondary-light">Адреса</p>
-                      <p className="text-secondary font-medium">
-                        {order.city || "м. Бровари"}, {order.street} {order.building || order.house}
+                      <p className="text-sm text-secondary-light">
+                        {order.delivery_type === "pickup" ? "Спосіб отримання" : "Адреса"}
                       </p>
-                      {(order.apartment || order.entrance || order.floor) && (
-                        <p className="text-secondary text-sm">
-                          {order.apartment && `Кв. ${order.apartment}`}
-                          {order.entrance && `, Під. ${order.entrance}`}
-                          {order.floor && `, Пов. ${order.floor}`}
+                      {order.delivery_type === "pickup" ? (
+                        <p className="text-secondary font-medium text-lg text-primary">
+                          Самовивіз
                         </p>
+                      ) : (
+                        <>
+                          <p className="text-secondary font-medium">
+                            {order.city || "м. Бровари"}, {order.street} {order.building || order.house}
+                          </p>
+                          {(order.apartment || order.entrance || order.floor) && (
+                            <p className="text-secondary text-sm">
+                              {order.apartment && `Кв. ${order.apartment}`}
+                              {order.entrance && `, Під. ${order.entrance}`}
+                              {order.floor && `, Пов. ${order.floor}`}
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
+
                   {order.comment && (
                     <div className="pt-4 border-t border-gray-700/50 mt-4">
                       <p className="text-sm text-secondary-light mb-1">Коментар</p>
@@ -302,7 +316,10 @@ export default function OrderTrackPage() {
             </div>
 
             <div className="text-center pt-4">
-              <Link href="/" className="btn-secondary">
+              <Link
+                href="/"
+                className="btn-secondary inline-block hover:scale-105 active:scale-95 transition-all duration-300 shadow-lg hover:shadow-xl hover:bg-theme-tertiary"
+              >
                 Повернутися на головну
               </Link>
             </div>
