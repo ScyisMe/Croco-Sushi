@@ -76,14 +76,14 @@ function MenuContent() {
   // Filter Options
   // Filter Options
   const PROPERTY_FILTERS = [
-    { id: "is_spicy", label: "Гострі 🌶️", type: "boolean", prop: "is_spicy", icon: "/images/filters/filter-spicy.png" },
+    { id: "is_spicy", label: "Гострі", type: "boolean", prop: "is_spicy", icon: "/images/filters/filter-spicy.png" },
     { id: "no_cheese", label: "Без сиру", type: "exclude", keyword: "сир", icon: "/images/filters/filter-no-cheese.png" },
     { id: "is_popular", label: "Топ продажів", type: "boolean", prop: "is_popular", icon: "/images/filters/filter-popular.png" },
     { id: "is_new", label: "Новинки", type: "boolean", prop: "is_new", icon: "/images/filters/filter-new.png" },
     { id: "salmon", label: "З лососем", type: "include", keyword: "лосось", icon: "/images/filters/filter-salmon.png" },
     { id: "eel", label: "З вугром", type: "include", keyword: "вугор", icon: "/images/filters/filter-eel.png" },
     { id: "shrimp", label: "З креветкою", type: "include", keyword: "креветк", icon: "/images/filters/filter-shrimp.png" },
-    { id: "is_vegan", label: "Вегетаріанські 🥬", type: "boolean", prop: "is_vegan", icon: "/images/filters/filter-vegan.png" },
+    { id: "is_vegan", label: "Вегетаріанські", type: "boolean", prop: "is_vegan", icon: "/images/filters/filter-vegan.png" },
   ];
 
   // Ref для Intersection Observer (infinite scroll)
@@ -414,10 +414,16 @@ function MenuContent() {
               {currentCategoryName}
             </h1>
 
-            {/* Пошук та фільтри */}
-            <div className="flex flex-row md:flex-row gap-3 md:gap-4">
-              {/* Пошук */}
-              <div className="relative flex-1">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:items-center justify-between">
+              {/* Пошук (Desktop - на окремій лінії, насправді тут він буде в ряду з фільтрами якщо ми не змінимо структуру, але клієнт просив окрему лінію)
+                    Щоб зробити "окрему лінію" нам треба винести його з flex-row або зробити wrap.
+                    Клієнт: "пошук винеси на окрему лінію для пк"
+                 */}
+            </div>
+
+            {/* Пошук - Окрема лінія для Desktop */}
+            <div className="mb-4">
+              <div className="relative w-full md:max-w-xl">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
@@ -435,9 +441,12 @@ function MenuContent() {
                   </button>
                 )}
               </div>
+            </div>
 
+            {/* Фільтри та сортування */}
+            <div className="flex flex-row gap-3 md:gap-4 items-center justify-between">
               {/* Фільтри (Quick Access Buttons) - Desktop */}
-              <div className="hidden md:flex gap-3 flex-wrap items-center">
+              <div className="hidden md:flex gap-3 flex-wrap items-center flex-1">
                 {PROPERTY_FILTERS.map(filter => (
                   <motion.button
                     key={filter.id}
@@ -458,37 +467,41 @@ function MenuContent() {
                   </motion.button>
                 ))}
 
-                {/* Сортування (desktop) */}
-                <div className="ml-auto">
-                  <div className="relative group">
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="appearance-none bg-[#2A2A2A] border border-white/10 text-white rounded-lg px-4 py-2 pr-8 focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-white/5 transition-colors"
-                    >
-                      {SORT_OPTIONS.map((option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                          className="bg-[#2A2A2A] text-white"
-                        >
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none group-hover:text-primary transition-colors" />
-                  </div>
+              </div>
+
+              {/* Сортування (desktop) */}
+              <div className="hidden md:block">
+                <div className="relative group">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="appearance-none bg-[#2A2A2A] border border-white/10 text-white rounded-lg px-4 py-2 pr-8 focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-white/5 transition-colors"
+                  >
+                    {SORT_OPTIONS.map((option) => (
+                      <option
+                        key={option.value}
+                        value={option.value}
+                        className="bg-[#2A2A2A] text-white"
+                      >
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none group-hover:text-primary transition-colors" />
                 </div>
               </div>
 
               {/* Кнопка фільтрів (mobile) */}
               <button
                 onClick={() => setIsMobileFilterOpen(true)}
-                className="md:hidden flex items-center justify-center w-12 flex-shrink-0 bg-[#2A2A2A] rounded-xl text-white hover:bg-[#333] transition-colors"
+                className="md:hidden flex items-center justify-center w-12 flex-shrink-0 bg-[#2A2A2A] rounded-xl text-white hover:bg-[#333] transition-colors ml-auto"
               >
                 <AdjustmentsHorizontalIcon className="w-6 h-6 text-primary-500" />
               </button>
             </div>
+
+            {/* Кнопка фільтрів (mobile) */}
+
           </div>
 
           <div className="block lg:flex lg:gap-8">
