@@ -62,10 +62,13 @@ body {
   /* Fallback for some IOS versions to ensure full coverage if needed */
   z-index: -50;
   background-color: #051a12;
-  background-image: url('/background-wave.png');
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+    url('/background-wave.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* Premium Glassmorphism */
