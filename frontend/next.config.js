@@ -61,6 +61,7 @@ const nextConfig = {
             value: 'nosniff',
           },
           {
+            key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
           {
