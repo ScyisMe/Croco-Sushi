@@ -7,7 +7,7 @@ import SmoothScrolling from "@/components/ui/SmoothScrolling";
 
 
 export const metadata: Metadata = {
-  title: "Croco Sushi Львів: Доставка Суші та Ролів | Замовити Онлайн",
+  title: "Croco Sushi Львів — Доставка Суші та Ролів",
   description: "🍣 Замовляйте суші Croco Sushi у Львові! 🇺🇦 Безкоштовна доставка 🛵 від 1000 грн. Тільки свіжа риба 🐟 та авторські рецепти ✨.",
   metadataBase: new URL("https://crocosushi.com"),
   alternates: {
