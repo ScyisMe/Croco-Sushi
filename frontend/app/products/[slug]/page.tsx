@@ -332,7 +332,7 @@ export default function ProductPage() {
                     </div>
                     <div>
                       <h4 className="text-white font-medium text-sm">Вегетаріанське</h4>
-                      <p className="text-xs text-gray-500">без м'яса та риби</p>
+                      <p className="text-xs text-gray-500">без м&apos;яса та риби</p>
                     </div>
                   </div>
                 )}
