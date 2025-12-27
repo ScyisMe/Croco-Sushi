@@ -126,6 +126,7 @@ export default function DeliveryPage() {
         {/* Переваги (Новий дизайн 4 блоків) */}
         <section className="py-12 -mt-8 relative z-10">
           <div className="container mx-auto px-4">
+            <h2 className="sr-only">Наші переваги</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((feature, index) => (
                 <div

@@ -71,8 +71,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-
-                  Croco Sushi
+                  Про компанію Croco Sushi
                 </h1>
                 <p className="text-xl text-foreground-secondary mb-6 leading-relaxed">
                   Ласкаво просимо до <strong className="text-primary">Croco Sushi</strong> —

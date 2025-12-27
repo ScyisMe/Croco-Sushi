@@ -370,6 +370,8 @@ export default function MenuClient() {
                             {currentCategoryName}
                         </h1>
 
+                        <h2 className="sr-only">Каталог страв та фільтри</h2>
+
                         <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:items-center justify-between">
                         </div>
 

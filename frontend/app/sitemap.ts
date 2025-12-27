@@ -6,13 +6,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function getProducts() {
     try {
-        const res = await fetch(`${API_URL}/api/v1/products?limit=1000`, {
+        const res = await fetch(`${API_URL}/api/v1/products?limit=1000&is_active=true`, {
             next: { revalidate: 3600 }
         });
         if (!res.ok) return [];
         const data = await res.json();
         // Support both direct list and paginated response
-        return Array.isArray(data) ? data : (data.items || []);
+        const items = Array.isArray(data) ? data : (data.items || []);
+        // Double check for active status just in case
+        return items.filter((p: any) => p.is_active !== false);
     } catch (error) {
         console.error("Failed to fetch products for sitemap:", error);
         return [];
@@ -45,10 +47,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         '/about',
         '/reviews',
         '/terms',
-        '/profile', // User profile
-        '/login',
-        '/register',
-        '/checkout',
+        '/privacy',
+        '/promotions',
     ].map((route) => ({
         url: `${BASE_URL}${route}`,
         lastModified: new Date(),
