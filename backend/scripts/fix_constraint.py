@@ -1,6 +1,7 @@
 import asyncio
 import sys
 import os
+import re
 
 # Add backend directory to path so we can import app
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -10,41 +11,43 @@ sys.path.append(backend_dir)
 from sqlalchemy import text
 from app.database import get_async_session_local
 from app.core.config import settings
-import re
 
 async def fix_constraint():
-    # Patch DATABASE_URL if POSTGRES_PASSWORD is set (similar to alembic env.py)
-    postgres_password = os.environ.get('POSTGRES_PASSWORD')
-    if postgres_password:
-        print(f"Found POSTGRES_PASSWORD in environment, patching DATABASE_URL...")
-        # Simple replacement for password part
-        # Assumes format: driver://user:password@host...
-        try:
-            current_url = settings.DATABASE_URL
-            if "://" in current_url and "@" in current_url:
-                # Regex to replace password: match between second colon and @
-                # pattern: ://username:PASSWORD@
-                # We Capture ://username:
-                match = re.search(r'(://[^:]+):([^@]+)@', current_url)
-                if match:
-                    prefix = match.group(1)
-                    # Construct new URL
-                    # Escape password for URL if needed? 
-                    # Usually asyncpg handles it, but if we inject raw string, special chars might break url.
-                    # Ideally we should use make_url/URL from sqlalchemy but let's try direct replacement first if simple
-                    # Or better: construct new URL properly
-                    
-                    # Safer approach using string replacement if we trust the structure
-                    # But simpler: check if the default password 'postgres' is there and replace it
-                    if ":postgres@" in current_url and postgres_password != "postgres":
-                         settings.DATABASE_URL = current_url.replace(":postgres@", f":{postgres_password}@")
-                    elif match:
-                         # Replace whatever password was there
-                         settings.DATABASE_URL = re.sub(r'(://[^:]+):[^@]+@', rf'\1:{postgres_password}@', current_url)
-            
-            print("DATABASE_URL patched.")
-        except Exception as e:
-            print(f"Warning: Failed to patch DATABASE_URL: {e}")
+    print("Configuring database connection...")
+    
+    # 1. Try explicit DATABASE_URL from environment
+    env_db_url = os.environ.get('DATABASE_URL')
+    
+    # 2. Try constructing from components if no full URL
+    if not env_db_url:
+        user = os.environ.get('POSTGRES_USER')
+        password = os.environ.get('POSTGRES_PASSWORD')
+        db = os.environ.get('POSTGRES_DB')
+        host = os.environ.get('POSTGRES_SERVER', 'postgres') # Default docker service name
+        port = os.environ.get('POSTGRES_PORT', '5432')
+        
+        if user and password and db:
+            print(f"Constructing URL from env vars: User={user}, DB={db}, Host={host}")
+            # Ensure proper encoding/format if needed, but simple string usually works for basic driver
+            env_db_url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{db}"
+
+    # 3. Apply to settings if found
+    if env_db_url:
+        print(f"Overriding settings.DATABASE_URL with environment value")
+        # Mask password for logging
+        safe_url = re.sub(r':([^@]+)@', ':****@', env_db_url)
+        print(f"Using URL: {safe_url}")
+        settings.DATABASE_URL = env_db_url
+    else:
+        print("Using default settings.DATABASE_URL")
+
+    # 4. Final check for password patching if we fell back to settings (Legacy check)
+    if not env_db_url and os.environ.get('POSTGRES_PASSWORD'):
+        postgres_password = os.environ.get('POSTGRES_PASSWORD')
+        current_url = settings.DATABASE_URL
+        if ":postgres@" in current_url and postgres_password != "postgres":
+             print("Patching default password with POSTGRES_PASSWORD")
+             settings.DATABASE_URL = current_url.replace(":postgres@", f":{postgres_password}@")
 
     print(f"Connecting to database to fix constraint...")
     session_factory = get_async_session_local()
