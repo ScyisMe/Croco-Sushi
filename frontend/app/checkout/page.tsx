@@ -460,10 +460,17 @@ export default function CheckoutPage() {
                         {isActive && (
                           <motion.div
                             layoutId="moving-icon"
-                            className="absolute -top-8 text-3xl filter drop-shadow-lg"
+                            className="absolute -top-14 z-20 filter drop-shadow-2xl"
                             transition={{ type: "spring", stiffness: 300, damping: 25 }}
                           >
-                            🐊
+                            <div className="relative w-16 h-16">
+                              <Image
+                                src="/images/croco-stepper.png"
+                                alt="Active Croco"
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
                           </motion.div>
                         )}
                       </div>
