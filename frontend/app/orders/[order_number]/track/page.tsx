@@ -25,7 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // Статуси замовлення з розширеними налаштуваннями для анімацій
 const ORDER_STATUSES = {
   pending: {
-    label: "Очікує збереження",
+    label: "Очікує підтвердження",
     icon: ClockIcon,
     color: "text-yellow-400",
     glow: "shadow-[0_0_20px_rgba(250,204,21,0.4)]",
@@ -143,7 +143,7 @@ export default function OrderTrackPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#050505] text-white overflow-hidden relative">
+    <div className="min-h-screen flex flex-col text-white relative">
       {/* Background Ambience */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[120px]" />
@@ -337,7 +337,7 @@ export default function OrderTrackPage() {
                             transition={{ delay: index * 0.1 }}
                             className="relative group"
                           >
-                            <span className={`absolute -left-[41px] top-1 h-5 w-5 rounded-full border-4 border-[#0F1115] ${statusConfig.bg.replace('/10', '')} ${statusConfig.color.replace('text-', 'bg-')} shadow-[0_0_10px_rgba(0,0,0,0.5)]`}></span>
+                            <span className={`absolute -left-[41px] top-1 h-5 w-5 rounded-full ${statusConfig.bg.replace('/10', '')} ${statusConfig.color.replace('text-', 'bg-')} shadow-[0_0_10px_rgba(0,0,0,0.5)]`}></span>
                             <div>
                               <p className={`font-bold text-lg ${statusConfig.color}`}>
                                 {statusConfig.label}
