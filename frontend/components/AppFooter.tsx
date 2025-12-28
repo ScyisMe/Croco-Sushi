@@ -113,7 +113,7 @@ export default function Footer() {
                   className="flex items-center gap-3 hover:text-[#00D26A] transition-colors"
                 >
                   <span className="text-[#00D26A]">📞</span>
-                  <span>(098) 097-00-03</span>
+                  <span>098 097 0003</span>
                 </a>
               </li>
               <li>

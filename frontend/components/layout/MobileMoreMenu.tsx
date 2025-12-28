@@ -23,7 +23,7 @@ export default function MobileMoreMenu({ isOpen, onClose }: MobileMoreMenuProps)
     ];
 
     const CONTACT_INFO = {
-        phones: [{ number: "+380980970003", display: "(098) 097-00-03" }],
+        phones: [{ number: "+380980970003", display: "098 097 0003" }],
     };
 
     return (
