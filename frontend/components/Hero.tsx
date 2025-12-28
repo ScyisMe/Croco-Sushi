@@ -42,7 +42,7 @@ export default function Hero() {
           muted
           loop
           playsInline
-          poster="/images/hero-poster.jpg"
+          poster="/images/hero-poster.webp"
           className="w-full h-full object-cover"
         >
           <source src="/hero-bg.mp4" type="video/mp4" />
