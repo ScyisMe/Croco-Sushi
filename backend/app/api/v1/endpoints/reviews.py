@@ -14,7 +14,7 @@ from app.models.product import Product
 from app.models.order import Order
 from app.schemas.review import ReviewCreate, ReviewResponse, ReviewUpdate, ReviewWithUser, GoogleReviewResponse
 from app.core.config import settings
-import httpx
+# import httpx  # Will be needed when integrating real Google API
 
 
 router = APIRouter()
