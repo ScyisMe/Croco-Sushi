@@ -425,7 +425,7 @@ export default function OrderTrackPage() {
                           </div>
                           <div>
                             <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Коментар</p>
-                            <p className="text-gray-300 italic">"{order.comment}"</p>
+                            <p className="text-gray-300 italic">&quot;{order.comment}&quot;</p>
                           </div>
                         </div>
                       </>
