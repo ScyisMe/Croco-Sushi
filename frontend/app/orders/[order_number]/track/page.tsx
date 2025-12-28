@@ -221,20 +221,25 @@ export default function OrderTrackPage() {
                   <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
                   <div className="relative">
-                    {/* Line Background */}
-                    <div className="hidden sm:block absolute top-[28px] left-0 w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                      <div className="absolute inset-0 bg-white/5" />
-                    </div>
+                    {/* Progress Line Wrapper */}
+                    <div className="hidden sm:block absolute top-[30px] left-0 right-0 h-1.5 -translate-y-1/2 z-0 px-[30px]">
+                      <div className="relative w-full h-full">
+                        {/* Line Background */}
+                        <div className="absolute top-0 left-0 w-full h-full bg-gray-800 rounded-full overflow-hidden">
+                          <div className="absolute inset-0 bg-white/5" />
+                        </div>
 
-                    {/* Active Line Progress */}
-                    <motion.div
-                      className="hidden sm:block absolute top-[28px] left-0 h-1.5 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)] z-0"
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: `${((currentStatus.step - 1) / (steps.length - 1)) * 100}%`,
-                      }}
-                      transition={{ duration: 1.5, ease: "easeInOut" }}
-                    />
+                        {/* Active Line Progress */}
+                        <motion.div
+                          className="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
+                          initial={{ width: 0 }}
+                          animate={{
+                            width: `${((currentStatus.step - 1) / (steps.length - 1)) * 100}%`,
+                          }}
+                          transition={{ duration: 1.5, ease: "easeInOut" }}
+                        />
+                      </div>
+                    </div>
 
                     {/* Steps */}
                     <div className="relative z-10 flex flex-col sm:flex-row justify-between gap-8 sm:gap-0">
@@ -292,6 +297,7 @@ export default function OrderTrackPage() {
                 className={`p-1 rounded-3xl bg-gradient-to-br ${currentStatus.gradient} bg-opacity-20`}
               >
                 <div className="bg-[#0f1115] p-8 rounded-[22px] h-full relative overflow-hidden">
+                  {/* ... Status Card Content ... */}
                   <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-br ${currentStatus.gradient} opacity-10 blur-3xl -translate-y-1/2 translate-x-1/2`} />
 
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10 text-center sm:text-left">
@@ -325,39 +331,52 @@ export default function OrderTrackPage() {
                     Історія подій
                   </h3>
 
-                  {order.status_history && order.status_history.length > 0 ? (
-                    <div className="relative border-l border-white/10 ml-3 space-y-8 pl-8 py-2">
-                      {order.status_history.map((historyItem: any, index: number) => {
-                        const statusConfig = ORDER_STATUSES[historyItem.status as keyof typeof ORDER_STATUSES] || ORDER_STATUSES.pending;
+                  <div className="relative border-l border-white/10 ml-3 space-y-8 pl-8 py-2">
+                    {/* Render inferred history steps leading up to current */}
+                    {(() => {
+                      // Якщо історія з бекенду неповна, формуємо візуальну історію на основі поточного статусу
+                      // Беремо всі кроки, які менші або рівні поточному (крім 0 - cancelled)
+                      const historySteps = steps.filter(s => s.step > 0 && s.step <= currentStatus.step);
+                      // Якщо є реальна історія, спробуємо знайти дати
+                      const realHistory = order.status_history || [];
+
+                      return historySteps.map((step, index) => {
+                        // Find matching real history item to get date
+                        // Assuming status keys match (pending, confirmed, etc.)
+                        // Use reverse lookup if needed or just find by label/step?
+                        // Let's assume the user wants checkmarks for past steps.
+
+                        // Simple Approach: Show all steps up to current.
+                        // Try to find a real history entry for timestamp.
+                        // Note: keys in steps are just objects, not named keys. But we know them.
+                        // Mapping step to history key:
+                        const stepKey = Object.keys(ORDER_STATUSES).find(key => ORDER_STATUSES[key as keyof typeof ORDER_STATUSES].step === step.step);
+                        const historyItem = realHistory.find((h: any) => h.status === stepKey);
+
+                        const isLast = index === historySteps.length - 1;
+
                         return (
                           <motion.div
-                            key={index}
+                            key={step.step}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
                             className="relative group"
                           >
-                            <span className={`absolute -left-[41px] top-1 h-5 w-5 rounded-full ${statusConfig.bg.replace('/10', '')} ${statusConfig.color.replace('text-', 'bg-')} shadow-[0_0_10px_rgba(0,0,0,0.5)]`}></span>
+                            <span className={`absolute -left-[41px] top-1 h-5 w-5 rounded-full ${step.bg.replace('/10', '')} ${step.color.replace('text-', 'bg-')} shadow-[0_0_10px_rgba(0,0,0,0.5)]`}></span>
                             <div>
-                              <p className={`font-bold text-lg ${statusConfig.color}`}>
-                                {statusConfig.label}
+                              <p className={`font-bold text-lg ${step.color}`}>
+                                {step.label}
                               </p>
                               <p className="text-sm text-gray-500 mb-2 font-mono">
-                                {historyItem.changed_at ? format(new Date(historyItem.changed_at), "d MMMM, HH:mm", { locale: uk }) : "—"}
+                                {historyItem?.changed_at ? format(new Date(historyItem.changed_at), "d MMMM, HH:mm", { locale: uk }) : (isLast ? "Щойно" : "•")}
                               </p>
-                              {historyItem.comment && (
-                                <div className="text-sm text-gray-300 bg-white/5 border border-white/5 p-3 rounded-xl inline-block max-w-full">
-                                  {historyItem.comment}
-                                </div>
-                              )}
                             </div>
                           </motion.div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500 text-center py-4">Історія відсутня</p>
-                  )}
+                        )
+                      });
+                    })()}
+                  </div>
                 </motion.div>
 
                 {/* Info Details */}
