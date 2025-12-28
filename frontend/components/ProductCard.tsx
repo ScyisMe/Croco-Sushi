@@ -195,7 +195,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             <div className="w-full h-full bg-surface-lighter flex items-center justify-center p-8">
               <div className="relative w-full h-full">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt={product.name}
                   fill
                   className="object-contain opacity-20 grayscale"

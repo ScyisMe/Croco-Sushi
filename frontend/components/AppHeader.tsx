@@ -157,7 +157,7 @@ export default function Header() {
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-[#343434]">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt="Croco Sushi"
                   fill
                   sizes="64px"
@@ -264,7 +264,7 @@ export default function Header() {
                     <Link href="/" className="flex items-center space-x-3" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className="relative w-14 h-14 rounded-full overflow-hidden bg-[#343434] border border-white/10">
                         <Image
-                          src="/logo.png"
+                          src="/logo.webp"
                           alt="Croco Sushi"
                           fill
                           className="object-cover"
