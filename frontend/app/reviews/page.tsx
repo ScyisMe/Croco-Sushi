@@ -72,14 +72,10 @@ function GoogleReviewCard({ review }: { review: GoogleReviewResponse }) {
   return (
     <div className="bg-[#1A1A1A] border border-white/5 rounded-2xl p-6 flex flex-col h-full hover:border-[#FCD34D]/20 transition-all duration-300">
       <div className="flex items-start gap-4 mb-4">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-white/10">
-          <Image
-            src={review.profile_photo_url}
-            alt={review.author_name}
-            fill
-            className="object-cover"
-            unoptimized // Google images might need this if domains not configured
-          />
+        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-[#FCD34D]/20 flex items-center justify-center">
+          <span className="text-[#FCD34D] font-bold text-sm">
+            {review.author_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+          </span>
         </div>
         <div>
           <h3 className="text-white font-medium text-sm">{review.author_name}</h3>
@@ -315,8 +311,8 @@ export default function ReviewsPage() {
                 ))}
               </div>
               <div className="mt-8 text-center text-sm text-gray-500">
-                <a href={`https://www.google.com/maps/search/?api=1&query=Google&query_place_id=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_PLACE_ID || ''}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#10B981] transition underline underline-offset-4">
-                  View all reviews on Google Maps
+                <a href="https://www.google.com/maps/place/Croco+Sushi/@49.8366,24.0323,17z/data=!4m8!3m7!1s0x473add6a2b5e9b0d:0x8f3c5e3f1c4b0a5d!8m2!3d49.8366!4d24.0323!9m1!1b1!16s%2Fg%2F11t9y8_vzy?entry=ttu" target="_blank" rel="noopener noreferrer" className="hover:text-[#10B981] transition underline underline-offset-4">
+                  Переглянути всі відгуки на Google Maps
                 </a>
               </div>
             </section>
@@ -327,7 +323,7 @@ export default function ReviewsPage() {
           <section>
             <div className="flex items-center gap-3 mb-8 px-2">
               <ChatBubbleLeftRightIcon className="w-6 h-6 text-[#10B981]" />
-              <h2 className="text-xl font-bold text-gray-200">{t("reviews.usersReviews")}</h2>
+              <h2 className="text-xl font-bold text-gray-200">Відгуки наших клієнтів</h2>
             </div>
 
             {reviewsQuery.isLoading ? (
