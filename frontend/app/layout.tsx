@@ -28,15 +28,18 @@ const notoSans = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: "Croco Sushi Львів — Доставка Суші та Ролів",
-  description: "🍣 Замовляйте суші Croco Sushi у Львові! 🇺🇦 Безкоштовна доставка 🛵 від 1000 грн. Тільки свіжа риба 🐟 та авторські рецепти ✨.",
+  description: "Найсмачніші суші та роли у Львові з безкоштовною доставкою від 1000 грн. Тільки свіжа риба, великі порції та швидка доставка додому та в офіс.",
   metadataBase: new URL("https://crocosushi.com"),
   alternates: {
     canonical: "/",
   },
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: [
+      { url: '/logo.webp', type: 'image/webp' },
+      { url: '/logo.png', type: 'image/png' },
+    ],
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   },
 };
 
