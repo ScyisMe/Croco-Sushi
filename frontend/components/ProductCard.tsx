@@ -59,11 +59,11 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   const infoBadges = [];
 
   // Marketing Badges (Max 2)
-  // Marketing Badges (Max 2)
+  // Marketing Badges (Max 2) - Neon Glow Style
   if (product.is_new) {
     marketingBadges.push({
       label: "Новинка",
-      className: "bg-[#00CC99] text-white border-none shadow-[0_4px_10px_rgba(0,204,153,0.3)] rounded-full px-2.5",
+      className: "bg-black/60 backdrop-blur-sm text-[#00FF88] border border-[#00FF88] shadow-[0_0_15px_rgba(0,255,136,0.5),inset_0_0_10px_rgba(0,255,136,0.1)] rounded-full px-3",
       icon: null
     });
   }
@@ -71,7 +71,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   if (product.is_top_seller || product.is_popular || product.is_hit) {
     marketingBadges.push({
       label: "Хіт",
-      className: "bg-[#FFA500] text-white border-none shadow-[0_4px_10px_rgba(255,165,0,0.3)] rounded-full px-2.5",
+      className: "bg-black/60 backdrop-blur-sm text-[#FF6B00] border border-[#FF6B00] shadow-[0_0_15px_rgba(255,107,0,0.5),inset_0_0_10px_rgba(255,107,0,0.1)] rounded-full px-3",
       icon: null
     });
   }
