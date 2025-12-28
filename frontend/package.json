@@ -55,11 +55,10 @@
     "jest-environment-jsdom": "^30.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3"
-  }
-},
-"browserslist": [
-  "defaults",
-  "not IE 11",
-  "not dead"
-]
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not dead"
+  ]
 }
