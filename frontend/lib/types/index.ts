@@ -206,6 +206,14 @@ export interface ReviewWithUser {
   created_at: string;
 }
 
+export interface GoogleReviewResponse {
+  author_name: string;
+  rating: number;
+  relative_time_description: string;
+  text: string;
+  profile_photo_url: string;
+}
+
 // Order tracking types
 // Order tracking types
 export interface OrderTrackResponse {
