@@ -174,31 +174,20 @@ export default function ProductPage() {
                   </div>
                 )}
 
-                {/* Badges */}
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                {/* Badges - Neon Glow Style */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                   {product.is_new && (
-                    <div className="relative w-12 h-12 drop-shadow-md">
-                      <Image
-                        src="/images/filters/filter-new.png"
-                        alt="Новинка"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
+                    <span className="px-4 py-1.5 text-sm font-bold tracking-wide bg-black/60 backdrop-blur-sm text-[#00FF88] border border-[#00FF88] shadow-[0_0_20px_rgba(0,255,136,0.5),inset_0_0_15px_rgba(0,255,136,0.1)] rounded-full">
+                      Новинка
+                    </span>
                   )}
-                  {product.is_popular && (
-                    <div className="relative w-12 h-12 drop-shadow-md">
-                      <Image
-                        src="/images/filters/filter-popular.png"
-                        alt="Хіт"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
+                  {(product.is_popular || product.is_hit || product.is_top_seller) && (
+                    <span className="px-4 py-1.5 text-sm font-bold tracking-wide bg-black/60 backdrop-blur-sm text-[#FF6B00] border border-[#FF6B00] shadow-[0_0_20px_rgba(255,107,0,0.5),inset_0_0_15px_rgba(255,107,0,0.1)] rounded-full">
+                      Хіт
+                    </span>
                   )}
                   {product.is_promotion && (
-                    <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-400 to-rose-600 text-white text-sm font-bold shadow-lg">
+                    <span className="px-4 py-1.5 text-sm font-bold tracking-wide bg-black/60 backdrop-blur-sm text-[#FF1493] border border-[#FF1493] shadow-[0_0_20px_rgba(255,20,147,0.5),inset_0_0_15px_rgba(255,20,147,0.1)] rounded-full">
                       Акція
                     </span>
                   )}
