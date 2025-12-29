@@ -9,7 +9,17 @@ import { useRef, useState, useEffect } from "react";
 export default function Hero() {
   const { t } = useTranslation();
   const ref = useRef(null);
-  /* Video Background */
+  const [isMobile, setIsMobile] = useState(true);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -22,7 +32,7 @@ export default function Hero() {
     <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Video Background */}
       <motion.div
-        style={{ y, opacity }}
+        style={{ y: isMobile ? 0 : y, opacity }}
         className="absolute inset-0 z-0 will-change-transform"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-surface-dark z-10" />
@@ -30,21 +40,22 @@ export default function Hero() {
         <video
           autoPlay
           muted
+          loop
           playsInline
-          preload="auto"
-          poster="/images/hero-poster.jpg"
+          poster="/images/hero-poster.webp"
           className="w-full h-full object-cover"
         >
-          {/* Mobile Video (< 768px) */}
-          <source src="/videos/sushi-hero.mp4" type="video/mp4" media="(max-width: 768px)" />
-          {/* Desktop Video (>= 768px) */}
-          <source src="/hero-bg.mp4" type="video/mp4" />
+          {!isMobile && <source src="/hero-bg.mp4" type="video/mp4" />}
         </video>
       </motion.div>
 
       {/* Content */}
       <div className="container mx-auto px-4 pt-20 relative z-20 text-center">
-        <div className="relative z-20">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
             <span className="block text-primary-400">Риби більше,</span>
             <span className="block text-white">
@@ -77,13 +88,18 @@ export default function Hero() {
           </div>
 
           {/* Free delivery badge */}
-          <div className="mt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+            className="mt-8"
+          >
             <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-sm px-4 py-2 rounded-full border border-white/20">
               <span className="text-primary-400">✓</span>
               Безкоштовна доставка від 1000 грн
             </span>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Scroll Indicator */}

@@ -20,7 +20,7 @@ class Promotion(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     discount_type: Mapped[str] = mapped_column(String(20), default="percent", nullable=False)  # percent, fixed
-    discount_value: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2), nullable=True)
+    discount_value: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     min_order_amount: Mapped[Optional[Decimal]] = mapped_column(Numeric(10, 2), nullable=True)
@@ -40,7 +40,6 @@ class Promotion(Base):
         index=True
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    show_discount_badge: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     position: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

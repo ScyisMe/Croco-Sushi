@@ -19,7 +19,6 @@ class PromotionBase(BaseModel):
     category_id: Optional[int] = None
     product_id: Optional[int] = None
     is_active: bool = True
-    show_discount_badge: bool = True
     position: int = 0
 
 
@@ -42,7 +41,6 @@ class PromotionUpdate(BaseModel):
     category_id: Optional[int] = None
     product_id: Optional[int] = None
     is_active: Optional[bool] = None
-    show_discount_badge: Optional[bool] = None
     position: Optional[int] = None
 
 
