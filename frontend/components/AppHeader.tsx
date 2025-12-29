@@ -25,11 +25,7 @@ import { NavLink } from "./ui/NavLink";
 // Контактна інформація Croco Sushi
 const CONTACT_INFO = {
   phones: [
-<<<<<<< HEAD
     { number: "+380980970003", display: "(098) 097-00-03" },
-=======
-    { number: "+380980970003", display: "098 097 0003" },
->>>>>>> 6321339b0644204ebbbfee7f1af9ac9107ebf22d
   ],
   workingHours: "10:00 - 21:45",
   email: "crocosushi0003@gmail.com",
