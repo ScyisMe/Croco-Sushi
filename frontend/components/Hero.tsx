@@ -30,9 +30,9 @@ export default function Hero() {
         <video
           autoPlay
           muted
-          loop
           playsInline
           preload="auto"
+          poster="/images/hero-poster.jpg"
           className="w-full h-full object-cover"
         >
           {/* Mobile Video (< 768px) */}
@@ -44,11 +44,7 @@ export default function Hero() {
 
       {/* Content */}
       <div className="container mx-auto px-4 pt-20 relative z-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
+        <div className="relative z-20">
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
             <span className="block text-primary-400">Риби більше,</span>
             <span className="block text-white">
@@ -81,18 +77,13 @@ export default function Hero() {
           </div>
 
           {/* Free delivery badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="mt-8"
-          >
+          <div className="mt-8">
             <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-sm px-4 py-2 rounded-full border border-white/20">
               <span className="text-primary-400">✓</span>
               Безкоштовна доставка від 1000 грн
             </span>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
 
       {/* Scroll Indicator */}
