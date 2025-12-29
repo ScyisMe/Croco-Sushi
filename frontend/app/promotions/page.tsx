@@ -171,19 +171,18 @@ export default function PromotionsPage() {
                       className="block h-full bg-white/5 backdrop-blur-md rounded-3xl overflow-hidden border border-white/5 hover:border-emerald-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 flex flex-col"
                     >
                       {/* Image Container */}
-                      <div className="relative aspect-[16/10] overflow-hidden">
+                      <div className="relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
 
                         {promo.image_url ? (
-                          <Image
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
                             src={promo.image_url}
                             alt={promo.name}
-                            fill
-                            className="object-contain transition-transform duration-700 group-hover:scale-110"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="w-full h-auto object-contain transition-transform duration-700 group-hover:scale-110"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                          <div className="w-full aspect-[16/10] bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
                             <TagIcon className="w-20 h-20 text-white/10" />
                           </div>
                         )}
