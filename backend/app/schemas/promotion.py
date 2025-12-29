@@ -10,7 +10,7 @@ class PromotionBase(BaseModel):
     description: Optional[str] = None
     image_url: Optional[str] = None
     discount_type: str = "percent"  # percent, fixed
-    discount_value: Decimal
+    discount_value: Optional[Decimal] = None
     start_date: datetime
     end_date: datetime
     min_order_amount: Optional[Decimal] = None

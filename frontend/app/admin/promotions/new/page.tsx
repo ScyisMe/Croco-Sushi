@@ -183,10 +183,9 @@ export default function NewPromotionPage() {
                     {/* Discount fields */}
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Тип знижки *
+                            Тип знижки
                         </label>
                         <select
-                            required
                             value={formData.discount_type}
                             onChange={(e) => setFormData({ ...formData, discount_type: e.target.value })}
                             className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 text-white rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -198,11 +197,10 @@ export default function NewPromotionPage() {
 
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Розмір знижки *
+                            Розмір знижки
                         </label>
                         <input
                             type="number"
-                            required
                             min="0"
                             step="0.01"
                             value={formData.discount_value}

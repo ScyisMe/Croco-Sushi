@@ -94,18 +94,16 @@ export default function PromotionDetailPage() {
             <div className="max-w-4xl mx-auto">
               <div className="bg-theme-surface rounded-xl shadow-card overflow-hidden">
                 {/* Зображення */}
-                <div className="relative aspect-video bg-theme-tertiary">
+                <div className="relative bg-theme-tertiary">
                   {promotion.image_url ? (
-                    <Image
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
                       src={promotion.image_url}
                       alt={promotion.name}
-                      fill
-                      className="object-cover"
-                      sizes="100vw"
-                      priority
+                      className="w-full h-auto object-contain max-h-[600px] mx-auto"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full aspect-video flex items-center justify-center">
                       <TagIcon className="w-24 h-24 text-gray-300" />
                     </div>
                   )}
@@ -119,8 +117,8 @@ export default function PromotionDetailPage() {
 
                   {/* Статус */}
                   <div className={`absolute top-4 right-4 px-4 py-2 rounded-lg font-semibold ${isActive
-                      ? "bg-primary text-white"
-                      : "bg-gray-600 text-white"
+                    ? "bg-primary text-white"
+                    : "bg-gray-600 text-white"
                     }`}>
                     {isActive ? "✓ Активна" : "Завершена"}
                   </div>
@@ -224,8 +222,8 @@ export default function PromotionDetailPage() {
                       <div className="w-full bg-theme-secondary rounded-full h-3">
                         <div
                           className={`h-3 rounded-full transition-all ${promotion.current_uses / promotion.max_uses > 0.8
-                              ? "bg-accent-red"
-                              : "bg-primary"
+                            ? "bg-accent-red"
+                            : "bg-primary"
                             }`}
                           style={{
                             width: `${Math.min((promotion.current_uses / promotion.max_uses) * 100, 100)}%`,
