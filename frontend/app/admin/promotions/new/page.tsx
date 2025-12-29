@@ -111,7 +111,11 @@ export default function NewPromotionPage() {
         setIsLoading(true);
 
         try {
-            await apiClient.post("/admin/promotions", formData);
+            const payload = {
+                ...formData,
+                discount_value: formData.discount_value === "" ? null : Number(formData.discount_value)
+            };
+            await apiClient.post("/admin/promotions", payload);
             toast.success("Акцію створено успішно");
             router.push("/admin/promotions");
         } catch (error: any) {

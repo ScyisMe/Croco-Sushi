@@ -150,7 +150,11 @@ export default function EditPromotionPage({ params }: { params: { id: string } }
         setIsSaving(true);
 
         try {
-            await apiClient.put(`/admin/promotions/${params.id}`, formData);
+            const payload = {
+                ...formData,
+                discount_value: formData.discount_value === "" ? null : Number(formData.discount_value)
+            };
+            await apiClient.put(`/admin/promotions/${params.id}`, payload);
             toast.success("Акцію оновлено успішно");
             router.push("/admin/promotions");
         } catch (error: any) {

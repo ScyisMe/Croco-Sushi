@@ -108,11 +108,13 @@ export default function Promotions() {
                 )}
 
                 {/* Бейдж знижки */}
-                <div className="absolute top-4 left-4 bg-accent-red text-white font-bold px-3 py-1 rounded-lg">
-                  {promo.discount_type === 'percent'
-                    ? `-${promo.discount_value}%`
-                    : `-${promo.discount_value} ₴`}
-                </div>
+                {promo.discount_value && Number(promo.discount_value) > 0 && (
+                  <div className="absolute top-4 left-4 bg-accent-red text-white font-bold px-3 py-1 rounded-lg">
+                    {promo.discount_type === 'percent'
+                      ? `-${promo.discount_value}%`
+                      : `-${promo.discount_value} ₴`}
+                  </div>
+                )}
               </div>
 
               {/* Контент */}

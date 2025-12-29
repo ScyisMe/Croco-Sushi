@@ -153,17 +153,19 @@ export default function PromotionDetailPage() {
                   {/* Інформація */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     {/* Знижка */}
-                    <div className="p-4 bg-theme-tertiary rounded-xl">
-                      <div className="flex items-center gap-2 text-secondary-light mb-1">
-                        <TagIcon className="w-5 h-5" />
-                        <span>Знижка</span>
+                    {promotion.discount_value && Number(promotion.discount_value) > 0 && (
+                      <div className="p-4 bg-theme-tertiary rounded-xl">
+                        <div className="flex items-center gap-2 text-secondary-light mb-1">
+                          <TagIcon className="w-5 h-5" />
+                          <span>Знижка</span>
+                        </div>
+                        <p className="text-xl font-bold text-primary">
+                          {promotion.discount_type === "percent"
+                            ? `${promotion.discount_value}%`
+                            : `${promotion.discount_value} ₴`}
+                        </p>
                       </div>
-                      <p className="text-xl font-bold text-primary">
-                        {promotion.discount_type === "percent"
-                          ? `${promotion.discount_value}%`
-                          : `${promotion.discount_value} ₴`}
-                      </p>
-                    </div>
+                    )}
 
                     {/* Мінімальна сума */}
                     {promotion.min_order_amount && (
