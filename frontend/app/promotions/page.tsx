@@ -179,7 +179,7 @@ export default function PromotionsPage() {
                             src={promo.image_url}
                             alt={promo.name}
                             fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="object-contain transition-transform duration-700 group-hover:scale-110"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         ) : (
@@ -233,8 +233,8 @@ export default function PromotionsPage() {
                           )}
 
                           <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ${promo.is_active
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                              : "bg-red-500/10 text-red-400 border border-red-500/20"
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : "bg-red-500/10 text-red-400 border border-red-500/20"
                             }`}>
                             {promo.is_active ? "Активна" : "Неактивна"}
                           </span>
