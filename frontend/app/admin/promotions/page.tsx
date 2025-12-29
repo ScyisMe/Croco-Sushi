@@ -19,6 +19,7 @@ interface Promotion {
     description: string;
     image_url: string;
     is_active: boolean;
+    show_discount_badge?: boolean;
     discount_type: string;
     discount_value: number;
     start_date?: string;
@@ -122,8 +123,12 @@ export default function AdminPromotionsPage() {
                                     {promo.is_active ? "Активна" : "Неактивна"}
                                 </span>
                                 {promo.discount_value && Number(promo.discount_value) > 0 && (
-                                    <span className="px-2 py-1 rounded text-xs font-semibold bg-orange-500/20 text-orange-400">
+                                    <span className={`px-2 py-1 rounded text-xs font-semibold ${promo.show_discount_badge
+                                        ? "bg-orange-500/20 text-orange-400"
+                                        : "bg-gray-500/20 text-gray-400"
+                                        }`}>
                                         {formatDiscount(promo.discount_type, promo.discount_value)}
+                                        {!promo.show_discount_badge && " (прих.)"}
                                     </span>
                                 )}
                             </div>

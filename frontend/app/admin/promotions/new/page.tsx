@@ -24,6 +24,7 @@ export default function NewPromotionPage() {
         discount_type: "percent",
         discount_value: "",
         is_active: true,
+        show_discount_badge: true,
         start_date: "",
         end_date: "",
         position: 0
@@ -317,6 +318,13 @@ export default function NewPromotionPage() {
                 </div>
 
                 <div className="flex items-center space-x-4">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={formData.is_active}
+                            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                            className="w-5 h-5 text-green-600 rounded border-white/20 focus:ring-green-500 bg-[#1a1a1a] checked:bg-green-600"
+                        />
                         <span className="text-gray-300">Активна акція</span>
                     </label>
 

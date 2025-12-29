@@ -25,6 +25,7 @@ export default function EditPromotionPage({ params }: { params: { id: string } }
         discount_type: "percent",
         discount_value: "",
         is_active: true,
+        show_discount_badge: true,
         start_date: "",
         end_date: "",
         position: 0
@@ -49,6 +50,7 @@ export default function EditPromotionPage({ params }: { params: { id: string } }
                     discount_type: data.discount_type || "percent",
                     discount_value: data.discount_value?.toString() || "",
                     is_active: data.is_active,
+                    show_discount_badge: data.show_discount_badge ?? true,
                     start_date: formatDateForInput(data.start_date),
                     end_date: formatDateForInput(data.end_date),
                     position: data.position || 0
@@ -373,6 +375,16 @@ export default function EditPromotionPage({ params }: { params: { id: string } }
                         />
                         <span className="text-gray-300">Активна акція</span>
                     </label>
+
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={formData.show_discount_badge}
+                            onChange={(e) => setFormData({ ...formData, show_discount_badge: e.target.checked })}
+                            className="w-5 h-5 text-green-600 rounded border-white/20 focus:ring-green-500 bg-[#1a1a1a] checked:bg-green-600"
+                        />
+                        <span className="text-gray-300">Показувати знижку на картці</span>
+                    </label>
                 </div>
 
                 <div className="flex justify-end space-x-4 pt-4 border-t border-white/10">
@@ -390,8 +402,8 @@ export default function EditPromotionPage({ params }: { params: { id: string } }
                         {isSaving ? "Збереження..." : "Зберегти зміни"}
                     </button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }
 

@@ -136,6 +136,7 @@ export interface Promotion {
   max_uses?: number;
   current_uses?: number;
   conditions?: string;
+  show_discount_badge?: boolean;
   meta_description?: string;
 }
 
