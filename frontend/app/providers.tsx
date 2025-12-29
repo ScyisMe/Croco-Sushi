@@ -8,26 +8,12 @@ import { useThemeStore } from "@/store/themeStore";
 // Компонент для ініціалізації теми
 function ThemeProvider({ children }: { children: React.ReactNode }) {
   const initTheme = useThemeStore((state) => state.initTheme);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    initTheme();
-    setMounted(true);
-  }, [initTheme]);
-
-  // Показуємо контент тільки після ініціалізації теми
-  // щоб уникнути flash of wrong theme (FOUC)
-  // Використовуємо opacity замість visibility для кращого UX
+  // Показуємо контент одразу
+  // Фону (bg-surface-dark) достатньо для уникнення сильного FOUC
   return (
-    <div
-      suppressHydrationWarning
-      style={{
-        opacity: mounted ? 1 : 0,
-        transition: 'opacity 0.1s ease-in-out'
-      }}
-    >
+    <>
       {children}
-    </div>
+    </>
   );
 }
 

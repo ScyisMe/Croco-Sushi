@@ -51,11 +51,7 @@ export default function Hero() {
 
       {/* Content */}
       <div className="container mx-auto px-4 pt-20 relative z-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
+        <div className="relative z-20">
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
             <span className="block text-primary-400">Риби більше,</span>
             <span className="block text-white">
@@ -63,43 +59,50 @@ export default function Hero() {
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md">
-            {t("hero.subtitle")}
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/menu">
-              <Button
-                size="lg"
-                className="shadow-primary-500/40 shadow-xl hover:shadow-primary-500/60 transition-shadow text-lg px-8 py-6"
-              >
-                {t("hero.orderNow")}
-              </Button>
-            </Link>
-            <Link href="/promotions">
-              <Button
-                variant="outline"
-                size="lg"
-                className="backdrop-blur-md bg-white/5 border-white/40 text-white hover:bg-white/15 hover:border-white/60 transition-all text-lg px-8 py-6"
-              >
-                Акції
-              </Button>
-            </Link>
-          </div>
-
-          {/* Free delivery badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="mt-8"
+            transition={{ delay: 0.2, duration: 0.8 }}
           >
-            <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-sm px-4 py-2 rounded-full border border-white/20">
-              <span className="text-primary-400">✓</span>
-              Безкоштовна доставка від 1000 грн
-            </span>
+
+            <p className="text-lg md:text-xl lg:text-2xl text-white/95 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md">
+              {t("hero.subtitle")}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link href="/menu">
+                <Button
+                  size="lg"
+                  className="shadow-primary-500/40 shadow-xl hover:shadow-primary-500/60 transition-shadow text-lg px-8 py-6"
+                >
+                  {t("hero.orderNow")}
+                </Button>
+              </Link>
+              <Link href="/promotions">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="backdrop-blur-md bg-white/5 border-white/40 text-white hover:bg-white/15 hover:border-white/60 transition-all text-lg px-8 py-6"
+                >
+                  Акції
+                </Button>
+              </Link>
+            </div>
+
+            {/* Free delivery badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              className="mt-8"
+            >
+              <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-sm px-4 py-2 rounded-full border border-white/20">
+                <span className="text-primary-400">✓</span>
+                Безкоштовна доставка від 1000 грн
+              </span>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll Indicator */}
