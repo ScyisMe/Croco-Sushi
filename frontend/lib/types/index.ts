@@ -47,10 +47,12 @@ export interface Address {
   user_id: number;
   city: string;
   street: string;
-  building: string;
+  building: string; // Legacy, maps to house often
+  house?: string; // Backend field
   apartment?: string;
   entrance?: string;
   floor?: string;
+  intercom?: string;
   comment?: string;
   is_default: boolean;
   created_at: string;
@@ -83,6 +85,8 @@ export interface Product {
   weight?: string;
   calories?: number;
   ingredients?: string;
+  is_spicy?: boolean;
+  is_vegan?: boolean;
   is_available: boolean;
   is_new: boolean;
   is_popular: boolean;
@@ -146,6 +150,25 @@ export interface Order {
   delivery_cost: string;
   items: OrderItem[];
   created_at: string;
+
+  // Optional fields that might be present
+  customer_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
+  comment?: string;
+  internal_comment?: string;
+  address?: Address;
+  delivery_address?: string; // Legacy or computed string
+  payment_method?: string;
+  promo_code_name?: string;
+  discount?: number;
+  history?: {
+    manager_name: string;
+    previous_status: string;
+    new_status: string;
+    changed_at: string;
+    comment?: string;
+  }[];
 }
 
 export interface OrderItem {
@@ -183,6 +206,14 @@ export interface ReviewWithUser {
   created_at: string;
 }
 
+export interface GoogleReviewResponse {
+  author_name: string;
+  rating: number;
+  relative_time_description: string;
+  text: string;
+  profile_photo_url: string;
+}
+
 // Order tracking types
 // Order tracking types
 export interface OrderTrackResponse {
@@ -191,6 +222,7 @@ export interface OrderTrackResponse {
   updated_at: string;
   estimated_delivery_time?: string;
   comment?: string;
+  delivery_type: "delivery" | "pickup";
 
   // Custom fields
   customer_name?: string;

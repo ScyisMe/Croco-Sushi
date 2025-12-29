@@ -45,7 +45,7 @@ async def get_orders(
 ):
     """Отримати список замовлень з фільтрацією"""
     query = select(Order).options(
-        selectinload(Order.items),
+        selectinload(Order.items).selectinload(OrderItem.product),
         selectinload(Order.address),
         selectinload(Order.user),
         selectinload(Order.history)
@@ -166,7 +166,7 @@ async def get_order(
         select(Order)
         .where(Order.id == order_id)
         .options(
-            selectinload(Order.items),
+            selectinload(Order.items).selectinload(OrderItem.product),
             selectinload(Order.address),
             selectinload(Order.user),
             selectinload(Order.history)  # Already here, but ensuring it's used
@@ -189,87 +189,112 @@ async def update_order_status(
     current_user: User = Depends(get_current_manager_user)
 ):
     """Змінити статус замовлення"""
-    # Use joinload for history if we return it? 
-    # Actually we return OrderResponse which includes history, so better load it.
-    result = await db.execute(
-        select(Order)
-        .where(Order.id == order_id)
-        .options(selectinload(Order.history))
-    )
-    order = result.scalar_one_or_none()
-    
-    if not order:
-        raise NotFoundException("Замовлення не знайдено")
-    
-    old_status = order.status
-    
-    # Validation: Reason required for cancellation
-    comment_text = status_data.reason or status_data.comment
-    
-    if status_data.status == "cancelled" and not comment_text:
-        raise BadRequestException("Причина скасування є обов'язковою! Вкажіть 'reason'.")
-
-    order.status = status_data.status
-    
-    # 3. ЗАПИСУЄМО В ІСТОРІЮ (Audit Log)
-    # Ensure manager_name is not None
-    manager_name = current_user.name or current_user.email or f"Manager #{current_user.id}"
-    
-    log_entry = OrderHistory(
-        order_id=order.id,
-        manager_id=current_user.id,
-        manager_name=manager_name,
-        previous_status=old_status,
-        new_status=status_data.status,
-        comment=comment_text # Save reason as comment
-    )
-    db.add(log_entry)
-    
-    # Legacy updates
-    history = order.status_history or []
-    history.append({
-        "old_status": old_status,
-        "new_status": status_data.status,
-        "changed_by": current_user.id,
-        "changed_at": datetime.now(timezone.utc).isoformat(),
-        "comment": status_data.comment
-    })
-    order.status_history = history
-    
-    await db.commit()
-    await db.refresh(order)
-    
-    # Відправка сповіщень клієнту через Celery (асинхронно)
+    """Змінити статус замовлення"""
     try:
-        # Email сповіщення
-        if order.customer_email:
-            from app.tasks.email import schedule_order_status_update
-            status_names = {
-                "pending": "Очікує підтвердження",
-                "confirmed": "Підтверджено",
-                "preparing": "Готується",
-                "delivering": "Доставляється",
-                "completed": "Завершено",
-                "cancelled": "Скасовано"
-            }
-            status_name = status_names.get(status_data.status, status_data.status)
-            schedule_order_status_update(order_id, order.customer_email, status_name)
-        
-        # SMS сповіщення
-        if order.customer_phone:
-            from app.tasks.sms import send_order_notification
-            send_order_notification.delay(
-                order.customer_phone,
-                order.order_number,
-                status_data.status
+        # Use joinload for history if we return it? 
+        # Actually we return OrderResponse which includes history, so better load it.
+        result = await db.execute(
+            select(Order)
+            .where(Order.id == order_id)
+            .options(
+                selectinload(Order.history),
+                selectinload(Order.items).selectinload(OrderItem.product),
+                selectinload(Order.address),
+                selectinload(Order.user)
             )
+        )
+        order = result.scalar_one_or_none()
+        
+        if not order:
+            raise NotFoundException("Замовлення не знайдено")
+        
+        old_status = order.status
+        
+        # Validation: Reason required for cancellation
+        comment_text = status_data.reason or status_data.comment
+        
+        if status_data.status == "cancelled" and not comment_text:
+            raise BadRequestException("Причина скасування є обов'язковою! Вкажіть 'reason'.")
+
+        order.status = status_data.status
+        
+        # 3. ЗАПИСУЄМО В ІСТОРІЮ (Audit Log)
+        # Ensure manager_name is not None
+        manager_name = current_user.name or current_user.email or f"Manager #{current_user.id}"
+        
+        log_entry = OrderHistory(
+            order_id=order.id,
+            manager_id=current_user.id,
+            manager_name=manager_name,
+            previous_status=old_status,
+            new_status=status_data.status,
+            comment=comment_text # Save reason as comment
+        )
+        db.add(log_entry)
+        
+        # Legacy updates
+        history = order.status_history or []
+        history.append({
+            "old_status": old_status,
+            "new_status": status_data.status,
+            "changed_by": current_user.id,
+            "changed_at": datetime.now(timezone.utc).isoformat(),
+            "comment": status_data.comment
+        })
+        order.status_history = history
+        
+        await db.commit()
+        # Reload with full options to ensure relationships (like items.product) are loaded for Pydantic
+        result = await db.execute(
+            select(Order)
+            .where(Order.id == order_id)
+            .options(
+                selectinload(Order.history),
+                selectinload(Order.items).selectinload(OrderItem.product),
+                selectinload(Order.address),
+                selectinload(Order.user)
+            )
+        )
+        order = result.scalar_one_or_none()
+        
+        # Відправка сповіщень клієнту через Celery (асинхронно)
+        try:
+            # Email сповіщення
+            if order.customer_email:
+                from app.tasks.email import schedule_order_status_update
+                status_names = {
+                    "pending": "Очікує підтвердження",
+                    "confirmed": "Підтверджено",
+                    "preparing": "Готується",
+                    "delivering": "Доставляється",
+                    "completed": "Завершено",
+                    "cancelled": "Скасовано"
+                }
+                status_name = status_names.get(status_data.status, status_data.status)
+                schedule_order_status_update(order_id, order.customer_email, status_name)
+            
+            # SMS сповіщення
+            if order.customer_phone:
+                from app.tasks.sms import send_order_notification
+                send_order_notification.delay(
+                    order.customer_phone,
+                    order.order_number,
+                    status_data.status
+                )
+        except Exception as e:
+            # Log error but don't fail the request
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send notifications for order {order_id}: {e}")
+        
+        return order
     except Exception as e:
-        # Log error but don't fail the request
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Failed to send notifications for order {order_id}: {e}")
-    
-    return order
+        import traceback
+        print(f"ERROR UPDATING ORDER STATUS: {e}")
+        traceback.print_exc()
+        # Return the error detail to the client for debugging
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Update Error: {str(e)}")
 
 
 
@@ -317,7 +342,19 @@ async def assign_courier(
     
     order.courier_id = courier_data.courier_id
     await db.commit()
-    await db.refresh(order)
+    
+    # Reload with full options for response
+    result = await db.execute(
+        select(Order)
+        .where(Order.id == order_id)
+        .options(
+            selectinload(Order.history),
+            selectinload(Order.items).selectinload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.user)
+        )
+    )
+    order = result.scalar_one_or_none()
     
     return order
 

@@ -356,6 +356,12 @@ async def track_order(
     # Мапимо адресу якщо вона є
     response_data = OrderTrack.model_validate(order)
     
+    # Визначаємо тип доставки
+    if not order.address_id:
+        response_data.delivery_type = "pickup"
+    else:
+        response_data.delivery_type = "delivery"
+    
     if order.address:
         response_data.city = order.address.city
         response_data.street = order.address.street

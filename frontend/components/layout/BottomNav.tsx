@@ -18,7 +18,8 @@ export default function BottomNav() {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden print:hidden">
-            <div className="absolute inset-0 bg-surface-dark/95 backdrop-blur-xl border-t border-white/10" />
+            {/* Neon Container Effect */}
+            <div className="absolute inset-0 bg-[#080808]/95 backdrop-blur-xl border-t border-primary/20 shadow-[0_-5px_20px_rgba(16,185,129,0.15)]" />
             <div className="relative flex justify-around items-center h-16 px-2 pb-safe">
                 {links.map((link) => {
                     const isActive = pathname === link.href;
@@ -28,18 +29,28 @@ export default function BottomNav() {
                         <Link
                             key={link.label}
                             href={link.href}
-                            className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 ${isActive ? "text-primary-500" : "text-gray-400 hover:text-gray-200"
+                            className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300 ${isActive
+                                ? "text-primary drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]"
+                                : "text-gray-400 hover:text-white"
                                 }`}
                         >
                             <motion.div
                                 className="relative p-1"
                                 whileTap={{ scale: 0.9 }}
-                                animate={isActive ? { scale: [1, 1.2, 1] } : { scale: 1 }}
-                                transition={{ duration: 0.3 }}
+                                animate={isActive ? { scale: [1, 1.1, 1], y: [0, -2, 0] } : { scale: 1, y: 0 }}
+                                transition={{ duration: 0.4 }}
                             >
-                                <Icon className="w-6 h-6" />
+                                <Icon className={`w-6 h-6 ${isActive ? "stroke-2" : "stroke-1"}`} />
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="nav-indicator"
+                                        className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full shadow-[0_0_8px_rgba(16,185,129,1)]"
+                                    />
+                                )}
                             </motion.div>
-                            <span className="text-[10px] font-medium">{link.label}</span>
+                            <span className={`text-[10px] ${isActive ? "font-bold" : "font-medium"}`}>
+                                {link.label}
+                            </span>
                         </Link>
                     );
                 })}

@@ -102,7 +102,7 @@ export default function AdminOrdersPage() {
       setIsLoading(true);
       let url = "/admin/orders?limit=50";
       if (selectedStatus) {
-        url += `&status_filter=${selectedStatus}`;
+        url += `&status=${selectedStatus}`;
       }
       const response = await apiClient.get(url);
       setOrders(response.data.orders || response.data || []);

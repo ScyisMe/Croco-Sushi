@@ -12,7 +12,10 @@ from app.models.review import Review
 from app.models.user import User
 from app.models.product import Product
 from app.models.order import Order
-from app.schemas.review import ReviewCreate, ReviewResponse, ReviewUpdate, ReviewWithUser
+from app.schemas.review import ReviewCreate, ReviewResponse, ReviewUpdate, ReviewWithUser, GoogleReviewResponse
+from app.core.config import settings
+# import httpx  # Will be needed when integrating real Google API
+
 
 router = APIRouter()
 
@@ -61,6 +64,42 @@ async def get_reviews(
     return reviews_with_users
 
 
+@router.get("/google", response_model=List[GoogleReviewResponse])
+async def get_google_reviews():
+    """Отримання відгуків з Google Maps"""
+    # Placeholder for Google Maps API logic
+    # In a real scenario, we would use settings.GOOGLE_MAPS_API_KEY and settings.GOOGLE_MAPS_PLACE_ID
+    # to fetch reviews from:
+    # https://maps.googleapis.com/maps/api/place/details/json?place_id=...&fields=reviews&key=...
+    
+    # Mock data for demonstration
+    mock_reviews = [
+        {
+            "author_name": "Олена П.",
+            "rating": 5,
+            "relative_time_description": "2 дні тому",
+            "text": "Найкращі суші у Львові! Завжди свіжі та дуже смачні. Доставка швидка.",
+            "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocI-..."
+        },
+        {
+            "author_name": "Ігор К.",
+            "rating": 5,
+            "relative_time_description": "тиждень тому",
+            "text": "Чудовий сервіс і неймовірний смак. Рекомендую філадельфію!",
+            "profile_photo_url": "https://lh3.googleusercontent.com/a/..."
+        },
+         {
+            "author_name": "Марія С.",
+            "rating": 4,
+            "relative_time_description": "місяць тому",
+            "text": "Смачно, але довелось трохи почекати доставку в годину пік.",
+            "profile_photo_url": "https://lh3.googleusercontent.com/a/..."
+        }
+    ]
+    return mock_reviews
+
+
+
 @router.get("/product/{product_id}", response_model=List[ReviewWithUser])
 async def get_product_reviews(
     product_id: int,
@@ -93,9 +132,9 @@ async def create_review(
     current_user: Optional[User] = Depends(get_optional_user)
 ):
     """Створення відгуку"""
-    # Валідація: має бути або order_id, або product_id
-    if not review_data.order_id and not review_data.product_id:
-        raise BadRequestException("Потрібно вказати order_id або product_id")
+    # Валідація: order_id та product_id можуть бути відсутні (загальний відгук)
+    # if not review_data.order_id and not review_data.product_id:
+    #    pass # Allow general reviews
     
     # Перевірка чи існує замовлення або товар
     if review_data.order_id:
@@ -134,6 +173,8 @@ async def create_review(
                 raise BadRequestException("Ви вже залишили відгук на це замовлення")
             elif review_data.product_id:
                 raise BadRequestException("Ви вже залишили відгук на цей товар")
+            else:
+                 raise BadRequestException("Ви вже залишили загальний відгук про сайт")
     
     # Створення відгуку з обробкою race condition
     from sqlalchemy.exc import IntegrityError
@@ -174,6 +215,8 @@ async def create_review(
                     raise BadRequestException("Ви вже залишили відгук на це замовлення")
                 elif review_data.product_id:
                     raise BadRequestException("Ви вже залишили відгук на цей товар")
+                else:
+                    raise BadRequestException("Ви вже залишили загальний відгук про сайт")
         
         raise BadRequestException("Помилка створення відгуку")
 

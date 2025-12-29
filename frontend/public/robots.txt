@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Забороняємо технічні розділи та API, які не мають контенту для людей
+Disallow: /admin/
+Disallow: /api/
+Disallow: /account/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /auth/
+Disallow: *?sort=
+Disallow: *?filter=
+
+# Вказуємо шлях до карти сайту (обов'язково!)
+Sitemap: https://crocosushi.com/sitemap.xml

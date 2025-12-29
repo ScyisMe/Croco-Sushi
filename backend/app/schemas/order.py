@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from datetime import datetime
 from typing import Optional, List
 from decimal import Decimal
+from app.schemas.address import AddressResponse
 
 
 class OrderItemBase(BaseModel):
@@ -25,7 +26,8 @@ class OrderItemResponse(OrderItemBase):
     order_id: int
     size_id: Optional[int] = None  # ID розміру порції
     size_name: Optional[str] = None  # Назва розміру порції
-    
+    product_image: Optional[str] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -42,6 +44,7 @@ class OrderBase(BaseModel):
 class OrderCreate(OrderBase):
     """Створення замовлення"""
     # Додатково для неавторизованих користувачів
+    delivery_type: Optional[str] = "delivery"  # delivery або pickup
     city: Optional[str] = None
     street: Optional[str] = None
     house: Optional[str] = None
@@ -51,6 +54,10 @@ class OrderCreate(OrderBase):
 
     @model_validator(mode='after')
     def validate_address_fields(self) -> 'OrderCreate':
+        # Якщо тип доставки - самовивіз, адреса не потрібна
+        if self.delivery_type == "pickup":
+            return self
+        
         # Якщо вказана вулиця - це завжди створення нової адреси (або разова адреса)
         # Тому обов'язково потрібні номер будинку (місто має дефолт)
         if self.street:
@@ -105,16 +112,20 @@ class OrderResponse(BaseModel):
     customer_phone: str
     customer_email: Optional[str] = None  # Email для сповіщень
     comment: Optional[str]
+    internal_comment: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     items: List[OrderItemResponse] = []
     history: List[OrderHistoryResponse] = []
 
+    delivery_type: Optional[str] = "delivery"
+    address: Optional[AddressResponse] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class OrderStatusUpdate(BaseModel):
-    status: str = Field(..., pattern="^(pending|confirmed|preparing|delivering|completed|cancelled)$")
+    status: str = Field(..., pattern="^(pending|confirmed|preparing|ready|delivering|completed|cancelled)$")
     comment: Optional[str] = None
     reason: Optional[str] = Field(None, max_length=500, description="Причина зміни статусу (обов'язкова для скасування)")
 
@@ -127,6 +138,7 @@ class OrderTrack(BaseModel):
     total_amount: Decimal
     
     # Додаткові поля для відображення
+    delivery_type: str = "delivery" # delivery або pickup
     customer_name: Optional[str] = None
     customer_phone: Optional[str] = None
     delivery_time: Optional[datetime] = None

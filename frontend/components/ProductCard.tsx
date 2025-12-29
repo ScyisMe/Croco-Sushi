@@ -59,11 +59,11 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   const infoBadges = [];
 
   // Marketing Badges (Max 2)
-  // Marketing Badges (Max 2)
+  // Marketing Badges (Max 2) - Neon Glow Style
   if (product.is_new) {
     marketingBadges.push({
       label: "Новинка",
-      className: "bg-[#00CC99] text-white border-none shadow-[0_4px_10px_rgba(0,204,153,0.3)] rounded-full px-2.5",
+      className: "bg-black/60 backdrop-blur-sm text-[#00FF88] border border-[#00FF88] shadow-[0_0_15px_rgba(0,255,136,0.5),inset_0_0_10px_rgba(0,255,136,0.1)] rounded-full px-3",
       icon: null
     });
   }
@@ -71,7 +71,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   if (product.is_top_seller || product.is_popular || product.is_hit) {
     marketingBadges.push({
       label: "Хіт",
-      className: "bg-[#FFA500] text-white border-none shadow-[0_4px_10px_rgba(255,165,0,0.3)] rounded-full px-2.5",
+      className: "bg-black/60 backdrop-blur-sm text-[#FF6B00] border border-[#FF6B00] shadow-[0_0_15px_rgba(255,107,0,0.5),inset_0_0_10px_rgba(255,107,0,0.1)] rounded-full px-3",
       icon: null
     });
   }
@@ -93,7 +93,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           <Image
             src="/badges/spicy_custom.png"
             alt="Spicy"
-            fill
+            width={16}
+            height={16}
             className="object-contain"
           />
         </div>
@@ -110,7 +111,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           <Image
             src="/badges/vegan_custom.png"
             alt="Vegetarian"
-            fill
+            width={16}
+            height={16}
             className="object-contain"
           />
         </div>
@@ -182,17 +184,19 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             <Image
               src={product.image_url}
               alt={product.name}
-              fill
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+              width={500}
+              height={625}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               priority={priority}
+              quality={60}
               onError={(e) => console.error(`Failed to load image: ${product.image_url}`, e)}
             />
           ) : (
             <div className="w-full h-full bg-surface-lighter flex items-center justify-center p-8">
               <div className="relative w-full h-full">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt={product.name}
                   fill
                   className="object-contain opacity-20 grayscale"

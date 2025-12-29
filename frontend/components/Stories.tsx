@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const stories = [
     {
@@ -43,33 +44,71 @@ const stories = [
 ];
 
 export default function Stories() {
+    const router = useRouter();
     return (
         <div className="w-full py-6 overflow-x-auto hide-scrollbar">
             <div className="flex gap-4 px-4 w-max">
-                {stories.map((story, index) => (
-                    <Link key={story.id} href={story.link} className="flex flex-col items-center gap-2 group">
-                        <motion.div
-                            whileTap={{ scale: 0.95 }}
-                            className={`p-[3px] rounded-full bg-gradient-to-tr ${story.color}`}
-                        >
-                            <div className="p-[2px] bg-black rounded-full">
-                                <div className="w-16 h-16 relative rounded-full overflow-hidden bg-surface-lighter ring-2 ring-black">
-                                    <Image
-                                        src={story.image}
-                                        alt={story.title}
-                                        fill
-                                        className="object-cover"
-                                        sizes="64px"
-                                        priority={index < 4}
-                                    />
-                                </div>
+                {stories.map((story, index) => {
+                    const isFilter = story.link.includes('?filter=');
+
+                    if (isFilter) {
+                        return (
+                            <div
+                                key={story.id}
+                                onClick={() => router.push(story.link)}
+                                className="flex flex-col items-center gap-2 group cursor-pointer"
+                            >
+                                <motion.div
+                                    whileTap={{ scale: 0.95 }}
+                                    className={`p-[3px] rounded-full bg-gradient-to-tr ${story.color}`}
+                                >
+                                    <div className="p-[2px] bg-black rounded-full">
+                                        <div className="w-16 h-16 relative rounded-full overflow-hidden bg-surface-lighter ring-2 ring-black">
+                                            <Image
+                                                src={story.image}
+                                                alt={story.title}
+                                                width={64}
+                                                height={64}
+                                                className="w-full h-full object-cover"
+                                                sizes="64px"
+                                                priority={index < 4}
+                                            />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                                <span className="text-[10px] font-bold text-gray-300 group-hover:text-white transition-colors uppercase tracking-wider">
+                                    {story.title}
+                                </span>
                             </div>
-                        </motion.div>
-                        <span className="text-[10px] font-bold text-gray-300 group-hover:text-white transition-colors uppercase tracking-wider">
-                            {story.title}
-                        </span>
-                    </Link>
-                ))}
+                        );
+                    }
+
+                    return (
+                        <Link key={story.id} href={story.link} className="flex flex-col items-center gap-2 group">
+                            <motion.div
+                                whileTap={{ scale: 0.95 }}
+                                className={`p-[3px] rounded-full bg-gradient-to-tr ${story.color}`}
+                            >
+                                <div className="p-[2px] bg-black rounded-full">
+                                    <div className="w-16 h-16 relative rounded-full overflow-hidden bg-surface-lighter ring-2 ring-black">
+                                        <Image
+                                            src={story.image}
+                                            alt={story.title}
+                                            width={64}
+                                            height={64}
+                                            className="w-full h-full object-cover"
+                                            sizes="64px"
+                                            priority={index < 4}
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                            <span className="text-[10px] font-bold text-gray-300 group-hover:text-white transition-colors uppercase tracking-wider">
+                                {story.title}
+                            </span>
+                        </Link>
+                    );
+                })}
             </div>
         </div>
     );

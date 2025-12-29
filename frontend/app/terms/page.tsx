@@ -22,7 +22,7 @@ const TERMS_SECTIONS = [
   {
     id: "general",
     icon: DocumentTextIcon,
-    title: "1. Загальні положення",
+    title: "1. Загальні положення оферти",
     content: [
       `1.1. Ця публічна оферта (далі – «Договір») є офіційною пропозицією ${COMPANY_INFO.legalName} (далі – «Виконавець») укласти договір про надання послуг громадського харчування та доставки їжі.`,
       "1.2. Відповідно до ст. 633, 641 Цивільного кодексу України, ця оферта є публічною пропозицією (публічним договором).",
@@ -309,9 +309,9 @@ export default function TermsPage() {
                     <div className="w-10 h-10 bg-accent-orange/10 rounded-xl flex items-center justify-center flex-shrink-0">
                       <section.icon className="w-5 h-5 text-accent-orange" />
                     </div>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground">
                       {section.title}
-                    </h2>
+                    </h3>
                   </div>
                   <div className="pl-0 md:pl-14 space-y-3">
                     {section.content.map((paragraph, index) => (

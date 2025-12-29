@@ -9,9 +9,9 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/logo.jpg",
+      "src": "/logo.webp",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
@@ -21,10 +21,10 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["food", "shopping"],
+  "categories": [
+    "food",
+    "shopping"
+  ],
   "lang": "uk",
   "dir": "ltr"
 }
-
-
-

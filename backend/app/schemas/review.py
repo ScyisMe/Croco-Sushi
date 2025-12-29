@@ -39,9 +39,9 @@ class ReviewWithUser(ReviewResponse):
     user_name: Optional[str] = None
     user_phone: Optional[str] = None
 
-
-
-
-
-
-
+class GoogleReviewResponse(BaseModel):
+    author_name: str
+    rating: int
+    relative_time_description: str
+    text: str
+    profile_photo_url: str

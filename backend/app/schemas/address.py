@@ -33,7 +33,7 @@ class AddressUpdate(BaseModel):
 
 class AddressResponse(AddressBase):
     id: int
-    user_id: int
+    user_id: Optional[int] = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

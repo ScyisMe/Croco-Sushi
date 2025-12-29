@@ -126,6 +126,7 @@ export default function DeliveryPage() {
         {/* Переваги (Новий дизайн 4 блоків) */}
         <section className="py-12 -mt-8 relative z-10">
           <div className="container mx-auto px-4">
+            <h2 className="sr-only">Наші переваги</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((feature, index) => (
                 <div
@@ -155,7 +156,7 @@ export default function DeliveryPage() {
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                 <TruckIcon className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-secondary">{t("delivery.zones")}</h2>
+              <h3 className="text-xl font-bold text-secondary">{t("delivery.zones")}</h3>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -268,7 +269,7 @@ export default function DeliveryPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                   <ClockIcon className="w-6 h-6 text-primary" />
                 </div>
-                <h2 className="text-xl font-bold text-secondary">{t("delivery.workingHours")}</h2>
+                <h3 className="text-xl font-bold text-secondary">{t("delivery.workingHours")}</h3>
               </div>
 
               <div className="space-y-3">
@@ -288,7 +289,7 @@ export default function DeliveryPage() {
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                   <CurrencyDollarIcon className="w-6 h-6 text-primary" />
                 </div>
-                <h2 className="text-xl font-bold text-secondary">{t("delivery.paymentMethods")}</h2>
+                <h3 className="text-xl font-bold text-secondary">{t("delivery.paymentMethods")}</h3>
               </div>
 
               <div className="space-y-3">
@@ -318,7 +319,7 @@ export default function DeliveryPage() {
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
                 <MapPinIcon className="w-6 h-6 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-secondary">{t("delivery.pickup")}</h2>
+              <h3 className="text-xl font-bold text-secondary">{t("delivery.pickup")}</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -387,9 +388,9 @@ export default function DeliveryPage() {
 
           {/* FAQ */}
           <div className="bg-theme-surface rounded-xl shadow-card p-6 md:p-8 mb-8">
-            <h2 className="text-xl font-bold text-theme mb-6">
+            <h3 className="text-xl font-bold text-theme mb-6">
               {t("delivery.faq")}
-            </h2>
+            </h3>
 
             <div className="space-y-3">
               {LOCALIZED_FAQ.map((item, index) => (
@@ -416,7 +417,7 @@ export default function DeliveryPage() {
 
           {/* CTA */}
           <div className="bg-theme-surface border border-primary/30 rounded-xl p-8 text-center">
-            <h2 className="text-2xl font-bold mb-3 text-white">Готові замовити?</h2>
+            <h3 className="text-2xl font-bold mb-3 text-white">Готові замовити?</h3>
             <p className="text-gray-400 mb-6 max-w-xl mx-auto leading-relaxed">
               Оберіть смачні суші з нашого меню та насолоджуйтесь швидкою доставкою!
             </p>

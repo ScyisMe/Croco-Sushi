@@ -1,4 +1,13 @@
-﻿"use client";
+﻿
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Політика Конфіденційності та Захист Даних | Croco Sushi",
+  description: "Політика конфіденційності Croco Sushi. Як ми збираємо, обробляємо та захищаємо ваші персональні дані.",
+  alternates: {
+    canonical: "https://crocosushi.com/privacy",
+  }
+};
 
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";
@@ -20,7 +29,7 @@ const PRIVACY_SECTIONS = [
   {
     id: "general",
     icon: DocumentTextIcon,
-    title: "1. Загальні положення",
+    title: "1. Загальні положення політики",
     content: [
       `Ця Політика конфіденційності (далі – «Політика») визначає порядок збору, обробки, використання, зберігання та захисту персональних даних користувачів веб-сайту ${COMPANY_INFO.website} (далі – «Сайт»), що належить ${COMPANY_INFO.legalName}.`,
       "Використовуючи Сайт та/або залишаючи свої персональні дані, Ви надаєте згоду на обробку Ваших персональних даних відповідно до цієї Політики та чинного законодавства України.",
@@ -284,9 +293,9 @@ export default function PrivacyPage() {
                     <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                       <section.icon className="w-5 h-5 text-primary" />
                     </div>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground">
+                    <h3 className="text-xl md:text-2xl font-bold text-foreground">
                       {section.title}
-                    </h2>
+                    </h3>
                   </div>
                   <div className="pl-0 md:pl-14 space-y-3">
                     {section.content.map((paragraph, index) => (

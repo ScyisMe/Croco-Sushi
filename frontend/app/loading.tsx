@@ -7,7 +7,7 @@ export default function Loading() {
                 {/* Logo Container with Pulse and Round Frame */}
                 <div className="relative w-32 h-32 mb-8 animate-pulse rounded-full overflow-hidden bg-[#343434] ring-4 ring-primary/20 flex items-center justify-center">
                     <Image
-                        src="/logo.png"
+                        src="/logo.webp"
                         alt="Loading..."
                         fill
                         className="object-cover p-4"

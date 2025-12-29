@@ -99,10 +99,14 @@ class Order(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "status IN ('pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled')",
+            "status IN ('pending', 'confirmed', 'preparing', 'ready', 'delivering', 'completed', 'cancelled')",
             name="check_order_status"
         ),
     )
+
+    @property
+    def delivery_type(self) -> str:
+        return "pickup" if not self.address_id else "delivery"
 
 
 class OrderItem(Base):
@@ -144,4 +148,8 @@ class OrderItem(Base):
     __table_args__ = (
         CheckConstraint("quantity > 0", name="check_quantity_positive"),
     )
+
+    @property
+    def product_image(self) -> Optional[str]:
+        return self.product.image_url if self.product else None
 

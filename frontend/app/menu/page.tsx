@@ -1,840 +1,107 @@
-﻿"use client";
+﻿
+import { Metadata } from 'next';
+import MenuClient from './MenuClient';
 
-export const dynamic = "force-dynamic";
+type Props = {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
-import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import apiClient from "@/lib/api/apiClient";
-import { Category, Product, Favorite } from "@/lib/types";
-import { motion } from "framer-motion";
-import {
-  MagnifyingGlassIcon,
-  AdjustmentsHorizontalIcon,
-  XMarkIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-  Squares2X2Icon,
-} from "@heroicons/react/24/outline";
-import Header from "@/components/AppHeader";
-import Footer from "@/components/AppFooter";
-import ProductCard, { ProductCardSkeleton } from "@/components/ProductCard";
-import QuickViewModal from "@/components/QuickViewModal";
-import toast from "react-hot-toast";
-import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
-import { Button } from "@/components/ui/Button";
-import ScrollToTop from "@/components/ui/ScrollToTop";
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const category = searchParams.category;
 
-// Кількість товарів на сторінку
-const PRODUCTS_PER_PAGE = 24;
+  // Capitalize category for title
+  const categoryName = typeof category === 'string'
+    ? category.charAt(0).toUpperCase() + category.slice(1)
+    : 'Menu';
 
-// Опції сортування
-const SORT_OPTIONS = [
-  { value: "position", label: "За замовчуванням" },
-  { value: "popular", label: "Популярні" },
-  { value: "name", label: "За назвою" },
-  { value: "price_asc", label: "Спочатку дешевші" },
-  { value: "price_desc", label: "Спочатку дорожчі" },
-];
+  let title = "Меню Croco Sushi | Доставка суші та ролів у Львові";
+  let description = "Замовляйте найсмачніші суші та роли у Львові. Безкоштовна доставка від 1000 грн. Великий вибір сетів, суші та ролів.";
 
-function MenuContent() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const searchParams = useSearchParams();
-  const categorySlug = searchParams.get("category");
-  const sortParam = searchParams.get("sort");
+  if (category === 'sushi') {
+    title = "Суші у Львові: Доставка додому | Croco Sushi";
+    description = "Свіжі нігірі та гункани з лососем, тунцем, вугрем. Замовляйте суші з доставкою по Львову. Тільки свіжа риба!";
+  } else if (category === 'rolls') {
+    title = "Роли Філадельфія та Дракон | Доставка Львів";
+    description = "Авторські роли, Філадельфія, Каліфорнія, Дракони. Найбільшe начинки та найкращий рис. Швидка доставка ролів у Львові.";
+  } else if (category === 'sets') {
+    title = "Сети суші та ролів у Львові | Croco Sushi";
+    description = "Великі сети суші для компаній. Замовляйте набори ролів зі знижкою. Ідеально для вечірок та святкувань.";
+  } else if (category) {
+    title = `${categoryName} | Доставка їжі Львів | Croco Sushi`;
+    description = `Замовляйте ${categoryName} з доставкою по Львову. Свіжі інгредієнти та швидка доставка від Croco Sushi.`;
+  }
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(categorySlug);
-  const [sortBy, setSortBy] = useState<string>(sortParam || "position");
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
-
-  // Filters State
-  const filterParam = searchParams.get("filter");
-  const [selectedProperties, setSelectedProperties] = useState<string[]>(
-    filterParam ? filterParam.split(",") : []
-  );
-
-  // Sync with URL when params change (e.g. navigation from Home)
-  useEffect(() => {
-    const filterParam = searchParams.get("filter");
-    if (filterParam) {
-      setSelectedProperties(filterParam.split(","));
-    } else {
-      // Only clear if we explicitly navigated to a URL without filters (optional, depends on UX)
-      // But if we want to support clearing via back button:
-      setSelectedProperties([]);
-    }
-  }, [searchParams]);
-
-  // Filter Options
-  // Filter Options
-  const PROPERTY_FILTERS = [
-    { id: "is_spicy", label: "Гострі 🌶️", type: "boolean", prop: "is_spicy" },
-    { id: "no_cheese", label: "Без сиру 🧀❌", type: "exclude", keyword: "сир" },
-    { id: "salmon", label: "З лососем 🐟", type: "include", keyword: "лосось" },
-    { id: "eel", label: "З вугром 🐍", type: "include", keyword: "вугор" },
-    { id: "shrimp", label: "З креветкою 🍤", type: "include", keyword: "креветк" },
-    { id: "is_vegan", label: "Вегетаріанські 🥬", type: "boolean", prop: "is_vegan" },
-    { id: "is_popular", label: "Топ продажів 🔥", type: "boolean", prop: "is_popular" },
-    { id: "is_new", label: "Новинки 🆕", type: "boolean", prop: "is_new" },
-  ];
-
-  // Ref для Intersection Observer (infinite scroll)
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  // Перевірка авторизації
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    setIsAuthenticated(!!token);
-  }, []);
-
-  // Debounce для пошуку
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
-
-  // Синхронізація з URL
-  useEffect(() => {
-    setSelectedCategory(categorySlug);
-  }, [categorySlug]);
-
-  // Завантаження категорій
-  const categoriesQuery = useQuery<Category[]>({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const response = await apiClient.get("/categories");
-      return response.data;
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: category ? `https://crocosushi.com/menu?category=${category}` : 'https://crocosushi.com/menu',
     },
-  });
+    alternates: {
+      canonical: category ? `https://crocosushi.com/menu?category=${category}` : `https://crocosushi.com/menu`,
+    }
+  };
+}
 
-  const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
+// Helper to get category name
+async function getCategoryName(slug: string) {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.crocosushi.com';
+    const res = await fetch(`${apiUrl}/api/v1/categories`, { next: { revalidate: 3600 } });
+    if (!res.ok) return null;
+    const categories: any[] = await res.json();
+    const category = categories.find((c: any) => c.slug === slug);
+    return category ? category.name : null;
+  } catch (error) {
+    console.error("Failed to fetch categories", error);
+    return null;
+  }
+}
 
-  // Знаходимо ID вибраної категорії
-  const selectedCategoryId = useMemo(() => {
-    if (!selectedCategory) return null;
-    const category = categories.find((c) => c.slug === selectedCategory);
-    return category ? category.id : null;
-  }, [selectedCategory, categories]);
+export default async function MenuPage({ searchParams }: Props) {
+  const categorySlug = searchParams.category;
+  let initialCategoryName: string | undefined = undefined;
 
-  // Завантаження товарів з infinite scroll
-  const productsQuery = useInfiniteQuery({
-    queryKey: ["products", selectedCategory, debouncedSearch, selectedCategoryId], // Додали selectedCategoryId в ключ
-    queryFn: async ({ pageParam = 0 }) => {
-      const params: Record<string, unknown> = {
-        skip: pageParam,
-        limit: PRODUCTS_PER_PAGE,
-        is_available: true,
+  if (typeof categorySlug === 'string') {
+    initialCategoryName = await getCategoryName(categorySlug);
+
+    // Fallback map if fetch fails
+    if (!initialCategoryName) {
+      const map: Record<string, string> = {
+        'sushi': 'Суші',
+        'rolls': 'Роли',
+        'sets': 'Сети',
+        'drinks': 'Напої',
+        'sauces': 'Соуси'
       };
-
-      // Використовуємо ID категорії замість slug
-      if (selectedCategoryId) {
-        params.category_id = selectedCategoryId;
-      }
-
-      if (debouncedSearch) {
-        params.search = debouncedSearch;
-      }
-      const response = await apiClient.get("/products", { params });
-      // API може повертати { items: [...], total: ... } або просто [...]
-      const items = response.data.items || response.data;
-
-      // Fix: Backend does not return total count, so we assume more items if we got a full page
-      const hasMore = items.length === PRODUCTS_PER_PAGE;
-      const total = response.data.total ?? (hasMore ? pageParam + items.length + 1 : pageParam + items.length);
-
-      return {
-        items: items as Product[],
-        nextOffset: pageParam + PRODUCTS_PER_PAGE,
-        hasMore,
-        total,
-      };
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => {
-      return lastPage.hasMore ? lastPage.nextOffset : undefined;
-    },
-    // Не робити запит, якщо вибрана категорія, але її ID ще не знайдено (крім випадку "Всі меню")
-    enabled: (!selectedCategory || !!selectedCategoryId) || categoriesQuery.isLoading,
-  });
-
-  // Всі завантажені товари
-  const allProducts = useMemo(() => {
-    return productsQuery.data?.pages.flatMap((page) => page.items) || [];
-  }, [productsQuery.data]);
-
-  // Intersection Observer для infinite scroll
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [entry] = entries;
-      if (entry.isIntersecting && productsQuery.hasNextPage && !productsQuery.isFetchingNextPage) {
-        productsQuery.fetchNextPage();
-      }
-    },
-    [productsQuery]
-  );
-
-  useEffect(() => {
-    const element = loadMoreRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(handleObserver, {
-      root: null,
-      rootMargin: "100px",
-      threshold: 0,
-    });
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [handleObserver]);
-
-  // Завантаження обраного (якщо авторизований)
-  const favoritesQuery = useQuery<Favorite[]>({
-    queryKey: ["favorites"],
-    queryFn: async () => {
-      const response = await apiClient.get("/users/me/favorites");
-      return response.data;
-    },
-    enabled: isAuthenticated,
-  });
-
-  // Множина ID обраних товарів для швидкого пошуку
-  const favoriteIds = useMemo(() => {
-    return new Set(favoritesQuery.data?.map((f) => f.product_id) || []);
-  }, [favoritesQuery.data]);
-
-  // Мутація для додавання/видалення з обраного
-  const toggleFavoriteMutation = useMutation({
-    mutationFn: async (productId: number) => {
-      // Logic inside mutationFn remains the same, but we rely on the previous state
-      // However, for strict correctness with optimistic updates, we can just try to toggle based on what we think is the state
-      // Or simply maintain ID-based endpoints if available. Assuming existing logic is correct.
-      if (favoriteIds.has(productId)) {
-        await apiClient.delete(`/users/me/favorites/${productId}`);
-        return { action: "removed", productId };
-      } else {
-        await apiClient.post(`/users/me/favorites/${productId}`);
-        return { action: "added", productId };
-      }
-    },
-    onMutate: async (productId) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["favorites"] });
-
-      // Snapshot the previous value
-      const previousFavorites = queryClient.getQueryData<Favorite[]>(["favorites"]);
-
-      // Optimistically update
-      queryClient.setQueryData<Favorite[]>(["favorites"], (old = []) => {
-        const exists = old.find((f) => f.product_id === productId);
-        if (exists) {
-          // Remove
-          return old.filter((f) => f.product_id !== productId);
-        } else {
-          // Add (mocking the favorite object)
-          const newFavorite: Favorite = {
-            id: Date.now(), // temporary ID
-            user_id: 0, // placeholder
-            product_id: productId,
-            created_at: new Date().toISOString(),
-          };
-          return [...old, newFavorite];
-        }
-      });
-
-      // Return context
-      return { previousFavorites };
-    },
-    onError: (err, productId, context) => {
-      // Rollback
-      if (context?.previousFavorites) {
-        queryClient.setQueryData(["favorites"], context.previousFavorites);
-      }
-      toast.error("Помилка. Спробуйте ще раз");
-    },
-    onSettled: () => {
-      // Invalidate to refetch strict data
-      queryClient.invalidateQueries({ queryKey: ["favorites"] });
-    },
-    onSuccess: (data) => {
-      // Optional: Toast msg
-      // toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного");
-      // Keeping toast might be noisy if it's instant, but user expects confirmation? Let's keep it but maybe debounced or simple.
-      // User didn't complain about toast.
-      toast.success(data.action === "added" ? "Додано в обране" : "Видалено з обраного", { id: 'fav-toast' });
+      initialCategoryName = map[categorySlug];
     }
-  });
-
-  // Обробник перемикання обраного
-  const handleFavoriteToggle = (productId: number) => {
-    if (!isAuthenticated) {
-      toast.error("Увійдіть, щоб додати в обране");
-      router.push("/login");
-      return;
-    }
-    toggleFavoriteMutation.mutate(productId);
-  };
-
-  // Обробник швидкого перегляду
-  const handleQuickView = (product: Product) => {
-    setQuickViewProduct(product);
-    setIsQuickViewOpen(true);
-  };
-
-  // Загальна кількість товарів
-  const totalProducts = productsQuery.data?.pages[0]?.total ?? 0;
-
-  // Фільтрація та сортування товарів
-  const filteredAndSortedProducts = useMemo(() => {
-    let result = [...allProducts];
-
-    // Client-side filtering
-    if (selectedProperties.length > 0) {
-      selectedProperties.forEach(filterId => {
-        const filter = PROPERTY_FILTERS.find(f => f.id === filterId);
-        if (!filter) return;
-
-        if (filter.type === "exclude") {
-          result = result.filter(p => {
-            const text = (p.name + (p.description || "") + (p.ingredients || "")).toLowerCase();
-            // @ts-ignore
-            return !text.includes(filter.keyword!);
-          });
-        } else if (filter.type === "include") {
-          result = result.filter(p => {
-            const text = (p.name + (p.description || "") + (p.ingredients || "")).toLowerCase();
-            // @ts-ignore
-            return text.includes(filter.keyword!);
-          });
-        } else if (filter.type === "boolean") {
-          // @ts-ignore
-          result = result.filter(p => !!p[filter.prop]);
-        }
-      });
-    }
-
-    // Sorting
-    switch (sortBy) {
-      case "price_asc":
-        return result.sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"));
-      case "price_desc":
-        return result.sort((a, b) => parseFloat(b.price || "0") - parseFloat(a.price || "0"));
-      case "name":
-        return result.sort((a, b) => a.name.localeCompare(b.name, "uk"));
-      case "popular":
-        return result.sort((a, b) => {
-          if (a.is_popular && !b.is_popular) return -1;
-          if (!a.is_popular && b.is_popular) return 1;
-          // Fallback to position
-          return a.position - b.position;
-        });
-      default:
-        return result.sort((a, b) => a.position - b.position);
-    }
-  }, [allProducts, sortBy, selectedProperties]);
-
-  // Handle Filter Toggles
-  const toggleProperty = (id: string) => {
-    setSelectedProperties(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
-
-  // Зміна категорії
-  const handleCategoryChange = (slug: string | null) => {
-    setSelectedCategory(slug);
-    if (slug) {
-      router.push(`/menu?category=${slug}`, { scroll: false });
-    } else {
-      router.push("/menu", { scroll: false });
-    }
-    setIsMobileFilterOpen(false);
-  };
-
-  // Отримати назву поточної категорії
-  const currentCategoryName = selectedCategory
-    ? categories.find((c) => c.slug === selectedCategory)?.name || "Меню"
-    : "Все меню";
-
-  // Схема хлібних крихт для SEO
-  const breadcrumbItems = [
-    { name: "Головна", url: BUSINESS_INFO.url },
-    { name: "Меню", url: `${BUSINESS_INFO.url}/menu` },
-  ];
-  if (selectedCategory && currentCategoryName !== "Меню") {
-    breadcrumbItems.push({
-      name: currentCategoryName,
-      url: `${BUSINESS_INFO.url}/menu?category=${selectedCategory}`,
-    });
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-theme-secondary transition-colors">
-      {/* Schema.org markup для SEO */}
-      <JsonLd schema={getBreadcrumbSchema(breadcrumbItems)} />
+    <>
+      <div className="sr-only">
+        <h3>Меню Croco Sushi - Найсмачніші Роли та Суші у Львові</h3>
+        <p>
+          Вітаємо вас у нашому меню! Тут ви знайдете широкий вибір японських страв, приготованих з любов&apos;ю та майстерністю.
+          Наше меню поділене на зручні категорії, щоб ви могли швидко знайти саме те, що шукаєте.
 
-      <Header />
+          Категорії меню:
+          - Суші (Нігірі та Гункани): класичні суші зі свіжим лососем, тунцем, вугрем та тигровою креветкою. Ідеальний вибір для поціновувачів чистого смаку риби.
+          - Роли: величезний вибір ролів на будь-який смак. Від класичної Філадельфії з великою кількістю вершкового сиру до пікантних Драконів. Також в нас є запечені роли, які чудово смакують теплими.
+          - Сети: найкраще рішення для компаній. Ми підібрали ідеальні поєднання ролів у сетах різного розміру – від невеликих наборів для двох до величезних сетів для вечірок. Купувати сетом завжди вигідніше!
+          - Напої: освіжаючі напої, які ідеально доповнять вашу трапезу.
+          - Соуси та додатки: додаткові порції соєвого соусу, імбиру, васабі та спайсі соусу для ще яскравішого смаку.
 
-      <main className="flex-grow">
-        {/* Хлібні крихти */}
-        {/* Хлібні крихти (Desktop Only) */}
-        <div className="bg-theme-surface hidden md:block">
-          <div className="container mx-auto px-4 py-3">
-            <nav className="flex items-center text-sm">
-              <Link href="/" className="text-secondary-light hover:text-primary transition">
-                Головна
-              </Link>
-              <ChevronRightIcon className="w-4 h-4 mx-2 text-secondary-light" />
-              <Link href="/menu" className="text-secondary-light hover:text-primary transition">
-                Меню
-              </Link>
-              {selectedCategory && (
-                <>
-                  <ChevronRightIcon className="w-4 h-4 mx-2 text-secondary-light" />
-                  <span className="text-secondary font-medium">{currentCategoryName}</span>
-                </>
-              )}
-            </nav>
-          </div>
-        </div>
-
-        <div className="container mx-auto px-4 py-4 md:py-8">
-          {/* Заголовок та пошук */}
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-4xl font-bold text-secondary mb-4">
-              {currentCategoryName}
-            </h1>
-
-            {/* Пошук та фільтри */}
-            <div className="flex flex-row md:flex-row gap-3 md:gap-4">
-              {/* Пошук */}
-              <div className="relative flex-1">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Пошук страв..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#2A2A2A] border border-transparent focus:border-primary/50 rounded-xl px-4 py-3 pl-12 text-white placeholder:text-gray-500 focus:outline-none transition-all duration-200"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                  >
-                    <XMarkIcon className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-
-              {/* Фільтри (Quick Access Buttons) - Desktop */}
-              <div className="hidden md:flex gap-3 flex-wrap items-center">
-                {PROPERTY_FILTERS.map(filter => (
-                  <motion.button
-                    key={filter.id}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleProperty(filter.id)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md ${selectedProperties.includes(filter.id)
-                      ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
-                      : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-secondary/50 hover:text-white"
-                      }`}
-                  >
-                    {filter.label}
-                  </motion.button>
-                ))}
-
-                {/* Сортування (desktop) */}
-                <div className="ml-auto">
-                  <div className="relative group">
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="appearance-none bg-[#2A2A2A] border border-white/10 text-white rounded-lg px-4 py-2 pr-8 focus:outline-none focus:border-primary/50 cursor-pointer hover:bg-white/5 transition-colors"
-                    >
-                      {SORT_OPTIONS.map((option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                          className="bg-[#2A2A2A] text-white"
-                        >
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none group-hover:text-primary transition-colors" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Кнопка фільтрів (mobile) */}
-              <button
-                onClick={() => setIsMobileFilterOpen(true)}
-                className="md:hidden flex items-center justify-center w-12 flex-shrink-0 bg-[#2A2A2A] rounded-xl text-white hover:bg-[#333] transition-colors"
-              >
-                <AdjustmentsHorizontalIcon className="w-6 h-6 text-primary-500" />
-              </button>
-            </div>
-          </div>
-
-          <div className="block lg:flex lg:gap-8">
-            {/* Сайдбар з категоріями (desktop) */}
-            <aside className="hidden lg:block w-64 flex-shrink-0">
-              <div className="sticky top-24 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 max-h-[80vh] overflow-y-auto hide-scrollbar">
-                <h3 className="font-bold text-lg text-white mb-4 pl-2 flex items-center gap-2">
-                  <Squares2X2Icon className="w-5 h-5 text-primary" />
-                  Категорії
-                </h3>
-                <ul className="space-y-2">
-                  <li>
-                    <button
-                      onClick={() => handleCategoryChange(null)}
-                      className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${!selectedCategory
-                        ? "text-white bg-white/5 border-l-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
-                        : "text-gray-400 hover:bg-white/5 hover:text-white"
-                        }`}
-                    >
-                      <span className={`absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${!selectedCategory ? "opacity-100" : ""}`} />
-                      <div className="relative flex items-center justify-between">
-                        <span className={`transition-transform duration-300 ${!selectedCategory ? "translate-x-2 font-bold" : "group-hover:translate-x-1"}`}>
-                          Все меню
-                        </span>
-                      </div>
-                    </button>
-                  </li>
-                  {categories.map((category) => (
-                    <li key={category.id}>
-                      <button
-                        onClick={() => handleCategoryChange(category.slug)}
-                        className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${selectedCategory === category.slug
-                          ? "text-white bg-white/5 border-l-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
-                          : "text-gray-400 hover:bg-white/5 hover:text-white"
-                          }`}
-                      >
-                        <span className={`absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${selectedCategory === category.slug ? "opacity-100" : ""}`} />
-                        <div className="relative flex items-center justify-between">
-                          <span className={`transition-transform duration-300 ${selectedCategory === category.slug ? "translate-x-2 font-bold" : "group-hover:translate-x-1"}`}>
-                            {category.name}
-                          </span>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </aside>
-
-            {/* Основний контент */}
-            <div className="flex-1">
-              {/* Горизонтальні категорії (tablet/mobile) - Sticky */}
-              {/* Горизонтальні категорії (tablet/mobile) - Sticky */}
-              <div className="lg:hidden sticky top-16 z-30 bg-[#121212]/85 backdrop-blur-xl border-b border-white/5 py-3 mb-6 -mx-4 px-4 shadow-xl transition-all">
-                <div className="flex gap-2 overflow-x-auto no-scrollbar items-center">
-                  <button
-                    onClick={() => handleCategoryChange(null)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${!selectedCategory
-                      ? "bg-primary text-white shadow-lg shadow-primary/25"
-                      : "bg-white/5 text-gray-300 border border-white/10 hover:border-primary hover:text-white"
-                      }`}
-                  >
-                    Все
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => handleCategoryChange(category.slug)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${selectedCategory === category.slug
-                        ? "bg-primary text-white shadow-lg shadow-primary/25"
-                        : "bg-white/5 text-gray-300 border border-white/10 hover:border-primary hover:text-white"
-                        }`}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Фільтри (Mobile) - Horizontal Scroll */}
-              <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto no-scrollbar">
-                <div className="flex gap-2">
-                  {PROPERTY_FILTERS.map((filter) => (
-                    <button
-                      key={filter.id}
-                      onClick={() => toggleProperty(filter.id)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap border ${selectedProperties.includes(filter.id)
-                        ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
-                        : "bg-white/5 text-gray-300 border-white/10 hover:border-white/20 active:bg-white/10"
-                        }`}
-                    >
-                      {filter.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Результати пошуку та кількість */}
-              {debouncedSearch ? (
-                <p className="text-secondary-light text-xs mb-4">
-                  Результати пошуку для &quot;{debouncedSearch}&quot;: {filteredAndSortedProducts.length} страв
-                </p>
-              ) : (
-                <p className="text-secondary-light text-xs mb-4">
-                  Показано {filteredAndSortedProducts.length} страв
-                  {productsQuery.hasNextPage ? " (завантаження...)" : ""}
-                </p>
-              )}
-
-              {/* Error State */}
-              {productsQuery.isError && (
-                <div className="text-center py-16 text-red-500">
-                  <h3 className="text-xl font-bold mb-2">Помилка завантаження</h3>
-                  <p>{(productsQuery.error as Error).message}</p>
-                  <Button
-                    onClick={() => productsQuery.refetch()}
-                    className="mt-4"
-                    variant="primary"
-                  >
-                    Спробувати ще раз
-                  </Button>
-                </div>
-              )}
-
-              {/* Skeleton loader для початкового завантаження */}
-              {productsQuery.isLoading && (
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                  {[...Array(PRODUCTS_PER_PAGE)].map((_, i) => (
-                    <ProductCardSkeleton key={i} />
-                  ))}
-                </div>
-              )}
-
-              {/* Порожній стан */}
-              {!productsQuery.isLoading && filteredAndSortedProducts.length === 0 && (
-                <div className="text-center py-16">
-                  <div className="relative w-24 h-24 mb-4 mx-auto">
-                    <Image
-                      src="/logo.png"
-                      alt="Croco Sushi"
-                      fill
-                      className="object-contain opacity-50 grayscale"
-                    />
-                  </div>
-                  <h3 className="text-xl font-semibold text-secondary mb-2">
-                    Страви не знайдено
-                  </h3>
-                  <p className="text-secondary-light mb-6">
-                    {debouncedSearch
-                      ? "Спробуйте змінити пошуковий запит"
-                      : "В цій категорії поки немає страв"}
-                  </p>
-                  <Button
-                    onClick={() => {
-                      setSearchQuery("");
-                      handleCategoryChange(null);
-                    }}
-                    variant="primary"
-                    className="group"
-                  >
-                    <span>Показати все меню</span>
-                    <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </div>
-              )}
-
-              {/* Список товарів */}
-              {!productsQuery.isLoading && filteredAndSortedProducts.length > 0 && (
-                <>
-                  <motion.div
-                    key={selectedCategory || "all"}
-                    variants={{
-                      hidden: { opacity: 0 },
-                      show: {
-                        opacity: 1,
-                        transition: {
-                          staggerChildren: 0.05
-                        }
-                      }
-                    }}
-                    initial="hidden"
-                    animate="show"
-                    className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
-                  >
-                    {filteredAndSortedProducts.map((product) => (
-                      <motion.div
-                        key={product.id}
-                        className="w-full min-w-0 h-full"
-                        variants={{
-                          hidden: { opacity: 0, y: 20 },
-                          show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
-                        }}
-                      >
-                        <ProductCard
-                          product={product}
-                          onFavoriteToggle={handleFavoriteToggle}
-                          isFavorite={favoriteIds.has(product.id)}
-                          onQuickView={handleQuickView}
-                        />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-
-                  {/* Елемент для спостереження (infinite scroll) */}
-                  <div ref={loadMoreRef} className="py-8">
-                    {productsQuery.isFetchingNextPage && (
-                      <div className="flex flex-col items-center justify-center gap-3">
-                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
-                        <p className="text-secondary-light text-sm">Завантаження...</p>
-                      </div>
-                    )}
-                    {!productsQuery.hasNextPage && filteredAndSortedProducts.length > PRODUCTS_PER_PAGE && (
-                      <p className="text-center text-secondary-light text-sm">
-                        Ви переглянули всі страви 🎉
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div >
-      </main >
-
-      <Footer />
-      <ScrollToTop />
-
-      {/* Мобільний фільтр */}
-      {
-        isMobileFilterOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setIsMobileFilterOpen(false)}
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-[#121212] rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
-              <div className="sticky top-0 bg-[#121212] border-b border-theme p-4 flex items-center justify-between">
-                <h3 className="font-bold text-lg">Фільтри</h3>
-                <button
-                  onClick={() => setIsMobileFilterOpen(false)}
-                  className="p-2 text-secondary-light hover:text-secondary"
-                >
-                  <XMarkIcon className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="p-4 space-y-6">
-                {/* Сортування */}
-                <div>
-                  <h4 className="font-semibold text-secondary mb-3">Сортування</h4>
-                  <div className="space-y-2">
-                    {SORT_OPTIONS.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => setSortBy(option.value)}
-                        className={`w-full text-left px-4 py-3 rounded-lg transition ${sortBy === option.value
-                          ? "bg-primary text-white"
-                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                          }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Категорії */}
-                <div>
-                  <h4 className="font-semibold text-secondary mb-3">Категорії</h4>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => handleCategoryChange(null)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition ${!selectedCategory
-                        ? "bg-primary text-white"
-                        : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                        }`}
-                    >
-                      Все меню
-                    </button>
-                    {categories.map((category) => (
-                      <button
-                        key={category.id}
-                        onClick={() => handleCategoryChange(category.slug)}
-                        className={`w-full text-left px-4 py-3 rounded-lg transition ${selectedCategory === category.slug
-                          ? "bg-primary text-white"
-                          : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                          }`}
-                      >
-                        {category.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Фільтри Mobile */}
-                <div>
-                  <h4 className="font-semibold text-secondary mb-3">Властивості</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {PROPERTY_FILTERS.map(filter => (
-                      <button
-                        key={filter.id}
-                        onClick={() => toggleProperty(filter.id)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition border ${selectedProperties.includes(filter.id)
-                          ? "bg-secondary text-white border-secondary"
-                          : "bg-surface text-secondary border-border"
-                          }`}
-                      >
-                        {filter.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-
-              </div>
-
-              {/* Кнопка застосувати */}
-              <div className="sticky bottom-0 bg-theme-surface border-t border-theme p-4">
-                <Button
-                  onClick={() => setIsMobileFilterOpen(false)}
-                  className="w-full"
-                  variant="primary"
-                >
-                  Застосувати
-                </Button>
-              </div>
-            </div>
-          </div>
-        )
-      }
-
-      {/* Quick View Modal */}
-      <QuickViewModal
-        product={quickViewProduct}
-        isOpen={isQuickViewOpen}
-        onClose={() => {
-          setIsQuickViewOpen(false);
-          setQuickViewProduct(null);
-        }}
-        onFavoriteToggle={handleFavoriteToggle}
-        isFavorite={quickViewProduct ? favoriteIds.has(quickViewProduct.id) : false}
-      />
-    </div >
+          Ми використовуємо тільки свіжі та якісні продукти. Рис вариться за спеціальною технологією, щоб досягти ідеальної консистенції. Риба постачається перевіреними постачальниками.
+          Замовляйте суші з доставкою додому або в офіс. Ми працюємо щодня з 11:00 до 23:00.
+          Безкоштовна доставка по Львову при замовленні від 1000 гривень.
+          Насолоджуйтесь справжньою японською кухнею разом з Croco Sushi!
+        </p>
+      </div>
+      <MenuClient initialCategoryName={initialCategoryName} />
+    </>
   );
 }
-
-export default function MenuPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
-      <MenuContent />
-    </Suspense>
-  );
-}
-

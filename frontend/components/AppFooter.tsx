@@ -38,7 +38,7 @@ export default function Footer() {
               {/* Logo with round frame as requested */}
               <div className="relative w-16 h-16 rounded-full overflow-hidden bg-[#343434] ring-2 ring-primary/20 group-hover:ring-primary/50 transition-all">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt="Croco Sushi"
                   fill
                   sizes="64px"
@@ -113,7 +113,7 @@ export default function Footer() {
                   className="flex items-center gap-3 hover:text-[#00D26A] transition-colors"
                 >
                   <span className="text-[#00D26A]">📞</span>
-                  <span>(098) 097-00-03</span>
+                  <span>098 097 0003</span>
                 </a>
               </li>
               <li>

@@ -71,23 +71,23 @@ async def create_promotion(
     return new_promotion
 
 
-
 @router.get("/{promotion_id}", response_model=PromotionResponse)
 async def get_promotion(
     promotion_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_admin_user)
 ):
-    """Отримати деталі акції"""
+    """Отримати акцію за ID"""
     result = await db.execute(
         select(Promotion).where(Promotion.id == promotion_id)
     )
     promotion = result.scalar_one_or_none()
     
     if not promotion:
-        raise NotFoundException("Акцію не знайдено")
+        raise NotFoundException("Акція не знайдена")
     
     return promotion
+
 
 
 @router.put("/{promotion_id}", response_model=PromotionResponse)

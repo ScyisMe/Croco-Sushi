@@ -97,7 +97,8 @@ export default function KanbanBoard() {
         handleDrop(order.id, newStatus);
     };
 
-    const [selectedOrder, setSelectedOrder] = useState<ManagerOrder | null>(null);
+    const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+    const selectedOrder = orders.find(o => o.id === selectedOrderId) || null;
 
     return (
         <div className="h-full flex gap-6 overflow-x-auto pb-4">
@@ -107,7 +108,7 @@ export default function KanbanBoard() {
                 orders={pendingOrders}
                 color="bg-green-500/20 text-green-500"
                 onDrop={(id) => handleDrop(id, "pending")}
-                onOrderClick={setSelectedOrder}
+                onOrderClick={(order) => setSelectedOrderId(order.id)}
             />
             <KanbanColumn
                 id="preparing"
@@ -115,7 +116,7 @@ export default function KanbanBoard() {
                 orders={preparingOrders}
                 color="bg-yellow-500/20 text-yellow-500"
                 onDrop={(id) => handleDrop(id, "preparing")}
-                onOrderClick={setSelectedOrder}
+                onOrderClick={(order) => setSelectedOrderId(order.id)}
             />
             <KanbanColumn
                 id="delivering"
@@ -123,7 +124,7 @@ export default function KanbanBoard() {
                 orders={deliveringOrders}
                 color="bg-blue-500/20 text-blue-500"
                 onDrop={(id) => handleDrop(id, "delivering")}
-                onOrderClick={setSelectedOrder}
+                onOrderClick={(order) => setSelectedOrderId(order.id)}
             />
             <KanbanColumn
                 id="completed"
@@ -131,7 +132,7 @@ export default function KanbanBoard() {
                 orders={completedOrders}
                 color="bg-gray-500/20 text-gray-500"
                 onDrop={(id) => handleDrop(id, "completed")}
-                onOrderClick={setSelectedOrder}
+                onOrderClick={(order) => setSelectedOrderId(order.id)}
             />
             <KanbanColumn
                 id="cancelled"
@@ -139,13 +140,13 @@ export default function KanbanBoard() {
                 orders={cancelledOrders}
                 color="bg-red-500/20 text-red-500"
                 onDrop={(id) => handleDrop(id, "cancelled")}
-                onOrderClick={setSelectedOrder}
+                onOrderClick={(order) => setSelectedOrderId(order.id)}
             />
 
             <OrderDetailsModal
                 isOpen={!!selectedOrder}
                 order={selectedOrder}
-                onClose={() => setSelectedOrder(null)}
+                onClose={() => setSelectedOrderId(null)}
                 onStatusChange={handleManualStatusChange}
             />
 

@@ -163,8 +163,9 @@ export default function ProductPage() {
                   <Image
                     src={product.image_url}
                     alt={product.name}
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-700"
+                    width={800}
+                    height={800}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
                     priority
                   />
                 ) : (
@@ -173,20 +174,20 @@ export default function ProductPage() {
                   </div>
                 )}
 
-                {/* Badges */}
-                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                {/* Badges - Neon Glow Style */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                   {product.is_new && (
-                    <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 text-white text-sm font-bold shadow-lg">
+                    <span className="px-4 py-1.5 text-sm font-bold tracking-wide bg-black/60 backdrop-blur-sm text-[#00FF88] border border-[#00FF88] shadow-[0_0_20px_rgba(0,255,136,0.5),inset_0_0_15px_rgba(0,255,136,0.1)] rounded-full">
                       Новинка
                     </span>
                   )}
-                  {product.is_popular && (
-                    <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-white text-sm font-bold shadow-lg">
+                  {(product.is_popular || product.is_hit || product.is_top_seller) && (
+                    <span className="px-4 py-1.5 text-sm font-bold tracking-wide bg-black/60 backdrop-blur-sm text-[#FF6B00] border border-[#FF6B00] shadow-[0_0_20px_rgba(255,107,0,0.5),inset_0_0_15px_rgba(255,107,0,0.1)] rounded-full">
                       Хіт
                     </span>
                   )}
                   {product.is_promotion && (
-                    <span className="px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-400 to-rose-600 text-white text-sm font-bold shadow-lg">
+                    <span className="px-4 py-1.5 text-sm font-bold tracking-wide bg-black/60 backdrop-blur-sm text-[#FF1493] border border-[#FF1493] shadow-[0_0_20px_rgba(255,20,147,0.5),inset_0_0_15px_rgba(255,20,147,0.1)] rounded-full">
                       Акція
                     </span>
                   )}
@@ -291,22 +292,56 @@ export default function ProductPage() {
 
               {/* Features */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                {product.is_spicy && (
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <Image
+                        src="/images/filters/filter-spicy.png"
+                        alt="Гостре"
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-medium text-sm">Гостре</h4>
+                      <p className="text-xs text-gray-400">з перчинкою</p>
+                    </div>
+                  </div>
+                )}
+                {product.is_vegan && (
+                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
+                    <div className="w-10 h-10 flex items-center justify-center">
+                      <Image
+                        src="/images/filters/filter-vegan.png"
+                        alt="Вегетаріанське"
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-medium text-sm">Вегетаріанське</h4>
+                      <p className="text-xs text-gray-400">без м&apos;яса та риби</p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                     <TruckIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="text-white font-medium text-sm">Безкоштовна доставка</h4>
-                    <p className="text-xs text-gray-500">від 1000 ₴</p>
+                    <p className="text-xs text-gray-400">від 1000 ₴</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-surface-card/30 border border-white/5">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                   <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
                     <ClockIcon className="w-5 h-5" />
                   </div>
                   <div>
                     <h4 className="text-white font-medium text-sm">Час доставки</h4>
-                    <p className="text-xs text-gray-500">40-60 хв</p>
+                    <p className="text-xs text-gray-400">40-60 хв</p>
                   </div>
                 </div>
               </div>

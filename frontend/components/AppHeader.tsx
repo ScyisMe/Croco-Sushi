@@ -16,14 +16,20 @@ import { useCartStore } from "@/store/cartStore";
 import { useTranslation, Locale } from "@/store/localeStore";
 import Cart from "./Cart";
 import CallbackModal from "./CallbackModal";
+import NonWorkingHoursPopup from "./NonWorkingHoursPopup";
 import { throttle } from "@/lib/utils";
+import { useWorkingHours } from "@/hooks/useWorkingHours";
 import Image from "next/image";
 import { NavLink } from "./ui/NavLink";
 
 // Контактна інформація Croco Sushi
 const CONTACT_INFO = {
   phones: [
+<<<<<<< HEAD
     { number: "+380980970003", display: "(098) 097-00-03" },
+=======
+    { number: "+380980970003", display: "098 097 0003" },
+>>>>>>> 6321339b0644204ebbbfee7f1af9ac9107ebf22d
   ],
   workingHours: "10:00 - 21:45",
   email: "crocosushi0003@gmail.com",
@@ -48,51 +54,29 @@ export default function Header() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCallbackOpen, setIsCallbackOpen] = useState(false);
+  const [isNonWorkingPopupOpen, setIsNonWorkingPopupOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isMounted, setIsMounted] = useState(false); // Для уникнення hydration mismatch
-  const [isOpen, setIsOpen] = useState<boolean | null>(null); // Статус роботи
+
+  const { isOpen, isMounted } = useWorkingHours();
   const getItemCount = useCartStore((state) => state.totalItems);
 
   // Використовуємо локалізацію
   const { t } = useTranslation();
 
   // Позначаємо компонент як змонтований після першого рендеру на клієнті
+  // Auto-open non-working popup if closed
   useEffect(() => {
-    setIsMounted(true);
-    // Перевіряємо робочий час тільки на клієнті
-    const checkWorkingHours = () => {
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      // Відкрито з 10:00 до 21:45
-      if (hours < 10) return false;
-      if (hours > 21) return false;
-      if (hours === 21 && minutes > 45) return false;
-      return true;
-    };
-
-    const openStatus = checkWorkingHours();
-    setIsOpen(openStatus);
-
-    // Auto-open modal if closed
-    if (!openStatus) {
+    if (isMounted && isOpen === false) {
       const hasShown = sessionStorage.getItem("hasShownClosedPopup");
       if (!hasShown) {
-        // Small delay to ensure UI is ready and it's not too jarring
-        setTimeout(() => {
-          setIsCallbackOpen(true);
+        const timer = setTimeout(() => {
+          setIsNonWorkingPopupOpen(true);
           sessionStorage.setItem("hasShownClosedPopup", "true");
         }, 2000);
+        return () => clearTimeout(timer);
       }
     }
-
-    // Оновлюємо статус кожну хвилину
-    const interval = setInterval(() => {
-      setIsOpen(checkWorkingHours());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [isMounted, isOpen]);
 
   // Sticky header при прокрутці
   useEffect(() => {
@@ -177,7 +161,7 @@ export default function Header() {
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-[#343434]">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt="Croco Sushi"
                   fill
                   sizes="64px"
@@ -213,11 +197,13 @@ export default function Header() {
               </button>
 
               {/* Профіль / Вхід - спрощено до однієї іконки */}
+              {/* Профіль / Вхід - спрощено до однієї іконки */}
               <Link
                 href={isAuthenticated ? "/profile" : "/login"}
-                className="flex items-center justify-center w-10 h-10 text-secondary hover:text-primary hover:bg-surface-hover rounded-full transition"
+                className="hidden md:flex items-center justify-center w-10 h-10 text-secondary hover:text-primary hover:bg-surface-hover rounded-full transition"
                 aria-label={isAuthenticated ? t("header.profile") : t("header.login")}
               >
+                <span className="sr-only">{isAuthenticated ? t("header.profile") : t("header.login")}</span>
                 <UserIcon className="w-6 h-6" />
               </Link>
 
@@ -282,7 +268,7 @@ export default function Header() {
                     <Link href="/" className="flex items-center space-x-3" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className="relative w-14 h-14 rounded-full overflow-hidden bg-[#343434] border border-white/10">
                         <Image
-                          src="/logo.png"
+                          src="/logo.webp"
                           alt="Croco Sushi"
                           fill
                           className="object-cover"
@@ -412,6 +398,11 @@ export default function Header() {
         isOpen={isCallbackOpen}
         onClose={() => setIsCallbackOpen(false)}
         isClosed={isMounted && isOpen === false}
+      />
+
+      <NonWorkingHoursPopup
+        isOpen={isNonWorkingPopupOpen}
+        onClose={() => setIsNonWorkingPopupOpen(false)}
       />
     </>
   );

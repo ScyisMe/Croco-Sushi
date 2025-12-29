@@ -91,20 +91,25 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:Lavanda1488@postgres:5432/croco_sushi
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-8c813325fd4655711d6d41785a1e0e622de6ba653aa5d0a87716a40462818da8}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - SECRET_KEY=${SECRET_KEY}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - POSTGRES_POOL_SIZE=5
-      - POSTGRES_MAX_OVERFLOW=10
-      - POSTGRES_POOL_TIMEOUT=30
-      - POSTGRES_CONNECT_TIMEOUT=10
-      - POSTGRES_COMMAND_TIMEOUT=30
-      - SMTP_SERVER=maildev
-      - SMTP_PORT=1025
-      - EMAIL_FROM=admin@crocosushi.com
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_SERVER=${POSTGRES_SERVER:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_POOL_SIZE=${POSTGRES_POOL_SIZE:-5}
+      - POSTGRES_MAX_OVERFLOW=${POSTGRES_MAX_OVERFLOW:-10}
+      - POSTGRES_POOL_TIMEOUT=${POSTGRES_POOL_TIMEOUT:-30}
+      - POSTGRES_CONNECT_TIMEOUT=${POSTGRES_CONNECT_TIMEOUT:-10}
+      - POSTGRES_COMMAND_TIMEOUT=${POSTGRES_COMMAND_TIMEOUT:-30}
+      - SMTP_SERVER=${SMTP_SERVER:-maildev}
+      - SMTP_PORT=${SMTP_PORT:-1025}
+      - EMAIL_FROM=${EMAIL_FROM:-admin@crocosushi.com}
     depends_on:
       - postgres
       - redis
@@ -122,20 +127,25 @@ services:
       - ./backend:/app/backend
       - ./backend/uploads:/app/backend/uploads
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:Lavanda1488@postgres:5432/croco_sushi
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-8c813325fd4655711d6d41785a1e0e622de6ba653aa5d0a87716a40462818da8}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - SECRET_KEY=${SECRET_KEY}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - POSTGRES_POOL_SIZE=5
-      - POSTGRES_MAX_OVERFLOW=10
-      - POSTGRES_POOL_TIMEOUT=30
-      - POSTGRES_CONNECT_TIMEOUT=10
-      - POSTGRES_COMMAND_TIMEOUT=30
-      - SMTP_SERVER=maildev
-      - SMTP_PORT=1025
-      - EMAIL_FROM=admin@crocosushi.com
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_SERVER=${POSTGRES_SERVER:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_POOL_SIZE=${POSTGRES_POOL_SIZE:-5}
+      - POSTGRES_MAX_OVERFLOW=${POSTGRES_MAX_OVERFLOW:-10}
+      - POSTGRES_POOL_TIMEOUT=${POSTGRES_POOL_TIMEOUT:-30}
+      - POSTGRES_CONNECT_TIMEOUT=${POSTGRES_CONNECT_TIMEOUT:-10}
+      - POSTGRES_COMMAND_TIMEOUT=${POSTGRES_COMMAND_TIMEOUT:-30}
+      - SMTP_SERVER=${SMTP_SERVER:-maildev}
+      - SMTP_PORT=${SMTP_PORT:-1025}
+      - EMAIL_FROM=${EMAIL_FROM:-admin@crocosushi.com}
     depends_on:
       - postgres
       - redis
