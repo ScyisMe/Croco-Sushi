@@ -121,9 +121,11 @@ export default function AdminPromotionsPage() {
                                 >
                                     {promo.is_active ? "Активна" : "Неактивна"}
                                 </span>
-                                <span className="px-2 py-1 rounded text-xs font-semibold bg-orange-500/20 text-orange-400">
-                                    {formatDiscount(promo.discount_type, promo.discount_value)}
-                                </span>
+                                {promo.discount_value && Number(promo.discount_value) > 0 && (
+                                    <span className="px-2 py-1 rounded text-xs font-semibold bg-orange-500/20 text-orange-400">
+                                        {formatDiscount(promo.discount_type, promo.discount_value)}
+                                    </span>
+                                )}
                             </div>
                         </div>
 
