@@ -35,6 +35,9 @@ export default function Hero() {
           preload="auto"
           className="w-full h-full object-cover"
         >
+          {/* Mobile Video (< 768px) */}
+          <source src="/videos/sushi-hero.mp4" type="video/mp4" media="(max-width: 768px)" />
+          {/* Desktop Video (>= 768px) */}
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
       </motion.div>
