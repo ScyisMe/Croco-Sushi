@@ -58,7 +58,7 @@ body {
   z-index: -50;
   background-color: #051a12;
   background-image:
-    linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+    linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
     url('/background-wave.webp');
   background-size: cover;
   background-position: center;
