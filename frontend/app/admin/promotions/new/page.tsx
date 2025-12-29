@@ -317,14 +317,17 @@ export default function NewPromotionPage() {
                 </div>
 
                 <div className="flex items-center space-x-4">
+                        <span className="text-gray-300">Активна акція</span>
+                    </label>
+
                     <label className="flex items-center space-x-2 cursor-pointer">
                         <input
                             type="checkbox"
-                            checked={formData.is_active}
-                            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                            checked={formData.show_discount_badge}
+                            onChange={(e) => setFormData({ ...formData, show_discount_badge: e.target.checked })}
                             className="w-5 h-5 text-green-600 rounded border-white/20 focus:ring-green-500 bg-[#1a1a1a] checked:bg-green-600"
                         />
-                        <span className="text-gray-300">Активна акція</span>
+                        <span className="text-gray-300">Показувати знижку на картці</span>
                     </label>
                 </div>
 
@@ -343,8 +346,8 @@ export default function NewPromotionPage() {
                         {isLoading ? "Збереження..." : "Створити акцію"}
                     </button>
                 </div>
-            </form>
-        </div>
+            </form >
+        </div >
     );
 }
 
