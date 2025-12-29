@@ -93,17 +93,16 @@ export default function Promotions() {
               className="card group overflow-hidden"
             >
               {/* Зображення */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative overflow-hidden">
                 {promo.image_url ? (
-                  <Image
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
                     src={promo.image_url}
                     alt={promo.name}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center">
+                  <div className="w-full aspect-[16/10] bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center">
                     <TagIcon className="w-16 h-16 text-white/50" />
                   </div>
                 )}

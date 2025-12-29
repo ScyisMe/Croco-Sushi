@@ -858,8 +858,22 @@ async def save_my_cart(
     try:
         # Додаємо нові товари
         for item_data in cart_data.items:
+            # Перевіряємо чи існує продукт
+            product_result = await db.execute(select(Product).where(Product.id == item_data.product_id))
+            product = product_result.scalar_one_or_none()
+            
+            if not product:
+                continue # Пропускаємо видалені продукти
+                
             # Якщо розмір 0 або null, вважаємо як null
             size_id = item_data.size_id if item_data.size_id else None
+            
+            # Перевіряємо чи існує розмір, якщо він вказаний
+            if size_id:
+                size_result = await db.execute(select(ProductSize).where(ProductSize.id == size_id))
+                size = size_result.scalar_one_or_none()
+                if not size:
+                    size_id = None # Якщо розмір видалено, пробуємо додати без розміру (або можна continue)
             
             new_item = CartItem(
                 cart_id=cart.id,
@@ -872,12 +886,10 @@ async def save_my_cart(
         await db.commit()
     except Exception as e:
         await db.rollback()
-        # Логуємо помилку (можна додати logger пізніше)
+        # Логуємо помилку
         print(f"Error saving cart: {e}")
-        from sqlalchemy.exc import IntegrityError
-        if isinstance(e, IntegrityError) or "ForeignKeyViolation" in str(e):
-            raise BadRequestException("Неможливо зберегти кошик: один з товарів або розмірів не існує")
-        raise e
+        # Не рейзимо помилку клієнту, щоб не блокувати роботу кошика
+        return None
         
     return None
 
