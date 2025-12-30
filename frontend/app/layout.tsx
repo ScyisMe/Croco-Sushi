@@ -36,14 +36,14 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/google-icon.svg', type: 'image/svg+xml' },
-      { url: '/logo.png', type: 'image/png' },
-      { url: '/logo.webp', type: 'image/webp' },
+      { url: '/favicon.ico?v=2', sizes: 'any' },
+      { url: '/google-icon.svg?v=2', type: 'image/svg+xml' },
+      { url: '/logo.png?v=2', type: 'image/png' },
+      { url: '/logo.webp?v=2', type: 'image/webp' },
     ],
-    shortcut: '/favicon.ico',
+    shortcut: '/favicon.ico?v=2',
     apple: [
-      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
+      { url: '/logo.png?v=2', sizes: '180x180', type: 'image/png' },
     ],
   },
 };
