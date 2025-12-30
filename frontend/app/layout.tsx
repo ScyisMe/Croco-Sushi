@@ -33,13 +33,18 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/logo.webp', type: 'image/webp' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/google-icon.svg', type: 'image/svg+xml' },
       { url: '/logo.png', type: 'image/png' },
+      { url: '/logo.webp', type: 'image/webp' },
     ],
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 };
 
