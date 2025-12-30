@@ -214,7 +214,7 @@ async def create_review(
             rating=review_data.rating,
             comment=review_data.comment,
             images=image_urls,
-            is_published=False  # Потребує модерації
+            is_published=True  # Автоматична публікація для зручності
         )
         
         db.add(new_review)
