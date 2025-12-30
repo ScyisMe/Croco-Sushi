@@ -126,7 +126,7 @@ async def test_create_review_authenticated(authenticated_client: AsyncClient, te
     
     response = await authenticated_client.post(
         "/api/v1/reviews/",
-        json={
+        data={
             "order_id": order.id,
             "product_id": test_product.id,
             "rating": 5,
@@ -196,7 +196,7 @@ async def test_create_review_duplicate(authenticated_client: AsyncClient, test_u
     # Спробуємо створити другий відгук на те ж замовлення
     response = await authenticated_client.post(
         "/api/v1/reviews/",
-        json={
+        data={
             "order_id": order.id,
             "product_id": test_product.id,
             "rating": 4,
@@ -210,11 +210,46 @@ async def test_create_review_duplicate(authenticated_client: AsyncClient, test_u
 
 @pytest.mark.asyncio
 @pytest.mark.api
+async def test_create_review_with_images(authenticated_client: AsyncClient, test_user, test_product, db_session: AsyncSession):
+    """Тест створення відгуку з зображеннями"""
+    from unittest.mock import patch
+    
+    # Емуляція файлу
+    file_content = b"fake image content"
+    files = {
+        "images": ("test_image.jpg", file_content, "image/jpeg")
+    }
+    
+    # Мокаємо функцію збереження, щоб не лізти в файлову систему і не валідувати реальне зображення
+    with patch("app.api.v1.endpoints.reviews.save_image_with_processing") as mock_save:
+        # Налаштовуємо мок, щоб він повертав фейковий URL
+        mock_save.return_value = ("path/to/img.jpg", "/static/uploads/reviews/img.jpg", None)
+        
+        # Також треба мокнути validate_image_file, бо він перевіряє хедер файлу
+        with patch("app.api.v1.endpoints.reviews.validate_image_file"):
+            response = await authenticated_client.post(
+                "/api/v1/reviews/",
+                data={
+                    "product_id": test_product.id,
+                    "rating": 5,
+                    "comment": "Review with images"
+                },
+                files=files
+            )
+            
+    assert response.status_code == 201
+    data = response.json()
+    assert len(data.get("images", [])) > 0
+    assert data["images"][0] == "/static/uploads/reviews/img.jpg"
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
 async def test_create_review_invalid_rating(authenticated_client: AsyncClient, test_product):
     """Тест створення відгуку з невалідним рейтингом"""
     response = await authenticated_client.post(
         "/api/v1/reviews/",
-        json={
+        data={
             "product_id": test_product.id,
             "rating": 10,  # Більше 5
             "comment": "Test"
@@ -372,7 +407,7 @@ async def test_create_review_without_order_or_product(authenticated_client: Asyn
     """Тест створення відгуку без order_id і product_id"""
     response = await authenticated_client.post(
         "/api/v1/reviews/",
-        json={
+        data={
             "rating": 5,
             "comment": "Review without order or product"
         }

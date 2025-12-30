@@ -1,6 +1,6 @@
 """API endpoints для відгуків"""
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, Query, status, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, delete
 from sqlalchemy.orm import selectinload
@@ -14,7 +14,7 @@ from app.models.product import Product
 from app.models.order import Order
 from app.schemas.review import ReviewCreate, ReviewResponse, ReviewUpdate, ReviewWithUser, GoogleReviewResponse
 from app.core.config import settings
-# import httpx  # Will be needed when integrating real Google API
+from app.utils.file_upload import save_image_with_processing, validate_image_file
 
 
 router = APIRouter()
@@ -126,16 +126,26 @@ async def get_product_reviews(
 
 
 @router.post("/", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ReviewResponse, status_code=status.HTTP_201_CREATED)
 async def create_review(
-    review_data: ReviewCreate,
+    rating: int = Form(..., ge=1, le=5),
+    comment: Optional[str] = Form(None),
+    order_id: Optional[int] = Form(None),
+    product_id: Optional[int] = Form(None),
+    images: List[UploadFile] = File(None),
     db: AsyncSession = Depends(get_db),
     current_user: Optional[User] = Depends(get_optional_user)
 ):
-    """Створення відгуку"""
-    # Валідація: order_id та product_id можуть бути відсутні (загальний відгук)
-    # if not review_data.order_id and not review_data.product_id:
-    #    pass # Allow general reviews
-    
+    """Створення відгуку (підтримує завантаження фото)"""
+    # Створюємо об'єкт схеми для валідації логіки (не файлів)
+    review_data = ReviewCreate(
+        rating=rating,
+        comment=comment,
+        order_id=order_id,
+        product_id=product_id,
+        images=[] # Images обробляємо окремо
+    )
+
     # Перевірка чи існує замовлення або товар
     if review_data.order_id:
         result = await db.execute(select(Order).where(Order.id == review_data.order_id))
@@ -176,6 +186,19 @@ async def create_review(
             else:
                  raise BadRequestException("Ви вже залишили загальний відгук про сайт")
     
+    # Обробка зображень
+    image_urls = []
+    if images:
+        for image in images:
+            validate_image_file(image)
+            _, file_url, _ = await save_image_with_processing(
+                file=image,
+                subdirectory="reviews",
+                prefix="review",
+                create_thumbnail=False
+            )
+            image_urls.append(file_url)
+
     # Створення відгуку з обробкою race condition
     from sqlalchemy.exc import IntegrityError
     
@@ -186,7 +209,7 @@ async def create_review(
             product_id=review_data.product_id,
             rating=review_data.rating,
             comment=review_data.comment,
-            images=review_data.images,
+            images=image_urls,
             is_published=False  # Потребує модерації
         )
         
