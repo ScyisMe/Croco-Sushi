@@ -79,8 +79,10 @@ export default function ReviewForm({
       await onSubmit({ rating, comment: comment.trim(), images });
       toast.success("Дякуємо за відгук! Він з'явиться після модерації.");
       handleClose();
-    } catch {
-      setError("Не вдалося надіслати відгук. Спробуйте ще раз.");
+    } catch (err: any) {
+      // Show actual error from backend if available
+      const errorMessage = err.response?.data?.detail || "Не вдалося надіслати відгук. Спробуйте ще раз.";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
