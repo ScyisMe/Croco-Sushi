@@ -167,17 +167,20 @@ async def create_review(
     # Перевірка чи користувач вже залишив відгук (для order_id або product_id)
     if current_user:
         query_conditions = [Review.user_id == current_user.id]
-        
+
         if review_data.order_id:
             query_conditions.append(Review.order_id == review_data.order_id)
-        
-        if review_data.product_id:
+        elif review_data.product_id:
             query_conditions.append(Review.product_id == review_data.product_id)
+        else:
+            # General review: check if user already has a review where BOTH order_id and product_id are NULL
+            query_conditions.append(Review.order_id.is_(None))
+            query_conditions.append(Review.product_id.is_(None))
         
         result = await db.execute(
             select(Review).where(and_(*query_conditions))
         )
-        existing_review = result.scalar_one_or_none()
+        existing_review = result.scalars().first()
         if existing_review:
             if review_data.order_id:
                 raise BadRequestException("Ви вже залишили відгук на це замовлення")

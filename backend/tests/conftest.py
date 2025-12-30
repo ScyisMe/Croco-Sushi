@@ -92,7 +92,7 @@ async def test_user(db_session: AsyncSession) -> User:
         name="Test User",
         hashed_password=get_password_hash("testpassword123"),
         is_active=True,
-        is_admin=False
+        # is_admin removed, default role is CLIENT
     )
     db_session.add(user)
     await db_session.commit()
@@ -103,13 +103,15 @@ async def test_user(db_session: AsyncSession) -> User:
 @pytest.fixture
 async def test_admin_user(db_session: AsyncSession) -> User:
     """Створює тестового адміністратора"""
+    from app.models.user import UserRole
+    
     admin = User(
         phone="+380509999999",
         email="admin@example.com",
         name="Admin User",
         hashed_password=get_password_hash("adminpassword123"),
         is_active=True,
-        is_admin=True
+        role=UserRole.ADMIN
     )
     db_session.add(admin)
     await db_session.commit()
