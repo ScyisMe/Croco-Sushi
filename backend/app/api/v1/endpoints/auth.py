@@ -86,6 +86,11 @@ async def register(
     db: AsyncSession = Depends(get_db)
 ):
     """Реєстрація нового користувача"""
+    # Нормалізація номера телефону
+    if user_data.phone:
+        digits = ''.join(filter(str.isdigit, user_data.phone))
+        user_data.phone = f"+{digits}"
+
     # Перевірка чи існує користувач з таким телефоном
     result = await db.execute(select(User).where(User.phone == user_data.phone))
     existing_user = result.scalar_one_or_none()
@@ -165,6 +170,11 @@ async def login(
     db: AsyncSession = Depends(get_db)
 ):
     """Вхід користувача"""
+    # Нормалізація номера телефону
+    if credentials.phone:
+        digits = ''.join(filter(str.isdigit, credentials.phone))
+        credentials.phone = f"+{digits}"
+
     # Пошук користувача
     if credentials.phone:
         result = await db.execute(select(User).where(User.phone == credentials.phone))

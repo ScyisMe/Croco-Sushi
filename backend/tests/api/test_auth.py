@@ -129,6 +129,28 @@ async def test_login_success(client: AsyncClient, test_user: User):
 
 @pytest.mark.asyncio
 @pytest.mark.auth
+async def test_login_success_formatted_phone(client: AsyncClient, test_user: User):
+    """Тест успішного входу з форматованим телефоном (пробіли, дужки, плюс)"""
+    # test_user має телефон "+380501234567"
+    
+    # Емулюємо введення користувача: "+380 (50) 123-45-67"
+    # Бекенд повинен нормалізувати це до "+380501234567" і знайти юзера.
+    
+    response = await client.post(
+        "/api/v1/auth/login",
+        json={
+            "phone": "+380 (50) 123-45-67", # Форматований
+            "password": "testpassword123"
+        }
+    )
+    assert response.status_code == 200, f"Response: {response.text}"
+    data = response.json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.auth
 async def test_login_wrong_password(client: AsyncClient, test_user: User):
     """Тест входу з невірним паролем"""
     response = await client.post(
