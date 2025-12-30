@@ -186,8 +186,9 @@ async def create_review(
                 raise BadRequestException("Ви вже залишили відгук на це замовлення")
             elif review_data.product_id:
                 raise BadRequestException("Ви вже залишили відгук на цей товар")
-            else:
-                 raise BadRequestException("Ви вже залишили загальний відгук про сайт")
+            # else:
+            #      Allow multiple general reviews (restaurant feedback can happen multiple times)
+            #      pass
     
     # Обробка зображень
     image_urls = []

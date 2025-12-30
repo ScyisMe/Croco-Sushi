@@ -210,6 +210,31 @@ async def test_create_review_duplicate(authenticated_client: AsyncClient, test_u
 
 @pytest.mark.asyncio
 @pytest.mark.api
+async def test_create_review_duplicate_general(authenticated_client: AsyncClient):
+    """Тест створення кількох загальних відгуків (має бути дозволено)"""
+    # 1. Перший відгук
+    response1 = await authenticated_client.post(
+        "/api/v1/reviews/",
+        data={
+            "rating": 5,
+            "comment": "First general review"
+        }
+    )
+    assert response1.status_code == 201
+
+    # 2. Другий відгук (має бути дозволеним)
+    response2 = await authenticated_client.post(
+        "/api/v1/reviews/",
+        data={
+            "rating": 4,
+            "comment": "Second general review"
+        }
+    )
+    assert response2.status_code == 201
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
 async def test_create_review_with_images(authenticated_client: AsyncClient, test_user, test_product, db_session: AsyncSession):
     """Тест створення відгуку з зображеннями"""
     from unittest.mock import patch
