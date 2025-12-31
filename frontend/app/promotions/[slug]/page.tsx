@@ -96,12 +96,17 @@ export default function PromotionDetailPage() {
                 {/* Зображення */}
                 <div className="relative bg-theme-tertiary">
                   {promotion.image_url ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={promotion.image_url}
-                      alt={promotion.name}
-                      className="w-full h-auto object-contain max-h-[600px] mx-auto"
-                    />
+                    <div className="relative w-full aspect-video max-h-[600px]">
+                      <Image
+                        src={promotion.image_url}
+                        alt={promotion.name}
+                        fill
+                        className="object-contain"
+                        sizes="(max-width: 1200px) 100vw, 1200px"
+                        quality={90}
+                        priority
+                      />
+                    </div>
                   ) : (
                     <div className="w-full aspect-video flex items-center justify-center">
                       <TagIcon className="w-24 h-24 text-gray-300" />
