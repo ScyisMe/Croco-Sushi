@@ -1,6 +1,13 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const isServer = typeof window === "undefined";
+
+// Визначаємо базовий URL
+// На сервері в продакшені використовуємо внутрішню адресу контейнера (http://backend:8000)
+// На клієнті або в локальній розробці використовуємо публічний URL
+const API_URL = isServer && process.env.NODE_ENV === "production"
+  ? (process.env.INTERNAL_API_URL || "http://backend:8000")
+  : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
 
 // Створюємо axios інстанс
 const apiClient: AxiosInstance = axios.create({
