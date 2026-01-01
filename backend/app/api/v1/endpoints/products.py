@@ -22,6 +22,7 @@ async def get_products(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     category_id: Optional[int] = None,
+    category_slug: Optional[str] = None,
     search: Optional[str] = None,
     is_new: Optional[bool] = None,
     is_popular: Optional[bool] = None,
@@ -32,6 +33,9 @@ async def get_products(
     
     if category_id:
         query = query.where(Product.category_id == category_id)
+
+    if category_slug:
+        query = query.join(Category).where(Category.slug == category_slug)
     
     if search:
         search_term = f"%{search}%"

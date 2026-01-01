@@ -90,16 +90,11 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
     const categories = categoriesQuery.data?.filter((cat) => cat.is_active) || [];
 
-    // Знаходимо ID вибраної категорії
-    const selectedCategoryId = useMemo(() => {
-        if (!selectedCategory) return null;
-        const category = categories.find((c) => c.slug === selectedCategory);
-        return category ? category.id : null;
-    }, [selectedCategory, categories]);
+
 
     // Завантаження товарів з infinite scroll
     const productsQuery = useInfiniteQuery({
-        queryKey: ["products", selectedCategory, debouncedSearch, selectedCategoryId],
+        queryKey: ["products", selectedCategory, debouncedSearch],
         queryFn: async ({ pageParam = 0 }) => {
             const params: Record<string, unknown> = {
                 skip: pageParam,
@@ -107,8 +102,8 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                 is_available: true,
             };
 
-            if (selectedCategoryId) {
-                params.category_id = selectedCategoryId;
+            if (selectedCategory) {
+                params.category_slug = selectedCategory;
             }
 
             if (debouncedSearch) {
@@ -131,7 +126,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
         getNextPageParam: (lastPage) => {
             return lastPage.hasMore ? lastPage.nextOffset : undefined;
         },
-        enabled: !selectedCategory || !!selectedCategoryId,
+        enabled: true, // Always enabled now that we can fetch by slug directly!
     });
 
     // Filter Options
@@ -149,7 +144,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
     // Ref для Intersection Observer (infinite scroll)
     const loadMoreRef = useRef<HTMLDivElement>(null);
 
-    const isLoading = productsQuery.status === 'pending' || (!!selectedCategory && !selectedCategoryId && categoriesQuery.isLoading);
+    const isLoading = productsQuery.status === 'pending';
 
     // Всі завантажені товари
     const allProducts = useMemo(() => {
