@@ -417,7 +417,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                     {/* Інформація */}
                                     <div className="flex flex-col justify-between py-1 pr-2">
                                       <div>
-                                        <h4 className="font-semibold text-white text-sm line-clamp-2 leading-snug">
+                                        <h4 className="font-semibold text-white text-sm leading-snug">
                                           {item.name}
                                         </h4>
                                         {item.size && (
