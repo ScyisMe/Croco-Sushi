@@ -54,67 +54,10 @@ export function JsonLd({ schema }: JsonLdProps) {
 }
 
 // Схема організації/ресторану
-export function getOrganizationSchema(): JsonLdSchema {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Restaurant",
-    "@id": `${BUSINESS_INFO.url}/#organization`,
-    name: BUSINESS_INFO.name,
-    description: BUSINESS_INFO.description,
-    url: BUSINESS_INFO.url,
-    logo: {
-      "@type": "ImageObject",
-      url: BUSINESS_INFO.logo,
-    },
-    image: BUSINESS_INFO.logo,
-    telephone: BUSINESS_INFO.telephone,
-    email: BUSINESS_INFO.email,
-    address: {
-      "@type": "PostalAddress",
-      ...BUSINESS_INFO.address,
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: BUSINESS_INFO.geo.latitude,
-      longitude: BUSINESS_INFO.geo.longitude,
-    },
-    openingHoursSpecification: BUSINESS_INFO.openingHours.map((hours) => ({
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: hours.dayOfWeek,
-      opens: hours.opens,
-      closes: hours.closes,
-    })),
-    priceRange: BUSINESS_INFO.priceRange,
-    servesCuisine: BUSINESS_INFO.servesCuisine,
-    sameAs: BUSINESS_INFO.sameAs,
-    hasMenu: `${BUSINESS_INFO.url}/menu`,
-    acceptsReservations: false,
-    paymentAccepted: ["Cash", "Credit Card"],
-    currenciesAccepted: "UAH",
-  };
-}
+
 
 // Схема веб-сайту
-export function getWebsiteSchema(): JsonLdSchema {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${BUSINESS_INFO.url}/#website`,
-    name: BUSINESS_INFO.name,
-    url: BUSINESS_INFO.url,
-    publisher: {
-      "@id": `${BUSINESS_INFO.url}/#organization`,
-    },
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${BUSINESS_INFO.url}/menu?search={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
-  };
-}
+
 
 // Схема хлібних крихт
 interface BreadcrumbItem {
@@ -152,48 +95,7 @@ interface ProductSchemaProps {
   inStock?: boolean;
 }
 
-export function getProductSchema(product: ProductSchemaProps): JsonLdSchema {
-  const schema: JsonLdSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: product.image,
-    url: product.url,
-    sku: product.sku || product.url.split("/").pop(),
-    brand: {
-      "@type": "Brand",
-      name: BUSINESS_INFO.name,
-    },
-    offers: {
-      "@type": "Offer",
-      price: product.price,
-      priceCurrency: product.currency || "UAH",
-      availability: product.inStock !== false 
-        ? "https://schema.org/InStock" 
-        : "https://schema.org/OutOfStock",
-      seller: {
-        "@id": `${BUSINESS_INFO.url}/#organization`,
-      },
-    },
-  };
 
-  if (product.category) {
-    schema.category = product.category;
-  }
-
-  if (product.rating && product.rating.count > 0) {
-    schema.aggregateRating = {
-      "@type": "AggregateRating",
-      ratingValue: product.rating.value,
-      reviewCount: product.rating.count,
-      bestRating: 5,
-      worstRating: 1,
-    };
-  }
-
-  return schema;
-}
 
 // Схема меню
 interface MenuItemSchema {
@@ -208,28 +110,7 @@ interface MenuSectionSchema {
   items: MenuItemSchema[];
 }
 
-export function getMenuSchema(sections: MenuSectionSchema[]): JsonLdSchema {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Menu",
-    name: "Меню Croco Sushi",
-    hasMenuSection: sections.map((section) => ({
-      "@type": "MenuSection",
-      name: section.name,
-      hasMenuItem: section.items.map((item) => ({
-        "@type": "MenuItem",
-        name: item.name,
-        description: item.description,
-        offers: {
-          "@type": "Offer",
-          price: item.price,
-          priceCurrency: "UAH",
-        },
-        ...(item.image ? { image: item.image } : {}),
-      })),
-    })),
-  };
-}
+
 
 // Схема FAQ
 interface FAQItem {
@@ -302,28 +183,7 @@ interface ReviewSchemaProps {
   };
 }
 
-export function getReviewSchema(review: ReviewSchemaProps): JsonLdSchema {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Review",
-    author: {
-      "@type": "Person",
-      name: review.author,
-    },
-    datePublished: review.datePublished,
-    reviewRating: {
-      "@type": "Rating",
-      ratingValue: review.rating,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    reviewBody: review.reviewBody,
-    itemReviewed: {
-      "@type": review.itemReviewed.type,
-      name: review.itemReviewed.name,
-    },
-  };
-}
+
 
 // Схема списку відгуків
 interface AggregateReviewSchemaProps {
@@ -333,20 +193,7 @@ interface AggregateReviewSchemaProps {
   reviewCount: number;
 }
 
-export function getAggregateReviewSchema(props: AggregateReviewSchemaProps): JsonLdSchema {
-  return {
-    "@context": "https://schema.org",
-    "@type": props.itemType,
-    name: props.itemName,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: props.ratingValue,
-      reviewCount: props.reviewCount,
-      bestRating: 5,
-      worstRating: 1,
-    },
-  };
-}
+
 
 // Схема акції/пропозиції
 interface OfferSchemaProps {
@@ -358,24 +205,5 @@ interface OfferSchemaProps {
   discount?: string;
 }
 
-export function getOfferSchema(offer: OfferSchemaProps): JsonLdSchema {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Offer",
-    name: offer.name,
-    description: offer.description,
-    url: offer.url,
-    ...(offer.validFrom ? { validFrom: offer.validFrom } : {}),
-    ...(offer.validThrough ? { validThrough: offer.validThrough } : {}),
-    ...(offer.discount ? { 
-      priceSpecification: {
-        "@type": "PriceSpecification",
-        discount: offer.discount,
-      }
-    } : {}),
-    seller: {
-      "@id": `${BUSINESS_INFO.url}/#organization`,
-    },
-  };
-}
+
 

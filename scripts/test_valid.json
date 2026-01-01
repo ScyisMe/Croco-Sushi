@@ -1,0 +1,27 @@
+{
+    "v": "5.7.0",
+    "fr": 60,
+    "ip": 0,
+    "op": 60,
+    "w": 100,
+    "h": 100,
+    "nm": "Valid Animation",
+    "ddd": 0,
+    "assets": [],
+    "layers": [
+        {
+            "ddd": 0,
+            "ind": 1,
+            "ty": 4,
+            "nm": "Shape Layer 1",
+            "sr": 1,
+            "ks": {},
+            "ao": 0,
+            "shapes": [],
+            "ip": 0,
+            "op": 60,
+            "st": 0,
+            "bm": 0
+        }
+    ]
+}

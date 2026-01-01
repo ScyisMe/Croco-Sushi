@@ -152,8 +152,10 @@ app.include_router(api_router, prefix="/api/v1")
 upload_dir = Path(settings.UPLOAD_DIR).resolve()
 upload_dir.mkdir(parents=True, exist_ok=True)
 
+from app.core.static import CachedStaticFiles
+
 try:
-    app.mount("/static/uploads", StaticFiles(directory=str(upload_dir)), name="static_uploads")
+    app.mount("/static/uploads", CachedStaticFiles(directory=str(upload_dir)), name="static_uploads")
 except ValueError:
     # Якщо вже змонтовано - ігноруємо
     pass

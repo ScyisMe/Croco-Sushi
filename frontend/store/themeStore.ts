@@ -22,9 +22,9 @@ const getSystemTheme = (): ResolvedTheme => {
 // Функція для застосування теми до DOM
 const applyTheme = (resolvedTheme: ResolvedTheme) => {
   if (typeof document === "undefined") return;
-  
+
   const root = document.documentElement;
-  
+
   if (resolvedTheme === "dark") {
     root.setAttribute("data-theme", "dark");
     root.classList.add("dark");
@@ -39,23 +39,23 @@ export const useThemeStore = create<ThemeState>()(
     (set, get) => ({
       theme: "system",
       resolvedTheme: "light",
-      
+
       setTheme: (theme: Theme) => {
         const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
         applyTheme(resolvedTheme);
         set({ theme, resolvedTheme });
       },
-      
+
       initTheme: () => {
         const { theme } = get();
         const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
         applyTheme(resolvedTheme);
         set({ resolvedTheme });
-        
+
         // Слухаємо зміни системної теми
         if (typeof window !== "undefined") {
           const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-          
+
           const handleChange = (e: MediaQueryListEvent) => {
             const { theme } = get();
             if (theme === "system") {
@@ -64,7 +64,7 @@ export const useThemeStore = create<ThemeState>()(
               set({ resolvedTheme: newResolvedTheme });
             }
           };
-          
+
           mediaQuery.addEventListener("change", handleChange);
         }
       },
@@ -77,10 +77,7 @@ export const useThemeStore = create<ThemeState>()(
 );
 
 // Хук для використання теми
-export const useTheme = () => {
-  const { theme, resolvedTheme, setTheme } = useThemeStore();
-  return { theme, resolvedTheme, setTheme };
-};
+
 
 
 

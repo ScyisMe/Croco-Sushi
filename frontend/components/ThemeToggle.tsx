@@ -38,19 +38,17 @@ export default function ThemeToggle({ variant = "default", className = "" }: The
     return (
       <button
         onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
-        className={`relative flex items-center justify-center w-14 h-8 rounded-full transition-colors duration-300 ${
-          resolvedTheme === "dark" 
-            ? "bg-slate-700" 
+        className={`relative flex items-center justify-center w-14 h-8 rounded-full transition-colors duration-300 ${resolvedTheme === "dark"
+            ? "bg-slate-700"
             : "bg-amber-100"
-        } ${className}`}
+          } ${className}`}
         aria-label={`Переключити на ${resolvedTheme === "light" ? "темну" : "світлу"} тему`}
       >
         <motion.div
-          className={`absolute w-6 h-6 rounded-full shadow-md flex items-center justify-center ${
-            resolvedTheme === "dark" 
-              ? "bg-slate-900" 
+          className={`absolute w-6 h-6 rounded-full shadow-md flex items-center justify-center ${resolvedTheme === "dark"
+              ? "bg-slate-900"
               : "bg-white"
-          }`}
+            }`}
           animate={{
             x: resolvedTheme === "dark" ? 12 : -12,
           }}
@@ -121,25 +119,24 @@ export default function ThemeToggle({ variant = "default", className = "" }: The
 
   // Default variant - повний вибір
   return (
-    <div 
+    <div
       className={`flex items-center gap-1 p-1 rounded-full border transition-colors ${className}`}
-      style={{ 
+      style={{
         backgroundColor: 'var(--color-background-secondary)',
         borderColor: 'var(--color-border)'
       }}
     >
       {themes.map(({ value, icon: Icon, label }) => {
         const isActive = theme === value;
-        
+
         return (
           <button
             key={value}
             onClick={() => setTheme(value)}
-            className={`relative flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 ${
-              isActive 
-                ? "" 
+            className={`relative flex items-center justify-center w-9 h-9 rounded-full transition-all duration-200 ${isActive
+                ? ""
                 : "hover:bg-[var(--color-background-tertiary)]"
-            }`}
+              }`}
             aria-label={label}
             title={label}
           >
@@ -151,12 +148,11 @@ export default function ThemeToggle({ variant = "default", className = "" }: The
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
             )}
-            <Icon 
-              className={`w-5 h-5 relative z-10 transition-colors ${
-                isActive 
-                  ? "text-white" 
+            <Icon
+              className={`w-5 h-5 relative z-10 transition-colors ${isActive
+                  ? "text-white"
                   : "text-[var(--color-text-secondary)]"
-              }`} 
+                }`}
             />
           </button>
         );
@@ -166,46 +162,7 @@ export default function ThemeToggle({ variant = "default", className = "" }: The
 }
 
 // Експортуємо також простий компонент для мобільного меню
-export function ThemeToggleMobile({ className = "" }: { className?: string }) {
-  const { theme, setTheme, initTheme } = useThemeStore();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    initTheme();
-  }, [initTheme]);
-
-  if (!mounted) return null;
-
-  const themes: { value: Theme; icon: typeof SunIcon; label: string }[] = [
-    { value: "light", icon: SunIcon, label: "Світла" },
-    { value: "dark", icon: MoonIcon, label: "Темна" },
-    { value: "system", icon: ComputerDesktopIcon, label: "Системна" },
-  ];
-
-  return (
-    <div className={`flex items-center justify-center gap-2 ${className}`}>
-      {themes.map(({ value, icon: Icon, label }) => {
-        const isActive = theme === value;
-        
-        return (
-          <button
-            key={value}
-            onClick={() => setTheme(value)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all duration-200 ${
-              isActive 
-                ? "bg-[var(--color-primary)] text-white" 
-                : "bg-[var(--color-background-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-background-tertiary)]"
-            }`}
-          >
-            <Icon className="w-5 h-5" />
-            <span className="text-sm font-medium">{label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 
 

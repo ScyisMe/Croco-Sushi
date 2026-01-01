@@ -279,22 +279,49 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
             });
         }
 
-        switch (sortBy) {
-            case "price_asc":
-                return result.sort((a, b) => parseFloat(a.price || "0") - parseFloat(b.price || "0"));
-            case "price_desc":
-                return result.sort((a, b) => parseFloat(b.price || "0") - parseFloat(a.price || "0"));
-            case "name":
-                return result.sort((a, b) => a.name.localeCompare(b.name, "uk"));
-            case "popular":
-                return result.sort((a, b) => {
-                    if (a.is_popular && !b.is_popular) return -1;
-                    if (!a.is_popular && b.is_popular) return 1;
-                    return a.position - b.position;
-                });
-            default:
-                return result.sort((a, b) => a.position - b.position);
-        }
+        // Map-Sort-Map (Schwartzian transform) optimization
+        return result
+            .map((item, index) => {
+                let sortValue: any;
+                switch (sortBy) {
+                    case "price_asc":
+                    case "price_desc":
+                        sortValue = parseFloat(item.price || "0");
+                        break;
+                    case "name":
+                        sortValue = item.name.toLowerCase();
+                        break;
+                    case "popular":
+                        // For popular: primary key is is_popular (desc), secondary is position (asc)
+                        sortValue = { isPopular: item.is_popular ? 1 : 0, position: item.position };
+                        break;
+                    default:
+                        sortValue = item.position;
+                }
+                return { index, value: sortValue, item };
+            })
+            .sort((a, b) => {
+                if (sortBy === "price_asc") {
+                    return (a.value as number) - (b.value as number);
+                }
+                if (sortBy === "price_desc") {
+                    return (b.value as number) - (a.value as number);
+                }
+                if (sortBy === "name") {
+                    return (a.value as string).localeCompare(b.value as string, "uk");
+                }
+                if (sortBy === "popular") {
+                    const valA = a.value as { isPopular: number; position: number };
+                    const valB = b.value as { isPopular: number; position: number };
+                    if (valA.isPopular !== valB.isPopular) {
+                        return valB.isPopular - valA.isPopular;
+                    }
+                    return valA.position - valB.position;
+                }
+                // default: position
+                return (a.value as number) - (b.value as number);
+            })
+            .map((result) => result.item);
     }, [allProducts, sortBy, selectedProperties]);
 
     const toggleProperty = (id: string) => {

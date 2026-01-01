@@ -6,7 +6,7 @@ export type Locale = "ua";
 
 // Імпортуємо переклади
 import ua from "@/locales/ua.json";
-const translations: Record<Locale, typeof ua> = {
+export const translations: Record<Locale, typeof ua> = {
   ua,
 };
 
@@ -108,6 +108,6 @@ export function useTranslation() {
 }
 
 // Експортуємо переклади для серверних компонентів (якщо потрібно)
-export { translations };
+
 
 
