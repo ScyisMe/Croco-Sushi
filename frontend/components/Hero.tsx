@@ -45,6 +45,8 @@ export default function Hero() {
           poster="/images/hero-poster.webp"
           className="w-full h-full object-cover"
         >
+          <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
+          <source src="/hero-bg.mp4" media="(max-width: 768px)" type="video/mp4" />
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
       </motion.div>
