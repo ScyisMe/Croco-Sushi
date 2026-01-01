@@ -332,13 +332,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
         );
     };
 
-    const handleCategoryChange = (slug: string | null) => {
-        setSelectedCategory(slug);
-        if (slug) {
-            router.push(`/menu/${slug}`, { scroll: false });
-        } else {
-            router.push("/menu", { scroll: false });
-        }
+    const handleMobileFilterClose = () => {
         setIsMobileFilterOpen(false);
     };
 
@@ -480,9 +474,10 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                 </h3>
                                 <ul className="space-y-2">
                                     <li>
-                                        <button
-                                            onClick={() => handleCategoryChange(null)}
-                                            className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${!selectedCategory
+                                        <Link
+                                            href="/menu"
+                                            scroll={false}
+                                            className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden block ${!selectedCategory
                                                 ? "text-white bg-white/5 border-l-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                                                 : "text-gray-400 hover:bg-white/5 hover:text-white"
                                                 }`}
@@ -493,13 +488,14 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                                     Все меню
                                                 </span>
                                             </div>
-                                        </button>
+                                        </Link>
                                     </li>
                                     {categories.map((category) => (
                                         <li key={category.id}>
-                                            <button
-                                                onClick={() => handleCategoryChange(category.slug)}
-                                                className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden ${selectedCategory === category.slug
+                                            <Link
+                                                href={`/menu/${category.slug}`}
+                                                scroll={false}
+                                                className={`group relative w-full text-left px-5 py-4 rounded-xl transition-all duration-300 font-medium overflow-hidden block ${selectedCategory === category.slug
                                                     ? "text-white bg-white/5 border-l-4 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
                                                     : "text-gray-400 hover:bg-white/5 hover:text-white"
                                                     }`}
@@ -510,7 +506,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                                         {category.name}
                                                     </span>
                                                 </div>
-                                            </button>
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
@@ -520,26 +516,28 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                         <div className="flex-1">
                             <div className="lg:hidden sticky top-16 z-30 bg-[#121212]/85 backdrop-blur-xl border-b border-white/5 py-3 mb-6 -mx-4 px-4 shadow-xl transition-all">
                                 <div className="flex gap-2 overflow-x-auto no-scrollbar items-center">
-                                    <button
-                                        onClick={() => handleCategoryChange(null)}
+                                    <Link
+                                        href="/menu"
+                                        scroll={false}
                                         className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${!selectedCategory
                                             ? "bg-primary text-white shadow-lg shadow-primary/25"
                                             : "bg-white/5 text-gray-300 border border-white/10 hover:border-primary hover:text-white"
                                             }`}
                                     >
                                         Все
-                                    </button>
+                                    </Link>
                                     {categories.map((category) => (
-                                        <button
+                                        <Link
                                             key={category.id}
-                                            onClick={() => handleCategoryChange(category.slug)}
+                                            href={`/menu/${category.slug}`}
+                                            scroll={false}
                                             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${selectedCategory === category.slug
                                                 ? "bg-primary text-white shadow-lg shadow-primary/25"
                                                 : "bg-white/5 text-gray-300 border border-white/10 hover:border-primary hover:text-white"
                                                 }`}
                                         >
                                             {category.name}
-                                        </button>
+                                        </Link>
                                     ))}
                                 </div>
                             </div>
@@ -617,17 +615,15 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                             ? "Спробуйте змінити пошуковий запит"
                                             : "В цій категорії поки немає страв"}
                                     </p>
-                                    <Button
-                                        onClick={() => {
-                                            setSearchQuery("");
-                                            handleCategoryChange(null);
-                                        }}
-                                        variant="primary"
-                                        className="group"
+                                    <Link
+                                        href="/menu"
+                                        scroll={false}
+                                        onClick={() => setSearchQuery("")}
+                                        className="group inline-flex items-center justify-center bg-primary hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-primary-500/20 active:scale-95"
                                     >
                                         <span>Показати все меню</span>
-                                        <ChevronRightIcon className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                    </Button>
+                                        <ChevronRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
                                 </div>
                             )}
 
@@ -730,26 +726,30 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                 <div>
                                     <h4 className="font-semibold text-secondary mb-3">Категорії</h4>
                                     <div className="space-y-2">
-                                        <button
-                                            onClick={() => handleCategoryChange(null)}
-                                            className={`w-full text-left px-4 py-3 rounded-lg transition ${!selectedCategory
+                                        <Link
+                                            href="/menu"
+                                            scroll={false}
+                                            onClick={handleMobileFilterClose}
+                                            className={`w-full text-left px-4 py-3 rounded-lg transition block ${!selectedCategory
                                                 ? "bg-primary text-white"
                                                 : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
                                                 }`}
                                         >
                                             Все меню
-                                        </button>
+                                        </Link>
                                         {categories.map((category) => (
-                                            <button
+                                            <Link
                                                 key={category.id}
-                                                onClick={() => handleCategoryChange(category.slug)}
-                                                className={`w-full text-left px-4 py-3 rounded-lg transition ${selectedCategory === category.slug
+                                                href={`/menu/${category.slug}`}
+                                                scroll={false}
+                                                onClick={handleMobileFilterClose}
+                                                className={`w-full text-left px-4 py-3 rounded-lg transition block ${selectedCategory === category.slug
                                                     ? "bg-primary text-white"
                                                     : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
                                                     }`}
                                             >
                                                 {category.name}
-                                            </button>
+                                            </Link>
                                         ))}
                                     </div>
                                 </div>
