@@ -13,7 +13,12 @@ import { format } from "date-fns";
 import { uk } from "date-fns/locale";
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";
-import ReviewForm, { ReviewFormData } from "@/components/ReviewForm";
+import type { ReviewFormData } from "@/components/ReviewForm";
+// Lazy load ReviewForm to save bundle size (Headless UI, Icons)
+import dynamic from "next/dynamic";
+const ReviewForm = dynamic(() => import("@/components/ReviewForm"), {
+  loading: () => null,
+});
 import toast from "react-hot-toast";
 import { JsonLd, getBreadcrumbSchema, BUSINESS_INFO } from "@/lib/schema";
 import { useTranslation, useLocaleStore } from "@/store/localeStore";
@@ -299,15 +304,15 @@ export default function ReviewsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {googleReviewsQuery.data.map((review, i) => (
-                  <motion.div
+                  <div
                     key={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
+                  // initial={{ opacity: 0, y: 20 }}
+                  // whileInView={{ opacity: 1, y: 0 }}
+                  // viewport={{ once: true }}
+                  // transition={{ delay: i * 0.1 }}
                   >
                     <GoogleReviewCard review={review} />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
               <div className="mt-8 text-center text-sm text-gray-500">
@@ -335,15 +340,15 @@ export default function ReviewsPage() {
             ) : reviewsQuery.data && reviewsQuery.data.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {reviewsQuery.data.map((review, i) => (
-                  <motion.div
+                  <div
                     key={review.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.05 }}
+                  // initial={{ opacity: 0, y: 20 }}
+                  // whileInView={{ opacity: 1, y: 0 }}
+                  // viewport={{ once: true }}
+                  // transition={{ delay: i * 0.05 }}
                   >
                     <SiteReviewCard review={review} onImageClick={setModalImage} />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             ) : (

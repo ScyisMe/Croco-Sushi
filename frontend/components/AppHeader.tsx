@@ -14,9 +14,20 @@ import {
 } from "@heroicons/react/24/outline";
 import { useCartStore } from "@/store/cartStore";
 import { useTranslation, Locale } from "@/store/localeStore";
-import Cart from "./Cart";
-import CallbackModal from "./CallbackModal";
-import NonWorkingHoursPopup from "./NonWorkingHoursPopup";
+// import Cart from "./Cart";
+// import CallbackModal from "./CallbackModal";
+// import NonWorkingHoursPopup from "./NonWorkingHoursPopup";
+import dynamic from "next/dynamic";
+
+const Cart = dynamic(() => import("./Cart"), {
+  loading: () => null,
+});
+const CallbackModal = dynamic(() => import("./CallbackModal"), {
+  loading: () => null,
+});
+const NonWorkingHoursPopup = dynamic(() => import("./NonWorkingHoursPopup"), {
+  loading: () => null,
+});
 import { throttle } from "@/lib/utils";
 import { useWorkingHours } from "@/hooks/useWorkingHours";
 import Image from "next/image";

@@ -5,7 +5,11 @@ import { Providers } from "./providers";
 import Link from "next/link";
 import BottomNav from "@/components/layout/BottomNav";
 import SmoothScrolling from "@/components/ui/SmoothScrolling";
-import MaintenanceGuard from "@/components/MaintenanceGuard";
+import dynamic from "next/dynamic";
+
+const MaintenanceGuard = dynamic(() => import("@/components/MaintenanceGuard"), {
+  ssr: false,
+});
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
