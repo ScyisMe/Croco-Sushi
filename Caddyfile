@@ -1,6 +1,7 @@
 
 
 crocosushi.com {
+    encode gzip zstd
     reverse_proxy frontend:3000
 }
 
@@ -9,8 +10,10 @@ www.crocosushi.com {
 }
 
 api.crocosushi.com {
+    encode gzip zstd
     reverse_proxy backend:8000
 }
 monitor.crocosushi.com {
+    encode gzip zstd
     reverse_proxy grafana:3000
 }
