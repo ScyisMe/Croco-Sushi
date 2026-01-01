@@ -387,10 +387,10 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                                   transition={{ duration: 0.2 }}
                                   key={`${item.id}-${item.sizeId || "default"}`}
-                                  className="flex gap-4 p-3 bg-white/5 border border-white/5 rounded-xl overflow-hidden"
+                                  className="flex gap-3 sm:gap-4 p-3 bg-white/5 border border-white/5 rounded-xl overflow-hidden"
                                 >
                                   {/* Зображення - зліва, більше */}
-                                  <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
+                                  <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
                                     {item.image_url ? (
                                       <Image
                                         src={item.image_url}
@@ -415,9 +415,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                   {/* Центр і Права частина */}
                                   <div className="flex flex-1 justify-between">
                                     {/* Інформація */}
-                                    <div className="flex flex-col justify-between py-1 pr-2">
+                                    <div className="flex flex-col justify-between py-1 pr-2 min-w-0">
                                       <div>
-                                        <h4 className="font-semibold text-white text-sm leading-snug">
+                                        <h4 className="font-semibold text-white text-sm leading-snug break-words">
                                           {item.name}
                                         </h4>
                                         {item.size && (
@@ -435,7 +435,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                       </div>
 
                                       {/* Компактний перемикач кількості */}
-                                      <div className="flex items-center bg-black/40 rounded-lg border border-white/10">
+                                      <div className="flex items-center bg-black/40 rounded-lg border border-white/10 shrink-0">
                                         <button
                                           onClick={() =>
                                             updateQuantity(item.id, item.quantity - 1, item.sizeId)
