@@ -11,3 +11,6 @@ www.crocosushi.com {
 api.crocosushi.com {
     reverse_proxy backend:8000
 }
+monitor.crocosushi.com {
+    reverse_proxy localhost:3001
+}
