@@ -13,6 +13,7 @@ from app.models.favorite import Favorite
 from app.models.audit_log import AuditLog
 from app.models.cart import Cart, CartItem
 from app.models.newsletter import NewsletterSubscriber
+from app.models.order_history import OrderHistory
 from app.models.setting import Setting
 
 
