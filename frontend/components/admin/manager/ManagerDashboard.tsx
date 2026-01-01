@@ -124,5 +124,6 @@ export default function ManagerDashboard() {
                     <KanbanBoard />
                 </div>
             </div>
-            );
+        </div>
+    );
 }
