@@ -15,6 +15,7 @@ from app.models.cart import Cart, CartItem
 from app.models.newsletter import NewsletterSubscriber
 from app.models.order_history import OrderHistory
 from app.models.setting import Setting
+from app.models.callback import Callback, CallbackStatus
 
 
 __all__ = [
@@ -37,4 +38,5 @@ __all__ = [
     "NewsletterSubscriber",
     "OrderHistory",
     "Setting",
+    "Callback",
 ]
