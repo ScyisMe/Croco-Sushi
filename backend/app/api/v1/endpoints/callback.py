@@ -7,8 +7,11 @@ import json
 
 from app.database import get_db
 from app.core.config import settings
-from app.core.exceptions import BadRequestException
-from app.schemas.callback import CallbackRequest, CallbackResponse
+from app.core.exceptions import BadRequestException, NotFoundException
+from app.schemas.callback import CallbackRequest, CallbackResponse, CallbackSchema, CallbackUpdate
+from app.models.callback import Callback, CallbackStatus
+from sqlalchemy import select
+from typing import Optional
 
 router = APIRouter()
 
@@ -72,20 +75,18 @@ async def request_callback(
         else:
             redis_client.setex(rate_limit_key, 3600, 1)
     
-    # Тут можна додати логіку для збереження запиту в БД
-    # або відправки email/SMS менеджерам
+    # Зберігаємо в БД
+    from app.models.callback import Callback, CallbackStatus
     
-    # Наприклад, можна зберегти в Redis для обробки
-    if redis_client:
-        callback_key = f"callback_queue:{callback_data.phone}"
-        callback_data_dict = {
-            "phone": callback_data.phone,
-            "name": callback_data.name,
-            "ip": client_ip,
-            "timestamp": str(datetime.now(timezone.utc))
-        }
-        redis_client.lpush(callback_key, json.dumps(callback_data_dict))
-        redis_client.expire(callback_key, 86400)  # Зберігаємо 24 години
+    db_callback = Callback(
+        phone=callback_data.phone,
+        name=callback_data.name,
+        ip_address=client_ip,
+        status=CallbackStatus.NEW
+    )
+    db.add(db_callback)
+    await db.commit()
+    await db.refresh(db_callback)
 
     # Відправка email повідомлення адміністратору
     try:
@@ -107,6 +108,49 @@ async def request_callback(
         success=True,
         message="Ваш запит прийнято. Ми передзвонимо вам найближчим часом."
     )
+
+
+@router.get("/", response_model=list[CallbackSchema])
+async def get_callbacks(
+    skip: int = 0,
+    limit: int = 50,
+    status: Optional[CallbackStatus] = None,
+    db: AsyncSession = Depends(get_db),
+    # current_user: User = Depends(get_current_active_manager) # TODO: Restore auth
+):
+    """Отримати список запитів на передзвін"""
+    query = select(Callback)
+    
+    if status:
+        query = query.where(Callback.status == status)
+    
+    query = query.order_by(Callback.created_at.desc()).offset(skip).limit(limit)
+    
+    result = await db.execute(query)
+    return result.scalars().all()
+
+
+@router.patch("/{callback_id}", response_model=CallbackSchema)
+async def update_callback_status(
+    callback_id: int,
+    callback_update: CallbackUpdate,
+    db: AsyncSession = Depends(get_db),
+    # current_user: User = Depends(get_current_active_manager) # TODO: Restore auth
+):
+    """Оновити статус запиту"""
+    result = await db.execute(select(Callback).where(Callback.id == callback_id))
+    callback = result.scalar_one_or_none()
+    
+    if not callback:
+        raise NotFoundException("Запит не знайдено")
+    
+    callback.status = callback_update.status
+    if callback_update.comment is not None:
+        callback.comment = callback_update.comment
+    
+    await db.commit()
+    await db.refresh(callback)
+    return callback
 
 
 
