@@ -73,6 +73,7 @@ export default function Stories() {
                                                     className="w-full h-full object-cover"
                                                     sizes="64px"
                                                     priority={index < 4}
+                                                    quality={60}
                                                 />
                                             </div>
                                         </div>
@@ -100,6 +101,7 @@ export default function Stories() {
                                                 className="w-full h-full object-cover"
                                                 sizes="64px"
                                                 priority={index < 4}
+                                                quality={60}
                                             />
                                         </div>
                                     </div>

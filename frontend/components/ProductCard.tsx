@@ -187,7 +187,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
               width={500}
               height={625}
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 33vw, 20vw"
               priority={priority}
               quality={60}
               onError={(e) => console.error(`Failed to load image: ${product.image_url}`, e)}
