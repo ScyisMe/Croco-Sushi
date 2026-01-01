@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import Link from "next/link";
 import BottomNav from "@/components/layout/BottomNav";
 import SmoothScrolling from "@/components/ui/SmoothScrolling";
+import MaintenanceGuard from "@/components/MaintenanceGuard";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -61,6 +63,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} ${notoSans.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
+          <MaintenanceGuard />
           <div className="fixed-background" />
           <SmoothScrolling />
           <div className="relative z-10 w-full">

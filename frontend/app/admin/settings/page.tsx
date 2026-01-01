@@ -9,6 +9,7 @@ import {
     TruckIcon,
     CreditCardIcon,
 } from "@heroicons/react/24/outline";
+import { Switch } from "@headlessui/react";
 import toast from "react-hot-toast";
 
 interface Settings {
@@ -25,6 +26,7 @@ interface Settings {
     payment_liqpay_private_key?: string;
     google_maps_api_key?: string;
     google_analytics_id?: string;
+    is_maintenance_mode?: boolean;
 }
 
 export default function SettingsPage() {
@@ -62,7 +64,7 @@ export default function SettingsPage() {
         }
     };
 
-    const handleChange = (field: keyof Settings, value: string | number) => {
+    const handleChange = (field: keyof Settings, value: string | number | boolean) => {
         setSettings(prev => ({ ...prev, [field]: value }));
     };
 
@@ -119,7 +121,27 @@ export default function SettingsPage() {
                 <div className="p-6">
                     <form onSubmit={handleSubmit}>
                         {activeTab === "general" && (
-                            <div className="space-y-4 max-w-2xl">
+                            <div className="space-y-6 max-w-2xl">
+                                <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h3 className="text-sm font-medium text-white">Режим обслуговування</h3>
+                                            <p className="text-sm text-gray-400">Тимчасово закрити сайт для відвідувачів</p>
+                                        </div>
+                                        <Switch
+                                            checked={settings.is_maintenance_mode || false}
+                                            onChange={(checked: boolean) => handleChange("is_maintenance_mode", checked)}
+                                            className={`${settings.is_maintenance_mode ? "bg-red-500" : "bg-white/10"
+                                                } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
+                                        >
+                                            <span
+                                                className={`${settings.is_maintenance_mode ? "translate-x-6" : "translate-x-1"
+                                                    } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                                            />
+                                        </Switch>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">Назва проекту</label>
                                     <input

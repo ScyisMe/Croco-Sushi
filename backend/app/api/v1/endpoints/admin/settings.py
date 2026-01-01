@@ -32,6 +32,7 @@ class SettingsResponse(BaseModel):
     # Analytics
     google_analytics_id: Optional[str] = None
     yandex_metrika_id: Optional[str] = None
+    is_maintenance_mode: bool = False
 
 
 class SettingsUpdate(BaseModel):
@@ -50,6 +51,7 @@ class SettingsUpdate(BaseModel):
     google_maps_api_key: Optional[str] = None
     google_analytics_id: Optional[str] = None
     yandex_metrika_id: Optional[str] = None
+    is_maintenance_mode: Optional[bool] = None
 
 
 @router.get("", response_model=SettingsResponse)
@@ -58,13 +60,32 @@ async def get_settings(
     current_user: User = Depends(get_current_admin_user)
 ):
     """Отримати налаштування сайту"""
-    # TODO: В майбутньому зберігати налаштування в БД
-    # Поки що повертаємо з config
+    
+    # Отримуємо всі налаштування з БД
+    from app.models.setting import Setting
+    from sqlalchemy import select
+    
+    result = await db.execute(select(Setting))
+    db_settings = result.scalars().all()
+    
+    settings_dict = {s.key: s.value for s in db_settings}
+    
+    # Формуємо відповідь, беручи значення з БД або дефолтні
     return SettingsResponse(
-        project_name=settings.PROJECT_NAME,
-        working_hours="10:00 - 22:00",
-        min_order_amount=200.0,
-        free_delivery_threshold=500.0,
+        project_name=settings_dict.get("project_name", settings.PROJECT_NAME),
+        working_hours=settings_dict.get("working_hours", "10:00 - 22:00"),
+        min_order_amount=float(settings_dict.get("min_order_amount", 200.0)),
+        delivery_cost=float(settings_dict.get("delivery_cost", 0)),
+        free_delivery_threshold=float(settings_dict.get("free_delivery_threshold", 500.0)),
+        contact_phone=settings_dict.get("contact_phone"),
+        contact_email=settings_dict.get("contact_email"),
+        address=settings_dict.get("address"),
+        sms_api_key=settings_dict.get("sms_api_key"),
+        payment_liqpay_public_key=settings_dict.get("payment_liqpay_public_key"),
+        payment_liqpay_private_key=settings_dict.get("payment_liqpay_private_key"),
+        google_maps_api_key=settings_dict.get("google_maps_api_key"),
+        google_analytics_id=settings_dict.get("google_analytics_id"),
+        is_maintenance_mode=settings_dict.get("is_maintenance_mode") == "true"
     )
 
 
@@ -75,20 +96,29 @@ async def update_settings(
     current_user: User = Depends(get_current_admin_user)
 ):
     """Оновити налаштування сайту"""
-    # TODO: Зберігати налаштування в БД
-    # Поки що повертаємо оновлені дані
-    
-    current_settings = SettingsResponse(
-        project_name=settings.PROJECT_NAME,
-        working_hours="10:00 - 22:00",
-        min_order_amount=200.0,
-        free_delivery_threshold=500.0,
-    )
+    from app.models.setting import Setting
+    from sqlalchemy import select
     
     update_data = settings_data.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        if hasattr(current_settings, field):
-            setattr(current_settings, field, value)
     
-    return current_settings
+    for key, value in update_data.items():
+        # Конвертуємо значення в стрічку для збереження
+        str_value = str(value) if value is not None else ""
+        if isinstance(value, bool):
+            str_value = "true" if value else "false"
+            
+        # Шукаємо існуюче налаштування
+        result = await db.execute(select(Setting).where(Setting.key == key))
+        setting_item = result.scalar_one_or_none()
+        
+        if setting_item:
+            setting_item.value = str_value
+        else:
+            setting_item = Setting(key=key, value=str_value, is_public=True) # Більшість налаштувань тут публічні
+            db.add(setting_item)
+            
+    await db.commit()
+    
+    # Повертаємо оновлені дані
+    return await get_settings(db, current_user)
 
