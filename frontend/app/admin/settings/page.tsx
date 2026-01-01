@@ -131,6 +131,7 @@ export default function SettingsPage() {
                                         <Switch
                                             checked={settings.is_maintenance_mode || false}
                                             onChange={(checked: boolean) => handleChange("is_maintenance_mode", checked)}
+                                            type="button"
                                             className={`${settings.is_maintenance_mode ? "bg-red-500" : "bg-white/10"
                                                 } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
                                         >
