@@ -22,7 +22,7 @@ export default function CountdownTimer({ endDate, className = "", onExpire }: Co
   useEffect(() => {
     const calculateTimeLeft = (): TimeLeft | null => {
       const difference = new Date(endDate).getTime() - new Date().getTime();
-      
+
       if (difference <= 0) {
         setIsExpired(true);
         onExpire?.();
@@ -63,44 +63,44 @@ export default function CountdownTimer({ endDate, className = "", onExpire }: Co
   const formatNumber = (num: number) => num.toString().padStart(2, "0");
 
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
+    <div className={`flex items-start gap-2 md:gap-3 ${className}`}>
       {/* Дні */}
       {timeLeft.days > 0 && (
         <>
           <div className="flex flex-col items-center">
-            <div className="bg-secondary text-white font-bold text-lg md:text-xl px-2 md:px-3 py-1 rounded-lg min-w-[40px] md:min-w-[50px] text-center">
+            <div className="bg-secondary text-white font-bold text-2xl md:text-3xl px-3 py-2 rounded-xl min-w-[50px] md:min-w-[60px] text-center shadow-lg">
               {formatNumber(timeLeft.days)}
             </div>
-            <span className="text-xs text-secondary-light mt-1">дн</span>
+            <span className="text-xs md:text-sm text-secondary-light mt-1 font-medium uppercase tracking-wider">дн</span>
           </div>
-          <span className="text-secondary font-bold text-lg mb-4">:</span>
+          <span className="text-secondary font-bold text-2xl mt-2 opacity-50">:</span>
         </>
       )}
 
       {/* Години */}
       <div className="flex flex-col items-center">
-        <div className="bg-secondary text-white font-bold text-lg md:text-xl px-2 md:px-3 py-1 rounded-lg min-w-[40px] md:min-w-[50px] text-center">
+        <div className="bg-secondary text-white font-bold text-2xl md:text-3xl px-3 py-2 rounded-xl min-w-[50px] md:min-w-[60px] text-center shadow-lg">
           {formatNumber(timeLeft.hours)}
         </div>
-        <span className="text-xs text-secondary-light mt-1">год</span>
+        <span className="text-xs md:text-sm text-secondary-light mt-1 font-medium uppercase tracking-wider">год</span>
       </div>
-      <span className="text-secondary font-bold text-lg mb-4">:</span>
+      <span className="text-secondary font-bold text-2xl mt-2 opacity-50">:</span>
 
       {/* Хвилини */}
       <div className="flex flex-col items-center">
-        <div className="bg-secondary text-white font-bold text-lg md:text-xl px-2 md:px-3 py-1 rounded-lg min-w-[40px] md:min-w-[50px] text-center">
+        <div className="bg-secondary text-white font-bold text-2xl md:text-3xl px-3 py-2 rounded-xl min-w-[50px] md:min-w-[60px] text-center shadow-lg">
           {formatNumber(timeLeft.minutes)}
         </div>
-        <span className="text-xs text-secondary-light mt-1">хв</span>
+        <span className="text-xs md:text-sm text-secondary-light mt-1 font-medium uppercase tracking-wider">хв</span>
       </div>
-      <span className="text-secondary font-bold text-lg mb-4">:</span>
+      <span className="text-secondary font-bold text-2xl mt-2 opacity-50">:</span>
 
       {/* Секунди */}
       <div className="flex flex-col items-center">
-        <div className="bg-primary text-white font-bold text-lg md:text-xl px-2 md:px-3 py-1 rounded-lg min-w-[40px] md:min-w-[50px] text-center animate-pulse">
+        <div className="bg-primary text-white font-bold text-2xl md:text-3xl px-3 py-2 rounded-xl min-w-[50px] md:min-w-[60px] text-center shadow-lg shadow-primary/20 animate-pulse">
           {formatNumber(timeLeft.seconds)}
         </div>
-        <span className="text-xs text-secondary-light mt-1">сек</span>
+        <span className="text-xs md:text-sm text-secondary-light mt-1 font-medium uppercase tracking-wider">сек</span>
       </div>
     </div>
   );
@@ -114,7 +114,7 @@ export function CountdownTimerCompact({ endDate, className = "" }: Omit<Countdow
   useEffect(() => {
     const calculateTimeLeft = (): TimeLeft | null => {
       const difference = new Date(endDate).getTime() - new Date().getTime();
-      
+
       if (difference <= 0) {
         setIsExpired(true);
         return null;

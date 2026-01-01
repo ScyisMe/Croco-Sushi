@@ -487,7 +487,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             <div className="text-right">
                               {deliveryCost > 0 && <div className="text-xs font-normal text-gray-400 mb-0.5">+ доставка {deliveryCost} ₴</div>}
                               <span className="text-primary-500 font-display text-xl">
-                                <NumberTicker value={finalAmount} /> ₴
+                                <NumberTicker value={finalAmount} className="text-white" /> ₴
                               </span>
                             </div>
                           </div>

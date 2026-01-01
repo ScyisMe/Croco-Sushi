@@ -22,7 +22,7 @@ const stories = [
     },
     {
         id: 3,
-        title: "-20%",
+        title: "Акції",
         image: "/images/story-promo.png",
         color: "from-purple-500 to-indigo-600",
         link: "/promotions",
