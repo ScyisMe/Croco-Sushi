@@ -85,7 +85,7 @@ export default function ReviewsCarousel() {
                     {reviews.map((review) => (
                         <SwiperSlide key={review.id}>
                             <div className="bg-surface p-6 rounded-xl shadow-sm h-full flex flex-col border border-border">
-                                <div className="flex items-center gap-1 mb-4 text-yellow-400">
+                                <div className="flex items-center gap-1 mb-4">
                                     {[...Array(5)].map((_, i) => (
                                         <StarIcon
                                             key={i}
