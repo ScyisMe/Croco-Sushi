@@ -149,7 +149,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
     // Ref для Intersection Observer (infinite scroll)
     const loadMoreRef = useRef<HTMLDivElement>(null);
 
-    const isLoading = productsQuery.isLoading || (!!selectedCategory && !selectedCategoryId && categoriesQuery.isLoading);
+    const isLoading = productsQuery.status === 'pending' || (!!selectedCategory && !selectedCategoryId && categoriesQuery.isLoading);
 
     // Всі завантажені товари
     const allProducts = useMemo(() => {
