@@ -131,7 +131,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
         getNextPageParam: (lastPage) => {
             return lastPage.hasMore ? lastPage.nextOffset : undefined;
         },
-        enabled: (!selectedCategory || !!selectedCategoryId) || categoriesQuery.isLoading,
+        enabled: !selectedCategory || !!selectedCategoryId,
     });
 
     // Filter Options
@@ -148,6 +148,8 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
     // Ref для Intersection Observer (infinite scroll)
     const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    const isLoading = productsQuery.isLoading || (!!selectedCategory && !selectedCategoryId && categoriesQuery.isLoading);
 
     // Всі завантажені товари
     const allProducts = useMemo(() => {
@@ -589,7 +591,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                 </div>
                             )}
 
-                            {productsQuery.isLoading && (
+                            {isLoading && (
                                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                                     {[...Array(PRODUCTS_PER_PAGE)].map((_, i) => (
                                         <ProductCardSkeleton key={i} />
@@ -597,7 +599,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                 </div>
                             )}
 
-                            {!productsQuery.isLoading && filteredAndSortedProducts.length === 0 && (
+                            {!isLoading && filteredAndSortedProducts.length === 0 && (
                                 <div className="text-center py-16">
                                     <div className="relative w-24 h-24 mb-4 mx-auto">
                                         <Image
@@ -629,7 +631,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                 </div>
                             )}
 
-                            {!productsQuery.isLoading && filteredAndSortedProducts.length > 0 && (
+                            {!isLoading && filteredAndSortedProducts.length > 0 && (
                                 <>
                                     <motion.div
                                         key={selectedCategory || "all"}
