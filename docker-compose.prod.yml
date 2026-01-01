@@ -113,12 +113,44 @@ services:
     networks:
       - croco_sushi_network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: croco_sushi_prometheus
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - croco_sushi_network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: croco_sushi_grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - croco_sushi_network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
   backend_uploads:
   caddy_data:
   caddy_config:
+  prometheus_data:
+  grafana_data:
 
 
 networks:
