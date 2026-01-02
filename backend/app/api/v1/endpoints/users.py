@@ -854,43 +854,40 @@ async def save_my_cart(
     else:
         # Очищаємо існуючі товари
         await db.execute(delete(CartItem).where(CartItem.cart_id == cart.id))
-        
-    try:
-        # Додаємо нові товари
-        for item_data in cart_data.items:
-            # Перевіряємо чи існує продукт
-            product_result = await db.execute(select(Product).where(Product.id == item_data.product_id))
-            product = product_result.scalar_one_or_none()
-            
-            if not product:
-                continue # Пропускаємо видалені продукти
-                
-            # Якщо розмір 0 або null, вважаємо як null
-            size_id = item_data.size_id if item_data.size_id else None
-            
-            # Перевіряємо чи існує розмір, якщо він вказаний
-            if size_id:
-                size_result = await db.execute(select(ProductSize).where(ProductSize.id == size_id))
-                size = size_result.scalar_one_or_none()
-                if not size:
-                    size_id = None # Якщо розмір видалено, пробуємо додати без розміру (або можна continue)
-            
-            new_item = CartItem(
-                cart_id=cart.id,
-                product_id=item_data.product_id,
-                size_id=size_id,
-                quantity=item_data.quantity
-            )
-            db.add(new_item)
-            
+    
+    # Якщо список товарів порожній (очищення кошика), просто зберігаємо зміни (видалення)
+    if not cart_data.items:
         await db.commit()
-    except Exception as e:
-        await db.rollback()
-        # Логуємо помилку
-        print(f"Error saving cart: {e}")
-        # Не рейзимо помилку клієнту, щоб не блокувати роботу кошика
         return None
+
+    # Додаємо нові товари
+    for item_data in cart_data.items:
+        # Перевіряємо чи існує продукт
+        product_result = await db.execute(select(Product).where(Product.id == item_data.product_id))
+        product = product_result.scalar_one_or_none()
         
+        if not product:
+            continue # Пропускаємо видалені продукти
+            
+        # Якщо розмір 0 або null, вважаємо як null
+        size_id = item_data.size_id if item_data.size_id else None
+        
+        # Перевіряємо чи існує розмір, якщо він вказаний
+        if size_id:
+            size_result = await db.execute(select(ProductSize).where(ProductSize.id == size_id))
+            size = size_result.scalar_one_or_none()
+            if not size:
+                size_id = None # Якщо розмір видалено, пробуємо додати без розміру (або можна continue)
+        
+        new_item = CartItem(
+            cart_id=cart.id,
+            product_id=item_data.product_id,
+            size_id=size_id,
+            quantity=item_data.quantity
+        )
+        db.add(new_item)
+        
+    await db.commit()
     return None
 
 
