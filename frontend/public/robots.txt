@@ -10,6 +10,7 @@ Disallow: /cart/
 Disallow: /auth/
 Disallow: *?sort=
 Disallow: *?filter=
+Disallow: /hero-bg.mp4
 
 # Вказуємо шлях до карти сайту (обов'язково!)
 Sitemap: https://crocosushi.com/sitemap.xml
