@@ -31,6 +31,9 @@ interface ServerCart {
  */
 export function useCartSync() {
   const { items, totalAmount, clearCart } = useCartStore();
+  const lastSyncRef = useRef<number>(0);
+  const syncInProgressRef = useRef<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   // Додаємо реф для відстеження чи відбулась перша синхронізація
   const hasSyncedOnceRef = useRef<boolean>(false);
 

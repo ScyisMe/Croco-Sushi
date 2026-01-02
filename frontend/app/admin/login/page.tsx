@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
           <Link href="/" className="inline-flex items-center space-x-2">
             <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[#343434] ring-2 ring-primary/20">
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="Logo"
                 fill
                 className="object-cover p-1"
