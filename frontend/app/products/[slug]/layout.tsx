@@ -66,7 +66,12 @@ export default async function ProductLayout({ params, children }: Props) {
             "priceCurrency": "UAH",
             "price": product.price,
             "availability": "https://schema.org/InStock",
-            "priceValidUntil": "2025-12-31" // Optional but good for valid schema
+            "priceValidUntil": "2025-12-31",
+            "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "UA",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+            }
         },
         // Adding aggregateRating if available (but it's not in basic product type easily unless we fetch reviews)
         // For now, basic Product schema is "Must Have" per user.
