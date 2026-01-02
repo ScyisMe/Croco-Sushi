@@ -4,6 +4,9 @@ from typing import Optional, List
 from decimal import Decimal
 
 from app.schemas.product_size import ProductSizeResponse
+from pydantic import field_validator
+import os
+
 
 
 class ProductBase(BaseModel):
@@ -61,6 +64,31 @@ class ProductResponse(ProductBase):
     created_at: datetime
     updated_at: datetime
     sizes: List[ProductSizeResponse] = []
+
+    @field_validator('image_url')
+    @classmethod
+    def convert_image_to_webp(cls, v: Optional[str]) -> Optional[str]:
+        if v and (v.lower().endswith('.png') or v.lower().endswith('.jpg') or v.lower().endswith('.jpeg')):
+            # Replace extension with .webp
+            # Handle mixed case if needed, but assuming standard.
+            base = os.path.splitext(v)[0]
+            return f"{base}.webp"
+        return v
+
+    @field_validator('images')
+    @classmethod
+    def convert_images_list_to_webp(cls, v: Optional[List[str]]) -> Optional[List[str]]:
+        if v:
+            new_list = []
+            for img in v:
+                if img and (img.lower().endswith('.png') or img.lower().endswith('.jpg') or img.lower().endswith('.jpeg')):
+                    base = os.path.splitext(img)[0]
+                    new_list.append(f"{base}.webp")
+                else:
+                    new_list.append(img)
+            return new_list
+        return v
+
 
     model_config = ConfigDict(from_attributes=True)
 

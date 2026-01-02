@@ -2,6 +2,8 @@ from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 from decimal import Decimal
+from pydantic import field_validator
+import os
 
 
 class PromotionBase(BaseModel):
@@ -49,6 +51,15 @@ class PromotionResponse(PromotionBase):
     current_uses: int
     created_at: datetime
     updated_at: datetime
+
+    @field_validator('image_url')
+    @classmethod
+    def convert_image_to_webp(cls, v: Optional[str]) -> Optional[str]:
+        if v and (v.lower().endswith('.png') or v.lower().endswith('.jpg') or v.lower().endswith('.jpeg')):
+            base = os.path.splitext(v)[0]
+            return f"{base}.webp"
+        return v
+
 
     model_config = ConfigDict(from_attributes=True)
 
