@@ -465,7 +465,7 @@ export default function CheckoutPage() {
                           >
                             <div className="relative w-16 h-16">
                               <Image
-                                src="/logo.png"
+                                src="/logo.webp"
                                 alt="Active Croco"
                                 fill
                                 className="object-contain"

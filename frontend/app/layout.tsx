@@ -44,12 +44,12 @@ export const metadata: Metadata = {
     icon: [
       { url: '/favicon.ico?v=2', sizes: 'any' },
       { url: '/google-icon.svg?v=2', type: 'image/svg+xml' },
-      { url: '/logo.png?v=2', type: 'image/png' },
+      { url: '/logo.webp?v=2', type: 'image/webp' },
       { url: '/logo.webp?v=2', type: 'image/webp' },
     ],
     shortcut: '/favicon.ico?v=2',
     apple: [
-      { url: '/logo.png?v=2', sizes: '180x180', type: 'image/png' },
+      { url: '/logo.webp?v=2', sizes: '180x180', type: 'image/webp' },
     ],
   },
 };
@@ -82,7 +82,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Restaurant",
               "name": "Croco Sushi",
-              "image": "https://crocosushi.com/logo.png",
+              "image": "https://crocosushi.com/logo.webp",
               "@id": "https://crocosushi.com",
               "url": "https://crocosushi.com",
               "telephone": "+380980970003",

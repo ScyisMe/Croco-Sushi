@@ -5,7 +5,7 @@ export const BUSINESS_INFO = {
   name: "Croco Sushi",
   description: "Croco Sushi - сервіс швидкої кухні. Смачні суші з доставкою додому у Львові.",
   url: "https://crocosushi.com.ua",
-  logo: "https://crocosushi.com.ua/logo.jpg",
+  logo: "https://crocosushi.com.ua/logo.webp",
   telephone: "+380 (98) 097 00 03",
   email: "crocosushi0003@gmail.com",
   mapsUrl: "https://maps.app.goo.gl/JksKK3KqdouctZ6UJ",

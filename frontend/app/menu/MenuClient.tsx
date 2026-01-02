@@ -131,14 +131,14 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
     // Filter Options
     const PROPERTY_FILTERS = [
-        { id: "is_spicy", label: "Гострі", type: "boolean", prop: "is_spicy", icon: "/images/filters/filter-spicy.png" },
-        { id: "no_cheese", label: "Без сиру", type: "exclude", keyword: "сир", icon: "/images/filters/filter-no-cheese.png" },
-        { id: "is_popular", label: "Топ продажів", type: "boolean", prop: "is_popular", icon: "/images/filters/filter-popular.png" },
-        { id: "is_new", label: "Новинки", type: "boolean", prop: "is_new", icon: "/images/filters/filter-new.png" },
-        { id: "salmon", label: "З лососем", type: "include", keyword: "лосось", icon: "/images/filters/filter-salmon.png" },
-        { id: "eel", label: "З вугром", type: "include", keyword: "вугор", icon: "/images/filters/filter-eel.png" },
-        { id: "shrimp", label: "З креветкою", type: "include", keyword: "креветк", icon: "/images/filters/filter-shrimp.png" },
-        { id: "is_vegan", label: "Вегетаріанські", type: "boolean", prop: "is_vegan", icon: "/images/filters/filter-vegan.png" },
+        { id: "is_spicy", label: "Гострі", type: "boolean", prop: "is_spicy", icon: "/images/filters/filter-spicy.webp" },
+        { id: "no_cheese", label: "Без сиру", type: "exclude", keyword: "сир", icon: "/images/filters/filter-no-cheese.webp" },
+        { id: "is_popular", label: "Топ продажів", type: "boolean", prop: "is_popular", icon: "/images/filters/filter-popular.webp" },
+        { id: "is_new", label: "Новинки", type: "boolean", prop: "is_new", icon: "/images/filters/filter-new.webp" },
+        { id: "salmon", label: "З лососем", type: "include", keyword: "лосось", icon: "/images/filters/filter-salmon.webp" },
+        { id: "eel", label: "З вугром", type: "include", keyword: "вугор", icon: "/images/filters/filter-eel.webp" },
+        { id: "shrimp", label: "З креветкою", type: "include", keyword: "креветк", icon: "/images/filters/filter-shrimp.webp" },
+        { id: "is_vegan", label: "Вегетаріанські", type: "boolean", prop: "is_vegan", icon: "/images/filters/filter-vegan.webp" },
     ];
 
     // Ref для Intersection Observer (infinite scroll)

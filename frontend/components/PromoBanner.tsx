@@ -19,7 +19,7 @@ export default function PromoBanner() {
                     <div className="absolute inset-0 bg-primary-500/10 blur-3xl rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
 
                     <Image
-                        src="/banners/tomyam-banner.jpg"
+                        src="/banners/tomyam-banner.webp"
                         alt="Новинка Том Ям"
                         width={1200}
                         height={400}

@@ -296,7 +296,7 @@ export default function ProductPage() {
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                     <div className="w-10 h-10 flex items-center justify-center">
                       <Image
-                        src="/images/filters/filter-spicy.png"
+                        src="/images/filters/filter-spicy.webp"
                         alt="Гостре"
                         width={32}
                         height={32}
@@ -313,7 +313,7 @@ export default function ProductPage() {
                   <div className="flex items-center gap-3 p-4 rounded-xl bg-white/10 border border-white/10 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:-translate-y-0.5">
                     <div className="w-10 h-10 flex items-center justify-center">
                       <Image
-                        src="/images/filters/filter-vegan.png"
+                        src="/images/filters/filter-vegan.webp"
                         alt="Вегетаріанське"
                         width={32}
                         height={32}

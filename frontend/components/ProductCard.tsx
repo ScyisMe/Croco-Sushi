@@ -91,7 +91,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       icon: (
         <div className="relative w-4 h-4">
           <Image
-            src="/badges/spicy_custom.png"
+            src="/badges/spicy_custom.webp"
             alt="Spicy"
             width={16}
             height={16}
@@ -109,7 +109,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       icon: (
         <div className="relative w-4 h-4">
           <Image
-            src="/badges/vegan_custom.png"
+            src="/badges/vegan_custom.webp"
             alt="Vegetarian"
             width={16}
             height={16}

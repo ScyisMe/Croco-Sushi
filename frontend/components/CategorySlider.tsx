@@ -8,11 +8,11 @@ import { motion } from "framer-motion";
 import { GlassCard } from "./ui/GlassCard";
 
 const CATEGORIES = [
-  { id: "rolls", nameKey: "categories.rolls", image: "/images/categories/rolls.png", slug: "rolls" },
-  { id: "sets", nameKey: "categories.sets", image: "/images/categories/sets.png", slug: "sets" },
-  { id: "sushi", nameKey: "categories.sushi", image: "/images/categories/sushi.png", slug: "sushi" },
-  { id: "drinks", nameKey: "categories.drinks", image: "/images/categories/drinks.png", slug: "drinks" },
-  { id: "sauces", nameKey: "categories.sauces", image: "/images/categories/sauces.png", slug: "sauces" },
+  { id: "rolls", nameKey: "categories.rolls", image: "/images/categories/rolls.webp", slug: "rolls" },
+  { id: "sets", nameKey: "categories.sets", image: "/images/categories/sets.webp", slug: "sets" },
+  { id: "sushi", nameKey: "categories.sushi", image: "/images/categories/sushi.webp", slug: "sushi" },
+  { id: "drinks", nameKey: "categories.drinks", image: "/images/categories/drinks.webp", slug: "drinks" },
+  { id: "sauces", nameKey: "categories.sauces", image: "/images/categories/sauces.webp", slug: "sauces" },
 ];
 
 const container = {

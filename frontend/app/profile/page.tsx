@@ -662,7 +662,7 @@ export default function ProfilePage() {
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                       <Image
-                                        src="/logo.png"
+                                        src="/logo.webp"
                                         alt={item.product_name}
                                         width={30}
                                         height={30}
@@ -745,7 +745,7 @@ export default function ProfilePage() {
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center">
                                     <Image
-                                      src="/logo.png"
+                                      src="/logo.webp"
                                       alt="No image"
                                       width={40}
                                       height={40}

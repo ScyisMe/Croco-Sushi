@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
             title: product.name,
             description: product.description,
-            images: product.image_url ? [product.image_url] : ['/logo.png'],
+            images: product.image_url ? [product.image_url] : ['/logo.webp'],
             url: `https://crocosushi.com/products/${params.slug}`,
         }
     };

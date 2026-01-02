@@ -144,7 +144,7 @@ export default function QuickViewModal({
                         <div className="w-full h-full flex items-center justify-center p-8 bg-white/5">
                           <div className="relative w-full h-full">
                             <Image
-                              src="/logo.png"
+                              src="/logo.webp"
                               alt={product.name}
                               fill
                               className="object-contain opacity-50 grayscale"

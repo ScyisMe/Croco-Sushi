@@ -278,7 +278,7 @@ export default function PromotionsPage() {
                   <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full" />
                   <div className="relative w-full h-full drop-shadow-2xl">
                     <Image
-                      src="/images/promo-calendar.png"
+                      src="/images/promo-calendar.webp"
                       alt="Promo Calendar"
                       fill
                       className="object-contain"

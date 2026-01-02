@@ -97,7 +97,7 @@ export default function Categories() {
               <div className="w-24 h-24 md:w-28 md:h-28 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-3 transition group-hover:bg-primary group-hover:scale-105 p-6">
                 <div className="relative w-full h-full">
                   <Image
-                    src="/logo.png"
+                    src="/logo.webp"
                     alt="Всі меню"
                     fill
                     sizes="(max-width: 768px) 96px, 112px"
@@ -130,7 +130,7 @@ export default function Categories() {
                     <div className="w-full h-full flex items-center justify-center p-4 bg-gray-50">
                       <div className="relative w-full h-full">
                         <Image
-                          src="/logo.png"
+                          src="/logo.webp"
                           alt={category.name}
                           fill
                           sizes="(max-width: 768px) 96px, 112px"

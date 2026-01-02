@@ -103,7 +103,7 @@ export default function AboutPage() {
                 <div className="aspect-square max-w-md mx-auto bg-gradient-to-br from-primary/20 to-accent-orange/20 rounded-3xl flex items-center justify-center">
                   <div className="relative w-48 h-48 md:w-64 md:h-64">
                     <Image
-                      src="/logo.png"
+                      src="/logo.webp"
                       alt="Croco Sushi Logo"
                       fill
                       className="object-contain drop-shadow-2xl"

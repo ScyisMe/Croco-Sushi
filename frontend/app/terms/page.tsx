@@ -346,7 +346,7 @@ export default function TermsPage() {
                 <Link href="/menu" className="btn-primary inline-flex items-center gap-2">
                   <div className="relative w-5 h-5">
                     <Image
-                      src="/logo.png"
+                      src="/logo.webp"
                       alt="Logo"
                       fill
                       className="object-contain brightness-0 invert"

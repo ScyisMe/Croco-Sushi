@@ -402,7 +402,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center">
                                         <Image
-                                          src="/logo.png"
+                                          src="/logo.webp"
                                           alt={item.name}
                                           width={40}
                                           height={40}

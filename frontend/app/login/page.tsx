@@ -69,7 +69,7 @@ export default function LoginPage() {
             <div className="flex justify-center mb-6">
               <div className="relative w-32 h-32">
                 <Image
-                  src="/logo.jpg"
+                  src="/logo.webp"
                   alt="Croco Sushi"
                   fill
                   className="object-contain rounded-full shadow-2xl"
