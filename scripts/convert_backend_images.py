@@ -15,7 +15,14 @@ from app.models.promotion import Promotion
 from app.core.config import settings
 
 # Adjust uploads directory
-UPLOADS_DIR = r"backend/uploads"
+if os.path.exists("uploads"):
+    UPLOADS_DIR = "uploads"
+elif os.path.exists("backend/uploads"):
+    UPLOADS_DIR = "backend/uploads"
+else:
+    # Default fallback
+    UPLOADS_DIR = "uploads"
+
 EXTENSIONS = {".png", ".jpg", ".jpeg"}
 
 # Database URL (ensure it's using async driver if needed, but for script sync might be easier or just use what app uses)
