@@ -129,7 +129,7 @@ export default function CallbackModal({ isOpen, onClose, isClosed = false }: Cal
                   // Успішне відправлення
                   <div className="text-center py-8">
                     <CheckCircleIcon className="w-16 h-16 text-primary mx-auto mb-4" />
-                    <Dialog.Title className="text-2xl font-bold text-secondary mb-2">
+                    <Dialog.Title as="div" className="text-2xl font-bold text-secondary mb-2">
                       {t("callback.thankYou") || "Дякуємо!"}
                     </Dialog.Title>
                     <p className="text-secondary-light">
@@ -143,7 +143,7 @@ export default function CallbackModal({ isOpen, onClose, isClosed = false }: Cal
                       <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                         <PhoneIcon className="w-8 h-8 text-primary" />
                       </div>
-                      <Dialog.Title className="text-2xl font-bold text-secondary">
+                      <Dialog.Title as="div" className="text-2xl font-bold text-secondary">
                         {isClosed ? (t("callback.closedTitle") || "Ми наразі зачинені") : t("callback.title")}
                       </Dialog.Title>
                       <p className="text-secondary-light mt-2">

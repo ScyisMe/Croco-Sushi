@@ -116,7 +116,7 @@ export default function NonWorkingHoursPopup({ isOpen, onClose }: NonWorkingHour
                                         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <CheckCircleIcon className="w-10 h-10 text-primary" />
                                         </div>
-                                        <Dialog.Title className="text-2xl font-bold text-white mb-2">
+                                        <Dialog.Title as="div" className="text-2xl font-bold text-white mb-2">
                                             {t("callback.thankYou")}
                                         </Dialog.Title>
                                         <p className="text-gray-400">
@@ -129,7 +129,7 @@ export default function NonWorkingHoursPopup({ isOpen, onClose }: NonWorkingHour
                                             <div className="w-16 h-16 bg-accent-red/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                                                 <ClockIcon className="w-8 h-8 text-accent-red" />
                                             </div>
-                                            <Dialog.Title className="text-2xl font-bold text-white mb-3">
+                                            <Dialog.Title as="div" className="text-2xl font-bold text-white mb-3">
                                                 {t("callback.closedTitle") || "Ми наразі зачинені"}
                                             </Dialog.Title>
                                             <p className="text-gray-400 text-sm leading-relaxed max-w-xs mx-auto">
