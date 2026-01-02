@@ -5,6 +5,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.sql import func
 from pydantic import BaseModel
 
 from app.database import get_db
@@ -36,7 +37,7 @@ async def verify_promo_code(
     # Нормалізація коду (видалення пробілів, верхній регістр)
     code = data.code.strip()
     
-    query = select(PromoCode).where(PromoCode.code == code)
+    query = select(PromoCode).where(func.lower(PromoCode.code) == code.lower())
     result = await db.execute(query)
     promo = result.scalar_one_or_none()
     
