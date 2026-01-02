@@ -23,8 +23,11 @@ DATABASE_URL = "postgresql+asyncpg://admin_croco:admin_croco_password@postgres:5
 # Note: In local dev environment, host is localhost if running script locally, but 'postgres' if inside container.
 # Since I am running as agent on Windows host, I should try localhost first.
 # Checking docker-compose.yml port mapping... usually 5432:5432.
-# URL encode '!' as '%21'
-DATABASE_URL_LOCAL = "postgresql+asyncpg://admin_croco:Spicy-Tuna-Roll-2025-Tasty%21@localhost:5432/croco_sushi"
+# Get DB URL from environment or fallback to local
+DATABASE_URL_LOCAL = os.environ.get("DATABASE_URL", "postgresql+asyncpg://admin_croco:Spicy-Tuna-Roll-2025-Tasty%21@localhost:5432/croco_sushi")
+if DATABASE_URL_LOCAL and DATABASE_URL_LOCAL.startswith("postgresql://"):
+    DATABASE_URL_LOCAL = DATABASE_URL_LOCAL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 
 async def convert_and_update_db():
     engine = create_async_engine(DATABASE_URL_LOCAL)
