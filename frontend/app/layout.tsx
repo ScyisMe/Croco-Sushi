@@ -42,14 +42,13 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon.ico?v=2', sizes: 'any' },
-      { url: '/google-icon.svg?v=2', type: 'image/svg+xml' },
-      { url: '/logo.webp?v=2', type: 'image/webp' },
-      { url: '/logo.webp?v=2', type: 'image/webp' },
+      { url: '/favicon.ico?v=3', sizes: 'any' },
+      { url: '/logo.webp?v=3', type: 'image/webp', sizes: '32x32' },
+      { url: '/logo.webp?v=3', type: 'image/webp', sizes: '192x192' },
     ],
-    shortcut: '/favicon.ico?v=2',
+    shortcut: '/favicon.ico?v=3',
     apple: [
-      { url: '/logo.webp?v=2', sizes: '180x180', type: 'image/webp' },
+      { url: '/logo.webp?v=3', sizes: '180x180', type: 'image/webp' },
     ],
   },
 };
