@@ -264,13 +264,19 @@ export function useCartSync() {
     return () => clearInterval(interval);
   }, [isAuthenticated, saveCartToServer, items.length]);
 
-  // Синхронізація при зміні кошика (з debounce)
+  // Синхронізація при зміні кошика
   useEffect(() => {
     // Якщо не авторизовані, не зберігаємо
     if (!isAuthenticated) return;
 
     // Якщо кошик порожній, зберігаємо ТІЛЬКИ якщо вже була первинна синхронізація
     if (items.length === 0 && !hasSyncedOnceRef.current) return;
+
+    // Якщо кошик став порожнім - зберігаємо одразу без затримки
+    if (items.length === 0) {
+      saveCartToServer();
+      return;
+    }
 
     const timeout = setTimeout(() => {
       saveCartToServer();
