@@ -31,9 +31,8 @@ interface ServerCart {
  */
 export function useCartSync() {
   const { items, totalAmount, clearCart } = useCartStore();
-  const lastSyncRef = useRef<number>(0);
-  const syncInProgressRef = useRef<boolean>(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Додаємо реф для відстеження чи відбулась перша синхронізація
+  const hasSyncedOnceRef = useRef<boolean>(false);
 
   // Перевірка авторизації при монтуванні та при змінах localStorage
   useEffect(() => {
@@ -123,7 +122,13 @@ export function useCartSync() {
 
   // Збереження кошика на сервер
   const saveCartToServer = useCallback(async () => {
-    if (!isAuthenticated || syncInProgressRef.current || items.length === 0) return;
+    // Дозволяємо зберігати порожній кошик, ТІЛЬКИ якщо ми вже синхронізувалися хоча б раз
+    // Це запобігає затиранню кошика при першому завантаженні
+    if (!isAuthenticated || syncInProgressRef.current) return;
+
+    if (items.length === 0 && !hasSyncedOnceRef.current) {
+      return;
+    }
 
     try {
       syncInProgressRef.current = true;
@@ -149,6 +154,10 @@ export function useCartSync() {
   // Об'єднання локального та серверного кошиків
   const mergeCart = useCallback(
     (serverCart: ServerCart | null) => {
+      // Позначаємо, що ми пройшли процес синхронізації/злиття
+      // Тепер безпечно зберігати навіть порожній кошик
+      hasSyncedOnceRef.current = true;
+
       if (!serverCart || serverCart.items.length === 0) {
         // Якщо серверний кошик порожній, зберігаємо локальний
         if (items.length > 0) {
@@ -208,6 +217,10 @@ export function useCartSync() {
             </div>
           </div>
         ), { duration: 10000 });
+      } else {
+        // Якщо суми однакові, вважаємо що кошики синхронізовані, 
+        // або локальні зміни неважливі, тому просто оновлюємо таймштамп
+        lastSyncRef.current = Date.now();
       }
     },
     [items, clearCart, convertServerCartToLocal, saveCartToServer]
@@ -224,6 +237,8 @@ export function useCartSync() {
   // Синхронізація при зміні статусу авторизації
   useEffect(() => {
     if (isAuthenticated) {
+      // Скидаємо прапорець при новій авторизації
+      hasSyncedOnceRef.current = false;
       syncOnLogin();
     }
   }, [isAuthenticated, syncOnLogin]);
@@ -235,7 +250,10 @@ export function useCartSync() {
     // Періодична синхронізація
     const interval = setInterval(() => {
       const now = Date.now();
-      if (now - lastSyncRef.current >= SYNC_INTERVAL && items.length > 0) {
+      // Дозволяємо синхронізацію порожнього кошика, якщо вже була перша синхронізація
+      const shouldSync = items.length > 0 || hasSyncedOnceRef.current;
+
+      if (now - lastSyncRef.current >= SYNC_INTERVAL && shouldSync) {
         saveCartToServer();
       }
     }, SYNC_INTERVAL);
@@ -245,7 +263,11 @@ export function useCartSync() {
 
   // Синхронізація при зміні кошика (з debounce)
   useEffect(() => {
-    if (!isAuthenticated || items.length === 0) return;
+    // Якщо не авторизовані, не зберігаємо
+    if (!isAuthenticated) return;
+
+    // Якщо кошик порожній, зберігаємо ТІЛЬКИ якщо вже була первинна синхронізація
+    if (items.length === 0 && !hasSyncedOnceRef.current) return;
 
     const timeout = setTimeout(() => {
       saveCartToServer();
