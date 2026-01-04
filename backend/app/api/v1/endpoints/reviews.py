@@ -67,35 +67,69 @@ async def get_reviews(
 @router.get("/google", response_model=List[GoogleReviewResponse])
 async def get_google_reviews():
     """Отримання відгуків з Google Maps"""
-    # Placeholder for Google Maps API logic
-    # In a real scenario, we would use settings.GOOGLE_MAPS_API_KEY and settings.GOOGLE_MAPS_PLACE_ID
-    # to fetch reviews from:
-    # https://maps.googleapis.com/maps/api/place/details/json?place_id=...&fields=reviews&key=...
+    import random
     
+    # Helper to generate random time string
+    def get_random_time():
+        days = random.randint(1, 14)
+        if days == 1:
+            return "1 день тому"
+        elif days < 5:
+            return f"{days} дні тому"
+        elif days < 7:
+            return f"{days} днів тому"
+        elif days == 7:
+            return "тиждень тому"
+        elif days < 14:
+            return "1 тиждень тому"
+        else: # days == 14
+            return "2 тижні тому"
+
     # Mock data for demonstration
-    mock_reviews = [
-        {
-            "author_name": "Олена П.",
-            "rating": 5,
-            "relative_time_description": "2 дні тому",
-            "text": "Найкращі суші у Львові! Завжди свіжі та дуже смачні. Доставка швидка.",
-            "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocI-..."
-        },
-        {
-            "author_name": "Ігор К.",
-            "rating": 5,
-            "relative_time_description": "тиждень тому",
-            "text": "Чудовий сервіс і неймовірний смак. Рекомендую філадельфію!",
-            "profile_photo_url": "https://lh3.googleusercontent.com/a/..."
-        },
-         {
-            "author_name": "Марія С.",
-            "rating": 4,
-            "relative_time_description": "місяць тому",
-            "text": "Смачно, але довелось трохи почекати доставку в годину пік.",
-            "profile_photo_url": "https://lh3.googleusercontent.com/a/..."
-        }
+    base_reviews = [
+        {"author": "Олена П.", "rating": 5, "text": "Найкращі суші у Львові! Завжди свіжі та дуже смачні. Доставка швидка."},
+        {"author": "Ігор К.", "rating": 5, "text": "Чудовий сервіс і неймовірний смак. Рекомендую філадельфію!"},
+        {"author": "Марія С.", "rating": 4, "text": "Смачно, але довелось трохи почекати доставку в годину пік."},
+        {"author": "Андрій В.", "rating": 5, "text": "Філадельфія просто космос, багато риби, рис не розвалюється."},
+        {"author": "Вікторія Л.", "rating": 5, "text": "Замовляємо вже втретє, все супер. Дуже подобається пакування."},
+        {"author": "Максим Д.", "rating": 4, "text": "Хороші роли, свіжа риба. Соєвий соус був трохи солоний для мене."},
+        {"author": "Тетяна М.", "rating": 5, "text": "Дуже швидка доставка, приїхали за 40 хвилин на Сихів. Гарячі роли були гарячими!"},
+        {"author": "Сергій Б.", "rating": 5, "text": "Свіжі інгредієнти, рис зварений ідеально. Ціна відповідає якості."},
+        {"author": "Юлія Р.", "rating": 5, "text": "Рекомендую сет 'Дракон', це щось неймовірне. Обов'язково замовимо ще."},
+        {"author": "Олег Г.", "rating": 4, "text": "Все смачно, порції великі. Забули покласти одну пару паличок, але вибачились."},
+        {"author": "Надія І.", "rating": 5, "text": "Найсмачніші запечені роли, що я куштувала у Львові. Дякую кухарям!"},
+        {"author": "Дмитро К.", "rating": 5, "text": "Дякую за приємний бонус до замовлення! Дуже клієнтоорієнтований сервіс."},
+        {"author": "Оксана Ф.", "rating": 5, "text": "Завжди замовляємо тут на офіс, колеги в захваті. Завжди вчасно."},
+        {"author": "Павло Т.", "rating": 4, "text": "Суші смачні, ціни адекватні. Сайт зручний для замовлення."},
+        {"author": "Ірина Ш.", "rating": 5, "text": "Презентація страв на висоті, як у ресторані. Дуже естетично і смачно."},
+        {"author": "Василь Н.", "rating": 5, "text": "Великі порції, наїлися досхочу. Риби не шкодують."},
+        {"author": "Галина В.", "rating": 5, "text": "Привітний кур'єр і оператори. Замовлення прийняли дуже швидко."},
+        {"author": "Роман З.", "rating": 4, "text": "Трохи забагато рису в каліфорнії, але загалом дуже смачно і свіжо."},
+        {"author": "Катерина Л.", "rating": 5, "text": "Мої улюблені суші тепер тільки Croco! Жодного разу не підвели."},
+        {"author": "Богдан С.", "rating": 5, "text": "Все супер, так тримати! Успіхів вам і процвітання."}
     ]
+    
+    mock_reviews = []
+    # Use a fixed set of avatars rotated
+    avatars = [
+        "https://lh3.googleusercontent.com/a/ACg8ocI-...", 
+        "https://lh3.googleusercontent.com/a/..." 
+    ]
+    
+    for i, review in enumerate(base_reviews):
+        mock_reviews.append({
+            "author_name": review["author"],
+            "rating": review["rating"],
+            "relative_time_description": get_random_time(),
+            "text": review["text"],
+            "profile_photo_url": avatars[i % len(avatars)]
+        })
+
+    # Shuffle the reviews slightly so the order isn't always identical?
+    # User asked for "randomizer time", but kept list of 20. 
+    # Usually Google reviews are sorted by date or relevance. 
+    # Let's keep the order but randomize valid times.
+    
     return mock_reviews
 
 
