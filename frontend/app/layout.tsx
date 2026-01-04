@@ -6,6 +6,7 @@ import Link from "next/link";
 import BottomNav from "@/components/layout/BottomNav";
 import SmoothScrolling from "@/components/ui/SmoothScrolling";
 import dynamic from "next/dynamic";
+import Script from "next/script";
 
 const MaintenanceGuard = dynamic(() => import("@/components/MaintenanceGuard"), {
   ssr: false,
@@ -122,6 +123,22 @@ export default function RootLayout({
             })
           }}
         />
+        <Script
+          id="plerdy-tracking"
+          strategy="afterInteractive"
+          data-plerdy_code="1"
+          defer
+        >
+          {`
+            var _protocol="https:"==document.location.protocol?"https://":"http://";
+            _site_hash_code = "6635de0e73b7196c0c73dd2850fa653e",_suid=71458, plerdyScript=document.createElement("script");
+            plerdyScript.setAttribute("defer",""),plerdyScript.dataset.plerdymainscript="plerdymainscript",
+            plerdyScript.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
+            var plerdymainscript=document.querySelector("[data-plerdymainscript='plerdymainscript']");
+            plerdymainscript&&plerdymainscript.parentNode.removeChild(plerdymainscript);
+            try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}
+          `}
+        </Script>
       </body>
     </html>
   );
