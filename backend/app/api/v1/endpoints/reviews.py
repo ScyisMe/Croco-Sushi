@@ -109,6 +109,9 @@ async def get_google_reviews():
         {"author": "Богдан С.", "rating": 5, "text": "Все супер, так тримати! Успіхів вам і процвітання."}
     ]
     
+    # Select 3 random reviews from the base list
+    selected_reviews = random.sample(base_reviews, 3)
+    
     mock_reviews = []
     # Use a fixed set of avatars rotated
     avatars = [
@@ -116,7 +119,8 @@ async def get_google_reviews():
         "https://lh3.googleusercontent.com/a/..." 
     ]
     
-    for i, review in enumerate(base_reviews):
+    for i, review in enumerate(selected_reviews):
+        # Generate random time for each
         mock_reviews.append({
             "author_name": review["author"],
             "rating": review["rating"],
@@ -125,11 +129,6 @@ async def get_google_reviews():
             "profile_photo_url": avatars[i % len(avatars)]
         })
 
-    # Shuffle the reviews slightly so the order isn't always identical?
-    # User asked for "randomizer time", but kept list of 20. 
-    # Usually Google reviews are sorted by date or relevance. 
-    # Let's keep the order but randomize valid times.
-    
     return mock_reviews
 
 
