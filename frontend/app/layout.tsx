@@ -43,12 +43,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.ico?v=3', sizes: 'any' },
-      { url: '/logo.webp?v=3', type: 'image/webp', sizes: '32x32' },
-      { url: '/logo.webp?v=3', type: 'image/webp', sizes: '192x192' },
+      { url: '/logo-32.png?v=3', type: 'image/png', sizes: '32x32' },
+      { url: '/logo-192.png?v=3', type: 'image/png', sizes: '192x192' },
+      { url: '/logo-512.png?v=3', type: 'image/png', sizes: '512x512' },
     ],
     shortcut: '/favicon.ico?v=3',
     apple: [
-      { url: '/logo.webp?v=3', sizes: '180x180', type: 'image/webp' },
+      { url: '/logo-180.png?v=3', sizes: '180x180', type: 'image/png' },
     ],
   },
 };
