@@ -117,9 +117,9 @@ export default function PromoCodesPage() {
       await apiClient.delete(`/admin/promo-codes/${id}`);
       toast.success("Промокод видалено");
       setPromoCodes(promoCodes.filter(p => p.id !== id));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to delete promo code", error);
-      toast.error("Помилка при видаленні");
+      toast.error(error.response?.data?.detail || "Помилка при видаленні");
     }
   };
 
