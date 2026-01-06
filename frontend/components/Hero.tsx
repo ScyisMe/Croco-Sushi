@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslation } from "@/store/localeStore";
 import { Button } from "./ui/Button";
 import { LazyMotion, domAnimation, m, useScroll, useTransform } from "framer-motion";
@@ -38,18 +39,34 @@ export default function Hero() {
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-surface-dark z-10" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10" />
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/hero-poster.webp"
-            className="w-full h-full object-cover"
-          >
-            <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
-            <source src="/hero-bg.mp4" media="(max-width: 768px)" type="video/mp4" />
-            <source src="/hero-bg.mp4" type="video/mp4" />
-          </video>
+
+          {/* Mobile: Static Image */}
+          {isMobile ? (
+            <div className="relative w-full h-full">
+              <Image
+                src="/images/hero-poster.webp"
+                alt="Hero Background"
+                fill
+                className="object-cover"
+                priority
+                sizes="100vw"
+                quality={70}
+              />
+            </div>
+          ) : (
+            /* Desktop: Video */
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/images/hero-poster.webp"
+              className="w-full h-full object-cover"
+            >
+              <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
+              <source src="/hero-bg.mp4" type="video/mp4" />
+            </video>
+          )}
         </m.div>
 
         {/* Content */}

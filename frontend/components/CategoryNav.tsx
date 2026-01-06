@@ -21,16 +21,9 @@ export default function CategoryNav() {
     const scrollToCategory = (slug: string) => {
         const element = document.getElementById(`category-${slug}`);
         if (element) {
-            // Offset for sticky header.
-            const offset = 140;
-            const bodyRect = document.body.getBoundingClientRect().top;
-            const elementRect = element.getBoundingClientRect().top;
-            const elementPosition = elementRect - bodyRect;
-            const offsetPosition = elementPosition - offset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: "smooth"
+            element.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
             });
             setActiveCategory(slug);
         }

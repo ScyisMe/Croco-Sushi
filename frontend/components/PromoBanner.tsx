@@ -24,8 +24,8 @@ export default function PromoBanner() {
                         width={1200}
                         height={400}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 768px) 100vw, 1200px"
-                        quality={90}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                        quality={80}
                         priority
                     />
 
