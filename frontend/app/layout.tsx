@@ -58,6 +58,7 @@ export default function RootLayout({
       <head>
         <link rel="preload" href="/background-wave.webp" as="image" />
         <link rel="preload" href="/images/hero-poster.webp" as="image" fetchPriority="high" />
+        <link rel="preconnect" href="https://a.plerdy.com" />
       </head>
       <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
@@ -118,7 +119,7 @@ export default function RootLayout({
         />
         <Script
           id="plerdy-tracking"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           data-plerdy_code="1"
           defer
         >
