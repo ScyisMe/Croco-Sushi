@@ -350,8 +350,8 @@ export default function PromoCodesPage() {
                     value={formData.discount_type}
                     onChange={e => setFormData({ ...formData, discount_type: e.target.value as any })}
                   >
-                    <option value="percent" className="bg-theme-surface">Відсоток (%)</option>
-                    <option value="fixed" className="bg-theme-surface">Сума (₴)</option>
+                    <option value="percent" className="bg-black text-white">Відсоток (%)</option>
+                    <option value="fixed" className="bg-black text-white">Сума (₴)</option>
                   </select>
                 </div>
                 <div>

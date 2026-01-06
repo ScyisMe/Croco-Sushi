@@ -88,7 +88,7 @@ export const StatusChangeModal = ({ isOpen, onClose, onConfirm, status, isLoadin
                             <textarea
                                 id="reason"
                                 rows={3}
-                                className="w-full bg-surface/50 border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-600 resize-none"
+                                className="w-full bg-black border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-600 resize-none"
                                 placeholder="Введіть причину вручну..."
                                 value={reason}
                                 onChange={(e) => {
