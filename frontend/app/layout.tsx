@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Noto_Sans_JP } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Link from "next/link";
@@ -24,14 +24,7 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-// Noto Sans JP generally doesn't have cyrillic subset in Google Fonts, checks needed. 
-// Usually for Japanese, but if used for accents/global, 'latin' is safe.
-const notoSans = Noto_Sans_JP({
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  variable: "--font-noto",
-  display: "swap",
-});
+
 
 export const metadata: Metadata = {
   title: "Croco Sushi Львів — Доставка Суші та Ролів",
@@ -66,7 +59,7 @@ export default function RootLayout({
         <link rel="preload" href="/background-wave.webp" as="image" />
         <link rel="preload" href="/images/hero-poster.webp" as="image" fetchPriority="high" />
       </head>
-      <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} ${notoSans.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
+      <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
           <MaintenanceGuard />
           <div className="fixed-background" />

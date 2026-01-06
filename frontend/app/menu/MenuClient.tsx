@@ -651,7 +651,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                         animate="show"
                                         className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
                                     >
-                                        {filteredAndSortedProducts.map((product) => (
+                                        {filteredAndSortedProducts.map((product, index) => (
                                             <motion.div
                                                 key={product.id}
                                                 className="w-full min-w-0 h-full"
@@ -665,6 +665,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                                     onFavoriteToggle={handleFavoriteToggle}
                                                     isFavorite={favoriteIds.has(product.id)}
                                                     onQuickView={handleQuickView}
+                                                    priority={index < 4}
                                                 />
                                             </motion.div>
                                         ))}

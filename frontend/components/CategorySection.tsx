@@ -78,7 +78,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
 
                         {/* Products Grid */}
                         <div
-                            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
+                            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
                         >
                             {isLoading ? (
                                 // Skeletons
@@ -86,7 +86,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                                     <ProductCardSkeleton key={i} />
                                 ))
                             ) : (
-                                products.map((product) => (
+                                products.map((product, index) => (
                                     <motion.div
                                         key={product.id}
                                         initial={{ opacity: 0, y: 50 }}
@@ -97,6 +97,7 @@ export default function CategorySection({ category }: CategorySectionProps) {
                                         <ProductCard
                                             product={product}
                                             isSet={['sets', 'sety', 'seti'].includes(category.slug)}
+                                            priority={index < 2}
                                         />
                                     </motion.div>
                                 ))
