@@ -1,9 +1,22 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ChevronUpIcon } from "@heroicons/react/24/outline";
+import { motion, AnimatePresence } from "framer-motion";
 import { throttle } from "@/lib/utils";
 
 export default function ScrollToTop() {
     const [isVisible, setIsVisible] = useState(false);
 
-    // Show button when page is scrolled down
+    // Scroll to top smoothly
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
+    };
+
+    // Show button when page is scrolled down (throttled)
     useEffect(() => {
         const toggleVisibility = throttle(() => {
             if (window.scrollY > 300) {
