@@ -5,6 +5,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
+from sqlalchemy.exc import IntegrityError
 
 from app.database import get_db
 from app.core.dependencies import get_current_admin_user
@@ -168,8 +169,12 @@ async def delete_promo_code(
         raise NotFoundException("Промокод не знайдено")
     
     # Правильний спосіб видалення в SQLAlchemy 2.0 async
-    await db.execute(delete(PromoCode).where(PromoCode.id == promo_code_id))
-    await db.commit()
+    try:
+        await db.execute(delete(PromoCode).where(PromoCode.id == promo_code_id))
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise BadRequestException("Не можна видалити промокод, який вже використовувався в замовленнях. Ви можете деактивувати його.")
     
     return None
 
