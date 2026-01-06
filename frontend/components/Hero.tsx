@@ -50,7 +50,7 @@ export default function Hero() {
               className="object-cover"
               priority
               sizes="(max-width: 768px) 100vw, 80vw"
-              quality={70}
+              quality={65}
             />
           </div>
 

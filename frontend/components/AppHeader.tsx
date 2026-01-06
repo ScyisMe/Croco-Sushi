@@ -171,7 +171,7 @@ export default function Header() {
                   src="/logo.webp"
                   alt="Croco Sushi"
                   fill
-                  sizes="64px"
+                  sizes="(max-width: 640px) 56px, 64px"
                   className="object-cover"
                   priority
                 />
