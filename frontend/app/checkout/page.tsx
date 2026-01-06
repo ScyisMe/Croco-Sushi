@@ -103,7 +103,7 @@ const FREE_DELIVERY_FROM = 1000;
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, totalAmount, clearCart } = useCartStore();
+  const { items, totalAmount, clearCart, promoCode, getDiscountAmount } = useCartStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -207,7 +207,8 @@ export default function CheckoutPage() {
 
   // Розрахунок доставки
   const deliveryCost = formData.delivery_type === 'pickup' ? 0 : (totalAmount >= FREE_DELIVERY_FROM ? 0 : DELIVERY_COST);
-  const finalAmount = totalAmount + deliveryCost;
+  const discountAmount = getDiscountAmount();
+  const finalAmount = Math.max(0, totalAmount - discountAmount) + deliveryCost;
 
   // Оновлення поля форми
   const updateField = (field: keyof FormData, value: string | boolean) => {
@@ -340,6 +341,7 @@ export default function CheckoutPage() {
         entrance: formData.delivery_type === 'delivery' ? formData.entrance || undefined : undefined,
         floor: formData.delivery_type === 'delivery' ? formData.floor : undefined,
         comment: formData.comment || undefined,
+        promo_code: promoCode || undefined,
       };
 
       const response = await apiClient.post("/orders/", orderData);
@@ -1097,6 +1099,13 @@ export default function CheckoutPage() {
                       <span className="text-secondary-light">Підсумок</span>
                       <span className="font-medium">{totalAmount} ₴</span>
                     </div>
+
+                    {getDiscountAmount() > 0 && (
+                      <div className="flex justify-between text-xs sm:text-sm text-green-500">
+                        <span>Знижка ({promoCode})</span>
+                        <span className="font-medium">- {getDiscountAmount().toFixed(0)} ₴</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-xs sm:text-sm">
                       <span className="text-secondary-light">Доставка</span>
                       <span className={`font-medium ${deliveryCost === 0 ? "text-primary" : ""}`}>
