@@ -2,9 +2,19 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  compress: true,
   optimizeFonts: true,
   experimental: {
     optimizeCss: true,
+    optimizePackageImports: [
+      '@headlessui/react',
+      '@heroicons/react',
+      'framer-motion',
+      'date-fns',
+      'lucide-react',
+      'recharts',
+      'swiper'
+    ],
   },
   images: {
     formats: ['image/avif', 'image/webp'],
