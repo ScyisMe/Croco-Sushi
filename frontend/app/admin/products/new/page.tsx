@@ -112,7 +112,10 @@ export default function NewProductPage() {
     try {
       const dataToSend = {
         ...formData,
-        old_price: formData.old_price || null,
+        price: Number(formData.price),
+        old_price: formData.old_price ? Number(formData.old_price) : null,
+        weight: formData.weight ? parseInt(String(formData.weight).replace(/\D/g, '')) : null,
+        category_id: formData.category_id ? Number(formData.category_id) : null,
       };
       await apiClient.post("/admin/products", dataToSend);
       toast.success("Товар створено!");

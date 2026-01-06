@@ -276,8 +276,13 @@ export default function PromoCodesPage() {
                             <PencilIcon className="w-5 h-5" />
                           </button>
                           <button
-                            onClick={() => handleDelete(promo.id)}
-                            className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition"
+                            onClick={() => promo.current_uses === 0 && handleDelete(promo.id)}
+                            disabled={promo.current_uses > 0}
+                            title={promo.current_uses > 0 ? "Неможливо видалити використаний промокод" : "Видалити"}
+                            className={`p-2 rounded-lg transition ${promo.current_uses > 0
+                                ? "text-gray-600 cursor-not-allowed"
+                                : "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                              }`}
                           >
                             <TrashIcon className="w-5 h-5" />
                           </button>
