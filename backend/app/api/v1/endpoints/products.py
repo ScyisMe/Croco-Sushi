@@ -26,6 +26,8 @@ async def get_products(
     search: Optional[str] = None,
     is_new: Optional[bool] = None,
     is_popular: Optional[bool] = None,
+    is_spicy: Optional[bool] = None,
+    is_vegan: Optional[bool] = None,
     db: AsyncSession = Depends(get_db)
 ):
     """Отримати список продуктів з фільтрацією"""
@@ -51,6 +53,12 @@ async def get_products(
     
     if is_popular is not None:
         query = query.where(Product.is_popular == is_popular)
+
+    if is_spicy is not None:
+        query = query.where(Product.is_spicy == is_spicy)
+
+    if is_vegan is not None:
+        query = query.where(Product.is_vegan == is_vegan)
     
     query = query.order_by(Product.position, Product.name).offset(skip).limit(limit)
     

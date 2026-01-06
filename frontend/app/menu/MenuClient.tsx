@@ -92,14 +92,24 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
 
 
+    // Derived filters for server-side query
+    const isNewFilter = selectedProperties.includes("is_new") ? true : undefined;
+    const isPopularFilter = selectedProperties.includes("is_popular") ? true : undefined;
+    const isSpicyFilter = selectedProperties.includes("is_spicy") ? true : undefined;
+    const isVeganFilter = selectedProperties.includes("is_vegan") ? true : undefined;
+
     // Завантаження товарів з infinite scroll
     const productsQuery = useInfiniteQuery({
-        queryKey: ["products", selectedCategory, debouncedSearch],
+        queryKey: ["products", selectedCategory, debouncedSearch, isNewFilter, isPopularFilter, isSpicyFilter, isVeganFilter],
         queryFn: async ({ pageParam = 0 }) => {
             const params: Record<string, unknown> = {
                 skip: pageParam,
                 limit: PRODUCTS_PER_PAGE,
                 is_available: true,
+                is_new: isNewFilter,
+                is_popular: isPopularFilter,
+                is_spicy: isSpicyFilter,
+                is_vegan: isVeganFilter,
             };
 
             if (selectedCategory) {
@@ -269,10 +279,12 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                         // @ts-ignore
                         return text.includes(filter.keyword!);
                     });
-                } else if (filter.type === "boolean") {
-                    // @ts-ignore
-                    result = result.filter(p => !!p[filter.prop]);
                 }
+                // Boolean filters are handled server-side now
+                // else if (filter.type === "boolean") {
+                //    // @ts-ignore
+                //    result = result.filter(p => !!p[filter.prop]);
+                // }
             });
         }
 
