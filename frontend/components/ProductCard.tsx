@@ -91,7 +91,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       icon: (
         <div className="relative w-4 h-4">
           <Image
-            src="/badges/spicy_custom.webp"
+            src="/images/filters/filter-spicy.webp"
             alt="Spicy"
             width={16}
             height={16}
