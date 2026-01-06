@@ -41,32 +41,31 @@ export default function Hero() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10" />
 
           {/* Mobile: Static Image */}
-          {isMobile ? (
-            <div className="relative w-full h-full">
-              <Image
-                src="/images/hero-poster.webp"
-                alt="Hero Background"
-                fill
-                className="object-cover"
-                priority
-                sizes="100vw"
-                quality={70}
-              />
-            </div>
-          ) : (
-            /* Desktop: Video */
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster="/images/hero-poster.webp"
-              className="w-full h-full object-cover"
-            >
-              <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
-              <source src="/hero-bg.mp4" type="video/mp4" />
-            </video>
-          )}
+          {/* Mobile: Static Image */}
+          <div className="relative w-full h-full md:hidden">
+            <Image
+              src="/images/hero-poster.webp"
+              alt="Hero Background"
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+              quality={70}
+            />
+          </div>
+
+          {/* Desktop: Video */}
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/images/hero-poster.webp"
+            className="w-full h-full object-cover hidden md:block"
+          >
+            <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
+            <source src="/hero-bg.mp4" type="video/mp4" />
+          </video>
         </m.div>
 
         {/* Content */}
