@@ -49,7 +49,7 @@ export default function CategoryNav() {
     if (categories.length === 0) return null;
 
     return (
-        <div className="sticky top-16 sm:top-20 z-30 bg-surface/95 backdrop-blur-md border-b border-border shadow-sm py-2 transition-all">
+        <div className="sticky top-16 sm:top-20 z-30 bg-surface/95 md:backdrop-blur-md border-b border-border shadow-sm py-2 transition-all">
             <div className="container mx-auto px-4 relative">
                 <div className="flex items-center gap-2">
 
