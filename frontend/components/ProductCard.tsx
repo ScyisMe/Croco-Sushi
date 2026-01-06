@@ -186,7 +186,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
               alt={product.name}
               width={500}
               height={625}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1 transform-gpu will-change-transform"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, (max-width: 1536px) 25vw, 384px"
               priority={priority}
               loading={priority ? "eager" : "lazy"}
@@ -201,7 +201,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
                   src="/logo.webp"
                   alt={product.name}
                   fill
-                  className="object-contain opacity-20 grayscale"
+                  className="object-contain opacity-20 grayscale transform-gpu will-change-transform"
                   unoptimized={true}
                 />
               </div>

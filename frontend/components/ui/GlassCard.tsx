@@ -23,7 +23,7 @@ export const GlassCard = ({
             {...props}
         >
             {hoverEffect && (
-                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shine_1.5s_ease-in-out] bg-gradient-to-r from-transparent via-white/5 to-transparent z-0 pointer-events-none" />
+                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shine_1.5s_ease-in-out] bg-gradient-to-r from-transparent via-white/5 to-transparent z-0 pointer-events-none transform-gpu will-change-transform" />
             )}
             <div className="relative z-10">
                 {children}
