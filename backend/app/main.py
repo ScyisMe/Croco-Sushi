@@ -165,7 +165,8 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint with Redis status."""
-    redis_status = "ok" if redis_client else "down"
+    client = RedisManager.get_client()
+    redis_status = "ok" if client else "down"
     return {
         "status": "ok",
         "redis": redis_status,
