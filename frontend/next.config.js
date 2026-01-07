@@ -58,12 +58,43 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // 1. Immutable static assets (JS, CSS, Media inside _next/static)
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // 2. Images (public folder or optimized)
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // 3. Fonts
+      {
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // 4. Default for others (HTML, API - handled by code but safe fallback)
       {
         source: '/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, stale-while-revalidate=600',
+            value: 'public, max-age=0, must-revalidate',
           },
           {
             key: 'X-DNS-Prefetch-Control',
