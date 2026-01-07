@@ -1,5 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query
+from app.core.cache import cache_endpoint
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
 from pydantic import BaseModel, Field
@@ -18,6 +19,7 @@ class ProductValidationRequest(BaseModel):
 
 
 @router.get("/", response_model=List[ProductResponse])
+@cache_endpoint(ttl=300, prefix="products_list")
 async def get_products(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
@@ -68,6 +70,7 @@ async def get_products(
 
 
 @router.get("/popular", response_model=List[ProductResponse])
+@cache_endpoint(ttl=300, prefix="products_popular")
 async def get_popular_products(
     limit: int = Query(10, ge=1, le=50),
     db: AsyncSession = Depends(get_db)

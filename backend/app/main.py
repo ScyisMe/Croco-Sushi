@@ -20,31 +20,19 @@ from app.api.v1.api import api_router
 setup_logging()
 logger = logging.getLogger(__name__)
 
-# --- Redis & Lifespan ---
-# Глобальний клієнт Redis, який буде ініціалізовано при старті
-redis_client: redis.Redis | None = None
-
+from app.core.redis import RedisManager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle manager for startup/shutdown events."""
-    global redis_client
     
     # Startup: Підключення до Redis
-    try:
-        redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
-        await redis_client.ping()
-        logger.info("Connected to Redis for Rate Limiting")
-    except Exception as e:
-        logger.warning(f"Redis connection failed: {e}. Rate limiting disabled.")
-        redis_client = None
+    await RedisManager.connect()
     
     yield
     
     # Shutdown: Закриття з'єднання
-    if redis_client:
-        await redis_client.aclose()
-        logger.info("Redis connection closed")
+    await RedisManager.close()
 
 
 app = FastAPI(
@@ -78,6 +66,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Пропускаємо OPTIONS запити (CORS preflight) без лімітування
         if request.method == "OPTIONS":
             return await call_next(request)
+        
+        # Отримуємо клієнт через менеджер
+        redis_client = RedisManager.get_client()
         
         # Якщо Redis не підключено або це статичний файл/docs - пропускаємо
         if not redis_client or request.url.path.startswith(("/static", "/docs", "/redoc", "/openapi.json")):

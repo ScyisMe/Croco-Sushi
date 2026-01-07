@@ -11,7 +11,10 @@ from app.schemas.category import CategoryResponse
 router = APIRouter()
 
 
+from app.core.cache import cache_endpoint
+
 @router.get("/", response_model=List[CategoryResponse])
+@cache_endpoint(ttl=300, prefix="categories_list")
 async def get_categories(
     skip: int = 0,
     limit: int = 100,
@@ -30,6 +33,7 @@ async def get_categories(
 
 
 @router.get("/{slug}", response_model=CategoryResponse)
+@cache_endpoint(ttl=300, prefix="category_detail")
 async def get_category_by_slug(
     slug: str,
     db: AsyncSession = Depends(get_db)

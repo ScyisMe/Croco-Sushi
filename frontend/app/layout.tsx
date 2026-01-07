@@ -114,7 +114,21 @@ export default function RootLayout({
                 "https://maps.app.goo.gl/FVwFa238ugXyDEDj7"
               ],
               "servesCuisine": "Sushi, Japanese",
-              "priceRange": "$$"
+              "priceRange": "$$",
+              "subjectOf": {
+                "@type": "VideoObject",
+                "name": "Croco Sushi Hero Video",
+                "description": "Premium sushi delivery in Lviv. Fresh fish, large portions, free delivery from 1000 UAH.",
+                "thumbnailUrl": "https://crocosushi.com/images/hero-poster.webp",
+                "uploadDate": "2024-01-01T00:00:00+02:00",
+                "contentUrl": "https://crocosushi.com/hero-bg.mp4",
+                "embedUrl": "https://crocosushi.com/",
+                "interactionStatistic": {
+                  "@type": "InteractionCounter",
+                  "interactionType": { "@type": "WatchAction" },
+                  "userInteractionCount": 1000
+                }
+              }
             })
           }}
         />
