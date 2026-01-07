@@ -16,19 +16,33 @@ export default function ScrollToTop() {
         });
     };
 
-    // Show button when page is scrolled down (throttled)
+    // Show button when page is scrolled down (Intersection Observer to avoid forced reflows)
     useEffect(() => {
-        const toggleVisibility = throttle(() => {
-            if (window.scrollY > 300) {
-                setIsVisible(true);
-            } else {
-                setIsVisible(false);
-            }
-        }, 100);
+        const sentinel = document.createElement("div");
+        sentinel.style.position = "absolute";
+        sentinel.style.top = "0";
+        sentinel.style.left = "0";
+        sentinel.style.height = "300px";
+        sentinel.style.width = "1px";
+        sentinel.style.pointerEvents = "none";
+        sentinel.style.visibility = "hidden";
+        document.body.prepend(sentinel);
 
-        window.addEventListener("scroll", toggleVisibility);
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                // If the top 300px sentinel is intersecting (partially visible), hide button.
+                // If it's NOT intersecting, it means we scrolled past it (or it's way below?? No, it's at top).
+                // So not intersecting = scrolled down.
+                setIsVisible(!entry.isIntersecting);
+            },
+            { threshold: 0 }
+        );
+
+        observer.observe(sentinel);
+
         return () => {
-            window.removeEventListener("scroll", toggleVisibility);
+            observer.disconnect();
+            if (sentinel.parentNode) sentinel.parentNode.removeChild(sentinel);
         };
     }, []);
 

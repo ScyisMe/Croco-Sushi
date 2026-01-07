@@ -44,6 +44,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   cursor: default;
+  /* Improve touch response */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: none) {
+
+  /* Disable hover effects on touch devices to prevent sticky hover states */
+  .group:hover .group-hover\:opacity-100 {
+    opacity: 0;
+  }
+
+  /* Disable GlassCard hovers on touch */
+  .glass-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
 }
 
 .fixed-background {
@@ -155,6 +172,11 @@ body {
 
   .text-gradient-gold {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-600;
+  }
+
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
   }
 }
 

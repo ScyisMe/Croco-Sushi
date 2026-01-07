@@ -85,14 +85,33 @@ export default function Header() {
     }
   }, [isMounted, isOpen]);
 
-  // Sticky header при прокрутці
+  // Sticky header with IntersectionObserver
   useEffect(() => {
-    const handleScroll = throttle(() => {
-      setIsSticky(window.scrollY > 50);
-    }, 100);
+    const sentinel = document.createElement("div");
+    sentinel.style.position = "absolute";
+    sentinel.style.top = "0";
+    sentinel.style.height = "1px";
+    sentinel.style.width = "100%";
+    sentinel.style.pointerEvents = "none";
+    sentinel.style.visibility = "hidden";
+    // Insert after body start or inside a main wrapper. 
+    // Since this is a Header component, we can try inserting it before the header or relying on existing structure.
+    // However, creating a sentinel dynamically ensures it exists.
+    document.body.prepend(sentinel);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSticky(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "-50px 0px 0px 0px" } // Offset by 50px to match previous 50px scroll threshold
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+      if (sentinel.parentNode) sentinel.parentNode.removeChild(sentinel);
+    };
   }, []);
 
   // Перевірка авторизації

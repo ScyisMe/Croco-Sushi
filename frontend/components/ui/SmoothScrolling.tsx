@@ -6,8 +6,8 @@ import type Lenis from "lenis";
 
 export default function SmoothScrolling() {
     useEffect(() => {
-        // Disable smooth scrolling on mobile devices to prevent glitches and conflicts with native scroll
-        if (window.innerWidth < 768) return;
+        // Disable smooth scrolling on mobile devices (by width) AND all touch devices (by pointer)
+        if (window.innerWidth < 768 || window.matchMedia("(pointer: coarse)").matches) return;
 
         let lenis: Lenis | null = null;
         let rafId: number;

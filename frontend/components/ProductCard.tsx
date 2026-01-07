@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, startTransition } from "react";
+import { useState, startTransition, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PlusIcon, HeartIcon, EyeIcon } from "@heroicons/react/24/outline";
@@ -29,7 +29,33 @@ interface ProductCardProps {
   isSet?: boolean;
 }
 
-export default function ProductCard({ product, onFavoriteToggle, isFavorite = false, onQuickView, priority = false, isSet = false }: ProductCardProps) {
+// Helper to highlight ingredients (defined outside to avoid recreation)
+const highlightIngredients = (text?: string) => {
+  if (!text) return null;
+  const keywords = ['лосось', 'вугор', 'креветка', 'тунець', 'краб', 'авокадо', 'сир', 'гребінець', 'ікра', 'salmon', 'eel', 'shrimp', 'tuna', 'crab', 'avocado', 'cheese', 'scallop', 'caviar', 'філадельфія'];
+
+  const parts = text.split(/([,.]\s+)/); // Split by punctuation
+
+  return parts.map((part, index) => {
+    const lower = part.toLowerCase();
+    const keyword = keywords.find(k => lower.includes(k));
+    if (keyword) {
+      // Highlight found keyword
+      const regex = new RegExp(`(${keyword})`, 'gi');
+      const subParts = part.split(regex);
+      return (
+        <span key={index}>
+          {subParts.map((sub, i) =>
+            sub.toLowerCase() === keyword.toLowerCase() ? <strong key={i} className="text-white font-semibold">{sub}</strong> : sub
+          )}
+        </span>
+      );
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
+
+const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQuickView, priority = false, isSet = false }: ProductCardProps) => {
   const { t } = useTranslation();
   const addItem = useCartStore((state) => state.addItem);
   const itemsCount = useCartStore((state) => state.items.length);
@@ -59,7 +85,6 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
   const infoBadges = [];
 
   // Marketing Badges (Max 2)
-  // Marketing Badges (Max 2) - Neon Glow Style
   if (product.is_new) {
     marketingBadges.push({
       label: "Новинка",
@@ -114,6 +139,8 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
             width={16}
             height={16}
             className="object-contain"
+            // Use unoptimized if local or lightweight
+            unoptimized
           />
         </div>
       ),
@@ -121,32 +148,6 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       className: "bg-green-500/20 text-green-500 border-green-500/30 rounded-full"
     });
   }
-
-  // Helper to highlight ingredients
-  const highlightIngredients = (text?: string) => {
-    if (!text) return null;
-    const keywords = ['лосось', 'вугор', 'креветка', 'тунець', 'краб', 'авокадо', 'сир', 'гребінець', 'ікра', 'salmon', 'eel', 'shrimp', 'tuna', 'crab', 'avocado', 'cheese', 'scallop', 'caviar', 'філадельфія'];
-
-    const parts = text.split(/([,.]\s+)/); // Split by punctuation
-
-    return parts.map((part, index) => {
-      const lower = part.toLowerCase();
-      const keyword = keywords.find(k => lower.includes(k));
-      if (keyword) {
-        // Highlight found keyword
-        const regex = new RegExp(`(${keyword})`, 'gi');
-        const subParts = part.split(regex);
-        return (
-          <span key={index}>
-            {subParts.map((sub, i) =>
-              sub.toLowerCase() === keyword.toLowerCase() ? <strong key={i} className="text-white font-semibold">{sub}</strong> : sub
-            )}
-          </span>
-        );
-      }
-      return <span key={index}>{part}</span>;
-    });
-  };
 
   const ingredientsText = product.ingredients || product.description;
 
@@ -209,10 +210,10 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           )}
 
           {/* Gradient Overlay for Text Readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent opacity-60 pointer-events-none" />
 
           {/* Бейджі */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2 items-start z-10">
+          <div className="absolute top-3 left-3 flex flex-col gap-2 items-start z-10 pointer-events-none">
             {marketingBadges.slice(0, 2).map((badge, index) => (
               <span
                 key={index}
@@ -224,7 +225,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           </div>
           {/* Вага - переміщено на фото */}
           {(selectedSize?.weight || product.weight) && (
-            <div className="absolute bottom-3 right-3 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-lg border border-white/10 shadow-sm">
+            <div className="absolute bottom-3 right-3 z-10 px-2.5 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-lg border border-white/10 shadow-sm pointer-events-none">
               {selectedSize?.weight || product.weight} г
             </div>
           )}
@@ -261,8 +262,6 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
           </button>
         )}
       </div>
-
-
 
       {/* Контент */}
       <div className="p-3 sm:p-4 flex flex-col relative bg-[#1E1E1E]/40">
@@ -355,7 +354,11 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
       </div>
     </GlassCard>
   );
-}
+});
+
+ProductCard.displayName = "ProductCard";
+
+export default ProductCard;
 
 // Skeleton with Shimmer
 export function ProductCardSkeleton() {
