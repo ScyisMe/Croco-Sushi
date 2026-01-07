@@ -192,7 +192,7 @@ const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQui
               priority={priority}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}
-              quality={80}
+              quality={75}
               onError={(e) => console.error(`Failed to load image: ${product.image_url}`, e)}
             />
           ) : (

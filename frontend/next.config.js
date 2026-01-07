@@ -88,14 +88,12 @@ const nextConfig = {
           },
         ],
       },
-      // 4. Default for others (HTML, API - handled by code but safe fallback)
+      // 4. Security Headers (Applied to all routes)
+      // Note: We removed the default 'Cache-Control' header here because it conflicts 
+      // with Next.js 14 App Router's internal caching (ISR/SSG), causing 'digest' errors.
       {
         source: '/:path*',
         headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
-          },
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
