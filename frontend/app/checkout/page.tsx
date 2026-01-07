@@ -462,7 +462,7 @@ export default function CheckoutPage() {
                         {isActive && (
                           <motion.div
                             layoutId="moving-icon"
-                            className="absolute -top-14 z-20 filter drop-shadow-2xl"
+                            className="absolute -top-14 z-20 filter drop-shadow-2xl hidden md:block"
                             transition={{ type: "spring", stiffness: 300, damping: 25 }}
                           >
                             <div className="relative w-16 h-16">
