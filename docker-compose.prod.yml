@@ -50,8 +50,8 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - REDIS_URL=${REDIS_URL}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
       - SECRET_KEY=${SECRET_KEY}
       - ENVIRONMENT=production
       - CORS_ORIGINS=https://crocosushi.com,https://www.crocosushi.com,https://api.crocosushi.com
@@ -60,12 +60,6 @@ services:
       - redis
     networks:
       - croco_sushi_network
-    healthcheck:
-      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
   frontend:
     build:
@@ -82,8 +76,7 @@ services:
     networks:
       - croco_sushi_network
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     command: node server.js
 
   celery_worker:
