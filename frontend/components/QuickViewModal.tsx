@@ -173,7 +173,7 @@ export default function QuickViewModal({
                       {onFavoriteToggle && (
                         <button
                           onClick={handleFavoriteClick}
-                          className={`absolute top-3 right-3 p-2 rounded-full transition ${isFavorite
+                          className={`absolute top-16 md:top-3 right-3 p-2 rounded-full transition ${isFavorite
                             ? "bg-accent-red text-white"
                             : "bg-black/50 text-white hover:bg-white hover:text-accent-red"
                             }`}
