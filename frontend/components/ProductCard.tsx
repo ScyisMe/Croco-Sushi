@@ -139,8 +139,8 @@ const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQui
             width={16}
             height={16}
             className="object-contain"
-            // Use unoptimized if local or lightweight
-            unoptimized
+            // Optimized now because we resized it
+            quality={75}
           />
         </div>
       ),
@@ -192,7 +192,7 @@ const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQui
               priority={priority}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}
-              quality={75}
+              quality={65}
               onError={(e) => console.error(`Failed to load image: ${product.image_url}`, e)}
             />
           ) : (
@@ -203,7 +203,6 @@ const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQui
                   alt={product.name}
                   fill
                   className="object-contain opacity-20 grayscale transform-gpu will-change-transform"
-                  unoptimized={true}
                 />
               </div>
             </div>
