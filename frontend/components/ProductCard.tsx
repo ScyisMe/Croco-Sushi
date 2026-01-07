@@ -191,7 +191,7 @@ export default function ProductCard({ product, onFavoriteToggle, isFavorite = fa
               priority={priority}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}
-              quality={50}
+              quality={90}
               onError={(e) => console.error(`Failed to load image: ${product.image_url}`, e)}
             />
           ) : (
