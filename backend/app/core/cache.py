@@ -80,18 +80,8 @@ def cache_endpoint(ttl: int = 300, prefix: str = ""):
             result = await func(*args, **kwargs)
             
             # Cache result
-            # Note: result must be JSON serializable. 
-            # If using Pydantic models, they often have .model_dump() or .dict()
-            # But the endpoint typically returns the model instance, and FastAPI handles JSON.
-            # We need to serialize it here to store in Redis.
-            
-            data_to_store = result
-            
-            # Basic attempt to serialize Pydantic models list or single
-            if isinstance(result, list):
-                data_to_store = [item.model_dump() if hasattr(item, 'model_dump') else item for item in result]
-            elif hasattr(result, 'model_dump'):
-                data_to_store = result.model_dump()
+            from fastapi.encoders import jsonable_encoder
+            data_to_store = jsonable_encoder(result)
             
             await CacheService.set(cache_key, data_to_store, ttl)
             
