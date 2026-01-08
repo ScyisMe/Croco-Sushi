@@ -37,10 +37,10 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/favicon.ico?v=3', sizes: 'any' },
-      { url: '/logo-32.png?v=3', type: 'image/png', sizes: '32x32' },
       { url: '/logo-192.png?v=3', type: 'image/png', sizes: '192x192' },
       { url: '/logo-512.png?v=3', type: 'image/png', sizes: '512x512' },
+      { url: '/logo-32.png?v=3', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon.ico?v=3', sizes: 'any' },
     ],
     shortcut: '/favicon.ico?v=3',
     apple: [

@@ -177,11 +177,15 @@ export default function UserDetailPage() {
                 {/* Main Info */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Profile Form */}
-                    <div className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-700">
-                        <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            <UserIcon className="w-5 h-5 text-primary" />
-                            Основна інформація
-                        </h2>
+                    <div className="bg-surface-card p-6 rounded-xl shadow-lg border border-white/10">
+                        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
+                            <div className="bg-primary/10 p-2 rounded-lg">
+                                <UserIcon className="w-6 h-6 text-primary" />
+                            </div>
+                            <h2 className="text-xl font-bold text-white">
+                                Основна інформація
+                            </h2>
+                        </div>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -227,16 +231,7 @@ export default function UserDetailPage() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4 pt-4">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        {...register("newsletter_subscription")}
-                                        className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
-                                    />
-                                    <span className="text-sm text-gray-300">Підписка на новини</span>
-                                </label>
-                            </div>
+
 
                             <div className="pt-4 flex justify-end">
                                 <button
