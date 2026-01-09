@@ -66,7 +66,7 @@ export default function TopProducts({ products = [], isLoading = false }: TopPro
                                     <div className="w-12 h-12 rounded bg-white/5 flex items-center justify-center p-2">
                                         <div className="relative w-full h-full">
                                             <Image
-                                                src="/logo.png"
+                                                src="/logo.webp"
                                                 alt="Product"
                                                 fill
                                                 className="object-contain opacity-50 grayscale"
