@@ -17,35 +17,16 @@ export default function CartUpsell() {
         const fetchUpsellProducts = async () => {
             try {
                 setIsLoading(true);
-                // Fetch drinks and add-ons (sauces, extras)
                 const [drinksRes, addonsRes] = await Promise.all([
-                    apiClient.get<Product[]>("/products/", { params: { category_slug: "drinks", limit: 10 } }),
-                    apiClient.get<Product[]>("/products/", { params: { category_slug: "sauces", limit: 10 } }) // Using 'sauces' as likely slug for 'dodatku' or checking if 'dodatku' exists. User said 'dodatku' url is https://crocosushi.com/menu/dodatku so slug is likely 'dodatku'. Let's try 'dodatku' first, fallbacks might be needed if slug is different. User provided URL implies 'dodatku'.
+                    apiClient.get<Product[]>("/products/", { params: { category_slug: "drinks", limit: 6 } }),
+                    apiClient.get<Product[]>("/products/", { params: { category_slug: "dodatku", limit: 6 } })
                 ]);
 
-                // Actually user provided https://crocosushi.com/menu/dodatku, so slug is 'dodatku'.
-                // Wait, I should double check if I can just fetch 'dodatku' directly.
-                // Let's assume 'dodatku' and 'drinks'.
-
-                // However, I should probably check if 'sauces' are in 'dodatku' or separate. 
-                // User mentioned: "соуси, напої, десерти".
-                // Let's try to fetch explicit categories if possilbe or just trust the 'dodatku' and 'drinks'.
-                // Re-reading user request: "https://crocosushi.com/menu/drinks і https://crocosushi.com/menu/dodatku".
-                // Okay, I will use 'drinks' and 'dodatku'.
-
                 const drinks = drinksRes.data || [];
-                const addons = addonsRes.data || []; // Verify if second request should be 'dodatku'
+                const addons = addonsRes.data || [];
 
-                // Actually, let's fetch 'dodatku' as requested.
-                let extraProducts: Product[] = addons;
-                if (addons.length === 0) {
-                    // Fallback or retry with 'sauces' if 'dodatku' returns nothing? 
-                    // For now, I'll stick to the requested slugs.
-                }
-
-                // Interleave or just concat? Randomize?
-                // Let's simple concat for now, maybe shuffle.
-                const combined = [...drinks, ...addons].sort(() => 0.5 - Math.random()).slice(0, 10);
+                // Combine: Addons (sauces) first, then drinks
+                const combined = [...addons, ...drinks];
 
                 setUpsellProducts(combined);
             } catch (error) {
@@ -55,32 +36,7 @@ export default function CartUpsell() {
             }
         };
 
-        // We need to fetch 'dodatku' actually.
-        // Let's correct the Promise.all above in a real implementation within this file.
-        const fetchReal = async () => {
-            try {
-                setIsLoading(true);
-                const [drinksRes, addonsRes] = await Promise.all([
-                    apiClient.get<Product[]>("/products/", { params: { category_slug: "drinks", limit: 6 } }),
-                    apiClient.get<Product[]>("/products/", { params: { category_slug: "dodatku", limit: 6 } })
-                ]);
-
-                const drinks = drinksRes.data || [];
-                const addons = addonsRes.data || [];
-
-                // Combine and Shuffle slightly to mix drinks and addons
-                const combined = [...addons, ...drinks];
-                // Better to show addons first (sauces/sticks) as per text "Don't forget sticks and sauce"
-
-                setUpsellProducts(combined);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        fetchReal();
+        fetchUpsellProducts();
     }, []);
 
     if (isLoading || upsellProducts.length === 0) return null;
