@@ -464,12 +464,11 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                             </AnimatePresence>
                           </ul>
 
-                          {/* Upsell / Recommendations */}
-                          <CartUpsell />
-
-
                           {/* Промокод */}
                           {renderPromoSection()}
+
+                          {/* Upsell / Recommendations */}
+                          <CartUpsell />
 
                         </div>
                       )}

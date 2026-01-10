@@ -9,6 +9,8 @@ import { LazyMotion, domAnimation, m } from "framer-motion";
 export default function BottomNav() {
     const pathname = usePathname();
 
+    if (pathname?.startsWith("/checkout")) return null;
+
     const links = [
         { href: "/", label: "Головна", icon: HomeIcon, activeIcon: HomeSolid },
         { href: "/menu", label: "Меню", icon: Squares2X2Icon, activeIcon: MenuSolid },
