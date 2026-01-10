@@ -57,6 +57,42 @@ export default function CartUpsell() {
         };
     }, [upsellProducts]);
 
+    // Drag to scroll logic
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollStart, setScrollStart] = useState(0);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (!scrollContainerRef.current) return;
+        setIsDragging(true);
+        setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+        setScrollStart(scrollContainerRef.current.scrollLeft);
+    };
+
+    const handleMouseLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging || !scrollContainerRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - scrollContainerRef.current.offsetLeft;
+        const walk = (x - startX) * 1.5; // Scroll speed multiplier
+        scrollContainerRef.current.scrollLeft = scrollStart - walk;
+    };
+
+    // Prevent click if we were dragging
+    const handleCaptureClick = (e: React.MouseEvent) => {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    };
+
     if (isLoading || upsellProducts.length === 0) return null;
 
     return (
@@ -67,14 +103,19 @@ export default function CartUpsell() {
 
             <div
                 ref={scrollContainerRef}
-                className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 touch-pan-x"
+                className={`flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 touch-pan-x cursor-grab ${isDragging ? "cursor-grabbing snap-none" : ""}`}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                onPointerDown={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()} // Keep this for touch isolation
+                onMouseDown={handleMouseDown}
+                onMouseLeave={handleMouseLeave}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
+                onClickCapture={handleCaptureClick}
             >
                 {upsellProducts.map((product) => (
                     <div
                         key={product.id}
-                        className="flex-shrink-0 w-[140px] snap-start bg-white/5 border border-white/5 rounded-xl overflow-hidden flex flex-col"
+                        className="flex-shrink-0 w-[140px] snap-start bg-white/5 border border-white/5 rounded-xl overflow-hidden flex flex-col select-none"
                     >
                         {/* Image */}
                         <div className="relative h-24 w-full bg-white/5">
@@ -83,7 +124,7 @@ export default function CartUpsell() {
                                     src={product.image_url}
                                     alt={product.name}
                                     fill
-                                    className="object-cover"
+                                    className="object-cover pointer-events-none" // Prevent image drag
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">
@@ -104,7 +145,8 @@ export default function CartUpsell() {
                                 </span>
 
                                 <button
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        // Prevent add if dragging happened recently could be handled here or via capture
                                         addItem({
                                             id: product.id,
                                             name: product.name,
@@ -113,7 +155,7 @@ export default function CartUpsell() {
                                             quantity: 1
                                         });
                                     }}
-                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary-500 hover:text-white text-primary-500 transition-colors"
+                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary-500 hover:text-white text-primary-500 transition-colors z-10 relative"
                                 >
                                     <PlusIcon className="w-4 h-4" />
                                 </button>
