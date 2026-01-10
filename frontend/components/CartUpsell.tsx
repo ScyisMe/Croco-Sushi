@@ -17,18 +17,12 @@ export default function CartUpsell() {
         const fetchUpsellProducts = async () => {
             try {
                 setIsLoading(true);
-                const [drinksRes, addonsRes] = await Promise.all([
-                    apiClient.get<Product[]>("/products/", { params: { category_slug: "drinks", limit: 6 } }),
-                    apiClient.get<Product[]>("/products/", { params: { category_slug: "dodatku", limit: 6 } })
-                ]);
+                // Fetch only drinks as requested, increased limit to allow scrolling
+                const response = await apiClient.get<Product[]>("/products/", {
+                    params: { category_slug: "drinks", limit: 15 }
+                });
 
-                const drinks = drinksRes.data || [];
-                const addons = addonsRes.data || [];
-
-                // Combine: Addons (sauces) first, then drinks
-                const combined = [...addons, ...drinks];
-
-                setUpsellProducts(combined);
+                setUpsellProducts(response.data || []);
             } catch (error) {
                 console.error("Failed to fetch upsell products:", error);
             } finally {
@@ -44,7 +38,7 @@ export default function CartUpsell() {
     return (
         <div className="mt-6 mb-4">
             <h3 className="text-sm font-medium text-gray-400 mb-3 px-1">
-                Не забудьте напої та соус
+                Не забудьте <span className="text-primary-500">напої</span>
             </h3>
 
             <div
@@ -80,7 +74,7 @@ export default function CartUpsell() {
                             </h4>
 
                             <div className="mt-auto flex items-center justify-between">
-                                <span className="text-sm font-bold text-primary">
+                                <span className="text-sm font-bold text-primary-500">
                                     {product.price} <span className="text-[10px] font-normal text-gray-400">₴</span>
                                 </span>
 
@@ -94,7 +88,7 @@ export default function CartUpsell() {
                                             quantity: 1
                                         });
                                     }}
-                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary hover:text-white text-primary transition-colors"
+                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary-500 hover:text-white text-primary-500 transition-colors"
                                 >
                                     <PlusIcon className="w-4 h-4" />
                                 </button>
