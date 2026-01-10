@@ -103,8 +103,9 @@ export default function CartUpsell() {
 
             <div
                 ref={scrollContainerRef}
-                className={`flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 touch-pan-x cursor-grab ${isDragging ? "cursor-grabbing snap-none" : ""}`}
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className={`flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 touch-pan-x cursor-grab ${isDragging ? "cursor-grabbing snap-none" : ""} 
+                [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden 
+                md:[scrollbar-width:thin] md:[-ms-overflow-style:auto] md:[&::-webkit-scrollbar]:block md:[&::-webkit-scrollbar]:h-2 md:[&::-webkit-scrollbar-track]:bg-transparent md:[&::-webkit-scrollbar-thumb]:bg-white/10 md:[&::-webkit-scrollbar-thumb]:rounded-full hover:md:[&::-webkit-scrollbar-thumb]:bg-white/20`}
                 onPointerDown={(e) => e.stopPropagation()} // Keep this for touch isolation
                 onMouseDown={handleMouseDown}
                 onMouseLeave={handleMouseLeave}
