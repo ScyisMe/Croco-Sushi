@@ -33,6 +33,30 @@ export default function CartUpsell() {
         fetchUpsellProducts();
     }, []);
 
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const handleWheel = (e: WheelEvent) => {
+            if (e.deltaY === 0) return;
+
+            // Check if we can scroll
+            const canScrollLeft = container.scrollLeft > 0;
+            const canScrollRight = container.scrollLeft < container.scrollWidth - container.clientWidth;
+
+            if ((e.deltaY < 0 && canScrollLeft) || (e.deltaY > 0 && canScrollRight)) {
+                e.preventDefault();
+                container.scrollLeft += e.deltaY;
+            }
+        };
+
+        container.addEventListener('wheel', handleWheel, { passive: false });
+
+        return () => {
+            container.removeEventListener('wheel', handleWheel);
+        };
+    }, [upsellProducts]);
+
     if (isLoading || upsellProducts.length === 0) return null;
 
     return (
@@ -43,8 +67,9 @@ export default function CartUpsell() {
 
             <div
                 ref={scrollContainerRef}
-                className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
+                className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 touch-pan-x"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                onPointerDown={(e) => e.stopPropagation()}
             >
                 {upsellProducts.map((product) => (
                     <div
