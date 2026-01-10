@@ -122,15 +122,33 @@ export default function OrderDetailsModal({
 
                                         {/* Totals */}
                                         <div className="pt-2 border-t border-white/5 space-y-1">
+                                            <div className="flex justify-between text-sm text-gray-400">
+                                                <span>Сума товарів</span>
+                                                <span>{parseFloat(order.total_amount).toFixed(0)} ₴</span>
+                                            </div>
+                                            {(order.discount && Number(order.discount) > 0) ? (
+                                                <div className="flex justify-between text-sm text-green-500">
+                                                    <span>
+                                                        Знижка {order.promo_code_name ? `(${order.promo_code_name})` : ''}
+                                                    </span>
+                                                    <span>-{parseFloat(order.discount.toString()).toFixed(0)} ₴</span>
+                                                </div>
+                                            ) : null}
                                             {order.delivery_cost && parseFloat(order.delivery_cost) > 0 && (
                                                 <div className="flex justify-between text-sm text-gray-400">
                                                     <span>Доставка</span>
                                                     <span>{parseFloat(order.delivery_cost).toFixed(0)} ₴</span>
                                                 </div>
                                             )}
-                                            <div className="flex justify-between text-xl font-bold text-primary pt-2">
+                                            <div className="flex justify-between text-xl font-bold text-primary pt-2 border-t border-white/5 mt-2">
                                                 <span>Разом</span>
-                                                <span>{parseFloat(order.total_amount).toFixed(0)} ₴</span>
+                                                <span>
+                                                    {(
+                                                        parseFloat(order.total_amount) -
+                                                        (order.discount ? parseFloat(order.discount.toString()) : 0) +
+                                                        (order.delivery_cost ? parseFloat(order.delivery_cost) : 0)
+                                                    ).toFixed(0)} ₴
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

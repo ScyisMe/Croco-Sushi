@@ -16,6 +16,8 @@ interface Order {
     status: string;
     created_at: string;
     history?: OrderHistoryEntry[];
+    discount?: number;
+    delivery_cost?: number;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -93,7 +95,13 @@ export const OrderTable = ({ orders, onRowClick }: OrderTableProps) => {
                                     <div className="text-white font-medium">{order.customer_name || "Гість"}</div>
                                     <div className="text-xs opacity-60">{order.customer_phone}</div>
                                 </td>
-                                <td className="px-6 py-4 font-bold text-gray-200">{formatPrice(order.total_amount)}</td>
+                                <td className="px-6 py-4 font-bold text-gray-200">
+                                    {formatPrice(
+                                        order.total_amount -
+                                        (order.discount ? Number(order.discount) : 0) +
+                                        (order.delivery_cost ? Number(order.delivery_cost) : 0)
+                                    )}
+                                </td>
                                 <td className="px-6 py-4">
                                     {lastAction ? (
                                         <span className="text-white text-sm bg-white/5 px-2 py-1 rounded">

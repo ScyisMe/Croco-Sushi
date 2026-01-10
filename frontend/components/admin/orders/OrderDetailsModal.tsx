@@ -23,7 +23,9 @@ interface OrderDetails {
     created_at: string;
     total_amount: number;
     items?: OrderItem[];
-    // Add other fields as needed
+    discount?: number;
+    promo_code_name?: string;
+    delivery_cost?: number;
 }
 
 interface OrderDetailsModalProps {
@@ -100,9 +102,33 @@ export const OrderDetailsModal = ({ isOpen, onClose, order, statusConfig, onStat
                                 ))}
                             </div>
 
-                            <div className="flex justify-between items-center pt-4 border-t border-white/10">
-                                <span className="text-xl font-bold text-white">Разом</span>
-                                <span className="text-2xl font-bold text-primary-500">{formatPrice(order.total_amount)}</span>
+                            <div className="pt-4 border-t border-white/10 space-y-2">
+                                <div className="flex justify-between items-center text-sm text-gray-400">
+                                    <span>Сума товарів</span>
+                                    <span>{formatPrice(order.total_amount)}</span>
+                                </div>
+                                {(order.discount && Number(order.discount) > 0) ? (
+                                    <div className="flex justify-between items-center text-sm text-green-500">
+                                        <span>
+                                            Знижка {order.promo_code_name ? `(${order.promo_code_name})` : ''}
+                                        </span>
+                                        <span>-{formatPrice(Number(order.discount))}</span>
+                                    </div>
+                                ) : null}
+                                <div className="flex justify-between items-center text-sm text-gray-400">
+                                    <span>Доставка</span>
+                                    <span>{formatPrice(order.delivery_cost ?? 0)}</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                                    <span className="text-xl font-bold text-white">Разом</span>
+                                    <span className="text-2xl font-bold text-primary-500">
+                                        {formatPrice(
+                                            order.total_amount -
+                                            (order.discount ? Number(order.discount) : 0) +
+                                            (order.delivery_cost ? Number(order.delivery_cost) : 0)
+                                        )}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
