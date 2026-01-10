@@ -6,6 +6,7 @@ import apiClient from "@/lib/api/apiClient";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/AppHeader";
 import Footer from "@/components/AppFooter";
 import {
@@ -18,7 +19,8 @@ import {
   MapPinIcon,
   PhoneIcon,
   UserIcon as UserIconSolid,
-  ChatBubbleBottomCenterTextIcon
+  ChatBubbleBottomCenterTextIcon,
+  ShoppingBagIcon
 } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -321,6 +323,69 @@ export default function OrderTrackPage() {
                 </div>
               </motion.div>
 
+
+
+              {/* Order Items & Summary */}
+              {order.items && order.items.length > 0 && (
+                <motion.div variants={itemVariants} className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 sm:p-8 rounded-3xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
+                  <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3 relative z-10">
+                    <ShoppingBagIcon className="w-6 h-6 text-primary-500" />
+                    Ваше замовлення
+                  </h3>
+
+                  <div className="space-y-4 relative z-10">
+                    {order.items.map((item: any) => (
+                      <div key={item.id} className="flex gap-4 items-center bg-white/5 p-3 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
+                        {/* Image */}
+                        <div className="relative w-16 h-16 bg-white/5 rounded-lg overflow-hidden shrink-0">
+                          {item.product_image ? (
+                            <Image src={item.product_image} alt={item.product_name} fill className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">No Photo</div>
+                          )}
+                        </div>
+
+                        {/* Details */}
+                        <div className="flex-grow min-w-0">
+                          <p className="font-medium text-white line-clamp-1">{item.product_name}</p>
+                          {item.size_name && <p className="text-xs text-gray-400">{item.size_name}</p>}
+                        </div>
+
+                        {/* Price */}
+                        <div className="text-right shrink-0">
+                          <p className="text-white font-bold">{Number(item.price).toFixed(0)} ₴</p>
+                          <p className="text-xs text-gray-500">x {item.quantity}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Summary */}
+                  <div className="mt-8 pt-6 border-t border-white/10 relative z-10 space-y-3">
+                    <div className="flex justify-between text-gray-400 text-sm">
+                      <span>Сума товарів</span>
+                      <span>{(Number(order.total_amount) - Number(order.delivery_cost) + Number(order.discount)).toFixed(0)} ₴</span>
+                    </div>
+                    <div className="flex justify-between text-gray-400 text-sm">
+                      <span>Доставка</span>
+                      <span>{Number(order.delivery_cost) > 0 ? `${Number(order.delivery_cost).toFixed(0)} ₴` : 'Безкоштовно'}</span>
+                    </div>
+                    {Number(order.discount) > 0 && (
+                      <div className="flex justify-between text-emerald-400 text-sm">
+                        <span>Знижка</span>
+                        <span>- {Number(order.discount).toFixed(0)} ₴</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-xl font-bold text-white pt-4 mt-2 border-t border-white/5">
+                      <span>Разом до сплати</span>
+                      <span className="text-primary-500 font-display">{Number(order.total_amount).toFixed(0)} ₴</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Details & History Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

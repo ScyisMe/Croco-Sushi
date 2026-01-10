@@ -236,6 +236,12 @@ export interface OrderTrackResponse {
   entrance?: string;
   floor?: string;
 
+  // New fields for redesign
+  items: OrderItem[];
+  total_amount: string;
+  delivery_cost: string;
+  discount: string;
+
   status_history?: Array<{
     status: string;
     changed_at: string;
