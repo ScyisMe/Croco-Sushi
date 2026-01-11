@@ -8,18 +8,25 @@ import Stories from "@/components/Stories";
 import PromoBanner from "@/components/PromoBanner";
 import Promotions from "@/components/Promotions";
 
-import CategoryFeed from "@/components/CategoryFeed";
+import apiClient from "@/lib/api/apiClient";
+import { Category } from "@/lib/types";
 
-const ReviewsCarousel = dynamicLoader(() => import("@/components/ReviewsCarousel"), {
-  loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
-});
+// ... imports
 
-// const CategoryFeed = dynamicLoader... removed
+// Helper to fetch categories on server
+async function getCategories() {
+  try {
+    const response = await apiClient.get("/categories");
+    return response.data.filter((cat: Category) => cat.is_active);
+  } catch (error) {
+    console.error("Failed to fetch categories for SSG:", error);
+    return [];
+  }
+}
 
-// Force static generation for the homepage
-export const dynamic = "force-static";
+export default async function Home() {
+  const categories = await getCategories();
 
-export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -37,7 +44,7 @@ export default function Home() {
           <Promotions />
         </div>
         <div className="content-auto">
-          <CategoryFeed />
+          <CategoryFeed initialCategories={categories} />
         </div>
         <div className="content-auto">
           <ReviewsCarousel />

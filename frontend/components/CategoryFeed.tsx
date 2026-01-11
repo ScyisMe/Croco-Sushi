@@ -5,7 +5,11 @@ import apiClient from "@/lib/api/apiClient";
 import { Category } from "@/lib/types";
 import CategorySection from "./CategorySection";
 
-export default function CategoryFeed() {
+interface CategoryFeedProps {
+    initialCategories?: Category[];
+}
+
+export default function CategoryFeed({ initialCategories = [] }: CategoryFeedProps) {
     const { data: categories = [], isLoading } = useQuery<Category[]>({
         queryKey: ["categories"],
         queryFn: async () => {
@@ -13,6 +17,8 @@ export default function CategoryFeed() {
             return response.data
                 .filter((cat: Category) => cat.is_active);
         },
+        initialData: initialCategories,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
     if (isLoading) {
