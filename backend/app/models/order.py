@@ -71,25 +71,30 @@ class Order(Base):
     # Relationships
     user: Mapped[Optional["User"]] = relationship(
         "User", 
-        back_populates="orders"
+        back_populates="orders",
+        lazy="select"
     )
     address: Mapped[Optional["Address"]] = relationship(
-        "Address"
+        "Address",
+        lazy="select"
     )
     items: Mapped[List["OrderItem"]] = relationship(
         "OrderItem", 
         back_populates="order", 
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy="select"
     )
     reviews: Mapped[List["Review"]] = relationship(
         "Review",
-        back_populates="order"
+        back_populates="order",
+        lazy="select"
     )
 
     history: Mapped[List["OrderHistory"]] = relationship(
         "OrderHistory",
         back_populates="order",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        lazy="select"
     )
 
     __table_args__ = (

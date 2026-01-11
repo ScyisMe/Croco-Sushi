@@ -102,7 +102,7 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      let url = "/admin/orders?limit=50";
+      let url = "/admin/orders?limit=20";
       if (selectedStatus) {
         url += `&status=${selectedStatus}`;
       }
