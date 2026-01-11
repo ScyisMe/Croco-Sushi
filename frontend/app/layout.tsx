@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="uk" suppressHydrationWarning>
       <head>
-        <link rel="preload" href="/background-wave.webp" as="image" />
+        <link rel="preload" href="/background-wave.webp" as="image" fetchPriority="high" />
         <link rel="preload" href="/images/hero-poster.webp" as="image" fetchPriority="high" />
         <link rel="preconnect" href="https://a.plerdy.com" />
       </head>
