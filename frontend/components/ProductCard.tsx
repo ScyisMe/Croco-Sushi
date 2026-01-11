@@ -139,8 +139,6 @@ const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQui
             width={16}
             height={16}
             className="object-contain"
-            // Optimized now because we resized it
-            quality={75}
           />
         </div>
       ),
