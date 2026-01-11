@@ -55,18 +55,21 @@ export default function Hero() {
           </div>
 
           {/* Desktop: Video */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/hero-poster.webp"
-            className="w-full h-full object-cover hidden md:block"
-            aria-label="Background video showing sushi preparation and atmosphere"
-          >
-            <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
-            <source src="/hero-bg.mp4" type="video/mp4" />
-          </video>
+          {/* Desktop: Video */}
+          {!isMobile && (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/images/hero-poster.webp"
+              className="w-full h-full object-cover hidden md:block"
+              aria-label="Background video showing sushi preparation and atmosphere"
+            >
+              <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
+              <source src="/hero-bg.mp4" type="video/mp4" />
+            </video>
+          )}
         </m.div>
 
         {/* Content */}
