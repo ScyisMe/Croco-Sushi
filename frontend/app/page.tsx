@@ -11,7 +11,14 @@ import Promotions from "@/components/Promotions";
 import apiClient from "@/lib/api/apiClient";
 import { Category } from "@/lib/types";
 
-// ... imports
+import CategoryFeed from "@/components/CategoryFeed";
+
+const ReviewsCarousel = dynamicLoader(() => import("@/components/ReviewsCarousel"), {
+  loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
+});
+
+// Force static generation for the homepage
+export const dynamic = "force-static";
 
 // Helper to fetch categories on server
 async function getCategories() {
