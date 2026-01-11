@@ -29,7 +29,7 @@ class AssignCourierRequest(BaseModel):
     courier_id: int
 
 
-@router.get("", response_model=List[OrderListSchema]) # Alias needed? No, using the name from schema
+@router.get("", response_model=List[OrderListResponse]) # Alias needed? No, using the name from schema
 async def get_orders(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=200),
