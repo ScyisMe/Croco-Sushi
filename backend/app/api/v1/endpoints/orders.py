@@ -16,7 +16,7 @@ from app.models.product import Product
 from app.models.product_size import ProductSize
 from app.models.user import User
 from app.models.address import Address
-from app.schemas.order import OrderCreate, OrderResponse, OrderTrack, OrderStatusUpdate
+from app.schemas.order import OrderCreate, OrderResponse, OrderTrack, OrderStatusUpdate, OrderListResponse
 from app.schemas.address import AddressCreate
 
 router = APIRouter()
@@ -376,7 +376,7 @@ async def track_order(
     return response_data
 
 
-@router.get("/me", response_model=List[OrderResponse])
+@router.get("/me", response_model=List[OrderListResponse])
 async def get_my_orders(
     skip: int = 0,
     limit: int = 20,
@@ -391,7 +391,9 @@ async def get_my_orders(
             noload(Order.reviews),
             noload(Order.status_history),
             joinedload(Order.address)
-            # items завантажаться автоматично через lazy="selectin" в моделі, це ок для картки
+            # items завантажаться автоматично через lazy="selectin" в моделі
+            # АЛЕ оскільки ми використовуємо OrderListResponse, вони не будуть серіалізовані
+            # можна додати noload(Order.items) для чистоти
         )
         .order_by(Order.created_at.desc())
         .offset(skip)

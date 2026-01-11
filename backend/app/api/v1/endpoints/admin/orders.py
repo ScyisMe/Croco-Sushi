@@ -4,7 +4,7 @@ from datetime import datetime, date, timezone
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, noload
 from pydantic import BaseModel
 import json
 
@@ -14,7 +14,7 @@ from app.core.exceptions import NotFoundException, BadRequestException
 from app.models.user import User
 from app.models.order import Order, OrderItem
 from app.models.order_history import OrderHistory
-from app.schemas.order import OrderResponse, OrderStatusUpdate, OrderHistoryLogResponse
+from app.schemas.order import OrderResponse, OrderStatusUpdate, OrderHistoryLogResponse, OrderListResponse
 
 router = APIRouter()
 
@@ -29,10 +29,10 @@ class AssignCourierRequest(BaseModel):
     courier_id: int
 
 
-@router.get("", response_model=List[OrderResponse])
+@router.get("", response_model=List[OrderListSchema]) # Alias needed? No, using the name from schema
 async def get_orders(
     skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=200),
+    limit: int = Query(20, ge=1, le=200),
     status_filter: Optional[List[str]] = Query(None, alias="status"),
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
@@ -44,11 +44,13 @@ async def get_orders(
     current_user: User = Depends(get_current_manager_user)
 ):
     """Отримати список замовлень з фільтрацією"""
+    # Використовуємо noload для "важких" зв'язків
     query = select(Order).options(
-        selectinload(Order.items).selectinload(OrderItem.product),
-        selectinload(Order.address),
-        selectinload(Order.user),
-        selectinload(Order.history)
+        noload(Order.items),
+        noload(Order.history),
+        noload(Order.reviews),
+        noload(Order.address),
+        noload(Order.user)
     )
     
     conditions = []
