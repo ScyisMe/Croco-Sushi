@@ -1,4 +1,4 @@
-﻿import dynamic from "next/dynamic";
+﻿import dynamicLoader from "next/dynamic";
 import Header from "@/components/AppHeader";
 import Hero from "@/components/Hero";
 import Footer from "@/components/AppFooter";
@@ -6,21 +6,21 @@ import Footer from "@/components/AppFooter";
 
 // import Stories from "@/components/Stories";
 // import PromoBanner from "@/components/PromoBanner";
-const Stories = dynamic(() => import("@/components/Stories"), {
+const Stories = dynamicLoader(() => import("@/components/Stories"), {
   loading: () => <div className="h-24 bg-surface-dark/50 animate-pulse" />,
 });
-const PromoBanner = dynamic(() => import("@/components/PromoBanner"), {
+const PromoBanner = dynamicLoader(() => import("@/components/PromoBanner"), {
   loading: () => <div className="h-64 bg-surface-dark/50 animate-pulse" />,
 });
 
-const ReviewsCarousel = dynamic(() => import("@/components/ReviewsCarousel"), {
+const ReviewsCarousel = dynamicLoader(() => import("@/components/ReviewsCarousel"), {
   loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
 });
-const Promotions = dynamic(() => import("@/components/Promotions"), {
+const Promotions = dynamicLoader(() => import("@/components/Promotions"), {
   loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
 });
 
-const CategoryFeed = dynamic(() => import("@/components/CategoryFeed"), {
+const CategoryFeed = dynamicLoader(() => import("@/components/CategoryFeed"), {
   loading: () => (
     <div className="container mx-auto px-4 py-8 space-y-12">
       {[...Array(3)].map((_, i) => (
