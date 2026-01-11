@@ -80,7 +80,8 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-repeat: no-repeat;
+  /* background-attachment: fixed; - REMOVED for performance (redundant on position: fixed) */
 }
 
 /* Premium Glassmorphism */

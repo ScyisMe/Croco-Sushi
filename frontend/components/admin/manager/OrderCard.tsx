@@ -101,7 +101,7 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
 
                 {/* Items Summary */}
                 <div className="text-sm text-gray-400 mb-3 line-clamp-2">
-                    {order.items.map((item) => (
+                    {(order.items || []).map((item) => (
                         <span key={item.id} className="mr-1">
                             {item.quantity}x {item.product_name},
                         </span>
