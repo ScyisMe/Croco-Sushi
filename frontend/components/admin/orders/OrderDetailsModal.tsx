@@ -105,7 +105,7 @@ export const OrderDetailsModal = ({ isOpen, onClose, order: initialOrder, status
                                 <div className="space-y-6">
                                     <h3 className="text-lg font-semibold text-white">Склад замовлення</h3>
                                     <div className="space-y-4">
-                                        {order.items?.map((item) => (
+                                        {order.items?.map((item: OrderItem) => (
                                             <div key={item.id} className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
                                                 <div className="w-16 h-16 bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center text-xs text-gray-500 overflow-hidden">
                                                     {item.image_url ? (
@@ -219,5 +219,6 @@ export const OrderDetailsModal = ({ isOpen, onClose, order: initialOrder, status
                     </>
                 )}
             </div>
-            );
+        </div>
+    );
 };
