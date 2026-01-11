@@ -37,6 +37,9 @@ const CategoryFeed = dynamic(() => import("@/components/CategoryFeed"), {
   ),
 });
 
+// Force static generation for the homepage
+export const dynamic = "force-static";
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
