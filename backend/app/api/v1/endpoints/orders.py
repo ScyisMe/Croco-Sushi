@@ -348,7 +348,8 @@ async def track_order(
         .where(Order.order_number == order_number)
         .options(
             selectinload(Order.address),
-            selectinload(Order.items)
+            selectinload(Order.items).selectinload(OrderItem.product),
+            selectinload(Order.history)
         )
     )
     order = result.scalar_one_or_none()
@@ -415,6 +416,10 @@ async def get_my_order(
         select(Order).where(
             Order.id == order_id,
             Order.user_id == current_user.id
+        ).options(
+            selectinload(Order.items).selectinload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
         )
     )
     order = result.scalar_one_or_none()

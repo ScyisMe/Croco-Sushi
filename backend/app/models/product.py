@@ -59,19 +59,16 @@ class Product(Base):
     # Relationships
     category: Mapped[OptionalType["Category"]] = relationship(
         "Category", 
-        back_populates="products",
-        lazy="selectin"
+        back_populates="products"
     )
     sizes: Mapped[List["ProductSize"]] = relationship(
         "ProductSize",
         back_populates="product",
-        cascade="all, delete-orphan",
-        lazy="selectin"
+        cascade="all, delete-orphan"
     )
     reviews: Mapped[List["Review"]] = relationship(
         "Review",
         back_populates="product",
-        cascade="all, delete-orphan",
-        lazy="selectin"
+        cascade="all, delete-orphan"
     )
 
