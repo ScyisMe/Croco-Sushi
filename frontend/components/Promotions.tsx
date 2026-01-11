@@ -100,9 +100,9 @@ export default function Promotions() {
                       src={promo.image_url}
                       alt={promo.name}
                       fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105 transform-gpu will-change-transform"
                       sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                      quality={75}
+                      quality={60}
                     />
                   </div>
                 ) : (
