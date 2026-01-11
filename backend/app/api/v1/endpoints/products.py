@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Query
 from app.core.cache import cache_endpoint
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
+from sqlalchemy.orm import noload
 from pydantic import BaseModel, Field
 
 from app.database import get_db
@@ -62,6 +63,7 @@ async def get_products(
     if is_vegan is not None:
         query = query.where(Product.is_vegan == is_vegan)
     
+    query = query.options(noload(Product.reviews), noload(Product.category))
     query = query.order_by(Product.position, Product.name).offset(skip).limit(limit)
     
     result = await db.execute(query)
@@ -79,6 +81,7 @@ async def get_popular_products(
     result = await db.execute(
         select(Product)
         .where(Product.is_available == True, Product.is_popular == True)
+        .options(noload(Product.reviews), noload(Product.category))
         .order_by(Product.position, Product.name)
         .limit(limit)
     )
