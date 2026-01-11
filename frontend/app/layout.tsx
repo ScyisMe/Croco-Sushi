@@ -47,7 +47,8 @@ export default function RootLayout({
       <head>
         <link rel="preload" href="/background-wave.webp" as="image" fetchPriority="high" />
         <link rel="preload" href="/images/hero-poster.webp" as="image" fetchPriority="high" />
-        <link rel="preconnect" href="https://a.plerdy.com" />
+        <link rel="preconnect" href="https://a.plerdy.com" crossOrigin="anonymous" />
+        {/* Font preloading is handled automatically by next/font. Manual preloading of hashed files is fragile. */}
       </head>
       <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>
