@@ -18,6 +18,7 @@ interface Order {
     history?: OrderHistoryEntry[];
     discount?: number;
     delivery_cost?: number;
+    payment_method?: string;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -64,6 +65,7 @@ export const OrderTable = ({ orders, onRowClick }: OrderTableProps) => {
                         <th className="px-6 py-4">Клієнт</th>
                         <th className="px-6 py-4">Сума</th>
                         <th className="px-6 py-4">Менеджер</th>
+                        <th className="px-6 py-4">Оплата</th>
                         <th className="px-6 py-4">Статус</th>
                         <th className="px-6 py-4 text-right">Дії</th>
                     </tr>
@@ -110,6 +112,17 @@ export const OrderTable = ({ orders, onRowClick }: OrderTableProps) => {
                                     ) : (
                                         <span className="text-gray-600">-</span>
                                     )}
+                                </td>
+                                <td className="px-6 py-4">
+                                    <span className={`text-xs px-2 py-1 rounded font-medium ${order.payment_method === 'online' ? 'bg-green-500/10 text-green-500' :
+                                        order.payment_method === 'card' ? 'bg-blue-500/10 text-blue-500' :
+                                            'bg-gray-500/10 text-gray-400'
+                                        }`}>
+                                        {order.payment_method === 'online' ? 'Online' :
+                                            order.payment_method === 'card' ? 'Термінал' :
+                                                order.payment_method === 'cash' ? 'Готівка' :
+                                                    'Не вказано'}
+                                    </span>
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded text-xs border ${STATUS_CONFIG[order.status]?.color || "text-gray-400 border-gray-700"

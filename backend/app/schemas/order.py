@@ -105,6 +105,7 @@ class OrderListResponse(BaseModel):
     created_at: datetime
     customer_name: Optional[str]
     customer_phone: str
+    payment_method: Optional[str] = None
     
     # Опціонально можна додати кількість товарів, якщо треба
     # items_count: int = 0
