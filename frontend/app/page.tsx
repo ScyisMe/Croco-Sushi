@@ -4,38 +4,17 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/AppFooter";
 // import CategoryFeed from "@/components/CategoryFeed";
 
-// import Stories from "@/components/Stories";
-// import PromoBanner from "@/components/PromoBanner";
-const Stories = dynamicLoader(() => import("@/components/Stories"), {
-  loading: () => <div className="h-24 bg-surface-dark/50 animate-pulse" />,
-});
-const PromoBanner = dynamicLoader(() => import("@/components/PromoBanner"), {
-  loading: () => <div className="h-64 bg-surface-dark/50 animate-pulse" />,
-});
+import Stories from "@/components/Stories";
+import PromoBanner from "@/components/PromoBanner";
+import Promotions from "@/components/Promotions";
+
+import CategoryFeed from "@/components/CategoryFeed";
 
 const ReviewsCarousel = dynamicLoader(() => import("@/components/ReviewsCarousel"), {
   loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
 });
-const Promotions = dynamicLoader(() => import("@/components/Promotions"), {
-  loading: () => <div className="h-96 bg-surface-dark/50 animate-pulse" />,
-});
 
-const CategoryFeed = dynamicLoader(() => import("@/components/CategoryFeed"), {
-  loading: () => (
-    <div className="container mx-auto px-4 py-8 space-y-12">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="space-y-6">
-          <div className="h-8 w-48 bg-surface-card rounded animate-pulse" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, j) => (
-              <div key={j} className="h-80 bg-surface-card rounded-2xl animate-pulse" />
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  ),
-});
+// const CategoryFeed = dynamicLoader... removed
 
 // Force static generation for the homepage
 export const dynamic = "force-static";
