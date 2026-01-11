@@ -6,7 +6,7 @@ import secrets
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, noload, joinedload
 
 from app.database import get_db
 from app.core.dependencies import get_current_active_user, get_optional_user
@@ -379,7 +379,7 @@ async def track_order(
 @router.get("/me", response_model=List[OrderResponse])
 async def get_my_orders(
     skip: int = 0,
-    limit: int = 50,
+    limit: int = 20,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
@@ -387,6 +387,12 @@ async def get_my_orders(
     result = await db.execute(
         select(Order)
         .where(Order.user_id == current_user.id)
+        .options(
+            noload(Order.reviews),
+            noload(Order.status_history),
+            joinedload(Order.address)
+            # items завантажаться автоматично через lazy="selectin" в моделі, це ок для картки
+        )
         .order_by(Order.created_at.desc())
         .offset(skip)
         .limit(limit)
