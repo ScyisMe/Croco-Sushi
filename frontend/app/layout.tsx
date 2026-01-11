@@ -37,16 +37,19 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/logo-192.png?v=3', type: 'image/png', sizes: '192x192' },
-      { url: '/logo-512.png?v=3', type: 'image/png', sizes: '512x512' },
-      { url: '/logo-32.png?v=3', type: 'image/png', sizes: '32x32' },
-      { url: '/favicon.ico?v=3', sizes: 'any' },
+      { url: '/logo-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/logo-512.png', type: 'image/png', sizes: '512x512' },
+      { url: '/logo-96.png', type: 'image/png', sizes: '96x96' },
+      { url: '/logo-48.png', type: 'image/png', sizes: '48x48' },
+      { url: '/logo-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon.ico', sizes: 'any' },
     ],
-    shortcut: '/favicon.ico?v=3',
+    shortcut: '/favicon.ico',
     apple: [
-      { url: '/logo-180.png?v=3', sizes: '180x180', type: 'image/png' },
+      { url: '/logo-180.png', sizes: '180x180', type: 'image/png' },
     ],
   },
+},
 };
 
 export default function RootLayout({
