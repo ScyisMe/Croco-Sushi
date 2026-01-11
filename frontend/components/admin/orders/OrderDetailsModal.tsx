@@ -91,7 +91,7 @@ export const OrderDetailsModal = ({ isOpen, onClose, order, statusConfig, onStat
                                             ) : "IMG"}
                                         </div>
                                         <div className="flex-1">
-                                            <p className="font-medium text-white">{item.product_name}</p>
+                                            <p className="font-medium text-white break-words">{item.product_name}</p>
                                             {item.size_name && <p className="text-xs text-gray-400">{item.size_name}</p>}
                                         </div>
                                         <div className="text-right">

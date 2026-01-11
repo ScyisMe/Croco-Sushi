@@ -109,7 +109,7 @@ export default function OrderDetailsModal({
                                                         )}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <div className="text-sm font-medium text-white truncate">{item.product_name}</div>
+                                                        <div className="text-sm font-medium text-white">{item.product_name}</div>
                                                         {item.size_name && <div className="text-xs text-gray-400">{item.size_name}</div>}
                                                     </div>
                                                     <div className="flex flex-col items-end">
