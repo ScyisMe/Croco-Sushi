@@ -291,6 +291,20 @@ async def reorder(
     if not old_order:
         raise NotFoundException("Замовлення не знайдено")
     
+    # Collect IDs for bulk fetching
+    product_ids = {item.product_id for item in old_order.items if item.product_id}
+    size_ids = {item.size_id for item in old_order.items if item.size_id}
+    
+    # Bulk fetch products
+    products_result = await db.execute(select(Product).where(Product.id.in_(product_ids)))
+    products_map = {p.id: p for p in products_result.scalars().all()}
+    
+    # Bulk fetch sizes
+    sizes_map = {}
+    if size_ids:
+        sizes_result = await db.execute(select(ProductSize).where(ProductSize.id.in_(size_ids)))
+        sizes_map = {s.id: s for s in sizes_result.scalars().all()}
+    
     # Перераховуємо ціни з БД для нових позицій
     total_amount = Decimal("0.00")
     order_items_data = []
@@ -300,9 +314,7 @@ async def reorder(
             # Якщо товар був видалений, пропускаємо позицію
             continue
         
-        # Завантажуємо товар з БД
-        result = await db.execute(select(Product).where(Product.id == old_item.product_id))
-        product = result.scalar_one_or_none()
+        product = products_map.get(old_item.product_id)
         
         if not product:
             # Товар видалено - пропускаємо
@@ -318,20 +330,15 @@ async def reorder(
         
         # Якщо був розмір - перевіряємо та беремо ціну з розміру
         if old_item.size_id:
-            result = await db.execute(
-                select(ProductSize).where(
-                    ProductSize.id == old_item.size_id,
-                    ProductSize.product_id == product.id
-                )
-            )
-            size = result.scalar_one_or_none()
+            size = sizes_map.get(old_item.size_id)
             
-            if size:
+            # Additional check: ensure size belongs to the product
+            if size and size.product_id == product.id:
                 size_price = size.price
                 size_id = size.id
                 size_name = size.name
             else:
-                # Розмір видалено - використовуємо базову ціну товару
+                # Розмір видалено або не належить товару - використовуємо базову ціну товару
                 size_price = product.price
         else:
             # Використовуємо базову ціну товару (завжди з БД)
