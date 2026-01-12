@@ -38,6 +38,8 @@ interface Order {
   created_at: string;
   items?: OrderItem[];
   comment?: string;
+  discount?: number;
+  delivery_cost?: number;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -100,7 +102,7 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      let url = "/admin/orders?limit=50";
+      let url = "/admin/orders?limit=20";
       if (selectedStatus) {
         url += `&status=${selectedStatus}`;
       }
@@ -272,7 +274,11 @@ export default function AdminOrdersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 font-medium text-gray-200">
-                      {formatPrice(order.total_amount)}
+                      {formatPrice(
+                        order.total_amount -
+                        (order.discount ? Number(order.discount) : 0) +
+                        (order.delivery_cost ? Number(order.delivery_cost) : 0)
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div onClick={(e) => e.stopPropagation()}>

@@ -23,6 +23,10 @@ function CartSyncProvider({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+import { LazyMotion, domAnimation } from "framer-motion";
+
+// ... (imports)
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -40,7 +44,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <CartSyncProvider>
-          {children}
+          <LazyMotion features={domAnimation} strict>
+            {children}
+          </LazyMotion>
         </CartSyncProvider>
       </ThemeProvider>
     </QueryClientProvider>

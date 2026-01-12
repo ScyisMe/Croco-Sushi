@@ -96,6 +96,23 @@ class OrderUpdate(BaseModel):
     comment: Optional[str] = None
 
 
+class OrderListResponse(BaseModel):
+    """Полегшена схема для списків замовлень (без вкладених об'єктів)"""
+    id: int
+    order_number: str
+    status: str
+    total_amount: Decimal
+    created_at: datetime
+    customer_name: Optional[str]
+    customer_phone: str
+    payment_method: Optional[str] = None
+    
+    # Опціонально можна додати кількість товарів, якщо треба
+    # items_count: int = 0
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
 class OrderResponse(BaseModel):
     id: int
     order_number: str
@@ -144,6 +161,7 @@ class OrderTrack(BaseModel):
     delivery_time: Optional[datetime] = None
     comment: Optional[str] = None
     
+
     # Адреса (flattened або nested - оберемо flattened для простоти)
     city: Optional[str] = None
     street: Optional[str] = None
@@ -151,6 +169,11 @@ class OrderTrack(BaseModel):
     apartment: Optional[str] = None
     entrance: Optional[str] = None
     floor: Optional[str] = None
+    
+    # Деталі замовлення
+    items: List[OrderItemResponse] = []
+    delivery_cost: Decimal = Decimal("0.00")
+    discount: Decimal = Decimal("0.00")
     
     # Історія статусів
     status_history: Optional[List[dict]] = None

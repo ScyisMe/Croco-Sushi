@@ -28,7 +28,7 @@ def get_engine():
     if _engine is None:
         # БЕЗПЕКА: echo=False в production для запобігання витоку чутливих даних
         # Використовуємо змінну оточення або налаштування для контролю логування
-        echo_sql = getattr(settings, 'ECHO_SQL', False)  # За замовчуванням False
+        echo_sql = True # getattr(settings, 'ECHO_SQL', False)  # DEBUG: Forced True
         
         _engine = create_async_engine(
             settings.DATABASE_URL,

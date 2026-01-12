@@ -1,4 +1,8 @@
-
+{
+    servers {
+        protocols h1 h2
+    }
+}
 
 crocosushi.com {
     encode gzip zstd

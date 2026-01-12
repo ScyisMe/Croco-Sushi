@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Query
 from app.core.cache import cache_endpoint
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
+from sqlalchemy.orm import noload
 from pydantic import BaseModel, Field
 
 from app.database import get_db
@@ -10,6 +11,7 @@ from app.core.exceptions import NotFoundException
 from app.models.product import Product
 from app.models.category import Category
 from app.schemas.product import ProductResponse
+from sqlalchemy.orm import selectinload
 
 router = APIRouter()
 
@@ -22,7 +24,7 @@ class ProductValidationRequest(BaseModel):
 @cache_endpoint(ttl=300, prefix="products_list")
 async def get_products(
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=100),
+    limit: int = Query(20, ge=1, le=100),
     category_id: Optional[int] = None,
     category_slug: Optional[str] = None,
     search: Optional[str] = None,
@@ -62,6 +64,11 @@ async def get_products(
     if is_vegan is not None:
         query = query.where(Product.is_vegan == is_vegan)
     
+    query = query.options(
+        noload(Product.reviews), 
+        noload(Product.category),
+        selectinload(Product.sizes)
+    )
     query = query.order_by(Product.position, Product.name).offset(skip).limit(limit)
     
     result = await db.execute(query)
@@ -79,6 +86,11 @@ async def get_popular_products(
     result = await db.execute(
         select(Product)
         .where(Product.is_available == True, Product.is_popular == True)
+        .options(
+            noload(Product.reviews), 
+            noload(Product.category),
+            selectinload(Product.sizes)
+        )
         .order_by(Product.position, Product.name)
         .limit(limit)
     )
@@ -104,7 +116,7 @@ async def get_product_recommendations(
     query = select(Product).where(
         Product.is_available == True,
         Product.id != product_id
-    )
+    ).options(selectinload(Product.sizes))
     
     if product.category_id:
         query = query.where(Product.category_id == product.category_id)
@@ -124,7 +136,11 @@ async def get_product_by_slug(
 ):
     """Отримати продукт за slug"""
     result = await db.execute(
-        select(Product).where(Product.slug == slug, Product.is_available == True)
+        select(Product)
+        .where(Product.slug == slug, Product.is_available == True)
+        .options(
+            selectinload(Product.sizes)
+        )
     )
     product = result.scalar_one_or_none()
     if not product:
@@ -145,7 +161,7 @@ async def validate_products(
         select(Product).where(
             Product.id.in_(request.product_ids),
             Product.is_available == True
-        )
+        ).options(selectinload(Product.sizes))
     )
     products = result.scalars().all()
     return products

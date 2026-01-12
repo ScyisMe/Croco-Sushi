@@ -92,12 +92,16 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
                 {/* Amount */}
                 <div className="flex items-center gap-1 text-primary font-bold text-lg mb-3">
                     <BanknotesIcon className="w-4 h-4" />
-                    {parseFloat(order.total_amount).toFixed(0)} ₴
+                    {parseFloat((
+                        parseFloat(order.total_amount) -
+                        (order.discount ? parseFloat(order.discount.toString()) : 0) +
+                        (order.delivery_cost ? parseFloat(order.delivery_cost) : 0)
+                    ).toString()).toFixed(0)} ₴
                 </div>
 
                 {/* Items Summary */}
                 <div className="text-sm text-gray-400 mb-3 line-clamp-2">
-                    {order.items.map((item) => (
+                    {(order.items || []).map((item) => (
                         <span key={item.id} className="mr-1">
                             {item.quantity}x {item.product_name},
                         </span>

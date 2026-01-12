@@ -5,7 +5,11 @@ import apiClient from "@/lib/api/apiClient";
 import { Category } from "@/lib/types";
 import CategorySection from "./CategorySection";
 
-export default function CategoryFeed() {
+interface CategoryFeedProps {
+    initialCategories?: Category[] | null;
+}
+
+export default function CategoryFeed({ initialCategories }: CategoryFeedProps) {
     const { data: categories = [], isLoading } = useQuery<Category[]>({
         queryKey: ["categories"],
         queryFn: async () => {
@@ -13,6 +17,10 @@ export default function CategoryFeed() {
             return response.data
                 .filter((cat: Category) => cat.is_active);
         },
+        // Only use initialData if we actually have categories. 
+        // If initialCategories is null (fetch failed) or empty, we want to try fetching on client.
+        initialData: (initialCategories && initialCategories.length > 0) ? initialCategories : undefined,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
     if (isLoading) {

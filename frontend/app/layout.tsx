@@ -35,18 +35,6 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   manifest: '/manifest.json',
-  icons: {
-    icon: [
-      { url: '/favicon.ico?v=3', sizes: 'any' },
-      { url: '/logo-32.png?v=3', type: 'image/png', sizes: '32x32' },
-      { url: '/logo-192.png?v=3', type: 'image/png', sizes: '192x192' },
-      { url: '/logo-512.png?v=3', type: 'image/png', sizes: '512x512' },
-    ],
-    shortcut: '/favicon.ico?v=3',
-    apple: [
-      { url: '/logo-180.png?v=3', sizes: '180x180', type: 'image/png' },
-    ],
-  },
 };
 
 export default function RootLayout({
@@ -57,9 +45,10 @@ export default function RootLayout({
   return (
     <html lang="uk" suppressHydrationWarning>
       <head>
-        <link rel="preload" href="/background-wave.webp" as="image" />
+        <link rel="preload" href="/background-wave.webp" as="image" fetchPriority="high" />
         <link rel="preload" href="/images/hero-poster.webp" as="image" fetchPriority="high" />
-        <link rel="preconnect" href="https://a.plerdy.com" />
+        <link rel="preconnect" href="https://a.plerdy.com" crossOrigin="anonymous" />
+        {/* Font preloading is handled automatically by next/font. Manual preloading of hashed files is fragile. */}
       </head>
       <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
         <Providers>

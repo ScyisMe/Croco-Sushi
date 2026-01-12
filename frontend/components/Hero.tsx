@@ -33,41 +33,43 @@ export default function Hero() {
     <LazyMotion features={domAnimation}>
       <section ref={ref} className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
         {/* Video Background */}
-        <m.div
-          style={{ y: isMobile ? 0 : y, opacity }}
-          className="absolute inset-0 z-0 will-change-transform"
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-surface-dark z-10" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10" />
+        {/* Video Background - Renders immediately (LCP optimized) */}
+        <div className="absolute inset-0 z-0 bg-surface-dark">
+          {/* Parallax effect applied via standard style if possible, or simplified */}
+          <m.div style={{ y: isMobile ? 0 : y, opacity }} className="absolute inset-0 w-full h-full">
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-surface-dark z-10" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.6)_100%)] z-10" />
 
-          {/* Mobile: Static Image */}
-          {/* Mobile: Static Image */}
-          <div className="relative w-full h-full md:hidden">
-            <Image
-              src="/images/hero-poster.webp"
-              alt="Hero Background"
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 768px) 100vw, 80vw"
-              quality={65}
-            />
-          </div>
+            {/* Mobile: Static Image - LCP Element */}
+            <div className="relative w-full h-full md:hidden">
+              <Image
+                src="/images/hero-poster.webp"
+                alt="Hero Background"
+                fill
+                className="object-cover"
+                priority
+                sizes="100vw"
+                quality={70}
+              />
+            </div>
 
-          {/* Desktop: Video */}
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/hero-poster.webp"
-            className="w-full h-full object-cover hidden md:block"
-            aria-label="Background video showing sushi preparation and atmosphere"
-          >
-            <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
-            <source src="/hero-bg.mp4" type="video/mp4" />
-          </video>
-        </m.div>
+            {/* Desktop: Video */}
+            {!isMobile && (
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster="/images/hero-poster.webp"
+                className="w-full h-full object-cover hidden md:block"
+                aria-label="Background video showing sushi preparation and atmosphere"
+              >
+                <source src="/hero-bg.mp4" media="(min-width: 769px)" type="video/mp4" />
+                <source src="/hero-bg.mp4" type="video/mp4" />
+              </video>
+            )}
+          </m.div>
+        </div>
 
         {/* Content */}
         <div className="container mx-auto px-4 pt-20 relative z-20 text-center">

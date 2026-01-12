@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
     const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' https:;
@@ -17,7 +16,6 @@ export function middleware(request: NextRequest) {
 `;
 
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-nonce', nonce);
     requestHeaders.set(
         'Content-Security-Policy',
         // Replace newlines with spaces
@@ -46,7 +44,11 @@ export const config = {
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
+         * - robots.txt
+         * - sitemap.xml
+         * - manifest.json
+         * - any file with extension (e.g. .svg, .png, .jpg, .jpeg, .webp, .css, .js)
          */
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.json|.*\\.(?:svg|png|jpg|jpeg|webp|css|js)).*)',
     ],
 };

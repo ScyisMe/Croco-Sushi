@@ -108,7 +108,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
 
 # Активуємо Rate Limit (1000 запитів за хвилину для комфортної розробки)
-app.add_middleware(RateLimitMiddleware, limit=1000, window=60)
+# app.add_middleware(RateLimitMiddleware, limit=1000, window=60)
 
 
 # 3. CORS (ОСТАННІМ - щоб виконувався ПЕРШИМ і обгортав всі відповіді)

@@ -13,22 +13,23 @@ export default function PlerdyScript() {
         };
 
         const removeEventListeners = () => {
-            window.removeEventListener("scroll", handleInteraction);
-            window.removeEventListener("mousemove", handleInteraction);
+            window.removeEventListener("click", handleInteraction);
             window.removeEventListener("touchstart", handleInteraction);
             window.removeEventListener("keydown", handleInteraction);
         };
 
-        window.addEventListener("scroll", handleInteraction, { passive: true });
-        window.addEventListener("mousemove", handleInteraction, { passive: true });
-        window.addEventListener("touchstart", handleInteraction, { passive: true });
-        window.addEventListener("keydown", handleInteraction, { passive: true });
-
-        // Also load after a delay if no interaction
+        // Delay load to prioritize Main Thread for LCP/TBT
         const timer = setTimeout(() => {
             setShouldLoad(true);
             removeEventListeners();
-        }, 4000);
+        }, 8000); // Increased to 8s
+
+        // Only load on explicit interaction (click/touch), not just scroll/move
+        window.addEventListener("click", handleInteraction, { passive: true });
+        window.addEventListener("touchstart", handleInteraction, { passive: true });
+        window.addEventListener("keydown", handleInteraction, { passive: true });
+
+        // Removed scroll/mousemove to strictly improve TBT scores on initial load
 
         return () => {
             removeEventListeners();

@@ -22,6 +22,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import NumberTicker from "@/components/ui/NumberTicker";
+import CartUpsell from "@/components/CartUpsell";
 
 interface CartProps {
   isOpen: boolean;
@@ -465,6 +466,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
                           {/* Промокод */}
                           {renderPromoSection()}
+
+                          {/* Upsell / Recommendations */}
+                          <CartUpsell />
 
                         </div>
                       )}

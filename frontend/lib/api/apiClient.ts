@@ -7,7 +7,7 @@ const isServer = typeof window === "undefined";
 // На клієнті або в локальній розробці використовуємо публічний URL
 const API_URL = isServer && process.env.NODE_ENV === "production"
   ? (process.env.INTERNAL_API_URL || "http://backend:8000")
-  : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
+  : (process.env.NEXT_PUBLIC_API_URL || ""); // Use relative path on client if env var missing
 
 // Створюємо axios інстанс
 const apiClient: AxiosInstance = axios.create({
