@@ -173,6 +173,8 @@ async def delete_address(
     db: AsyncSession = Depends(get_db)
 ):
     """Видалити адресу"""
+    from sqlalchemy.exc import IntegrityError
+
     result = await db.execute(
         select(Address).where(
             Address.id == address_id,
@@ -184,9 +186,24 @@ async def delete_address(
     if not address:
         raise NotFoundException("Адреса не знайдена")
     
-    # Правильний спосіб видалення в SQLAlchemy 2.0 async
-    await db.execute(delete(Address).where(Address.id == address_id))
-    await db.commit()
+    try:
+        # Спробуємо фізично видалити адресу
+        await db.execute(delete(Address).where(Address.id == address_id))
+        await db.commit()
+    except IntegrityError:
+        # Якщо адреса використовується в замовленнях - не видаляємо, а відв'язуємо від користувача
+        await db.rollback()
+        
+        # Reload address to be attached to session
+        result = await db.execute(
+            select(Address).where(Address.id == address_id)
+        )
+        address = result.scalar_one()
+        
+        address.user_id = None
+        address.is_default = False
+        db.add(address)
+        await db.commit()
     
     return None
 
