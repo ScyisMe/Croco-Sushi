@@ -40,7 +40,7 @@ export const StatusChangeModal = ({ isOpen, onClose, onConfirm, status, isLoadin
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[100] p-4">
             <div className="bg-surface-card rounded-xl w-full max-w-md border border-white/10 shadow-2xl relative">
                 <button
                     onClick={onClose}
