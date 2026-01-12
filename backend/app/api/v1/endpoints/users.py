@@ -4,7 +4,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from app.database import get_db
 from app.core.dependencies import get_current_active_user
@@ -15,7 +15,7 @@ from app.core.exceptions import (
 )
 from app.models.user import User
 from app.models.address import Address
-from app.models.order import Order
+from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.product_size import ProductSize
 from app.models.review import Review
@@ -240,7 +240,11 @@ async def get_my_orders(
         .order_by(Order.created_at.desc())
         .offset(skip)
         .limit(limit)
-        .options(selectinload(Order.items), selectinload(Order.address))
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
     )
     orders = result.scalars().all()
     return orders
@@ -258,7 +262,11 @@ async def get_my_order(
             Order.id == order_id,
             Order.user_id == current_user.id
         )
-        .options(selectinload(Order.items), selectinload(Order.address))
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
     )
     order = result.scalar_one_or_none()
     
@@ -408,7 +416,20 @@ async def reorder(
         db.add(new_item)
     
     await db.commit()
-    await db.refresh(new_order)
+    await db.commit()
+    # await db.refresh(new_order)
+    
+    # Reload with relationships
+    result = await db.execute(
+        select(Order)
+        .where(Order.id == new_order.id)
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
+    )
+    new_order = result.scalar_one()
     
     return new_order
 
@@ -426,6 +447,11 @@ async def cancel_order(
         select(Order).where(
             Order.id == order_id,
             Order.user_id == current_user.id
+        )
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
         )
     )
     order = result.scalar_one_or_none()
@@ -460,7 +486,20 @@ async def cancel_order(
     order.status_history = history
     
     await db.commit()
-    await db.refresh(order)
+    await db.commit()
+    # await db.refresh(order)
+    
+    # Reload with relationships
+    result = await db.execute(
+        select(Order)
+        .where(Order.id == order.id)
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
+    )
+    order = result.scalar_one()
     
     return order
 
