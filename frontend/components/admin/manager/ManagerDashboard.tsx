@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import KanbanBoard from "./KanbanBoard";
 import { format } from "date-fns";
-import { PhoneIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/outline";
+import { PhoneIcon, CheckCircleIcon, XCircleIcon, HomeIcon } from "@heroicons/react/24/outline";
 import apiClient from "@/lib/api/apiClient";
 
 interface CallbackRequest {
@@ -63,6 +64,13 @@ export default function ManagerDashboard() {
             {/* Header */}
             <header className="bg-surface-card border-b border-white/10 px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
+                    <Link
+                        href="/"
+                        className="p-2 -ml-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition"
+                        title="На головну"
+                    >
+                        <HomeIcon className="w-6 h-6" />
+                    </Link>
                     <h1 className="text-2xl font-bold text-white">Manager Terminal</h1>
                     <span className="px-3 py-1 bg-primary/20 text-primary text-sm rounded-full font-medium animate-pulse">
                         Live
