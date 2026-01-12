@@ -13,6 +13,9 @@ router = APIRouter()
 
 from app.core.cache import cache_endpoint
 
+from sqlalchemy import func
+from app.models.product import Product
+
 @router.get("/", response_model=List[CategoryResponse])
 @cache_endpoint(ttl=300, prefix="categories_list")
 async def get_categories(
@@ -21,14 +24,23 @@ async def get_categories(
     db: AsyncSession = Depends(get_db)
 ):
     """Отримати список активних категорій"""
-    result = await db.execute(
-        select(Category)
+    stmt = (
+        select(Category, func.count(Product.id).label("products_count"))
+        .outerjoin(Product, Product.category_id == Category.id)
         .where(Category.is_active == True)
+        .group_by(Category.id)
         .order_by(Category.position, Category.name)
         .offset(skip)
         .limit(limit)
     )
-    categories = result.scalars().all()
+    result = await db.execute(stmt)
+    rows = result.all()
+    
+    categories = []
+    for cat, count in rows:
+        cat.products_count = count
+        categories.append(cat)
+        
     return categories
 
 
@@ -39,12 +51,21 @@ async def get_category_by_slug(
     db: AsyncSession = Depends(get_db)
 ):
     """Отримати категорію за slug"""
-    result = await db.execute(
-        select(Category).where(Category.slug == slug, Category.is_active == True)
+    stmt = (
+        select(Category, func.count(Product.id).label("products_count"))
+        .outerjoin(Product, Product.category_id == Category.id)
+        .where(Category.slug == slug, Category.is_active == True)
+        .group_by(Category.id)
     )
-    category = result.scalar_one_or_none()
-    if not category:
+    result = await db.execute(stmt)
+    row = result.first()
+    
+    if not row:
         raise NotFoundException("Категорію не знайдено")
+        
+    category, count = row
+    category.products_count = count
+    
     return category
 
 
