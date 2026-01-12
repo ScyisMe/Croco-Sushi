@@ -324,13 +324,13 @@ export default function ProfilePage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Бокова панель з вкладками */}
             <div className="lg:col-span-1">
-              <nav className="glass-card rounded-2xl p-3 sticky top-28">
-                <ul className="space-y-1">
+              <nav className="glass-card rounded-2xl p-2 md:p-3 sticky top-24 z-10 overflow-hidden">
+                <ul className="flex lg:flex-col overflow-x-auto scrollbar-hide gap-2 lg:gap-1">
                   {TABS.map((tab) => (
-                    <li key={tab.id}>
+                    <li key={tab.id} className="flex-shrink-0">
                       <button
                         onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${activeTab === tab.id
+                        className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 text-sm md:text-base whitespace-nowrap ${activeTab === tab.id
                           ? "bg-primary-500 text-surface-dark font-semibold shadow-lg shadow-primary-500/30"
                           : "text-gray-400 hover:bg-white/5 hover:text-white"
                           }`}
@@ -338,7 +338,7 @@ export default function ProfilePage() {
                         <tab.icon className="w-5 h-5" />
                         <span className="font-medium">{tab.name}</span>
                         {activeTab === tab.id && (
-                          <ChevronRightIcon className="w-4 h-4 ml-auto" />
+                          <ChevronRightIcon className="w-4 h-4 ml-auto hidden lg:block" />
                         )}
                       </button>
                     </li>
@@ -349,7 +349,7 @@ export default function ProfilePage() {
 
             {/* Основний контент */}
             <div className="lg:col-span-3">
-              <div className="glass-card rounded-2xl p-6 md:p-8 min-h-[500px] animate-fade-in">
+              <div className="glass-card rounded-2xl p-4 md:p-8 min-h-[500px] animate-fade-in">
                 {/* Вкладка: Профіль */}
                 {activeTab === "profile" && (
                   <div>
@@ -536,7 +536,7 @@ export default function ProfilePage() {
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-1 group-hover:opacity-100 transition-opacity">
                                 {!address.is_default && (
                                   <button
                                     onClick={() => setDefaultAddressMutation.mutate(address.id)}
