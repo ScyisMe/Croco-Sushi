@@ -21,9 +21,10 @@ import {
   PlusIcon,
   ChevronRightIcon,
   CheckIcon,
-  ArrowLeftStartOnRectangleIcon,
+  ArrowRightStartOnRectangleIcon,
   StarIcon,
 } from "@heroicons/react/24/outline";
+import LoyaltyCard from "@/components/profile/LoyaltyCard";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 
 // Вкладки профілю
@@ -297,54 +298,64 @@ export default function ProfilePage() {
       <Header />
 
       <main className="flex-grow pt-24 pb-12">
-        {/* Заголовок */}
-        <div className="container mx-auto px-4 mb-8">
-          <div className="glass-card rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        {/* Header */}
+        <div className="container mx-auto px-4 mb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold font-display text-gradient-gold">
-                Особистий кабінет
-              </h1>
               {userQuery.data && (
-                <p className="text-gray-300 mt-2 text-lg">
-                  Вітаємо, <span className="text-white font-medium">{userQuery.data.name || 'Гостю'}</span>!
-                </p>
+                <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                  Вітаємо, {userQuery.data.name || 'Гостю'}! 👋
+                </h1>
               )}
+              <p className="text-gray-400 text-sm mt-1">
+                Керуйте своїм профілем та замовленнями
+              </p>
             </div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:text-accent-red transition-all duration-200 text-sm opacity-70 hover:opacity-100"
+              className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-red-400 transition-all duration-200"
+              title="Вийти"
             >
-              <ArrowLeftStartOnRectangleIcon className="w-5 h-5" />
-              <span>Вийти</span>
+              <ArrowRightStartOnRectangleIcon className="w-6 h-6" />
             </button>
           </div>
         </div>
 
         <div className="container mx-auto px-4">
+
+          {/* Mobile Loyalty Card (Top) */}
+          <div className="lg:hidden mb-8">
+            {userQuery.data && <LoyaltyCard user={userQuery.data} />}
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Бокова панель з вкладками */}
             <div className="lg:col-span-1">
-              <nav className="glass-card rounded-2xl p-2 md:p-3 sticky top-24 z-10 overflow-hidden">
-                <ul className="flex lg:flex-col overflow-x-auto scrollbar-hide gap-2 lg:gap-1">
+              <nav className="glass-card bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-1.5 md:p-3 sticky top-24 z-10">
+                <ul className="flex lg:flex-col overflow-x-auto scrollbar-hide gap-1">
                   {TABS.map((tab) => (
-                    <li key={tab.id} className="flex-shrink-0">
+                    <li key={tab.id} className="flex-shrink-0 flex-1 lg:flex-none">
                       <button
                         onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all duration-200 text-sm md:text-base whitespace-nowrap ${activeTab === tab.id
-                          ? "bg-primary-500 text-surface-dark font-semibold shadow-lg shadow-primary-500/30"
-                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                        className={`w-full flex items-center justify-center lg:justify-start gap-2 px-4 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium whitespace-nowrap ${activeTab === tab.id
+                            ? "bg-white text-black shadow-lg"
+                            : "text-gray-400 hover:text-white hover:bg-white/5"
                           }`}
                       >
-                        <tab.icon className="w-5 h-5" />
-                        <span className="font-medium">{tab.name}</span>
+                        <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? "text-black" : "text-gray-500 group-hover:text-white"}`} />
+                        <span>{tab.name}</span>
                         {activeTab === tab.id && (
-                          <ChevronRightIcon className="w-4 h-4 ml-auto hidden lg:block" />
+                          <ChevronRightIcon className="w-4 h-4 ml-auto hidden lg:block text-gray-400" />
                         )}
                       </button>
                     </li>
                   ))}
                 </ul>
               </nav>
+
+              {/* Desktop Loyalty Card (Sidebar) */}
+              <div className="hidden lg:block mt-6 sticky top-[300px]">
+                {userQuery.data && <LoyaltyCard user={userQuery.data} />}
+              </div>
             </div>
 
             {/* Основний контент */}
@@ -357,11 +368,10 @@ export default function ProfilePage() {
                       <h2 className="text-2xl font-bold font-display">Особисті дані</h2>
                       {!isEditingProfile && (
                         <button
-                          onClick={() => setIsEditingProfile(true)}
-                          className="flex items-center gap-2 text-primary-500 hover:text-primary-400 transition"
+                          className="p-2 rounded-lg text-primary-400 hover:text-white hover:bg-white/10 transition-colors"
+                          title="Редагувати профіль"
                         >
-                          <PencilIcon className="w-4 h-4" />
-                          Редагувати
+                          <PencilIcon className="w-5 h-5" />
                         </button>
                       )}
                     </div>
@@ -440,48 +450,30 @@ export default function ProfilePage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-1">
-                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
-                          <span className="text-gray-400">Телефон</span>
-                          <span className="font-medium text-white text-lg">
-                            {userQuery.data?.phone}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
-                          <span className="text-gray-400">Ім&apos;я</span>
-                          <span className="font-medium text-white text-lg">
-                            {userQuery.data?.name || "—"}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
-                          <span className="text-gray-400">Email</span>
-                          <span className="font-medium text-white text-lg">
-                            {userQuery.data?.email || "—"}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-[140px_1fr] items-center py-4 border-b border-white/10">
-                          <span className="text-gray-400">Бонусні бали</span>
-                          <span className="font-bold text-accent-gold text-lg">
-                            {userQuery.data?.bonus_balance || 0} балів
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-[140px_1fr] items-center py-4">
-                          <span className="text-gray-400">Статус</span>
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border w-fit ${userQuery.data?.loyalty_status === "gold"
-                              ? "bg-gradient-to-r from-yellow-500/30 to-amber-500/20 text-yellow-300 border-yellow-400/40 shadow-lg shadow-yellow-500/10"
-                              : userQuery.data?.loyalty_status === "silver"
-                                ? "bg-gradient-to-r from-gray-400/20 to-slate-400/20 text-gray-200 border-gray-400/40"
-                                : "bg-gradient-to-r from-emerald-500/30 to-green-500/20 text-emerald-300 border-emerald-400/50 shadow-lg shadow-emerald-500/10"
-                              }`}
-                          >
-                            <StarIcon className="w-4 h-4" />
-                            {userQuery.data?.loyalty_status === "gold"
-                              ? "Золотий"
-                              : userQuery.data?.loyalty_status === "silver"
-                                ? "Срібний"
-                                : "Новий"}
-                          </span>
+                      <div className="space-y-6">
+                        <div className="relative group">
+                          <div className="absolute -inset-1 bg-gradient-to-r from-primary-500/20 to-purple-500/20 rounded-xl blur opacity-25 group-hover:opacity-75 transition duration-500" />
+                          <div className="relative bg-black/40 border border-white/10 rounded-xl p-5 md:p-6 backdrop-blur-sm">
+                            <div className="flex flex-col gap-6">
+                              {/* Phone */}
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Телефон</span>
+                                <span className="text-lg font-medium text-white font-mono">{userQuery.data?.phone}</span>
+                              </div>
+
+                              {/* Name */}
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Ім&apos;я</span>
+                                <span className="text-lg font-medium text-white">{userQuery.data?.name || "—"}</span>
+                              </div>
+
+                              {/* Email */}
+                              <div className="flex flex-col gap-1.5">
+                                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Email</span>
+                                <span className="text-lg font-medium text-white break-all">{userQuery.data?.email || "—"}</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
