@@ -52,17 +52,14 @@ class Review(Base):
     # Relationships
     user: Mapped[Optional["User"]] = relationship(
         "User",
-        back_populates="reviews",
-        lazy="selectin"
+        back_populates="reviews"
     )
     order: Mapped[Optional["Order"]] = relationship(
-        "Order",
-        lazy="selectin"
+        "Order"
     )
     product: Mapped[Optional["Product"]] = relationship(
         "Product",
-        back_populates="reviews",
-        lazy="selectin"
+        back_populates="reviews"
     )
 
 

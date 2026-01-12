@@ -39,12 +39,10 @@ class Favorite(Base):
     # Relationships
     user: Mapped["User"] = relationship(
         "User",
-        back_populates="favorites",
-        lazy="selectin"
+        back_populates="favorites"
     )
     product: Mapped["Product"] = relationship(
-        "Product",
-        lazy="selectin"
+        "Product"
     )
 
     __table_args__ = (

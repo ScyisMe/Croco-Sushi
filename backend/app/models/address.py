@@ -36,7 +36,6 @@ class Address(Base):
     # Relationships
     user: Mapped["User"] = relationship(
         "User", 
-        back_populates="addresses",
-        lazy="selectin"
+        back_populates="addresses"
     )
 

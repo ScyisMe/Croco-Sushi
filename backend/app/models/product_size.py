@@ -38,8 +38,7 @@ class ProductSize(Base):
     # Relationships
     product: Mapped["Product"] = relationship(
         "Product",
-        back_populates="sizes",
-        lazy="selectin"
+        back_populates="sizes"
     )
 
 

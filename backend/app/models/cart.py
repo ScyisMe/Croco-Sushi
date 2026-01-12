@@ -41,8 +41,7 @@ class Cart(Base):
     items: Mapped[List["CartItem"]] = relationship(
         "CartItem",
         back_populates="cart",
-        cascade="all, delete-orphan",
-        lazy="selectin"
+        cascade="all, delete-orphan"
     )
 
 
@@ -75,5 +74,5 @@ class CartItem(Base):
 
     # Relationships
     cart: Mapped["Cart"] = relationship("Cart", back_populates="items")
-    product: Mapped["Product"] = relationship("Product", lazy="selectin")
-    size: Mapped[Optional["ProductSize"]] = relationship("ProductSize", lazy="selectin")
+    product: Mapped["Product"] = relationship("Product")
+    size: Mapped[Optional["ProductSize"]] = relationship("ProductSize")
