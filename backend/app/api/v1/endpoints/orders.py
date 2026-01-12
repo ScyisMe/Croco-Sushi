@@ -284,11 +284,19 @@ async def create_order(
         
         await db.commit()
         
-        # FIX: MissingGreenlet error
-        # Load items explicitly using refresh with options or attribute_names is safest for async
-        # "selectinload" helper on query or "refresh" with names works. 
-        # refresh is better for just reloading relationships on an already present object.
-        await db.refresh(new_order, attribute_names=["items"])
+        # FIX: MissingGreenlet error during Pydantic validation
+        # We need to eagerly load all relationships accessed by the schema
+        # OrderResponse accesses: items.product (for image), address, history
+        result = await db.execute(
+            select(Order)
+            .where(Order.id == new_order.id)
+            .options(
+                selectinload(Order.items).joinedload(OrderItem.product),
+                selectinload(Order.address),
+                selectinload(Order.history)
+            )
+        )
+        new_order = result.scalar_one()
         
         # Відправка підтвердження замовлення через Celery (асинхронно)
         if order_data.customer_email:
