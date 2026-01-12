@@ -668,7 +668,7 @@ async def get_my_favorites(
     result = await db.execute(
         select(Favorite)
         .where(Favorite.user_id == current_user.id)
-        .options(selectinload(Favorite.product))
+        .options(selectinload(Favorite.product).selectinload(Product.sizes))
         .order_by(Favorite.created_at.desc())
     )
     favorites = result.scalars().all()
