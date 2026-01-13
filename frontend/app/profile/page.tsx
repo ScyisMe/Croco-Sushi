@@ -326,8 +326,8 @@ export default function ProfilePage() {
                             // Swiper slideTo handled in useEffect
                           }}
                           className={`w-full flex items-center justify-center lg:justify-start gap-2 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium whitespace-nowrap relative group ${activeTab === tab.id
-                              ? "text-white bg-white/10"
-                              : "text-gray-400 hover:text-white hover:bg-white/5"
+                            ? "text-white bg-white/10"
+                            : "text-gray-400 hover:text-white hover:bg-white/5"
                             }`}
                         >
                           <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? "text-primary-400" : "text-gray-500 group-hover:text-white"}`} />
@@ -684,7 +684,7 @@ export default function ProfilePage() {
                 </div>
                 {/* Other fields... */}
                 <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Під'їзд</label>
+                  <label className="text-xs text-gray-400 mb-1 block">Під&apos;їзд</label>
                   <input type="text" value={addressForm.entrance} onChange={e => setAddressForm({ ...addressForm, entrance: e.target.value })} className="input" />
                 </div>
                 <div>
@@ -692,7 +692,7 @@ export default function ProfilePage() {
                   <input type="text" value={addressForm.floor} onChange={e => setAddressForm({ ...addressForm, floor: e.target.value })} className="input" />
                 </div>
                 <div className="col-span-2">
-                  <label className="text-xs text-gray-400 mb-1 block">Коментар кур'єру</label>
+                  <label className="text-xs text-gray-400 mb-1 block">Коментар кур&apos;єру</label>
                   <textarea value={addressForm.comment} onChange={e => setAddressForm({ ...addressForm, comment: e.target.value })} className="input min-h-[80px]" placeholder="Код домофону, тощо..." />
                 </div>
                 <div className="col-span-2 flex items-center gap-2">

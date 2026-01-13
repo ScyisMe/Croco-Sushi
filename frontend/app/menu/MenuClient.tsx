@@ -38,6 +38,74 @@ const SORT_OPTIONS = [
     { value: "price_desc", label: "Спочатку дорожчі" },
 ];
 
+// Filter Options
+const PROPERTY_FILTERS = [
+    {
+        id: "is_spicy",
+        label: "Гострі",
+        type: "boolean",
+        prop: "is_spicy",
+        icon: "/images/filters/filter-spicy.webp",
+        activeClass: "border-red-500/50 text-red-500 bg-red-500/10 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
+    },
+    {
+        id: "no_cheese",
+        label: "Без сиру",
+        type: "exclude",
+        keyword: "сир",
+        icon: "/images/filters/filter-no-cheese.webp",
+        activeClass: "border-emerald-500/50 text-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.25)]"
+    },
+    {
+        id: "is_popular",
+        label: "Топ продажів",
+        type: "boolean",
+        prop: "is_popular",
+        icon: "/images/filters/filter-popular.webp",
+        activeClass: "border-amber-500/50 text-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
+    },
+    {
+        id: "is_new",
+        label: "Новинки",
+        type: "boolean",
+        prop: "is_new",
+        icon: "/images/filters/filter-new.webp",
+        activeClass: "border-purple-500/50 text-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.25)]"
+    },
+    {
+        id: "salmon",
+        label: "З лососем",
+        type: "include",
+        keyword: "лосось",
+        icon: "/images/filters/filter-salmon.webp",
+        activeClass: "border-orange-500/50 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(249,115,22,0.25)]"
+    },
+    {
+        id: "eel",
+        label: "З вугром",
+        type: "include",
+        keyword: "вугор",
+        icon: "/images/filters/filter-eel.webp",
+        activeClass: "border-indigo-500/50 text-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+    },
+    {
+        id: "shrimp",
+        label: "З креветкою",
+        type: "include",
+        keyword: "креветк",
+        icon: "/images/filters/filter-shrimp.webp",
+        activeClass: "border-pink-500/50 text-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.25)]"
+    },
+    {
+        id: "is_vegan",
+        label: "Вегетаріанські",
+        type: "boolean",
+        prop: "is_vegan",
+        icon: "/images/filters/filter-vegan.webp",
+        activeClass: "border-green-500/50 text-green-500 bg-green-500/10 shadow-[0_0_15px_rgba(34,197,94,0.25)]"
+    },
+];
+
 export default function MenuClient({ initialCategoryName, activeCategorySlug }: { initialCategoryName?: string, activeCategorySlug?: string }) {
     const router = useRouter();
     const queryClient = useQueryClient();
@@ -164,74 +232,6 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
         },
         enabled: true, // Always enabled now that we can fetch by slug directly!
     });
-
-    // Filter Options
-    const PROPERTY_FILTERS = [
-        {
-            id: "is_spicy",
-            label: "Гострі",
-            type: "boolean",
-            prop: "is_spicy",
-            icon: "/images/filters/filter-spicy.webp",
-            activeClass: "border-red-500/50 text-red-500 bg-red-500/10 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
-        },
-        {
-            id: "no_cheese",
-            label: "Без сиру",
-            type: "exclude",
-            keyword: "сир",
-            icon: "/images/filters/filter-no-cheese.webp",
-            activeClass: "border-emerald-500/50 text-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.25)]"
-        },
-        {
-            id: "is_popular",
-            label: "Топ продажів",
-            type: "boolean",
-            prop: "is_popular",
-            icon: "/images/filters/filter-popular.webp",
-            activeClass: "border-amber-500/50 text-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
-        },
-        {
-            id: "is_new",
-            label: "Новинки",
-            type: "boolean",
-            prop: "is_new",
-            icon: "/images/filters/filter-new.webp",
-            activeClass: "border-purple-500/50 text-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.25)]"
-        },
-        {
-            id: "salmon",
-            label: "З лососем",
-            type: "include",
-            keyword: "лосось",
-            icon: "/images/filters/filter-salmon.webp",
-            activeClass: "border-orange-500/50 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(249,115,22,0.25)]"
-        },
-        {
-            id: "eel",
-            label: "З вугром",
-            type: "include",
-            keyword: "вугор",
-            icon: "/images/filters/filter-eel.webp",
-            activeClass: "border-indigo-500/50 text-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.25)]"
-        },
-        {
-            id: "shrimp",
-            label: "З креветкою",
-            type: "include",
-            keyword: "креветк",
-            icon: "/images/filters/filter-shrimp.webp",
-            activeClass: "border-pink-500/50 text-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.25)]"
-        },
-        {
-            id: "is_vegan",
-            label: "Вегетаріанські",
-            type: "boolean",
-            prop: "is_vegan",
-            icon: "/images/filters/filter-vegan.webp",
-            activeClass: "border-green-500/50 text-green-500 bg-green-500/10 shadow-[0_0_15px_rgba(34,197,94,0.25)]"
-        },
-    ];
 
     // Ref для Intersection Observer (infinite scroll)
     const loadMoreRef = useRef<HTMLDivElement>(null);
