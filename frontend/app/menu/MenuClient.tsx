@@ -101,7 +101,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
     // Завантаження товарів з infinite scroll
     const productsQuery = useInfiniteQuery({
-        queryKey: ["products", selectedCategory, debouncedSearch, isNewFilter, isPopularFilter, isSpicyFilter, isVeganFilter],
+        queryKey: ["products", selectedCategory, debouncedSearch, isNewFilter, isPopularFilter, isSpicyFilter, isVeganFilter, sortBy],
         queryFn: async ({ pageParam = 0 }) => {
             const params: Record<string, unknown> = {
                 skip: pageParam,
@@ -112,6 +112,31 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                 is_spicy: isSpicyFilter,
                 is_vegan: isVeganFilter,
             };
+
+            // Sorting logic mapping
+            if (sortBy) {
+                switch (sortBy) {
+                    case "price_asc":
+                        params.sort_by = "price";
+                        params.order = "asc";
+                        break;
+                    case "price_desc":
+                        params.sort_by = "price";
+                        params.order = "desc";
+                        break;
+                    case "name":
+                        params.sort_by = "name";
+                        params.order = "asc";
+                        break;
+                    case "popular":
+                        params.sort_by = "is_popular"; // Assuming backend supports this or similar
+                        params.order = "desc";
+                        break;
+                    default:
+                        params.sort_by = "position";
+                        params.order = "asc";
+                }
+            }
 
             if (selectedCategory) {
                 params.category_slug = selectedCategory;
@@ -340,9 +365,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
         );
     };
 
-    const handleMobileFilterClose = () => {
-        setIsMobileFilterOpen(false);
-    };
+
 
     const currentCategoryName = selectedCategory
         ? categories.find((c) => c.slug === selectedCategory)?.name || initialCategoryName || "Меню"
@@ -705,7 +728,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                             />
                             <div className="absolute bottom-0 left-0 right-0 bg-[#121212] rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
                                 <div className="sticky top-0 bg-[#121212] border-b border-theme p-4 flex items-center justify-between">
-                                    <h3 className="font-bold text-lg">Фільтри</h3>
+                                    <h3 className="font-bold text-lg">Сортування</h3>
                                     <button
                                         onClick={() => setIsMobileFilterOpen(false)}
                                         className="p-2 text-secondary-light hover:text-secondary"
@@ -716,12 +739,14 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
                                 <div className="p-4 space-y-6">
                                     <div>
-                                        <h4 className="font-semibold text-secondary mb-3">Сортування</h4>
                                         <div className="space-y-2">
                                             {SORT_OPTIONS.map((option) => (
                                                 <button
                                                     key={option.value}
-                                                    onClick={() => setSortBy(option.value)}
+                                                    onClick={() => {
+                                                        setSortBy(option.value);
+                                                        setIsMobileFilterOpen(false);
+                                                    }}
                                                     className={`w-full text-left px-4 py-3 rounded-lg transition ${sortBy === option.value
                                                         ? "bg-primary text-white"
                                                         : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
@@ -729,37 +754,6 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                                 >
                                                     {option.label}
                                                 </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="font-semibold text-secondary mb-3">Категорії</h4>
-                                        <div className="space-y-2">
-                                            <Link
-                                                href="/menu"
-                                                scroll={false}
-                                                onClick={handleMobileFilterClose}
-                                                className={`w-full text-left px-4 py-3 rounded-lg transition block ${!selectedCategory
-                                                    ? "bg-primary text-white"
-                                                    : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                                                    }`}
-                                            >
-                                                Все меню
-                                            </Link>
-                                            {categories.map((category) => (
-                                                <Link
-                                                    key={category.id}
-                                                    href={`/menu/${category.slug}`}
-                                                    scroll={false}
-                                                    onClick={handleMobileFilterClose}
-                                                    className={`w-full text-left px-4 py-3 rounded-lg transition block ${selectedCategory === category.slug
-                                                        ? "bg-primary text-white"
-                                                        : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
-                                                        }`}
-                                                >
-                                                    {category.name}
-                                                </Link>
                                             ))}
                                         </div>
                                     </div>
