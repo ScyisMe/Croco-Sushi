@@ -37,6 +37,8 @@ export default function PlerdyScript() {
         };
     }, []);
 
+    if (process.env.NODE_ENV !== "production") return null;
+
     if (!shouldLoad) return null;
 
     return (
