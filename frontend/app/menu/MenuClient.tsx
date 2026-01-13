@@ -167,14 +167,70 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
     // Filter Options
     const PROPERTY_FILTERS = [
-        { id: "is_spicy", label: "Гострі", type: "boolean", prop: "is_spicy", icon: "/images/filters/filter-spicy.webp" },
-        { id: "no_cheese", label: "Без сиру", type: "exclude", keyword: "сир", icon: "/images/filters/filter-no-cheese.webp" },
-        { id: "is_popular", label: "Топ продажів", type: "boolean", prop: "is_popular", icon: "/images/filters/filter-popular.webp" },
-        { id: "is_new", label: "Новинки", type: "boolean", prop: "is_new", icon: "/images/filters/filter-new.webp" },
-        { id: "salmon", label: "З лососем", type: "include", keyword: "лосось", icon: "/images/filters/filter-salmon.webp" },
-        { id: "eel", label: "З вугром", type: "include", keyword: "вугор", icon: "/images/filters/filter-eel.webp" },
-        { id: "shrimp", label: "З креветкою", type: "include", keyword: "креветк", icon: "/images/filters/filter-shrimp.webp" },
-        { id: "is_vegan", label: "Вегетаріанські", type: "boolean", prop: "is_vegan", icon: "/images/filters/filter-vegan.webp" },
+        {
+            id: "is_spicy",
+            label: "Гострі",
+            type: "boolean",
+            prop: "is_spicy",
+            icon: "/images/filters/filter-spicy.webp",
+            activeClass: "border-red-500/50 text-red-500 bg-red-500/10 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
+        },
+        {
+            id: "no_cheese",
+            label: "Без сиру",
+            type: "exclude",
+            keyword: "сир",
+            icon: "/images/filters/filter-no-cheese.webp",
+            activeClass: "border-emerald-500/50 text-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.25)]"
+        },
+        {
+            id: "is_popular",
+            label: "Топ продажів",
+            type: "boolean",
+            prop: "is_popular",
+            icon: "/images/filters/filter-popular.webp",
+            activeClass: "border-amber-500/50 text-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.25)]"
+        },
+        {
+            id: "is_new",
+            label: "Новинки",
+            type: "boolean",
+            prop: "is_new",
+            icon: "/images/filters/filter-new.webp",
+            activeClass: "border-purple-500/50 text-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(168,85,247,0.25)]"
+        },
+        {
+            id: "salmon",
+            label: "З лососем",
+            type: "include",
+            keyword: "лосось",
+            icon: "/images/filters/filter-salmon.webp",
+            activeClass: "border-orange-500/50 text-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(249,115,22,0.25)]"
+        },
+        {
+            id: "eel",
+            label: "З вугром",
+            type: "include",
+            keyword: "вугор",
+            icon: "/images/filters/filter-eel.webp",
+            activeClass: "border-indigo-500/50 text-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.25)]"
+        },
+        {
+            id: "shrimp",
+            label: "З креветкою",
+            type: "include",
+            keyword: "креветк",
+            icon: "/images/filters/filter-shrimp.webp",
+            activeClass: "border-pink-500/50 text-pink-500 bg-pink-500/10 shadow-[0_0_15px_rgba(236,72,153,0.25)]"
+        },
+        {
+            id: "is_vegan",
+            label: "Вегетаріанські",
+            type: "boolean",
+            prop: "is_vegan",
+            icon: "/images/filters/filter-vegan.webp",
+            activeClass: "border-green-500/50 text-green-500 bg-green-500/10 shadow-[0_0_15px_rgba(34,197,94,0.25)]"
+        },
     ];
 
     // Ref для Intersection Observer (infinite scroll)
@@ -451,13 +507,19 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => toggleProperty(filter.id)}
                                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border backdrop-blur-md flex items-center gap-2 ${selectedProperties.includes(filter.id)
-                                                ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
-                                                : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-secondary/50 hover:text-white"
+                                                ? filter.activeClass
+                                                : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:border-white/20 hover:text-white"
                                                 }`}
                                         >
                                             {filter.icon && (
                                                 <div className="relative w-5 h-5">
-                                                    <Image src={filter.icon} alt={filter.label} width={20} height={20} className="object-contain" />
+                                                    <Image
+                                                        src={filter.icon}
+                                                        alt={filter.label}
+                                                        width={20}
+                                                        height={20}
+                                                        className={`object-contain transition duration-300 ${selectedProperties.includes(filter.id) ? "" : "opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100"}`}
+                                                    />
                                                 </div>
                                             )}
                                             {filter.label}
@@ -750,8 +812,8 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                                     key={filter.id}
                                                     onClick={() => toggleProperty(filter.id)}
                                                     className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border flex flex-col items-center justify-center gap-2 text-center h-24 ${selectedProperties.includes(filter.id)
-                                                        ? "bg-secondary/20 border-secondary text-primary" // Highlighted state
-                                                        : "bg-white/5 border-transparent text-gray-300 hover:bg-white/10"
+                                                        ? filter.activeClass
+                                                        : "bg-white/5 border-transparent text-gray-400 hover:bg-white/10 hover:text-gray-200"
                                                         }`}
                                                 >
                                                     {filter.icon && (
@@ -761,7 +823,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                                                 alt={filter.label}
                                                                 width={32}
                                                                 height={32}
-                                                                className={`object-contain transition ${selectedProperties.includes(filter.id) ? "" : "grayscale opacity-70"}`}
+                                                                className={`object-contain transition duration-300 ${selectedProperties.includes(filter.id) ? "" : "grayscale opacity-50"}`}
                                                             />
                                                         </div>
                                                     )}
