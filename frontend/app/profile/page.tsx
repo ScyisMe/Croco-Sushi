@@ -23,6 +23,7 @@ import {
   CheckIcon,
   ArrowRightStartOnRectangleIcon,
   StarIcon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import LoyaltyCard from "@/components/profile/LoyaltyCard";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
@@ -391,67 +392,92 @@ export default function ProfilePage() {
                               <div className="h-14 bg-white/5 rounded-xl animate-pulse" />
                             </div>
                           ) : isEditingProfile ? (
-                            <div className="space-y-6 max-w-xl">
-                              <div className="relative group">
-                                <input
-                                  type="text"
-                                  id="name"
-                                  value={profileForm.name}
-                                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                                  className="block px-4 pb-2.5 pt-5 w-full text-base bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-0 focus:border-primary-500 peer text-white placeholder-transparent"
-                                  placeholder=" "
-                                />
-                                <label
-                                  htmlFor="name"
-                                  className="absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-primary-500"
-                                >
-                                  Ім&apos;я
-                                </label>
-                              </div>
+                            <div className="space-y-6 max-w-xl animate-fade-in">
 
-                              <div className="relative group">
-                                <input
-                                  type="email"
-                                  id="email"
-                                  value={profileForm.email}
-                                  onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                                  className="block px-4 pb-2.5 pt-5 w-full text-base bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-0 focus:border-primary-500 peer text-white placeholder-transparent"
-                                  placeholder=" "
-                                />
-                                <label
-                                  htmlFor="email"
-                                  className="absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-primary-500"
-                                >
-                                  Email
-                                </label>
-                              </div>
-
-                              <label className="flex items-center gap-3 cursor-pointer group p-2 hover:bg-white/5 rounded-lg transition">
-                                <div className="relative flex items-center">
-                                  <input
-                                    type="checkbox"
-                                    checked={profileForm.newsletter_subscription}
-                                    onChange={(e) => setProfileForm({ ...profileForm, newsletter_subscription: e.target.checked })}
-                                    className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-white/20 bg-white/5 checked:border-primary-500 checked:bg-primary-500 transition-all"
-                                  />
-                                  <CheckIcon className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Name Input */}
+                                <div className="space-y-2 md:col-span-2">
+                                  <label htmlFor="name" className="text-sm font-medium text-gray-400 ml-1">
+                                    Ім&apos;я
+                                  </label>
+                                  <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                      <UserIcon className="h-5 w-5 text-gray-500 group-focus-within:text-primary-500 transition-colors" />
+                                    </div>
+                                    <input
+                                      type="text"
+                                      id="name"
+                                      value={profileForm.name}
+                                      onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                                      className="input pl-11 bg-white/5 focus:bg-white/10"
+                                      placeholder="Ваше ім'я"
+                                    />
+                                  </div>
                                 </div>
-                                <span className="text-gray-300 group-hover:text-white transition-colors">
-                                  Отримувати новини та акції
-                                </span>
-                              </label>
 
-                              <div className="flex gap-3 pt-4">
+                                {/* Email Input */}
+                                <div className="space-y-2 md:col-span-2">
+                                  <label htmlFor="email" className="text-sm font-medium text-gray-400 ml-1">
+                                    Email
+                                  </label>
+                                  <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                      <EnvelopeIcon className="h-5 w-5 text-gray-500 group-focus-within:text-primary-500 transition-colors" />
+                                    </div>
+                                    <input
+                                      type="email"
+                                      id="email"
+                                      value={profileForm.email}
+                                      onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                                      className="input pl-11 bg-white/5 focus:bg-white/10"
+                                      placeholder="example@email.com"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Newsletter Switch */}
+                              <div
+                                onClick={() => setProfileForm({ ...profileForm, newsletter_subscription: !profileForm.newsletter_subscription })}
+                                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all duration-200 group ${profileForm.newsletter_subscription
+                                    ? "bg-primary-500/10 border-primary-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                                    : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
+                                  }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-full transition-colors ${profileForm.newsletter_subscription ? "bg-primary-500/20 text-primary-500" : "bg-white/10 text-gray-400 group-hover:text-white"}`}>
+                                    <GiftIcon className="w-5 h-5" />
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <span className={`font-medium transition-colors ${profileForm.newsletter_subscription ? "text-primary-100" : "text-gray-300 group-hover:text-white"}`}>
+                                      Новини та акції
+                                    </span>
+                                    <span className="text-xs text-gray-500">Отримуйте персональні пропозиції</span>
+                                  </div>
+                                </div>
+
+                                <div className={`w-11 h-6 rounded-full relative transition-colors duration-200 border border-transparent ${profileForm.newsletter_subscription ? "bg-primary-500" : "bg-white/10 border-white/10"
+                                  }`}>
+                                  <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 shadow-sm ${profileForm.newsletter_subscription ? "translate-x-5" : "translate-x-0"
+                                    }`} />
+                                </div>
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex gap-4 pt-4">
                                 <button
                                   onClick={() => updateProfileMutation.mutate(profileForm)}
                                   disabled={updateProfileMutation.isPending}
-                                  className="btn-primary w-full md:w-auto"
+                                  className="btn-primary flex-1 flex justify-center items-center gap-2"
                                 >
+                                  {updateProfileMutation.isPending ? (
+                                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  ) : <CheckIcon className="w-5 h-5" />}
                                   {updateProfileMutation.isPending ? "Збереження..." : "Зберегти зміни"}
                                 </button>
                                 <button
                                   onClick={() => setIsEditingProfile(false)}
-                                  className="px-6 py-3 border border-white/10 rounded-xl text-gray-300 hover:bg-white/5 transition w-full md:w-auto"
+                                  className="px-6 py-3 border border-white/10 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all flex-1"
                                 >
                                   Скасувати
                                 </button>
