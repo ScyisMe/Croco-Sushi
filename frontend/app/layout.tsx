@@ -8,6 +8,7 @@ import SmoothScrolling from "@/components/ui/SmoothScrolling";
 import dynamic from "next/dynamic";
 import Script from "next/script";
 import PlerdyScript from "@/components/PlerdyScript";
+import UpsellModal from "@/components/modals/UpsellModal";
 
 const MaintenanceGuard = dynamic(() => import("@/components/MaintenanceGuard"), {
   ssr: false,
@@ -59,6 +60,7 @@ export default function RootLayout({
             {children}
           </div>
           <BottomNav />
+          <UpsellModal />
         </Providers>
         <script
           type="application/ld+json"

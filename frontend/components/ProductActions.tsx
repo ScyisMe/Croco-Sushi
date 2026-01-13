@@ -4,6 +4,7 @@ import { useTranslation } from "@/store/localeStore";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/outline";
 import { Product, ProductSize } from "@/lib/types";
 import { useCartStore, MAX_CART_ITEMS } from "@/store/cartStore";
+import { useUiStore } from "@/store/uiStore";
 import toast from "react-hot-toast";
 
 interface ProductActionsProps {
@@ -17,6 +18,7 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
     const addItem = useCartStore((state) => state.addItem);
     const updateQuantity = useCartStore((state) => state.updateQuantity);
     const itemsCount = useCartStore((state) => state.items.length);
+    const openUpsellModal = useUiStore((state) => state.openUpsellModal);
     // Subscribe specifically to this item's quantity to ensure meaningful re-renders
     const sizeId = selectedSize?.id;
     const quantity = useCartStore((state) =>
@@ -44,6 +46,18 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
 
         if (quantity === 0) {
             toast.success(`${product.name} додано в кошик`);
+
+            // Check if product is sushi/roll/set to trigger upsell
+            const lowerName = product.name.toLowerCase();
+            const isSushi = /рол|суші|сет|макі|нігірі|гункан|філадельфія|дракон|каліфорнія/i.test(lowerName);
+            const isExcluded = /соус|напій|додат/i.test(lowerName);
+
+            if (isSushi && !isExcluded) {
+                // Small delay to let the toast appear first
+                setTimeout(() => {
+                    openUpsellModal();
+                }, 500);
+            }
         }
     };
 
