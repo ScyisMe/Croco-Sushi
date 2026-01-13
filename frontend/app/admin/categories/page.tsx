@@ -35,8 +35,29 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await apiClient.get("/admin/categories");
-      setCategories(response.data || []);
+      const [categoriesResponse, productsResponse] = await Promise.all([
+        apiClient.get("/admin/categories"),
+        apiClient.get("/admin/products?limit=1000"),
+      ]);
+
+      const categoriesData = categoriesResponse.data || [];
+      const productsData = productsResponse.data || [];
+
+      // Calculate product counts
+      const counts: Record<number, number> = {};
+      productsData.forEach((product: any) => {
+        if (product.category_id) {
+          counts[product.category_id] = (counts[product.category_id] || 0) + 1;
+        }
+      });
+
+      // Merge counts into categories
+      const enrichedCategories = categoriesData.map((cat: Category) => ({
+        ...cat,
+        products_count: counts[cat.id] || 0,
+      }));
+
+      setCategories(enrichedCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
       toast.error("Помилка завантаження категорій");
