@@ -39,7 +39,8 @@ async def get_categories(
     categories = []
     for cat, count in rows:
         cat.products_count = count
-        categories.append(cat)
+        # Explicitly convert to Pydantic model to avoid implicit IO issues during serialization
+        categories.append(CategoryResponse.model_validate(cat))
         
     return categories
 
@@ -66,6 +67,6 @@ async def get_category_by_slug(
     category, count = row
     category.products_count = count
     
-    return category
+    return CategoryResponse.model_validate(category)
 
 

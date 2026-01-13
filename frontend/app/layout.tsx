@@ -46,8 +46,6 @@ export default function RootLayout({
   return (
     <html lang="uk" suppressHydrationWarning>
       <head>
-        <link rel="preload" href="/background-wave.webp" as="image" fetchPriority="high" />
-        <link rel="preload" href="/images/hero-poster.webp" as="image" fetchPriority="high" />
         <link rel="preconnect" href="https://a.plerdy.com" crossOrigin="anonymous" />
         {/* Font preloading is handled automatically by next/font. Manual preloading of hashed files is fragile. */}
       </head>
