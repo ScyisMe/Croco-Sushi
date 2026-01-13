@@ -17,41 +17,56 @@ export default function UpsellModal() {
 
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [addedIds, setAddedIds] = useState<number[]>([]);
+    const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
     useEffect(() => {
-        if (isUpsellModalOpen && products.length === 0) {
-            const fetchProducts = async () => {
-                try {
-                    setLoading(true);
-                    const response = await apiClient.get<Product[]>("/products/", {
-                        params: { category_slug: "dodatku", limit: 10 }
-                    });
-                    setProducts(response.data || []);
-                } catch (error) {
-                    console.error("Failed to fetch upsell products:", error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchProducts();
+        if (isUpsellModalOpen) {
+            setSelectedIds([]); // Reset selection
+            if (products.length === 0) {
+                const fetchProducts = async () => {
+                    try {
+                        setLoading(true);
+                        const response = await apiClient.get<Product[]>("/products/", {
+                            params: { category_slug: "dodatku", limit: 8 }
+                        });
+                        setProducts(response.data || []);
+                    } catch (error) {
+                        console.error("Failed to fetch upsell products:", error);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+                fetchProducts();
+            }
         }
     }, [isUpsellModalOpen, products.length]);
 
-    const handleAdd = (product: Product) => {
-        addItem({
-            id: product.id,
-            name: product.name,
-            price: Number(product.price),
-            image_url: product.image_url,
-            quantity: 1,
-        });
-        setAddedIds((prev) => [...prev, product.id]);
-        toast.success(`${product.name} додано`);
+    const toggleSelection = (product: Product) => {
+        setSelectedIds(prev =>
+            prev.includes(product.id)
+                ? prev.filter(id => id !== product.id)
+                : [...prev, product.id]
+        );
     };
 
-    const isAdded = (id: number) => {
-        return addedIds.includes(id) || cartItems.some(item => item.id === id);
+    const handleBatchAdd = () => {
+        const selectedProducts = products.filter(p => selectedIds.includes(p.id));
+
+        selectedProducts.forEach(product => {
+            addItem({
+                id: product.id,
+                name: product.name,
+                price: Number(product.price),
+                image_url: product.image_url,
+                quantity: 1,
+            });
+        });
+
+        if (selectedProducts.length > 0) {
+            toast.success(`Додано ${selectedProducts.length} товарів`);
+        }
+
+        closeUpsellModal();
     };
 
     return (
@@ -101,70 +116,86 @@ export default function UpsellModal() {
                                     </p>
 
                                     {loading ? (
-                                        <div className="flex gap-4 overflow-x-auto pb-4 justify-center">
-                                            {[1, 2, 3].map((i) => (
-                                                <div key={i} className="w-40 h-56 rounded-xl bg-white/5 animate-pulse shrink-0" />
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                            {[1, 2, 3, 4].map((i) => (
+                                                <div key={i} className="aspect-square rounded-2xl bg-white/5 animate-pulse" />
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-1">
-                                            {products.map((product) => (
-                                                <div
-                                                    key={product.id}
-                                                    className="group relative flex flex-col items-center bg-white/5 rounded-xl p-3 border border-white/5 hover:border-primary-500/50 transition-all active:scale-[0.98]"
-                                                >
-                                                    <div className="relative w-24 h-24 mb-3">
-                                                        {product.image_url ? (
-                                                            <Image
-                                                                src={product.image_url}
-                                                                alt={product.name}
-                                                                fill
-                                                                className="object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-full h-full bg-white/5 rounded-full flex items-center justify-center text-xs text-gray-500">
-                                                                No image
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-1 mb-6">
+                                            {products.map((product) => {
+                                                const isSelected = selectedIds.includes(product.id);
+                                                return (
+                                                    <div
+                                                        key={product.id}
+                                                        onClick={() => toggleSelection(product)}
+                                                        className={`cursor-pointer group relative flex flex-col items-center bg-[#1E1E1E] rounded-2xl p-4 border-2 transition-all duration-200 ${isSelected
+                                                            ? "border-primary-500 bg-primary-500/10 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                                                            : "border-transparent hover:border-white/20 hover:bg-white/5"
+                                                            }`}
+                                                    >
+                                                        {/* Selection Checkmark Badge */}
+                                                        <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${isSelected ? "bg-primary-500 scale-100" : "bg-white/10 scale-0 group-hover:scale-100"
+                                                            }`}>
+                                                            <CheckIcon className="w-3.5 h-3.5 text-white" />
+                                                        </div>
 
-                                                    <h4 className="text-sm font-medium text-white mb-1 line-clamp-1" title={product.name}>
-                                                        {product.name}
-                                                    </h4>
-
-                                                    <div className="mt-auto w-full pt-2 flex items-center justify-between">
-                                                        <span className="font-bold text-primary-400">
-                                                            {parseInt(product.price || "0")} ₴
-                                                        </span>
-
-                                                        <button
-                                                            onClick={() => handleAdd(product)}
-                                                            disabled={isAdded(product.id)}
-                                                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isAdded(product.id)
-                                                                    ? "bg-green-500 text-white"
-                                                                    : "bg-white/10 text-white hover:bg-primary-500"
-                                                                }`}
-                                                        >
-                                                            {isAdded(product.id) ? (
-                                                                <CheckIcon className="w-4 h-4" />
+                                                        <div className="relative w-24 h-24 mb-3">
+                                                            {product.image_url ? (
+                                                                <Image
+                                                                    src={product.image_url}
+                                                                    alt={product.name}
+                                                                    fill
+                                                                    className="object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
+                                                                />
                                                             ) : (
-                                                                <PlusIcon className="w-4 h-4" />
+                                                                <div className="w-full h-full bg-white/5 rounded-full flex items-center justify-center text-xs text-gray-500">
+                                                                    No image
+                                                                </div>
                                                             )}
-                                                        </button>
+                                                        </div>
+
+                                                        <h4 className="text-sm font-bold text-white text-center mb-1 leading-tight">
+                                                            {product.name}
+                                                        </h4>
+
+                                                        <div className="mt-auto pt-2">
+                                                            <span className="text-primary-400 font-bold">
+                                                                {parseInt(product.price || "0")} ₴
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="mt-6 flex justify-center w-full">
+                                <div className="flex flex-col gap-3">
                                     <button
                                         type="button"
-                                        className="w-full sm:w-auto px-8 py-3 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10 transition font-medium"
+                                        onClick={handleBatchAdd}
+                                        className={`w-full py-4 text-base font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${selectedIds.length > 0
+                                            ? "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/25 scale-100"
+                                            : "bg-white/10 text-gray-400 hover:bg-white/20"
+                                            }`}
+                                    >
+                                        {selectedIds.length > 0 ? (
+                                            <>
+                                                <PlusIcon className="w-5 h-5" />
+                                                Додати до кошика ({selectedIds.length})
+                                            </>
+                                        ) : (
+                                            "Додати до кошика"
+                                        )}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="w-full py-3 text-gray-500 hover:text-white transition-colors text-sm font-medium"
                                         onClick={closeUpsellModal}
                                     >
-                                        Перейти до кошика
+                                        Ні, дякую
                                     </button>
                                 </div>
                             </Dialog.Panel>
