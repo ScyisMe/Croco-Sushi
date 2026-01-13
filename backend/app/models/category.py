@@ -36,11 +36,8 @@ class Category(Base):
     products: Mapped[list["Product"]] = relationship(
         "Product",
         back_populates="category",
-        lazy="selectin",
         cascade="all, delete-orphan"
     )
 
-    @property
-    def products_count(self) -> int:
-        return len(self.products)
+
 

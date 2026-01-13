@@ -60,27 +60,24 @@ class User(Base):
     )
 
     # Relationships
+    # Relationships
     addresses: Mapped[List["Address"]] = relationship(
         "Address", 
         back_populates="user", 
-        cascade="all, delete-orphan",
-        lazy="selectin"
+        cascade="all, delete-orphan"
     )
     orders: Mapped[List["Order"]] = relationship(
         "Order", 
-        back_populates="user",
-        lazy="selectin"
+        back_populates="user"
     )
     reviews: Mapped[List["Review"]] = relationship(
         "Review",
         back_populates="user",
-        cascade="all, delete-orphan",
-        lazy="selectin"
+        cascade="all, delete-orphan"
     )
     favorites: Mapped[List["Favorite"]] = relationship(
         "Favorite",
         back_populates="user",
-        cascade="all, delete-orphan",
-        lazy="selectin"
+        cascade="all, delete-orphan"
     )
 

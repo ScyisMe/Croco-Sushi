@@ -53,12 +53,10 @@ class Promotion(Base):
 
     # Relationships
     category: Mapped[Optional["Category"]] = relationship(
-        "Category",
-        lazy="selectin"
+        "Category"
     )
     product: Mapped[Optional["Product"]] = relationship(
-        "Product",
-        lazy="selectin"
+        "Product"
     )
 
 

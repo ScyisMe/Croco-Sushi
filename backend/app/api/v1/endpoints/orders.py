@@ -44,20 +44,29 @@ async def create_order(
         raise BadRequestException("Максимальна кількість товарів в замовленні: 20")
     
     try:
-        # Перевірка товарів та підрахунок суми
-        # КРИТИЧНО: Ціна завжди береться з БД, ніколи не довіряємо клієнтському вводу
+        # Collect IDs for bulk fetching
+        product_ids = {item.product_id for item in order_data.items}
+        size_ids = {item.size_id for item in order_data.items if item.size_id}
+        
+        # Bulk fetch products
+        products_result = await db.execute(select(Product).where(Product.id.in_(product_ids)))
+        products_map = {p.id: p for p in products_result.scalars().all()}
+        
+        # Bulk fetch sizes if needed
+        sizes_map = {}
+        if size_ids:
+            sizes_result = await db.execute(select(ProductSize).where(ProductSize.id.in_(size_ids)))
+            sizes_map = {s.id: s for s in sizes_result.scalars().all()}
+        
         total_amount = Decimal("0.00")
         order_items_data = []
         
         for item_data in order_data.items:
-            # КРИТИЧНО: product_id є обов'язковим, перевірка вже на рівні Pydantic
-            # Але додаємо додаткову перевірку для безпеки
+            # КРИТИЧНО: product_id є обов'язковим
             if not item_data.product_id:
                 raise BadRequestException("product_id є обов'язковим полем для кожної позиції замовлення")
             
-            # Завантажуємо товар з БД
-            result = await db.execute(select(Product).where(Product.id == item_data.product_id))
-            product = result.scalar_one_or_none()
+            product = products_map.get(item_data.product_id)
             
             if not product:
                 raise NotFoundException(f"Товар з ID {item_data.product_id} не знайдено")
@@ -71,16 +80,14 @@ async def create_order(
             
             # Якщо вказано розмір - перевіряємо та беремо ціну з розміру
             if item_data.size_id:
-                result = await db.execute(
-                    select(ProductSize).where(
-                        ProductSize.id == item_data.size_id,
-                        ProductSize.product_id == product.id  # Перевірка, що розмір належить товару
-                    )
-                )
-                size = result.scalar_one_or_none()
+                size = sizes_map.get(item_data.size_id)
                 
                 if not size:
-                    raise NotFoundException(f"Розмір порції з ID {item_data.size_id} не знайдено для товару {product.name}")
+                    raise NotFoundException(f"Розмір порції з ID {item_data.size_id} не знайдено")
+                
+                # Verify size belongs to product
+                if size.product_id != product.id:
+                     raise BadRequestException(f"Розмір {size.name} не належить товару {product.name}")
                 
                 # Використовуємо ціну з розміру (завжди з БД)
                 size_price = size.price
@@ -276,13 +283,20 @@ async def create_order(
             db.add(order_item)
         
         await db.commit()
-        await db.refresh(new_order)
         
-        # Завантажуємо позиції
+        # FIX: MissingGreenlet error during Pydantic validation
+        # We need to eagerly load all relationships accessed by the schema
+        # OrderResponse accesses: items.product (for image), address, history
         result = await db.execute(
-            select(OrderItem).where(OrderItem.order_id == new_order.id)
+            select(Order)
+            .where(Order.id == new_order.id)
+            .options(
+                selectinload(Order.items).joinedload(OrderItem.product),
+                selectinload(Order.address),
+                selectinload(Order.history)
+            )
         )
-        new_order.items = result.scalars().all()
+        new_order = result.scalar_one()
         
         # Відправка підтвердження замовлення через Celery (асинхронно)
         if order_data.customer_email:
@@ -448,6 +462,20 @@ async def reorder(
     if not old_order:
         raise NotFoundException("Замовлення не знайдено")
     
+    # Collect IDs for bulk fetching
+    product_ids = {item.product_id for item in old_order.items if item.product_id}
+    size_ids = {item.size_id for item in old_order.items if item.size_id}
+    
+    # Bulk fetch products
+    products_result = await db.execute(select(Product).where(Product.id.in_(product_ids)))
+    products_map = {p.id: p for p in products_result.scalars().all()}
+    
+    # Bulk fetch sizes
+    sizes_map = {}
+    if size_ids:
+        sizes_result = await db.execute(select(ProductSize).where(ProductSize.id.in_(size_ids)))
+        sizes_map = {s.id: s for s in sizes_result.scalars().all()}
+    
     # Перераховуємо ціни з БД для нових позицій
     total_amount = Decimal("0.00")
     order_items_data = []
@@ -457,9 +485,7 @@ async def reorder(
             # Якщо товар був видалений, пропускаємо позицію
             continue
         
-        # Завантажуємо товар з БД
-        result = await db.execute(select(Product).where(Product.id == old_item.product_id))
-        product = result.scalar_one_or_none()
+        product = products_map.get(old_item.product_id)
         
         if not product:
             # Товар видалено - пропускаємо
@@ -475,20 +501,15 @@ async def reorder(
         
         # Якщо був розмір - перевіряємо та беремо ціну з розміру
         if old_item.size_id:
-            result = await db.execute(
-                select(ProductSize).where(
-                    ProductSize.id == old_item.size_id,
-                    ProductSize.product_id == product.id
-                )
-            )
-            size = result.scalar_one_or_none()
+            size = sizes_map.get(old_item.size_id)
             
-            if size:
+            # Additional check: ensure size belongs to the product
+            if size and size.product_id == product.id:
                 size_price = size.price
                 size_id = size.id
                 size_name = size.name
             else:
-                # Розмір видалено - використовуємо базову ціну товару
+                # Розмір видалено або не належить товару - використовуємо базову ціну товару
                 size_price = product.price
         else:
             # Використовуємо базову ціну товару (завжди з БД)

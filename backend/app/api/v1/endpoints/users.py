@@ -4,7 +4,7 @@ from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from app.database import get_db
 from app.core.dependencies import get_current_active_user
@@ -15,7 +15,7 @@ from app.core.exceptions import (
 )
 from app.models.user import User
 from app.models.address import Address
-from app.models.order import Order
+from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.product_size import ProductSize
 from app.models.review import Review
@@ -173,6 +173,8 @@ async def delete_address(
     db: AsyncSession = Depends(get_db)
 ):
     """Видалити адресу"""
+    from sqlalchemy.exc import IntegrityError
+
     result = await db.execute(
         select(Address).where(
             Address.id == address_id,
@@ -184,9 +186,24 @@ async def delete_address(
     if not address:
         raise NotFoundException("Адреса не знайдена")
     
-    # Правильний спосіб видалення в SQLAlchemy 2.0 async
-    await db.execute(delete(Address).where(Address.id == address_id))
-    await db.commit()
+    try:
+        # Спробуємо фізично видалити адресу
+        await db.execute(delete(Address).where(Address.id == address_id))
+        await db.commit()
+    except IntegrityError:
+        # Якщо адреса використовується в замовленнях - не видаляємо, а відв'язуємо від користувача
+        await db.rollback()
+        
+        # Reload address to be attached to session
+        result = await db.execute(
+            select(Address).where(Address.id == address_id)
+        )
+        address = result.scalar_one()
+        
+        address.user_id = None
+        address.is_default = False
+        db.add(address)
+        await db.commit()
     
     return None
 
@@ -240,7 +257,11 @@ async def get_my_orders(
         .order_by(Order.created_at.desc())
         .offset(skip)
         .limit(limit)
-        .options(selectinload(Order.items), selectinload(Order.address))
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
     )
     orders = result.scalars().all()
     return orders
@@ -258,7 +279,11 @@ async def get_my_order(
             Order.id == order_id,
             Order.user_id == current_user.id
         )
-        .options(selectinload(Order.items), selectinload(Order.address))
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
     )
     order = result.scalar_one_or_none()
     
@@ -291,6 +316,20 @@ async def reorder(
     if not old_order:
         raise NotFoundException("Замовлення не знайдено")
     
+    # Collect IDs for bulk fetching
+    product_ids = {item.product_id for item in old_order.items if item.product_id}
+    size_ids = {item.size_id for item in old_order.items if item.size_id}
+    
+    # Bulk fetch products
+    products_result = await db.execute(select(Product).where(Product.id.in_(product_ids)))
+    products_map = {p.id: p for p in products_result.scalars().all()}
+    
+    # Bulk fetch sizes
+    sizes_map = {}
+    if size_ids:
+        sizes_result = await db.execute(select(ProductSize).where(ProductSize.id.in_(size_ids)))
+        sizes_map = {s.id: s for s in sizes_result.scalars().all()}
+    
     # Перераховуємо ціни з БД для нових позицій
     total_amount = Decimal("0.00")
     order_items_data = []
@@ -300,9 +339,7 @@ async def reorder(
             # Якщо товар був видалений, пропускаємо позицію
             continue
         
-        # Завантажуємо товар з БД
-        result = await db.execute(select(Product).where(Product.id == old_item.product_id))
-        product = result.scalar_one_or_none()
+        product = products_map.get(old_item.product_id)
         
         if not product:
             # Товар видалено - пропускаємо
@@ -318,20 +355,15 @@ async def reorder(
         
         # Якщо був розмір - перевіряємо та беремо ціну з розміру
         if old_item.size_id:
-            result = await db.execute(
-                select(ProductSize).where(
-                    ProductSize.id == old_item.size_id,
-                    ProductSize.product_id == product.id
-                )
-            )
-            size = result.scalar_one_or_none()
+            size = sizes_map.get(old_item.size_id)
             
-            if size:
+            # Additional check: ensure size belongs to the product
+            if size and size.product_id == product.id:
                 size_price = size.price
                 size_id = size.id
                 size_name = size.name
             else:
-                # Розмір видалено - використовуємо базову ціну товару
+                # Розмір видалено або не належить товару - використовуємо базову ціну товару
                 size_price = product.price
         else:
             # Використовуємо базову ціну товару (завжди з БД)
@@ -401,7 +433,20 @@ async def reorder(
         db.add(new_item)
     
     await db.commit()
-    await db.refresh(new_order)
+    await db.commit()
+    # await db.refresh(new_order)
+    
+    # Reload with relationships
+    result = await db.execute(
+        select(Order)
+        .where(Order.id == new_order.id)
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
+    )
+    new_order = result.scalar_one()
     
     return new_order
 
@@ -419,6 +464,11 @@ async def cancel_order(
         select(Order).where(
             Order.id == order_id,
             Order.user_id == current_user.id
+        )
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
         )
     )
     order = result.scalar_one_or_none()
@@ -453,7 +503,20 @@ async def cancel_order(
     order.status_history = history
     
     await db.commit()
-    await db.refresh(order)
+    await db.commit()
+    # await db.refresh(order)
+    
+    # Reload with relationships
+    result = await db.execute(
+        select(Order)
+        .where(Order.id == order.id)
+        .options(
+            selectinload(Order.items).joinedload(OrderItem.product),
+            selectinload(Order.address),
+            selectinload(Order.history)
+        )
+    )
+    order = result.scalar_one()
     
     return order
 
@@ -605,7 +668,7 @@ async def get_my_favorites(
     result = await db.execute(
         select(Favorite)
         .where(Favorite.user_id == current_user.id)
-        .options(selectinload(Favorite.product))
+        .options(selectinload(Favorite.product).selectinload(Product.sizes))
         .order_by(Favorite.created_at.desc())
     )
     favorites = result.scalars().all()

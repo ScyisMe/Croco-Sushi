@@ -43,7 +43,6 @@ class AuditLog(Base):
 
     # Relationships
     user: Mapped[Optional["User"]] = relationship(
-        "User",
-        lazy="selectin"
+        "User"
     )
 

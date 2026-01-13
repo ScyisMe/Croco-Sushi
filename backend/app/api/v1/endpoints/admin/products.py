@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
+from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
 
 from app.database import get_db
@@ -46,6 +47,7 @@ async def get_products(
     if search:
         query = query.where(Product.name.ilike(f"%{search}%"))
     
+    query = query.options(selectinload(Product.sizes))
     query = query.order_by(Product.position, Product.name).offset(skip).limit(limit)
     
     result = await db.execute(query)
@@ -81,7 +83,15 @@ async def create_product(
     
     db.add(new_product)
     await db.commit()
-    await db.refresh(new_product)
+    # await db.refresh(new_product)
+    
+    # Reload to ensure relationships are loaded
+    result = await db.execute(
+        select(Product)
+        .where(Product.id == new_product.id)
+        .options(selectinload(Product.sizes))
+    )
+    new_product = result.scalar_one()
     
     return new_product
 
@@ -93,7 +103,11 @@ async def get_product(
     current_user: User = Depends(get_current_admin_user)
 ):
     """Отримати товар за ID (адмін)"""
-    result = await db.execute(select(Product).where(Product.id == product_id))
+    result = await db.execute(
+        select(Product)
+        .where(Product.id == product_id)
+        .options(selectinload(Product.sizes))
+    )
     product = result.scalar_one_or_none()
     
     if not product:
@@ -134,7 +148,15 @@ async def update_product(
         setattr(product, field, value)
     
     await db.commit()
-    await db.refresh(product)
+    # await db.refresh(product)
+    
+    # Reload to ensure relationships are loaded (avoid MissingGreenlet)
+    result = await db.execute(
+        select(Product)
+        .where(Product.id == product_id)
+        .options(selectinload(Product.sizes))
+    )
+    product = result.scalar_one()
     
     return product
 
