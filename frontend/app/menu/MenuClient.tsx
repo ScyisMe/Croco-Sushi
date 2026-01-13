@@ -574,27 +574,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                     </div>
                                 </div>
 
-                                <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto no-scrollbar">
-                                    <div className="flex gap-2">
-                                        {PROPERTY_FILTERS.map((filter) => (
-                                            <button
-                                                key={filter.id}
-                                                onClick={() => toggleProperty(filter.id)}
-                                                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap border flex items-center gap-2 ${selectedProperties.includes(filter.id)
-                                                    ? "bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(255,107,0,0.4)]"
-                                                    : "bg-white/5 text-gray-300 border-white/10 hover:border-white/20 active:bg-white/10"
-                                                    }`}
-                                            >
-                                                {filter.icon && (
-                                                    <div className="relative w-5 h-5">
-                                                        <Image src={filter.icon} alt={filter.label} width={20} height={20} className="object-contain" />
-                                                    </div>
-                                                )}
-                                                {filter.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+
 
                                 {debouncedSearch ? (
                                     <p className="text-secondary-light text-xs mb-4">
@@ -726,9 +706,9 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                 className="absolute inset-0 bg-black/50"
                                 onClick={() => setIsMobileFilterOpen(false)}
                             />
-                            <div className="absolute bottom-0 left-0 right-0 bg-[#121212] rounded-t-2xl max-h-[80vh] overflow-y-auto animate-slide-in-up">
-                                <div className="sticky top-0 bg-[#121212] border-b border-theme p-4 flex items-center justify-between">
-                                    <h3 className="font-bold text-lg">Сортування</h3>
+                            <div className="absolute bottom-0 left-0 right-0 bg-[#121212] rounded-t-2xl max-h-[85vh] overflow-y-auto animate-slide-in-up">
+                                <div className="sticky top-0 bg-[#121212] border-b border-theme p-4 flex items-center justify-between z-10">
+                                    <h3 className="font-bold text-lg">Сортування та Фільтри</h3>
                                     <button
                                         onClick={() => setIsMobileFilterOpen(false)}
                                         className="p-2 text-secondary-light hover:text-secondary"
@@ -737,8 +717,9 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                     </button>
                                 </div>
 
-                                <div className="p-4 space-y-6">
+                                <div className="p-4 space-y-8 pb-8">
                                     <div>
+                                        <h4 className="font-semibold text-secondary mb-3 text-sm uppercase tracking-wider text-gray-400">Сортування</h4>
                                         <div className="space-y-2">
                                             {SORT_OPTIONS.map((option) => (
                                                 <button
@@ -747,12 +728,44 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                                         setSortBy(option.value);
                                                         setIsMobileFilterOpen(false);
                                                     }}
-                                                    className={`w-full text-left px-4 py-3 rounded-lg transition ${sortBy === option.value
-                                                        ? "bg-primary text-white"
-                                                        : "bg-theme-secondary text-secondary hover:bg-theme-tertiary"
+                                                    className={`w-full text-left px-4 py-3 rounded-xl transition flex items-center justify-between ${sortBy === option.value
+                                                        ? "bg-primary text-white font-medium"
+                                                        : "bg-white/5 text-secondary hover:bg-white/10"
                                                         }`}
                                                 >
                                                     {option.label}
+                                                    {sortBy === option.value && (
+                                                        <div className="w-2 h-2 rounded-full bg-white" />
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h4 className="font-semibold text-secondary mb-3 text-sm uppercase tracking-wider text-gray-400">Фільтри</h4>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {PROPERTY_FILTERS.map((filter) => (
+                                                <button
+                                                    key={filter.id}
+                                                    onClick={() => toggleProperty(filter.id)}
+                                                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 border flex flex-col items-center justify-center gap-2 text-center h-24 ${selectedProperties.includes(filter.id)
+                                                        ? "bg-secondary/20 border-secondary text-primary" // Highlighted state
+                                                        : "bg-white/5 border-transparent text-gray-300 hover:bg-white/10"
+                                                        }`}
+                                                >
+                                                    {filter.icon && (
+                                                        <div className="relative w-8 h-8">
+                                                            <Image
+                                                                src={filter.icon}
+                                                                alt={filter.label}
+                                                                width={32}
+                                                                height={32}
+                                                                className={`object-contain transition ${selectedProperties.includes(filter.id) ? "" : "grayscale opacity-70"}`}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <span>{filter.label}</span>
                                                 </button>
                                             ))}
                                         </div>
