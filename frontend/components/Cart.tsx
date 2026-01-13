@@ -467,12 +467,20 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           {/* Промокод */}
                           {renderPromoSection()}
 
-                          {/* Upsell / Recommendations */}
-                          <CartUpsell />
+
 
                         </div>
                       )}
                     </div>
+
+                    {/* Upsell - Fixed above footer */}
+                    {items.length > 0 && (
+                      <div className="bg-[#121212] z-10 relative border-t border-white/5 shrink-0">
+                        <div className="px-4 pb-0">
+                          <CartUpsell />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Footer - Sticky Bottom */}
                     {items.length > 0 && (
