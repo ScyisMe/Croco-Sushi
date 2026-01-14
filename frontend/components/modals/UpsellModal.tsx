@@ -120,10 +120,10 @@ export default function UpsellModal() {
 
                                 <div className="mt-2 text-center">
                                     <h3 className="text-xl font-bold leading-6 text-white font-display mb-2">
-                                        Бажаєте додати соус? 🥢
+                                        Бажаєте ще додатковий соус? 🥢
                                     </h3>
                                     <p className="text-sm text-gray-400 mb-6">
-                                        Додайте смаку до вашого замовлення
+                                        До замовлення вже входять соус та прибори, але ви можете додати ще
                                     </p>
 
                                     {loading ? (
