@@ -22,6 +22,8 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import NumberTicker from "@/components/ui/NumberTicker";
+import { useRouter } from "next/navigation";
+import { useUiStore } from "@/store/uiStore";
 import CartUpsell from "@/components/CartUpsell";
 
 interface CartProps {
@@ -243,6 +245,17 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
       </AnimatePresence>
     </div>
   );
+
+  const router = useRouter();
+  const openUpsellModal = useUiStore((state) => state.openUpsellModal);
+
+  const handleCheckout = () => {
+    setIsOpen(false);
+    // Delay to allow cart close animation
+    setTimeout(() => {
+      openUpsellModal("/checkout");
+    }, 300);
+  };
 
   return (
     <Transition.Root show={isOpen} as={Fragment}>
@@ -514,16 +527,16 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                         )}
 
                         {/* Кнопка оформлення */}
-                        <Link
-                          href="/checkout"
-                          onClick={() => setIsOpen(false)}
+                        <button
+                          onClick={handleCheckout}
+                          disabled={!isMinOrderReached}
                           className={`btn-checkout block w-full text-center py-3.5 rounded-xl font-bold text-base transition transform active:scale-[0.98] ${isMinOrderReached
                             ? "bg-primary hover:bg-primary-600 text-white shadow-lg shadow-primary/20"
                             : "bg-surface-card text-gray-500 cursor-not-allowed pointer-events-none"
                             }`}
                         >
                           Оформити замовлення
-                        </Link>
+                        </button>
                       </div>
                     )}
                   </div>
@@ -535,5 +548,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
       </Dialog>
     </Transition.Root >
   );
+
 }
 

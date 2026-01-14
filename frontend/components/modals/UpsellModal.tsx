@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 import Image from "next/image";
 import { XMarkIcon, PlusIcon, CheckIcon } from "@heroicons/react/24/outline";
@@ -11,9 +12,9 @@ import { Product } from "@/lib/types";
 import toast from "react-hot-toast";
 
 export default function UpsellModal() {
-    const { isUpsellModalOpen, closeUpsellModal } = useUiStore();
+    const { isUpsellModalOpen, closeUpsellModal, upsellRedirectPath } = useUiStore();
     const addItem = useCartStore((state) => state.addItem);
-    const cartItems = useCartStore((state) => state.items);
+    const router = useRouter();
 
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -67,6 +68,16 @@ export default function UpsellModal() {
         }
 
         closeUpsellModal();
+        if (upsellRedirectPath) {
+            router.push(upsellRedirectPath);
+        }
+    };
+
+    const handleDecline = () => {
+        closeUpsellModal();
+        if (upsellRedirectPath) {
+            router.push(upsellRedirectPath);
+        }
     };
 
     return (
@@ -193,7 +204,7 @@ export default function UpsellModal() {
                                     <button
                                         type="button"
                                         className="w-full py-3 text-gray-500 hover:text-white transition-colors text-sm font-medium"
-                                        onClick={closeUpsellModal}
+                                        onClick={handleDecline}
                                     >
                                         Ні, дякую
                                     </button>

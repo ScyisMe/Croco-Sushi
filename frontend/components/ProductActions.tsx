@@ -46,18 +46,6 @@ export const ProductActions = ({ product, selectedSize, currentPrice }: ProductA
 
         if (quantity === 0) {
             toast.success(`${product.name} додано в кошик`);
-
-            // Check if product is sushi/roll/set to trigger upsell
-            const lowerName = product.name.toLowerCase();
-            const isSushi = /рол|суші|сет|макі|нігірі|гункан|філадельфія|дракон|каліфорнія/i.test(lowerName);
-            const isExcluded = /соус|напій|додат/i.test(lowerName);
-
-            if (isSushi && !isExcluded) {
-                // Small delay to let the toast appear first
-                setTimeout(() => {
-                    openUpsellModal();
-                }, 500);
-            }
         }
     };
 

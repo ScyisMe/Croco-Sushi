@@ -2,12 +2,20 @@ import { create } from "zustand";
 
 interface UiState {
     isUpsellModalOpen: boolean;
-    openUpsellModal: () => void;
+    upsellRedirectPath: string | null;
+    openUpsellModal: (redirectPath?: string) => void;
     closeUpsellModal: () => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
     isUpsellModalOpen: false,
-    openUpsellModal: () => set({ isUpsellModalOpen: true }),
-    closeUpsellModal: () => set({ isUpsellModalOpen: false }),
+    upsellRedirectPath: null,
+    openUpsellModal: (redirectPath) => set({
+        isUpsellModalOpen: true,
+        upsellRedirectPath: redirectPath || null
+    }),
+    closeUpsellModal: () => set({
+        isUpsellModalOpen: false,
+        upsellRedirectPath: null
+    }),
 }));
