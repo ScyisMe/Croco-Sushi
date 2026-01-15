@@ -78,7 +78,7 @@ export default function ProductPage() {
   };
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || !product.is_available) return;
 
     const price = selectedSize ? Number(selectedSize.price) : Number(product.price);
 
@@ -192,6 +192,15 @@ export default function ProductPage() {
                     </span>
                   )}
                 </div>
+
+                {/* Out of Stock Overlay */}
+                {!product.is_available && (
+                  <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center backdrop-blur-[2px]">
+                    <span className="px-6 py-3 bg-red-500/20 border border-red-500 text-red-500 font-bold text-xl rounded-xl rotate-[-12deg] shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+                      Немає в наявності
+                    </span>
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -269,10 +278,20 @@ export default function ProductPage() {
                 <div className="flex gap-4">
                   <Button
                     onClick={handleAddToCart}
-                    className="flex-1 h-14 text-lg gap-2"
+                    disabled={!product.is_available}
+                    className={`flex-1 h-14 text-lg gap-2 ${!product.is_available ? "opacity-50 cursor-not-allowed grayscale" : ""}`}
                   >
-                    <ShoppingBagIcon className="w-6 h-6" />
-                    Додати в кошик
+                    {!product.is_available ? (
+                      <>
+                        <span className="w-6 h-6 flex items-center justify-center">❌</span>
+                        Немає в наявності
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBagIcon className="w-6 h-6" />
+                        Додати в кошик
+                      </>
+                    )}
                   </Button>
                   <button
                     onClick={toggleFavorite}

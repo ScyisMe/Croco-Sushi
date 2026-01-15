@@ -137,7 +137,7 @@ async def get_product_by_slug(
     """Отримати продукт за slug"""
     result = await db.execute(
         select(Product)
-        .where(Product.slug == slug, Product.is_available == True)
+        .where(Product.slug == slug)
         .options(
             selectinload(Product.sizes)
         )
