@@ -134,9 +134,9 @@ async def save_image_with_processing(
     subdirectory: str = "images",
     prefix: Optional[str] = None,
     max_size: Optional[int] = None,
-    create_thumbnail: bool = False,
-    thumbnail_size: Tuple[int, int] = (300, 300),
-    convert_to_webp: bool = False
+    create_thumbnail: bool = True,
+    thumbnail_size: Tuple[int, int] = (500, 500),
+    convert_to_webp: bool = True
 ) -> Tuple[str, str, Optional[str]]:
     """Збереження зображення з обробкою
     
@@ -193,9 +193,13 @@ async def save_image_with_processing(
             else:
                 image = image.convert("RGB")
         
+        # Resize main image if needed (max 1000x1000)
+        main_max_size = (1000, 1000)
+        image.thumbnail(main_max_size, Image.Resampling.LANCZOS)
+
         # Збереження основного зображення
         if convert_to_webp:
-            image.save(file_path, "WEBP", quality=85, optimize=True)
+            image.save(file_path, "WEBP", quality=82, optimize=True)
         else:
             image.save(file_path, quality=85, optimize=True)
         
