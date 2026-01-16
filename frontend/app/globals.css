@@ -176,8 +176,8 @@ body {
   }
 
   .content-auto {
-    content-visibility: auto;
-    contain-intrinsic-size: 1px 500px;
+    /* content-visibility: auto; - REMOVED: Causes CLS due to inaccurate intrinsic size */
+    /* contain-intrinsic-size: 1px 500px; */
   }
 }
 

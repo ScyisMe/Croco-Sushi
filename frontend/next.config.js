@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
-  compress: true,
+  compress: false, // Offload compression to Caddy
   optimizeFonts: true,
   experimental: {
     optimizeCss: true,

@@ -44,16 +44,16 @@ export default async function Home() {
           <Stories />
         </div>
         <h2 className="sr-only">Актуальні пропозиції</h2>
-        <div className="content-auto">
+        <div>
           <PromoBanner />
         </div>
-        <div className="content-auto">
+        <div>
           <Promotions />
         </div>
-        <div className="content-auto">
+        <div>
           <CategoryFeed initialCategories={categories} />
         </div>
-        <div className="content-auto">
+        <div>
           <ReviewsCarousel />
         </div>
 
@@ -78,7 +78,7 @@ export default async function Home() {
           </p>
         </div>
       </main>
-      <div className="content-auto">
+      <div className="mt-auto">
         <Footer />
       </div>
     </div >
