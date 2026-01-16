@@ -22,3 +22,7 @@ scrape_configs:
     static_configs:
       - targets: ['redis_exporter:9121']
 
+  - job_name: 'caddy'
+    static_configs:
+      - targets: ['caddy:2019']
+

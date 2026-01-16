@@ -1,7 +1,9 @@
 {
     servers {
         protocols h1 h2 h3
+        metrics
     }
+    admin :2019
 }
 
 crocosushi.com {
