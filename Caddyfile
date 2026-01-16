@@ -1,6 +1,6 @@
 {
     servers {
-        protocols h1 h2
+        protocols h1 h2 h3
     }
 }
 
@@ -15,6 +15,14 @@ www.crocosushi.com {
 
 api.crocosushi.com {
     encode gzip zstd
+    
+    # Serve uploads directly from filesystem
+    handle_path /static/uploads/* {
+        root * /srv/uploads
+        file_server
+        header Cache-Control "public, max-age=31536000, immutable"
+    }
+
     reverse_proxy backend:8000
 }
 monitor.crocosushi.com {
