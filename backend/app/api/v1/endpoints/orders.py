@@ -44,6 +44,10 @@ async def create_order(
         raise BadRequestException("Максимальна кількість товарів в замовленні: 20")
     
     try:
+        from app.core.metrics import order_creation_seconds
+        timer = order_creation_seconds.time()
+        timer.__enter__()
+        
         # Collect IDs for bulk fetching
         product_ids = {item.product_id for item in order_data.items}
         size_ids = {item.size_id for item in order_data.items if item.size_id}
@@ -300,12 +304,36 @@ async def create_order(
 
         # --- Metrics ---
         try:
-            from app.core.metrics import orders_total
+            from app.core.metrics import orders_total, revenue_total, order_value_dist
+            
+            # 1. Order Count
             orders_total.labels(status="created").inc()
+            
+            # 2. Revenue & Distribution
+            # Determine labels
+            delivery_type = "delivery" if new_order.address_id else "pickup"
+            payment_method = new_order.payment_method or "unknown"
+            
+            # Record revenue
+            revenue_total.labels(
+                payment_method=payment_method, 
+                type=delivery_type
+            ).inc(float(new_order.total_amount))
+            
+            # Record check size
+            order_value_dist.observe(float(new_order.total_amount))
+            
         except Exception as e:
             # Metrics should not break the app
-            pass
+            import logging
+            logging.getLogger(__name__).error(f"Metrics error: {e}")
         # ---------------
+        
+        # Stop Timer
+        try:
+            timer.__exit__(None, None, None)
+        except:
+            pass
         
         # Відправка підтвердження замовлення через Celery (асинхронно)
         if order_data.customer_email:
