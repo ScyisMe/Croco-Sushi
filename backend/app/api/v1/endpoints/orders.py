@@ -297,6 +297,15 @@ async def create_order(
             )
         )
         new_order = result.scalar_one()
+
+        # --- Metrics ---
+        try:
+            from app.core.metrics import orders_total
+            orders_total.labels(status="created").inc()
+        except Exception as e:
+            # Metrics should not break the app
+            pass
+        # ---------------
         
         # Відправка підтвердження замовлення через Celery (асинхронно)
         if order_data.customer_email:

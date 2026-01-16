@@ -138,6 +138,21 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api/v1")
 
 
+# --- Monitoring ---
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator(
+    should_group_status_codes=False,
+    should_ignore_untemplated=True,
+    should_instrument_requests_inprogress=True,
+    excluded_handlers=["/metrics"],
+    env_var_name="ENABLE_METRICS",
+    inprogress_name="inprogress",
+    inprogress_labels=True,
+)
+instrumentator.instrument(app).expose(app)
+
+
 # --- Static Files ---
 # КРИТИЧНО: Монтуємо тільки директорію uploads, щоб не виставити вихідний код
 upload_dir = Path(settings.UPLOAD_DIR).resolve()
