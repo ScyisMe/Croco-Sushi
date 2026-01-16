@@ -8,7 +8,7 @@ interface OrderItem {
     product_name: string;
     quantity: number;
     price: number;
-    image_url?: string;
+    product_image?: string;
     size_name?: string;
 }
 
@@ -108,8 +108,8 @@ export const OrderDetailsModal = ({ isOpen, onClose, order: initialOrder, status
                                         {order.items?.map((item: OrderItem) => (
                                             <div key={item.id} className="flex items-center gap-4 bg-white/5 p-3 rounded-xl border border-white/5">
                                                 <div className="w-16 h-16 bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center text-xs text-gray-500 overflow-hidden">
-                                                    {item.image_url ? (
-                                                        <img src={item.image_url} alt={item.product_name} className="w-full h-full object-cover" />
+                                                    {item.product_image ? (
+                                                        <img src={item.product_image} alt={item.product_name} className="w-full h-full object-cover" />
                                                     ) : "IMG"}
                                                 </div>
                                                 <div className="flex-1">
