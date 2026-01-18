@@ -43,8 +43,6 @@ async def verify_promo_code(
     # Нормалізація коду (видалення пробілів, верхній регістр)
     code = data.code.strip()
     
-from sqlalchemy.orm import selectinload
-
     # Eager load product for free_product type
     query = (
         select(PromoCode)
