@@ -139,6 +139,12 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
         }
     }, [searchParams]);
 
+    // Auth Check
+    useEffect(() => {
+        const token = localStorage.getItem("access_token");
+        setIsAuthenticated(!!token);
+    }, []);
+
     // Update selected category if prop changes (navigation between static routes)
     useEffect(() => {
         if (activeCategorySlug !== undefined) {
@@ -152,7 +158,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
     const categoriesQuery = useQuery<Category[]>({
         queryKey: ["categories"],
         queryFn: async () => {
-            const response = await apiClient.get("/categories");
+            const response = await apiClient.get("/categories/");
             return response.data;
         },
     });
@@ -213,7 +219,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
             if (debouncedSearch) {
                 params.search = debouncedSearch;
             }
-            const response = await apiClient.get("/products", { params });
+            const response = await apiClient.get("/products/", { params });
             const items = response.data.items || response.data;
 
             const hasMore = items.length === PRODUCTS_PER_PAGE;
@@ -272,7 +278,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
     const favoritesQuery = useQuery<Favorite[]>({
         queryKey: ["favorites"],
         queryFn: async () => {
-            const response = await apiClient.get("/users/me/favorites");
+            const response = await apiClient.get("/users/me/favorites/");
             return response.data;
         },
         enabled: isAuthenticated,
@@ -285,10 +291,10 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
     const toggleFavoriteMutation = useMutation({
         mutationFn: async (productId: number) => {
             if (favoriteIds.has(productId)) {
-                await apiClient.delete(`/users/me/favorites/${productId}`);
+                await apiClient.delete(`/users/me/favorites/${productId}/`);
                 return { action: "removed", productId };
             } else {
-                await apiClient.post(`/users/me/favorites/${productId}`);
+                await apiClient.post(`/users/me/favorites/${productId}/`);
                 return { action: "added", productId };
             }
         },

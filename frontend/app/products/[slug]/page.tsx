@@ -57,9 +57,12 @@ export default function ProductPage() {
   // Check favorite status
   useEffect(() => {
     const checkFavorite = async () => {
-      if (product) {
+      // Auth Guard: Don't call API if no token (prevents 401s)
+      const token = typeof window !== 'undefined' ? localStorage.getItem("access_token") : null;
+
+      if (product && token) {
         try {
-          const response = await apiClient.get("/users/me/favorites");
+          const response = await apiClient.get("/users/me/favorites/");
           const favorites = response.data;
           setIsFavorite(favorites.some((f: any) => f.product?.id === product.id));
         } catch (e) {
@@ -100,11 +103,11 @@ export default function ProductPage() {
 
     try {
       if (isFavorite) {
-        await apiClient.delete(`/users/me/favorites/${product.id}`);
+        await apiClient.delete(`/users/me/favorites/${product.id}/`);
         setIsFavorite(false);
         toast.success("Видалено з обраного");
       } else {
-        await apiClient.post(`/users/me/favorites/${product.id}`);
+        await apiClient.post(`/users/me/favorites/${product.id}/`);
         setIsFavorite(true);
         toast.success("Додано в обране");
       }
