@@ -372,7 +372,7 @@ export default function PromoCodesPage() {
                       <td className="px-6 py-4 font-medium text-white">{stat.code}</td>
                       <td className="px-6 py-4 text-white">{stat.total_uses}</td>
                       <td className="px-6 py-4 text-green-400 font-medium">
-                        {stat.total_discount.toFixed(2)} ₴
+                        {Number(stat.total_discount).toFixed(2)} ₴
                       </td>
                     </tr>
                   ))
