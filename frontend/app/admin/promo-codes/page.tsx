@@ -7,7 +7,8 @@ import {
   PencilIcon,
   TrashIcon,
   TicketIcon,
-  CalendarIcon
+  CalendarIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 
@@ -44,12 +45,12 @@ export default function PromoCodesPage() {
   const [formData, setFormData] = useState({
     code: "",
     description: "",
-    discount_type: "percent",
+    discount_type: "percent" as "percent" | "fixed",
     discount_value: 0,
     start_date: "",
     end_date: "",
     min_order_amount: 0,
-    max_uses: 0,
+    max_uses: 0, // 0 means infinite in UI logic for empty input, but backend might treat null. We will handle this.
     is_active: true
   });
 
@@ -88,12 +89,38 @@ export default function PromoCodesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // STRICT VALIDATION
+    if (!formData.code.trim()) {
+      toast.error("Код промокоду обов'язковий");
+      return;
+    }
+    if (formData.discount_value <= 0) {
+      toast.error("Знижка має бути більше 0");
+      return;
+    }
+    if (formData.discount_type === "percent" && formData.discount_value > 100) {
+      toast.error("Відсоток знижки не може перевищувати 100%");
+      return;
+    }
+    if (!formData.start_date || !formData.end_date) {
+      toast.error("Вкажіть дати дії промокоду");
+      return;
+    }
+    if (new Date(formData.start_date) >= new Date(formData.end_date)) {
+      toast.error("Дата початку має бути раніше дати закінчення");
+      return;
+    }
+    if (formData.min_order_amount < 0) {
+      toast.error("Мінімальне замовлення не може бути від'ємним");
+      return;
+    }
+
     try {
-      // Format dates to ISO if needed, or ensure input type="datetime-local" matches backend expectation
       const dataToSend = {
         ...formData,
-        min_order_amount: formData.min_order_amount || null,
-        max_uses: formData.max_uses || null
+        min_order_amount: formData.min_order_amount > 0 ? formData.min_order_amount : null,
+        max_uses: formData.max_uses > 0 ? formData.max_uses : null
       };
 
       if (editingPromo) {
@@ -131,7 +158,7 @@ export default function PromoCodesPage() {
         description: promo.description || "",
         discount_type: promo.discount_type,
         discount_value: promo.discount_value,
-        start_date: promo.start_date.slice(0, 16), // Format for datetime-local
+        start_date: promo.start_date.slice(0, 16),
         end_date: promo.end_date.slice(0, 16),
         min_order_amount: promo.min_order_amount || 0,
         max_uses: promo.max_uses || 0,
@@ -205,7 +232,7 @@ export default function PromoCodesPage() {
         </button>
       </div>
 
-      <div className="bg-theme-surface rounded-xl shadow-sm border border-white/5 overflow-hidden">
+      <div className="bg-surface-card rounded-xl shadow-sm border border-white/5 overflow-hidden">
         <div className="overflow-x-auto">
           {activeTab === "list" ? (
             <table className="w-full">
@@ -280,8 +307,8 @@ export default function PromoCodesPage() {
                             disabled={promo.current_uses > 0}
                             title={promo.current_uses > 0 ? "Неможливо видалити використаний промокод" : "Видалити"}
                             className={`p-2 rounded-lg transition ${promo.current_uses > 0
-                                ? "text-gray-600 cursor-not-allowed"
-                                : "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
+                              ? "text-gray-600 cursor-not-allowed"
+                              : "text-gray-400 hover:text-red-400 hover:bg-red-500/10"
                               }`}
                           >
                             <TrashIcon className="w-5 h-5" />
@@ -322,122 +349,144 @@ export default function PromoCodesPage() {
         </div>
       </div>
 
-      {/* Modal */}
+      {/* Modal - Improved Design & Validation */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-theme-surface border border-white/10 rounded-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4 text-white">{editingPromo ? "Редагувати промокод" : "Новий промокод"}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0f0f0f] border border-white/10 rounded-2xl max-w-lg w-full p-8 relative shadow-2xl">
+            {/* Close Button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white rounded-lg transition"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 text-white font-display">
+              {editingPromo ? "Редагувати промокод" : "Новий промокод"}
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Код</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Код</label>
                 <input
                   type="text"
                   required
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500 uppercase"
+                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500 uppercase font-bold tracking-wider"
                   value={formData.code}
                   onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                  placeholder="CROCOSUSHI"
                 />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Опис</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Опис</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500"
+                  className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500"
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Активуйте промокод та сміливо замовляйте..."
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Тип знижки</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Тип знижки</label>
                   <select
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
+                    className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white appearance-none"
                     value={formData.discount_type}
                     onChange={e => setFormData({ ...formData, discount_type: e.target.value as any })}
                   >
-                    <option value="percent" className="bg-black text-white">Відсоток (%)</option>
-                    <option value="fixed" className="bg-black text-white">Сума (₴)</option>
+                    <option value="percent">Відсоток (%)</option>
+                    <option value="fixed">Фіксована сума (₴)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Значення</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Значення</label>
                   <input
                     type="number"
                     min="0"
+                    step="0.01"
                     required
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
+                    className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
                     value={formData.discount_value}
-                    onChange={e => setFormData({ ...formData, discount_value: Number(e.target.value) })}
+                    onChange={e => setFormData({ ...formData, discount_value: parseFloat(e.target.value) || 0 })}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Початок дії</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Початок дії</label>
                   <input
                     type="datetime-local"
                     required
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white [color-scheme:dark]"
+                    className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white [color-scheme:dark]"
                     value={formData.start_date}
                     onChange={e => setFormData({ ...formData, start_date: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Кінець дії</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Кінець дії</label>
                   <input
                     type="datetime-local"
                     required
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white [color-scheme:dark]"
+                    className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white [color-scheme:dark]"
                     value={formData.end_date}
                     onChange={e => setFormData({ ...formData, end_date: e.target.value })}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Мін. замовлення (₴)</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Мін. замовлення (₴)</label>
                   <input
                     type="number"
                     min="0"
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
+                    className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white"
                     value={formData.min_order_amount}
-                    onChange={e => setFormData({ ...formData, min_order_amount: Number(e.target.value) })}
+                    onChange={e => setFormData({ ...formData, min_order_amount: parseFloat(e.target.value) || 0 })}
+                    placeholder="0.00"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Ліміт використань</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Ліміт використань</label>
                   <input
                     type="number"
                     min="0"
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500"
+                    className="w-full px-4 py-3 bg-[#1a1a1a] border border-white/10 rounded-lg focus:ring-2 focus:ring-primary text-white placeholder-gray-500"
                     value={formData.max_uses}
-                    onChange={e => setFormData({ ...formData, max_uses: Number(e.target.value) })}
+                    onChange={e => setFormData({ ...formData, max_uses: parseInt(e.target.value) || 0 })}
                     placeholder="∞"
                   />
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+
+              <div className="flex items-center space-x-3 bg-[#1a1a1a] p-4 rounded-lg border border-white/5">
                 <input
                   type="checkbox"
                   id="is_active_promo"
-                  className="rounded bg-white/5 border-white/10 text-primary focus:ring-primary"
+                  className="w-5 h-5 rounded border-white/20 text-primary focus:ring-primary bg-black/40 checked:bg-primary"
                   checked={formData.is_active}
                   onChange={e => setFormData({ ...formData, is_active: e.target.checked })}
                 />
-                <label htmlFor="is_active_promo" className="text-sm font-medium text-gray-300">Активний промокод</label>
+                <label htmlFor="is_active_promo" className="text-base font-medium text-white cursor-pointer select-none">
+                  Активний промокод
+                </label>
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4 border-t border-white/10">
+              <div className="flex justify-end space-x-4 pt-6 mt-2 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition"
+                  className="px-6 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition font-medium"
                 >
                   Скасувати
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition"
+                  className="px-8 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-600 transition font-medium shadow-lg shadow-primary/20"
                 >
                   Зберегти
                 </button>
