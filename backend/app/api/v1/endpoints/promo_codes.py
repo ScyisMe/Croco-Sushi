@@ -15,6 +15,8 @@ from app.core.exceptions import NotFoundException, BadRequestException
 router = APIRouter()
 
 
+from sqlalchemy.orm import selectinload
+
 class PromoCodeVerifyRequest(BaseModel):
     code: str
     order_amount: Optional[Decimal] = None
