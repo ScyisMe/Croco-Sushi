@@ -681,7 +681,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
                                     <div className="text-center py-16">
                                         <div className="relative w-24 h-24 mb-4 mx-auto">
                                             <Image
-                                                src="/logo.png"
+                                                src="/logo.webp"
                                                 alt="Croco Sushi"
                                                 fill
                                                 className="object-contain opacity-50 grayscale"
