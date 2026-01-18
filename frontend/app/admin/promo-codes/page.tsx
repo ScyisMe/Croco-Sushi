@@ -72,7 +72,9 @@ export default function PromoCodesPage() {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await apiClient.get<Product[]>("/products");
+      const response = await apiClient.get<Product[]>("/products", {
+        params: { limit: 1000 }
+      });
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products", error);
