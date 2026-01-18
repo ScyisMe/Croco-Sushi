@@ -126,10 +126,10 @@ export default function CartUpsell() {
                 {upsellProducts.map((product) => (
                     <div
                         key={product.id}
-                        className="flex-shrink-0 w-[160px] snap-start bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden flex flex-col select-none group hover:border-white/20 transition-colors"
+                        className="flex-shrink-0 w-[120px] snap-start bg-[#1a1a1a] border border-white/5 rounded-xl overflow-hidden flex flex-col select-none group hover:border-white/20 transition-colors"
                     >
                         {/* Image */}
-                        <div className="relative h-28 w-full bg-white/5">
+                        <div className="relative h-20 w-full bg-white/5">
                             {product.image_url ? (
                                 <Image
                                     src={product.image_url}
@@ -143,10 +143,7 @@ export default function CartUpsell() {
                                 </div>
                             )}
 
-                            {/* Overlay Gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent opacity-60" />
-
-                            {/* Quick Add Button - Floating */}
+                            {/* Quick Add Button - Floating - Smaller */}
                             <button
                                 onClick={(e) => {
                                     addItem({
@@ -157,21 +154,21 @@ export default function CartUpsell() {
                                         quantity: 1
                                     });
                                 }}
-                                className="absolute bottom-2 right-2 w-9 h-9 flex items-center justify-center rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 hover:bg-primary-400 hover:scale-105 transition-all active:scale-95 z-10"
+                                className="absolute bottom-1 right-1 w-7 h-7 flex items-center justify-center rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 hover:bg-primary-400 hover:scale-105 transition-all active:scale-95 z-10"
                             >
-                                <PlusIcon className="w-5 h-5" />
+                                <PlusIcon className="w-4 h-4" />
                             </button>
                         </div>
 
                         {/* Content */}
-                        <div className="p-3 flex flex-col flex-1">
-                            <h4 className="text-sm font-bold text-white line-clamp-2 leading-snug mb-1">
+                        <div className="p-2 flex flex-col flex-1">
+                            <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight mb-1">
                                 {product.name}
                             </h4>
 
                             <div className="mt-auto flex items-center justify-between">
-                                <span className="text-base font-bold text-white">
-                                    {product.price} <span className="text-xs font-normal text-gray-400">₴</span>
+                                <span className="text-sm font-bold text-white">
+                                    {product.price} <span className="text-[10px] font-normal text-gray-400">₴</span>
                                 </span>
                             </div>
                         </div>

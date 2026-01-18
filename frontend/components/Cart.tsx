@@ -393,12 +393,12 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
                           {/* Список товарів - Новий Дизайн */}
                           <ul className="space-y-4">
-                            <AnimatePresence initial={false} mode="popLayout">
+                            <AnimatePresence>
                               {items.map((item) => (
                                 <motion.li
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: "auto" }}
-                                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                                  initial={{ opacity: 0, scale: 0.95 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
                                   transition={{ duration: 0.2 }}
                                   key={`${item.id}-${item.sizeId || "default"}`}
                                   className="group flex gap-4 p-4 bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-colors"
