@@ -41,10 +41,13 @@ async def verify_promo_code(
     # Нормалізація коду (видалення пробілів, верхній регістр)
     code = data.code.strip()
     
+from sqlalchemy.orm import selectinload
+
     # Eager load product for free_product type
     query = (
         select(PromoCode)
         .where(func.lower(PromoCode.code) == code.lower())
+        .options(selectinload(PromoCode.product))
     )
     result = await db.execute(query)
     promo = result.scalar_one_or_none()

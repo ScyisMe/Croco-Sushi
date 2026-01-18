@@ -23,8 +23,9 @@ router = APIRouter()
 class PromoCodeBase(BaseModel):
     code: str
     description: Optional[str] = None
-    discount_type: str  # percent, fixed
+    discount_type: str  # percent, fixed, free_product
     discount_value: Decimal
+    product_id: Optional[int] = None
     start_date: datetime
     end_date: datetime
     min_order_amount: Optional[Decimal] = None
@@ -42,6 +43,7 @@ class PromoCodeUpdate(BaseModel):
     description: Optional[str] = None
     discount_type: Optional[str] = None
     discount_value: Optional[Decimal] = None
+    product_id: Optional[int] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     min_order_amount: Optional[Decimal] = None
