@@ -120,10 +120,10 @@ export default function UpsellModal() {
 
                                 <div className="mt-2 text-center">
                                     <h3 className="text-2xl font-bold leading-tight text-white font-display mb-2">
-                                        Бажаєте ще соус? 🥢
+                                        Бажаєте додатковий соус? 🥢
                                     </h3>
-                                    <p className="text-sm text-gray-400 mb-8 max-w-md mx-auto">
-                                        Додайте більше смаку до вашого замовлення.
+                                    <p className="text-sm text-gray-400 mb-8 max-w-md mx-auto text-balance">
+                                        До замовлення вже входять соус, імбир та васабі. Оберіть це, якщо бажаєте додаткову порцію.
                                     </p>
 
                                     {loading ? (
