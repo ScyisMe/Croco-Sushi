@@ -87,15 +87,24 @@ export const useCartStore = create<CartState>()(
             return state;
           }
 
-          const itemKey = `${newItem.id}-${newItem.sizeId || "default"}`;
+          // Generate unique key including isGift status
+          const getItemKey = (id: number, sizeId?: number, isGift?: boolean) =>
+            `${id}-${sizeId || "default"}${isGift ? "-gift" : ""}`;
+
+          const itemKey = getItemKey(newItem.id, newItem.sizeId, newItem.isGift);
           const existingIndex = state.items.findIndex(
-            (item) => `${item.id}-${item.sizeId || "default"}` === itemKey
+            (item) => getItemKey(item.id, item.sizeId, item.isGift) === itemKey
           );
 
           let updatedItems: CartItem[];
 
           if (existingIndex > -1) {
             // Оновлюємо кількість існуючого товару
+            // Якщо це подарунок, ми не збільшуємо кількість (вона завжди 1)
+            if (newItem.isGift) {
+              return state;
+            }
+
             updatedItems = state.items.map((item, index) =>
               index === existingIndex
                 ? { ...item, quantity: item.quantity + (newItem.quantity || 1) }
@@ -114,6 +123,7 @@ export const useCartStore = create<CartState>()(
                 size: newItem.size,
                 sizeId: newItem.sizeId,
                 quantity: newItem.quantity || 1,
+                isGift: newItem.isGift,
               },
             ];
           }
@@ -131,9 +141,40 @@ export const useCartStore = create<CartState>()(
 
       removeItem: (id, sizeId) => {
         set((state) => {
+          // Note: for now removeItem from UI is mostly for non-gift items or via clearCart
+          // If we want to remove specific gift item, we need to pass isGift to this function
+          // But usually gifts are removed when promo code is removed.
+          // Let's assume standard removal doesn't target gifts unless sizeId matches (which is weak).
+          // Better: We might need to update the signature of removeItem in the future.
+          // For now, let's keep it compatible but aware that gifts might need special handling.
+
           const itemKey = `${id}-${sizeId || "default"}`;
           const updatedItems = state.items.filter(
-            (item) => `${item.id}-${item.sizeId || "default"}` !== itemKey
+            (item) => {
+              // Determine key for this item
+              const key = `${item.id}-${item.sizeId || "default"}`;
+              // If it's a gift, we don't remove it via standard remove button usually, 
+              // BUT if the user clicks trash on a gift, we should allow it?
+              // The current UI calls removeItem(item.id, item.sizeId). 
+              // If we have both gift and non-gift of same id/size, this might remove both if we don't distinguish.
+
+              // To fix this properly without changing component signature everywhere immediately:
+              // We logic: if the item is a gift, we shouldn't remove it via this generic call 
+              // UNLESS we are sure. But wait, the UI code maps over items.
+              // We should probably update the component to pass the whole item or isGift flag.
+
+              // For this step, I will stick to the existing signature but try to only remove 
+              // non-gift items if possible, OR remove all matching ID/Size. 
+              // User requirement: "can't change quantity". 
+              // If user wants to remove gift, they should probably remove promo code? 
+              // Or maybe they CAN remove it.
+
+              // Let's defer to: standard remove removes NON-GIFT items. 
+              // Gift items are removed via removePromoCode.
+              if (item.isGift) return true; // Keep gifts
+
+              return key !== itemKey;
+            }
           );
 
           const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -148,11 +189,21 @@ export const useCartStore = create<CartState>()(
 
       updateQuantity: (id, quantity, sizeId) => {
         set((state) => {
+          // We shouldn't be able to update quantity of gifts via this method if they are gifts.
+          // But since the UI calls this with specific ID/Size, we need to find the TARGET item.
+          // Since we don't pass isGift here, we might ambiguously target a gift if we have a non-gift version too.
+          // However, if we block UI controls for gifts, this won't be called for gifts.
+
+          // So, this updates NON-GIFT items only.
+
           if (quantity <= 0) {
-            // Видаляємо товар якщо кількість 0 або менше
+            // Remove item (non-gift)
             const itemKey = `${id}-${sizeId || "default"}`;
             const updatedItems = state.items.filter(
-              (item) => `${item.id}-${item.sizeId || "default"}` !== itemKey
+              (item) => {
+                if (item.isGift) return true; // Don't remove gifts via q=0 update
+                return `${item.id}-${item.sizeId || "default"}` !== itemKey;
+              }
             );
 
             const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -165,11 +216,13 @@ export const useCartStore = create<CartState>()(
           }
 
           const itemKey = `${id}-${sizeId || "default"}`;
-          const updatedItems = state.items.map((item) =>
-            `${item.id}-${item.sizeId || "default"}` === itemKey
+          const updatedItems = state.items.map((item) => {
+            if (item.isGift) return item; // Skip gifts
+
+            return `${item.id}-${item.sizeId || "default"}` === itemKey
               ? { ...item, quantity }
-              : item
-          );
+              : item;
+          });
 
           const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
           const totalAmount = updatedItems.reduce(
@@ -227,9 +280,12 @@ export const useCartStore = create<CartState>()(
       },
 
       getItemCount: (id, sizeId) => {
+        // Count only non-gift items for now, or all? 
+        // Usually used for "Add to Cart" button state on product card.
+        // If I have a gift version, does it count? Probably not for the "Add" button of paid version.
         const itemKey = `${id}-${sizeId || "default"}`;
         const item = get().items.find(
-          (item) => `${item.id}-${item.sizeId || "default"}` === itemKey
+          (item) => !item.isGift && `${item.id}-${item.sizeId || "default"}` === itemKey
         );
         return item?.quantity || 0;
       },

@@ -407,7 +407,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                   animate={{ opacity: 1, scale: 1 }}
                                   exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.1 } }}
                                   transition={{ duration: 0.2 }}
-                                  key={`${item.id}-${item.sizeId || "default"}`}
+                                  key={`${item.id}-${item.sizeId || "default"}${item.isGift ? "-gift" : ""}`}
                                   className="group flex gap-4 p-4 bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-colors"
                                 >
                                   {/* Зображення */}
@@ -453,30 +453,36 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
 
                                     {/* Контроли кількості: Великі кнопки для мобільного */}
                                     <div className="flex items-center justify-between mt-2">
-                                      {/* Видалити (маленька іконка зліва, якщо потрібно, або просто кнопка мінус видаляє) 
-                                            Але тут краще залишити кількість
-                                        */}
-                                      <div className="flex items-center bg-[#252525] rounded-xl border border-white/5 p-1">
-                                        <button
-                                          onClick={() =>
-                                            updateQuantity(item.id, item.quantity - 1, item.sizeId)
-                                          }
-                                          className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition active:scale-90 touch-manipulation"
-                                        >
-                                          <MinusIcon className="w-5 h-5" />
-                                        </button>
-                                        <span className="w-10 text-center text-base font-bold text-white">
-                                          {item.quantity}
-                                        </span>
-                                        <button
-                                          onClick={() =>
-                                            updateQuantity(item.id, item.quantity + 1, item.sizeId)
-                                          }
-                                          className="w-10 h-10 flex items-center justify-center text-white bg-white/10 hover:bg-white/20 rounded-lg transition active:scale-90 touch-manipulation"
-                                        >
-                                          <PlusIcon className="w-5 h-5" />
-                                        </button>
-                                      </div>
+                                      {item.isGift ? (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs font-bold text-black bg-green-400 px-2 py-0.5 rounded-md">
+                                            ПОДАРУНОК
+                                          </span>
+                                          <span className="text-sm text-gray-400">1 шт</span>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center bg-[#252525] rounded-xl border border-white/5 p-1">
+                                          <button
+                                            onClick={() =>
+                                              updateQuantity(item.id, item.quantity - 1, item.sizeId)
+                                            }
+                                            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition active:scale-90 touch-manipulation"
+                                          >
+                                            <MinusIcon className="w-5 h-5" />
+                                          </button>
+                                          <span className="w-10 text-center text-base font-bold text-white">
+                                            {item.quantity}
+                                          </span>
+                                          <button
+                                            onClick={() =>
+                                              updateQuantity(item.id, item.quantity + 1, item.sizeId)
+                                            }
+                                            className="w-10 h-10 flex items-center justify-center text-white bg-white/10 hover:bg-white/20 rounded-lg transition active:scale-90 touch-manipulation"
+                                          >
+                                            <PlusIcon className="w-5 h-5" />
+                                          </button>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 </motion.li>
