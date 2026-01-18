@@ -92,11 +92,11 @@ export default function UpsellModal() {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                    <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-6">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -106,11 +106,11 @@ export default function UpsellModal() {
                             leaveFrom="opacity-100 scale-100 translate-y-0"
                             leaveTo="opacity-0 scale-95 translate-y-4"
                         >
-                            <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-[#1a1a1a] border border-white/10 p-6 text-left align-middle shadow-xl transition-all relative">
-                                <div className="absolute top-0 right-0 pt-4 pr-4">
+                            <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-3xl bg-[#141414] border border-white/10 p-5 sm:p-8 text-left align-middle shadow-2xl transition-all relative">
+                                <div className="absolute top-4 right-4 z-10">
                                     <button
                                         type="button"
-                                        className="rounded-lg p-2 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                                        className="rounded-full p-2 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                                         onClick={closeUpsellModal}
                                     >
                                         <span className="sr-only">Close</span>
@@ -119,58 +119,62 @@ export default function UpsellModal() {
                                 </div>
 
                                 <div className="mt-2 text-center">
-                                    <h3 className="text-xl font-bold leading-6 text-white font-display mb-2">
-                                        Бажаєте ще додатковий соус? 🥢
+                                    <h3 className="text-2xl font-bold leading-tight text-white font-display mb-2">
+                                        Бажаєте ще соус? 🥢
                                     </h3>
-                                    <p className="text-sm text-gray-400 mb-6">
-                                        До замовлення вже входять соус та прибори, але ви можете додати ще
+                                    <p className="text-sm text-gray-400 mb-8 max-w-md mx-auto">
+                                        Додайте більше смаку до вашого замовлення.
                                     </p>
 
                                     {loading ? (
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
                                             {[1, 2, 3, 4].map((i) => (
-                                                <div key={i} className="aspect-square rounded-2xl bg-white/5 animate-pulse" />
+                                                <div key={i} className="aspect-[3/4] rounded-2xl bg-white/5 animate-pulse" />
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-1 mb-6">
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-h-[60vh] overflow-y-auto p-1 mb-8 custom-scrollbar">
                                             {products.map((product) => {
                                                 const isSelected = selectedIds.includes(product.id);
                                                 return (
                                                     <div
                                                         key={product.id}
                                                         onClick={() => toggleSelection(product)}
-                                                        className={`cursor-pointer group relative flex flex-col items-center bg-[#1E1E1E] rounded-2xl p-4 border-2 transition-all duration-200 ${isSelected
-                                                            ? "border-primary-500 bg-primary-500/10 shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                                                            : "border-transparent hover:border-white/20 hover:bg-white/5"
+                                                        className={`cursor-pointer group relative flex flex-col items-center bg-[#1E1E1E] rounded-2xl p-3 transition-all duration-200 border-2 ${isSelected
+                                                            ? "border-primary-500 bg-primary-500/5 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                                                            : "border-transparent hover:border-white/10 hover:bg-white/5"
                                                             }`}
                                                     >
                                                         {/* Selection Checkmark Badge */}
-                                                        <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${isSelected ? "bg-primary-500 scale-100" : "bg-white/10 scale-0 group-hover:scale-100"
+                                                        <div className={`absolute top-2 right-2 z-10 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200 ${isSelected
+                                                            ? "bg-primary-500 scale-100 shadow-lg"
+                                                            : "bg-black/40 text-transparent scale-90 group-hover:scale-100 group-hover:bg-white/20 group-hover:text-white"
                                                             }`}>
-                                                            <CheckIcon className="w-3.5 h-3.5 text-white" />
+                                                            <CheckIcon className="w-3.5 h-3.5 text-white strokw-2" />
                                                         </div>
 
-                                                        <div className="relative w-24 h-24 mb-3">
+                                                        {/* Image Container - White background to frame sauces nicely */}
+                                                        <div className="relative w-full aspect-square bg-white rounded-xl mb-3 overflow-hidden p-2 shadow-inner">
                                                             {product.image_url ? (
                                                                 <Image
                                                                     src={product.image_url}
                                                                     alt={product.name}
                                                                     fill
-                                                                    className="object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
+                                                                    className="object-contain hover:scale-105 transition-transform duration-300"
+                                                                    sizes="(max-width: 640px) 50vw, 25vw"
                                                                 />
                                                             ) : (
-                                                                <div className="w-full h-full bg-white/5 rounded-full flex items-center justify-center text-xs text-gray-500">
+                                                                <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
                                                                     No image
                                                                 </div>
                                                             )}
                                                         </div>
 
-                                                        <h4 className="text-sm font-bold text-white text-center mb-1 leading-tight">
+                                                        <h4 className="text-sm font-semibold text-white text-center mb-1 leading-tight line-clamp-2">
                                                             {product.name}
                                                         </h4>
 
-                                                        <div className="mt-auto pt-2">
+                                                        <div className="mt-auto pt-1">
                                                             <span className="text-primary-400 font-bold">
                                                                 {parseInt(product.price || "0")} ₴
                                                             </span>
@@ -182,13 +186,13 @@ export default function UpsellModal() {
                                     )}
                                 </div>
 
-                                <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-3 sm:px-8">
                                     <button
                                         type="button"
                                         onClick={handleBatchAdd}
-                                        className={`w-full py-4 text-base font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 ${selectedIds.length > 0
-                                            ? "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/25 scale-100"
-                                            : "bg-white/10 text-gray-400 hover:bg-white/20"
+                                        className={`w-full py-4 text-base font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 transform active:scale-[0.98] ${selectedIds.length > 0
+                                            ? "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/25"
+                                            : "bg-white/10 text-gray-400 hover:bg-white/20 hover:text-white"
                                             }`}
                                     >
                                         {selectedIds.length > 0 ? (
@@ -203,10 +207,10 @@ export default function UpsellModal() {
 
                                     <button
                                         type="button"
-                                        className="w-full py-3 text-gray-500 hover:text-white transition-colors text-sm font-medium"
+                                        className="w-full py-2 text-gray-500 hover:text-white transition-colors text-sm font-medium"
                                         onClick={handleDecline}
                                     >
-                                        Ні, дякую
+                                        Ні, дякую, перейти до оформлення
                                     </button>
                                 </div>
                             </Dialog.Panel>
