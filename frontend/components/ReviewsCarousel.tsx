@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Autoplay, Pagination } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import { StarIcon } from '@heroicons/react/24/solid';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+// import 'swiper/css/pagination';
 
 interface Review {
     id: number;
@@ -17,6 +17,10 @@ interface Review {
 }
 
 import apiClient from '@/lib/api/apiClient';
+
+// ... (imports remain)
+
+import Link from 'next/link';
 
 // ... (imports remain)
 
@@ -70,10 +74,9 @@ export default function ReviewsCarousel() {
                 </h2>
 
                 <Swiper
-                    modules={[Autoplay, Pagination]}
+                    modules={[Autoplay]}
                     spaceBetween={24}
                     slidesPerView={1}
-                    pagination={{ clickable: true }}
                     autoplay={{ delay: 3000, disableOnInteraction: false }}
                     breakpoints={{
                         640: { slidesPerView: 1 },
@@ -83,26 +86,28 @@ export default function ReviewsCarousel() {
                     className="reviews-slider !pb-12"
                 >
                     {reviews.map((review) => (
-                        <SwiperSlide key={review.id}>
-                            <div className="bg-surface p-6 rounded-xl shadow-sm h-full flex flex-col border border-border">
-                                <div className="flex items-center gap-1 mb-4">
-                                    {[...Array(5)].map((_, i) => (
-                                        <StarIcon
-                                            key={i}
-                                            className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-foreground-muted/30'}`}
-                                        />
-                                    ))}
+                        <SwiperSlide key={review.id} className="h-auto">
+                            <Link href="/reviews" className="block h-full group">
+                                <div className="bg-surface p-6 rounded-xl shadow-sm h-full flex flex-col border border-border group-hover:border-primary/50 transition-colors">
+                                    <div className="flex items-center gap-1 mb-4">
+                                        {[...Array(5)].map((_, i) => (
+                                            <StarIcon
+                                                key={i}
+                                                className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-foreground-muted/30'}`}
+                                            />
+                                        ))}
+                                    </div>
+                                    <p className="text-foreground-secondary mb-6 flex-grow italic line-clamp-5">
+                                        &quot;{review.comment}&quot;
+                                    </p>
+                                    <div className="flex items-center justify-between mt-auto">
+                                        <span className="font-semibold text-foreground">{review.user_name}</span>
+                                        <span suppressHydrationWarning className="text-sm text-foreground-muted">
+                                            {new Date(review.created_at).toLocaleDateString('uk-UA')}
+                                        </span>
+                                    </div>
                                 </div>
-                                <p className="text-foreground-secondary mb-6 flex-grow italic">
-                                    &quot;{review.comment}&quot;
-                                </p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="font-semibold text-foreground">{review.user_name}</span>
-                                    <span suppressHydrationWarning className="text-sm text-foreground-muted">
-                                        {new Date(review.created_at).toLocaleDateString('uk-UA')}
-                                    </span>
-                                </div>
-                            </div>
+                            </Link>
                         </SwiperSlide>
                     ))}
                 </Swiper>
