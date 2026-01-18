@@ -18,7 +18,7 @@ interface Category {
   slug: string;
   description?: string;
   image_url?: string;
-  sort_order: number;
+  position: number;
   is_active: boolean;
   products_count?: number;
 }
@@ -183,7 +183,7 @@ export default function AdminCategoriesPage() {
                     </td>
                     <td className="px-6 py-4 text-gray-400">{category.slug}</td>
                     <td className="px-6 py-4 text-gray-400">
-                      {category.sort_order}
+                      {category.position || 0}
                     </td>
                     <td className="px-6 py-4 text-gray-400">
                       {category.products_count || 0}
