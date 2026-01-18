@@ -24,7 +24,7 @@ class ProductValidationRequest(BaseModel):
 @cache_endpoint(ttl=300, prefix="products_list")
 async def get_products(
     skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100),
+    limit: int = Query(20, ge=1, le=1000),
     category_id: Optional[int] = None,
     category_slug: Optional[str] = None,
     search: Optional[str] = None,
