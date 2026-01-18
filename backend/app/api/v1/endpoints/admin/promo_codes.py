@@ -13,6 +13,53 @@ from app.core.exceptions import NotFoundException, BadRequestException
 from app.models.user import User
 from app.models.promo_code import PromoCode
 from app.models.product import Product
+from app.models.order import Order
+from pydantic import BaseModel, ConfigDict
+from sqlalchemy import func
+
+
+router = APIRouter()
+
+
+class PromoCodeBase(BaseModel):
+    code: str
+    description: Optional[str] = None
+    discount_type: str  # percent, fixed, free_product
+    discount_value: Decimal
+    product_id: Optional[int] = None
+    start_date: datetime
+    end_date: datetime
+    min_order_amount: Optional[Decimal] = None
+    max_uses: Optional[int] = None
+    max_uses_per_user: Optional[int] = None
+    is_active: bool = True
+
+
+class PromoCodeCreate(PromoCodeBase):
+    pass
+
+
+class PromoCodeUpdate(BaseModel):
+    code: Optional[str] = None
+    description: Optional[str] = None
+    discount_type: Optional[str] = None
+    discount_value: Optional[Decimal] = None
+    product_id: Optional[int] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    min_order_amount: Optional[Decimal] = None
+    max_uses: Optional[int] = None
+    max_uses_per_user: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class PromoCodeResponse(PromoCodeBase):
+    id: int
+    current_uses: int
+    created_at: datetime
+    updated_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
 
 class PromoCodeStats(BaseModel):
     id: int
