@@ -130,6 +130,8 @@ services:
   node_exporter:
     image: prom/node-exporter:latest
     container_name: croco_sushi_node_exporter
+    ports:
+      - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -144,14 +146,18 @@ services:
     restart: unless-stopped
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    image: gcr.io/cadvisor/cadvisor:latest
     container_name: croco_sushi_cadvisor
+    ports:
+      - "8080:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+    depends_on:
+      - redis
     networks:
       - croco_sushi_network
     restart: unless-stopped

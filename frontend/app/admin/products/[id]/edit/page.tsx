@@ -169,6 +169,28 @@ export default function EditProductPage() {
     e.preventDefault();
     setIsLoading(true);
 
+    // Strict Validation
+    if (!formData.name.trim()) {
+      toast.error("Назва товару обов'язкова");
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.slug.trim()) {
+      toast.error("Slug (URL) обов'язковий");
+      setIsLoading(false);
+      return;
+    }
+    if (formData.price < 0) {
+      toast.error("Ціна не може бути від'ємною");
+      setIsLoading(false);
+      return;
+    }
+    if (!formData.category_id) {
+      toast.error("Виберіть категорію");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const dataToSend = {
         ...formData,
