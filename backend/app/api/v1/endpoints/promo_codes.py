@@ -25,6 +25,7 @@ class PromoCodeVerifyResponse(BaseModel):
     code: Optional[str] = None
     discount_type: Optional[str] = None
     discount_value: Optional[Decimal] = None
+    product_id: Optional[int] = None
     message: Optional[str] = None
 
 
@@ -70,5 +71,6 @@ async def verify_promo_code(
         code=promo.code,
         discount_type=promo.discount_type,
         discount_value=promo.discount_value,
+        product_id=promo.product_id,
         message="Промокод успішно застосовано"
     )

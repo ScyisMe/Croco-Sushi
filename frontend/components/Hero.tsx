@@ -75,9 +75,9 @@ export default function Hero() {
         <div className="container mx-auto px-4 pt-20 relative z-20 text-center">
           <div className="relative z-20">
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
-              <span className="block text-primary-400">Риби більше,</span>
+              <span className="block text-primary-400">Croco Sushi – №1 у Львові!</span>
               <span className="block text-white">
-                ніж рису
+                Знаємо як смачніше!
               </span>
             </h1>
 

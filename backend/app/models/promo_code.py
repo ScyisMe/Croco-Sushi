@@ -19,8 +19,9 @@ class PromoCode(Base):
     code: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     # Тип знижки
-    discount_type: Mapped[str] = mapped_column(String(20), default="percent", nullable=False)  # percent, fixed
+    discount_type: Mapped[str] = mapped_column(String(20), default="percent", nullable=False)  # percent, fixed, free_product
     discount_value: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    product_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)  # ID товару для free_product
     # Період дії
     start_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     end_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
