@@ -212,4 +212,15 @@ body {
   .map-dark iframe {
     filter: invert(90%) hue-rotate(180deg) contrast(90%);
   }
+
+  /* Custom styling for number inputs (remove arrows) */
+  .simple-number-input::-webkit-outer-spin-button,
+  .simple-number-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .simple-number-input[type=number] {
+    -moz-appearance: textfield;
+  }
 }
