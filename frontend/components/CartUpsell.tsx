@@ -126,50 +126,53 @@ export default function CartUpsell() {
                 {upsellProducts.map((product) => (
                     <div
                         key={product.id}
-                        className="flex-shrink-0 w-[140px] snap-start bg-white/5 border border-white/5 rounded-xl overflow-hidden flex flex-col select-none"
+                        className="flex-shrink-0 w-[160px] snap-start bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden flex flex-col select-none group hover:border-white/20 transition-colors"
                     >
                         {/* Image */}
-                        <div className="relative h-24 w-full bg-white/5">
+                        <div className="relative h-28 w-full bg-white/5">
                             {product.image_url ? (
                                 <Image
                                     src={product.image_url}
                                     alt={product.name}
                                     fill
-                                    className="object-cover pointer-events-none" // Prevent image drag
+                                    className="object-cover pointer-events-none group-hover:scale-105 transition-transform duration-500"
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">
                                     No Photo
                                 </div>
                             )}
+
+                            {/* Overlay Gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent opacity-60" />
+
+                            {/* Quick Add Button - Floating */}
+                            <button
+                                onClick={(e) => {
+                                    addItem({
+                                        id: product.id,
+                                        name: product.name,
+                                        price: Number(product.price),
+                                        image_url: product.image_url,
+                                        quantity: 1
+                                    });
+                                }}
+                                className="absolute bottom-2 right-2 w-9 h-9 flex items-center justify-center rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 hover:bg-primary-400 hover:scale-105 transition-all active:scale-95 z-10"
+                            >
+                                <PlusIcon className="w-5 h-5" />
+                            </button>
                         </div>
 
                         {/* Content */}
-                        <div className="p-2 flex flex-col flex-1">
-                            <h4 className="text-xs font-medium text-white line-clamp-2 h-8 leading-tight mb-1">
+                        <div className="p-3 flex flex-col flex-1">
+                            <h4 className="text-sm font-bold text-white line-clamp-2 leading-snug mb-1">
                                 {product.name}
                             </h4>
 
                             <div className="mt-auto flex items-center justify-between">
-                                <span className="text-sm font-bold text-primary-500">
-                                    {product.price} <span className="text-[10px] font-normal text-gray-400">₴</span>
+                                <span className="text-base font-bold text-white">
+                                    {product.price} <span className="text-xs font-normal text-gray-400">₴</span>
                                 </span>
-
-                                <button
-                                    onClick={(e) => {
-                                        // Prevent add if dragging happened recently could be handled here or via capture
-                                        addItem({
-                                            id: product.id,
-                                            name: product.name,
-                                            price: Number(product.price),
-                                            image_url: product.image_url,
-                                            quantity: 1
-                                        });
-                                    }}
-                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary-500 hover:text-white text-primary-500 transition-colors z-10 relative"
-                                >
-                                    <PlusIcon className="w-4 h-4" />
-                                </button>
                             </div>
                         </div>
                     </div>

@@ -392,7 +392,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           )}
 
                           {/* Список товарів - Новий Дизайн */}
-                          <ul className="space-y-3">
+                          <ul className="space-y-4">
                             <AnimatePresence initial={false} mode="popLayout">
                               {items.map((item) => (
                                 <motion.li
@@ -401,17 +401,16 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                   exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                                   transition={{ duration: 0.2 }}
                                   key={`${item.id}-${item.sizeId || "default"}`}
-                                  className="flex gap-3 sm:gap-4 p-3 bg-white/5 border border-white/5 rounded-xl overflow-hidden"
+                                  className="group flex gap-4 p-4 bg-[#1a1a1a] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-colors"
                                 >
-                                  {/* Зображення - зліва, більше */}
-                                  <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-lg overflow-hidden bg-white/5">
+                                  {/* Зображення */}
+                                  <div className="w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-white/5 relative">
                                     {item.image_url ? (
                                       <Image
                                         src={item.image_url}
                                         alt={item.name}
-                                        width={96}
-                                        height={96}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                                       />
                                     ) : (
                                       <div className="w-full h-full flex items-center justify-center">
@@ -426,48 +425,49 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                                     )}
                                   </div>
 
-                                  {/* Центр і Права частина */}
-                                  <div className="flex flex-1 justify-between">
-                                    {/* Інформація */}
-                                    <div className="flex flex-col justify-between py-1 pr-2 min-w-0">
+                                  {/* Інфо та Контроли */}
+                                  <div className="flex flex-1 flex-col justify-between">
+                                    <div className="flex justify-between items-start gap-2">
                                       <div>
-                                        <h4 className="font-semibold text-white text-sm leading-snug break-words">
+                                        <h4 className="font-bold text-white text-base leading-tight">
                                           {item.name}
                                         </h4>
                                         {item.size && (
-                                          <p className="text-xs text-gray-400 mt-1">
+                                          <p className="text-sm text-gray-400 mt-1 font-medium">
                                             {item.size}
                                           </p>
                                         )}
                                       </div>
+                                      {/* Ціна */}
+                                      <div className="font-bold text-white text-lg whitespace-nowrap">
+                                        {item.price * item.quantity} <span className="text-sm font-normal text-gray-500">₴</span>
+                                      </div>
                                     </div>
 
-                                    {/* Ціна і Контроли - Справа */}
-                                    <div className="flex flex-col justify-between items-end py-1">
-                                      <div className=" font-bold text-white text-base">
-                                        {item.price * item.quantity} <span className="text-xs font-normal text-gray-500">₴</span>
-                                      </div>
-
-                                      {/* Компактний перемикач кількості */}
-                                      <div className="flex items-center bg-black/40 rounded-lg border border-white/10 shrink-0">
+                                    {/* Контроли кількості: Великі кнопки для мобільного */}
+                                    <div className="flex items-center justify-between mt-2">
+                                      {/* Видалити (маленька іконка зліва, якщо потрібно, або просто кнопка мінус видаляє) 
+                                            Але тут краще залишити кількість
+                                        */}
+                                      <div className="flex items-center bg-[#252525] rounded-xl border border-white/5 p-1">
                                         <button
                                           onClick={() =>
                                             updateQuantity(item.id, item.quantity - 1, item.sizeId)
                                           }
-                                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition active:scale-95"
+                                          className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition active:scale-90 touch-manipulation"
                                         >
-                                          <MinusIcon className="w-3 h-3" />
+                                          <MinusIcon className="w-5 h-5" />
                                         </button>
-                                        <span className="w-6 text-center text-sm font-medium text-white">
+                                        <span className="w-10 text-center text-base font-bold text-white">
                                           {item.quantity}
                                         </span>
                                         <button
                                           onClick={() =>
                                             updateQuantity(item.id, item.quantity + 1, item.sizeId)
                                           }
-                                          className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition active:scale-95"
+                                          className="w-10 h-10 flex items-center justify-center text-white bg-white/10 hover:bg-white/20 rounded-lg transition active:scale-90 touch-manipulation"
                                         >
-                                          <PlusIcon className="w-3 h-3" />
+                                          <PlusIcon className="w-5 h-5" />
                                         </button>
                                       </div>
                                     </div>

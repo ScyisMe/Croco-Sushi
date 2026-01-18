@@ -44,6 +44,7 @@ const config: Config = {
         "float": "float 6s ease-in-out infinite",
         "shine": "shine 1.5s ease-in-out infinite",
         "gradient-x": "gradient-x 3s ease infinite",
+        "blob": "blob 7s infinite",
       },
       keyframes: {
         fadeIn: {
@@ -70,6 +71,20 @@ const config: Config = {
           "50%": {
             "background-size": "200% 200%",
             "background-position": "right center",
+          },
+        },
+        blob: {
+          "0%": {
+            transform: "translate(0px, 0px) scale(1)",
+          },
+          "33%": {
+            transform: "translate(30px, -50px) scale(1.1)",
+          },
+          "66%": {
+            transform: "translate(-20px, 20px) scale(0.9)",
+          },
+          "100%": {
+            transform: "translate(0px, 0px) scale(1)",
           },
         },
       },
