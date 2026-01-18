@@ -154,6 +154,17 @@ export default function EditProductPage() {
     });
   };
 
+  const handleNumberChange = (field: 'price' | 'old_price', value: string) => {
+    if (value === "") {
+      setFormData(prev => ({ ...prev, [field]: 0 }));
+      return;
+    }
+    const num = parseFloat(value);
+    if (!isNaN(num)) {
+      setFormData(prev => ({ ...prev, [field]: num }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -266,6 +277,9 @@ export default function EditProductPage() {
                       placeholder="filadelfiya-klasik"
                     />
                   </div>
+                  <p className="text-xs text-gray-500 mt-1 ml-1">
+                    Генерується автоматично, але можна змінити вручну. Тільки латинські літери.
+                  </p>
                 </div>
 
                 <div>
@@ -333,8 +347,8 @@ export default function EditProductPage() {
                   <input
                     type="number"
                     inputMode="decimal"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                    value={formData.price === 0 ? "" : formData.price}
+                    onChange={(e) => handleNumberChange('price', e.target.value)}
                     required
                     min={0}
                     className="w-full pl-10 pr-4 py-3 bg-[#1e1e1e] border border-white/10 rounded-xl text-white font-bold text-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 simple-number-input transition-all"
@@ -350,8 +364,8 @@ export default function EditProductPage() {
                   <input
                     type="number"
                     inputMode="decimal"
-                    value={formData.old_price || ""}
-                    onChange={(e) => setFormData({ ...formData, old_price: e.target.value ? Number(e.target.value) : 0 })}
+                    value={(formData.old_price === 0 || !formData.old_price) ? "" : formData.old_price}
+                    onChange={(e) => handleNumberChange('old_price', e.target.value)}
                     min={0}
                     className="w-full pl-10 pr-4 py-3 bg-[#1e1e1e] border border-white/10 rounded-xl text-gray-400 font-medium text-lg focus:outline-none focus:ring-2 focus:ring-gray-500/50 focus:border-gray-500 simple-number-input transition-all"
                     placeholder="0"
@@ -457,15 +471,18 @@ export default function EditProductPage() {
             <h3 className="text-lg font-bold text-white mb-4">Властивості</h3>
             <div className="space-y-3">
               {[
-                { key: 'is_popular', label: '⭐ Популярний', color: 'bg-accent-gold' },
-                { key: 'is_top_seller', label: '🏆 Хіт продажу', color: 'bg-accent-gold' },
-                { key: 'is_new', label: '🆕 Новинка', color: 'bg-primary-500' },
-                { key: 'is_spicy', label: '🌶️ Гостре', color: 'bg-red-500' },
-                { key: 'is_vegan', label: '🌱 Веганське', color: 'bg-green-500' },
+                { key: 'is_popular', label: '⭐ Популярний', desc: 'Відображається в блоці "Популярні та рекомендовані"', color: 'bg-accent-gold' },
+                { key: 'is_top_seller', label: '🏆 Хіт продажу', desc: 'Має значок "Хіт" та пріоритет у видачі', color: 'bg-accent-gold' },
+                { key: 'is_new', label: '🆕 Новинка', desc: 'Відображається в блоці "Новинки"', color: 'bg-primary-500' },
+                { key: 'is_spicy', label: '🌶️ Гостре', desc: 'Має значок перчика (гостра страва)', color: 'bg-red-500' },
+                { key: 'is_vegan', label: '🌱 Веганське', desc: 'Має значок листочка (без м\'яса/риби)', color: 'bg-green-500' },
               ].map((item) => (
                 <label key={item.key} className="flex items-center justify-between p-3 rounded-xl bg-[#1e1e1e] border border-white/5 hover:border-white/10 cursor-pointer transition-all group">
-                  <span className="text-gray-300 group-hover:text-white transition-colors text-sm font-medium">{item.label}</span>
-                  <div className="relative inline-flex items-center">
+                  <div className="flex flex-col pr-4">
+                    <span className="text-gray-300 group-hover:text-white transition-colors text-sm font-medium">{item.label}</span>
+                    <span className="text-xs text-gray-500 mt-0.5">{item.desc}</span>
+                  </div>
+                  <div className="relative inline-flex items-center shrink-0">
                     <input
                       type="checkbox"
                       checked={(formData as any)[item.key]}
