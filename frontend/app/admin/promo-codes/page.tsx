@@ -33,6 +33,8 @@ interface PromoCodeStats {
   code: string;
   total_uses: number;
   total_discount: number;
+  product_name?: string;
+  product_price?: number;
 }
 
 export default function PromoCodesPage() {
@@ -356,7 +358,7 @@ export default function PromoCodesPage() {
                 <tr>
                   <th className="px-6 py-4">Код</th>
                   <th className="px-6 py-4">Всього використань</th>
-                  <th className="px-6 py-4">Загальна знижка</th>
+                  <th className="px-6 py-4">Загальна знижка / Товар</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -371,8 +373,17 @@ export default function PromoCodesPage() {
                     <tr key={stat.id} className="hover:bg-white/5 transition">
                       <td className="px-6 py-4 font-medium text-white">{stat.code}</td>
                       <td className="px-6 py-4 text-white">{stat.total_uses}</td>
-                      <td className="px-6 py-4 text-green-400 font-medium">
-                        {Number(stat.total_discount).toFixed(2)} ₴
+                      <td className="px-6 py-4 font-medium">
+                        <div className="flex flex-col">
+                          <span className={Number(stat.total_discount) > 0 ? "text-green-400" : "text-gray-400"}>
+                            {Number(stat.total_discount).toFixed(2)} ₴
+                          </span>
+                          {stat.product_name && (
+                            <div className="text-xs text-purple-400 mt-1">
+                              {stat.product_name} ({Number(stat.product_price).toFixed(2)} ₴)
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
