@@ -203,8 +203,12 @@ export default function PromoCodesPage() {
       ...prev,
       code: prefix + random,
       max_uses: 1,
+      discount_type: "free_product",
+      discount_value: 0,
+      product_id: 0,
       description: "Одноразовий код за відгук"
     }));
+    toast.success("Код згенеровано! Оберіть подарунковий товар.");
   };
 
   return (
