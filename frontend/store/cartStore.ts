@@ -11,6 +11,7 @@ export interface CartItem {
   size?: string;
   sizeId?: number;
   quantity: number;
+  isGift?: boolean;
 }
 
 // Інформація про доставку
@@ -38,7 +39,7 @@ interface CartState {
   lastValidated: number | null; // Час останньої перевірки
 
   promoCode: string | null;
-  discountType: "percent" | "fixed" | null;
+  discountType: "percent" | "fixed" | "free_product" | null;
   discountValue: number | null;
 
   // Actions
@@ -50,7 +51,12 @@ interface CartState {
   removeUnavailableItems: (unavailableIds: number[]) => string[]; // Повертає імена видалених товарів
   setLastValidated: (timestamp: number) => void;
 
-  applyPromoCode: (code: string, type: "percent" | "fixed", value: number) => void;
+  applyPromoCode: (
+    code: string,
+    type: "percent" | "fixed" | "free_product",
+    value: number,
+    freeProduct?: { id: number; name: string; slug?: string; image_url?: string; size?: string; sizeId?: number }
+  ) => void;
   removePromoCode: () => void;
 
   // Helpers
@@ -256,20 +262,87 @@ export const useCartStore = create<CartState>()(
         return finalAmount;
       },
 
-      applyPromoCode: (code, type, value) => {
+      applyPromoCode: (code, type, value, freeProduct) => {
         set({
           promoCode: code,
           discountType: type,
           discountValue: value
         });
+
+        if (type === 'free_product' && freeProduct) {
+          const { items } = get();
+          const itemKey = `${freeProduct.id}-${freeProduct.sizeId || "default"}`;
+          const existing = items.find(i => `${i.id}-${i.sizeId || "default"}` === itemKey);
+
+          if (!existing) {
+            // Add free product to cart if it's not already there
+            const newItem = {
+              id: freeProduct.id,
+              name: freeProduct.name,
+              slug: freeProduct.slug,
+              price: 0, // FREE
+              image_url: freeProduct.image_url,
+              size: freeProduct.size,
+              sizeId: freeProduct.sizeId,
+              quantity: 1,
+              isGift: true // Optional: flag for UI/logic
+            };
+            // Use the existing addItem logic to ensure totals are updated
+            get().addItem(newItem);
+          } else {
+            // If it exists, ensure its price is 0 and quantity is 1 if it's a gift
+            // This part might need more specific logic based on exact requirements
+            // For now, if it exists, we assume it's handled or user added it manually
+            // and we don't modify its price/quantity unless explicitly required.
+            // If the existing item is not a gift and has a price, we might want to update it.
+            // For simplicity, if it's already there, we don't add another or change it unless it's not a gift.
+            if (!existing.isGift || existing.price !== 0 || existing.quantity !== 1) {
+              set((state) => {
+                const updatedItems = state.items.map(item =>
+                  `${item.id}-${item.sizeId || "default"}` === itemKey
+                    ? { ...item, price: 0, quantity: 1, isGift: true }
+                    : item
+                );
+                const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+                const totalAmount = updatedItems.reduce(
+                  (sum, item) => sum + item.price * item.quantity,
+                  0
+                );
+                return { items: updatedItems, totalItems, totalAmount };
+              });
+            }
+          }
+        }
       },
 
       removePromoCode: () => {
-        set({
-          promoCode: null,
-          discountType: null,
-          discountValue: null
-        });
+        const state = get();
+        // If a free product was added, remove it or revert its state
+        if (state.discountType === 'free_product' && state.promoCode) {
+          // This assumes we can identify the free product by some means,
+          // e.g., if it has an 'isGift' flag or if we stored its ID.
+          // For now, let's just remove any item marked as 'isGift' with price 0.
+          const updatedItems = state.items.filter(item => !(item.isGift && item.price === 0));
+          const totalItems = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+          const totalAmount = updatedItems.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
+          set({
+            items: updatedItems,
+            totalItems,
+            totalAmount,
+            promoCode: null,
+            discountType: null,
+            discountValue: 0
+          });
+        } else {
+          set({
+            promoCode: null,
+            discountType: null,
+            discountValue: 0
+          });
+        }
       },
     }),
     {

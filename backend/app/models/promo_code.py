@@ -41,3 +41,10 @@ class PromoCode(Base):
         onupdate=func.now(),
     )
 
+    # Relationships
+    product = relationship("Product", lazy="selectin")
+
+# Avoid circular import issues if necessary, but typically this is fine if Product is imported or string used
+from sqlalchemy.orm import relationship
+from app.models.product import Product
+

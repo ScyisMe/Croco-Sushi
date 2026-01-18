@@ -26,6 +26,9 @@ class PromoCodeVerifyResponse(BaseModel):
     discount_type: Optional[str] = None
     discount_value: Optional[Decimal] = None
     product_id: Optional[int] = None
+    product_name: Optional[str] = None
+    product_image: Optional[str] = None
+    product_slug: Optional[str] = None
     message: Optional[str] = None
 
 
@@ -38,10 +41,18 @@ async def verify_promo_code(
     # Нормалізація коду (видалення пробілів, верхній регістр)
     code = data.code.strip()
     
-    query = select(PromoCode).where(func.lower(PromoCode.code) == code.lower())
+    # Eager load product for free_product type
+    query = (
+        select(PromoCode)
+        .where(func.lower(PromoCode.code) == code.lower())
+    )
     result = await db.execute(query)
     promo = result.scalar_one_or_none()
     
+    if not promo:
+        pass # Handle below
+
+    # ... checks ...
     if not promo:
         return PromoCodeVerifyResponse(valid=False, message="Промокод не знайдено")
         
@@ -66,7 +77,7 @@ async def verify_promo_code(
                 message=f"Мінімальна сума замовлення для цього промокоду: {promo.min_order_amount} грн"
             )
 
-    return PromoCodeVerifyResponse(
+    response = PromoCodeVerifyResponse(
         valid=True,
         code=promo.code,
         discount_type=promo.discount_type,
@@ -74,3 +85,10 @@ async def verify_promo_code(
         product_id=promo.product_id,
         message="Промокод успішно застосовано"
     )
+
+    if promo.discount_type == 'free_product' and promo.product:
+        response.product_name = promo.product.name
+        response.product_image = promo.product.image_url
+        response.product_slug = promo.product.slug
+
+    return response 

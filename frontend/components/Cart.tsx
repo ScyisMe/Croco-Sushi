@@ -86,10 +86,17 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
         order_amount: totalAmount
       });
 
-      const { valid, code, discount_type, discount_value, message } = response.data;
+      const { valid, code, discount_type, discount_value, message, product_id, product_name, product_image, product_slug } = response.data;
 
       if (valid) {
-        applyPromoCode(code, discount_type, discount_value);
+        applyPromoCode(code, discount_type, discount_value,
+          product_id ? {
+            id: product_id,
+            name: product_name,
+            image_url: product_image,
+            slug: product_slug
+          } : undefined
+        );
         toast.success(message || "Промокод застосовано!");
       } else {
         toast.error(message || "Не вдалося застосувати промокод");
