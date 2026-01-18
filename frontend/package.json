@@ -55,13 +55,10 @@
     "typescript": "^5.5.3"
   },
   "browserslist": [
-    "last 1 major version",
-    "last 2 years",
-    "not dead",
-    "not ie 11",
-    "not chrome < 100",
-    "not safari < 15.4",
-    "not ios < 15.4",
-    "not firefox < 100"
+    "chrome >= 100",
+    "safari >= 15.4",
+    "ios >= 15.4",
+    "firefox >= 100",
+    "edge >= 100"
   ]
 }

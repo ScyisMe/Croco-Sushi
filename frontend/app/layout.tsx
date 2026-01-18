@@ -47,6 +47,7 @@ export default function RootLayout({
     <html lang="uk" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://a.plerdy.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://api.crocosushi.com" />
         {/* Font preloading is handled automatically by next/font. Manual preloading of hashed files is fragile. */}
       </head>
       <body suppressHydrationWarning className={`${inter.variable} ${playfair.variable} font-body bg-surface-dark text-white min-h-screen pb-16 md:pb-0`}>
