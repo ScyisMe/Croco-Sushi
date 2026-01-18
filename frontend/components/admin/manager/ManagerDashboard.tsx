@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import KanbanBoard from "./KanbanBoard";
 import { format } from "date-fns";
-import { PhoneIcon, CheckCircleIcon, XCircleIcon, HomeIcon } from "@heroicons/react/24/outline";
+import { PhoneIcon, CheckCircleIcon, XCircleIcon, HomeIcon, ArrowRightOnRectangleIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import apiClient from "@/lib/api/apiClient";
 
 interface CallbackRequest {
@@ -59,6 +60,14 @@ export default function ManagerDashboard() {
         }
     };
 
+    const router = useRouter();
+
+    const handleLogout = () => {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        router.push("/login");
+    };
+
     return (
         <div className="h-full flex flex-col">
             {/* Header */}
@@ -76,8 +85,18 @@ export default function ManagerDashboard() {
                         Live
                     </span>
                 </div>
-                <div className="text-xl font-mono text-gray-400">
-                    {currentTime.toLocaleTimeString()}
+
+                <div className="flex items-center gap-6">
+                    <div className="text-xl font-mono text-gray-400">
+                        {currentTime.toLocaleTimeString()}
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors border border-red-500/20"
+                    >
+                        <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                        <span className="hidden sm:inline">Вийти</span>
+                    </button>
                 </div>
             </header>
 
@@ -90,9 +109,19 @@ export default function ManagerDashboard() {
                             <PhoneIcon className="w-5 h-5 mr-2 text-primary" />
                             Callbacks
                         </h2>
-                        <span className="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded-full">
-                            {callbacks.length}
-                        </span>
+                        <div className="flex items-center gap-2">
+                            <span className="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded-full">
+                                {callbacks.length}
+                            </span>
+                            <button
+                                onClick={fetchCallbacks}
+                                disabled={isLoadingCallbacks}
+                                className={`p-1.5 text-gray-400 hover:text-white rounded-lg transition ${isLoadingCallbacks ? 'animate-spin' : 'hover:bg-white/10'}`}
+                                title="Оновити"
+                            >
+                                <ArrowPathIcon className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
