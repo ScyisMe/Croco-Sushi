@@ -5,10 +5,16 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 from sqlalchemy import String, Text, Integer, DateTime, Numeric, ForeignKey, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.database import Base
+
+# Imported at end or inside methods if needed for circular deps, 
+# but for type checking it might be needed. 
+# String reference "Product" works for SQLAlchemy.
+# We just need to ensure 'relationship' is imported.
+
 
 
 class PromoCode(Base):
