@@ -25,6 +25,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolidIcon } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
+import CheckoutUpsell from "@/components/CheckoutUpsell";
 
 // Simple debounce utility for autocomplete
 function useDebounceValue<T>(value: T, delay: number): T {
@@ -1071,17 +1072,8 @@ export default function CheckoutPage() {
                             <p className="text-xs text-secondary-light">
                               Додайте ще на <span className="text-yellow-400 font-bold text-sm shadow-black/50 drop-shadow-md">{FREE_DELIVERY_FROM - totalAmount} ₴</span> і доставка буде за наш рахунок!
                             </p>
-                            {/* Smart Suggestion (Mock for UI) */}
-                            {(FREE_DELIVERY_FROM - totalAmount) < 200 && (
-                              <button
-                                onClick={() => toast.success("Ця функція скоро запрацює! (Demo: Соус додано)")}
-                                className="mt-3 w-full bg-[#1E1E1E] hover:bg-[#2C2C2C] border border-white/10 rounded-lg py-2 px-3 flex items-center justify-center gap-2 group transition-all active:scale-95"
-                              >
-                                <div className="w-5 h-5 bg-green-500 rounded-full text-black flex items-center justify-center font-bold text-xs shadow-lg group-hover:scale-110 transition-transform">+</div>
-                                <span className="text-xs font-bold text-white uppercase tracking-wide">Додати Соус Унагі</span>
-                                <span className="text-xs text-secondary-light">(40 ₴)</span>
-                              </button>
-                            )}
+
+                            <CheckoutUpsell missingAmount={FREE_DELIVERY_FROM - totalAmount} />
                           </div>
                         </div>
                       </div>
