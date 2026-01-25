@@ -75,7 +75,7 @@ export default function Hero() {
         <div className="container mx-auto px-4 pt-20 relative z-20 text-center">
           <div className="relative z-20">
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
-              <span className="block text-primary-400">Croco Sushi – №1 у Львові!</span>
+              <span className="block text-primary-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]">Croco Sushi – №1 у Львові!</span>
               <span className="block text-white">
                 Знаємо як смачніше!
               </span>
@@ -104,7 +104,7 @@ export default function Hero() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="backdrop-blur-md bg-white/5 border-white/40 text-white hover:bg-white/15 hover:border-white/60 transition-all text-lg px-8 py-6"
+                    className="backdrop-blur-xl bg-white/10 border border-white/30 text-white hover:bg-white/20 hover:border-white/50 hover:scale-105 transition-all duration-300 text-lg px-8 py-6 shadow-[0_4px_30px_rgba(0,0,0,0.1)]"
                   >
                     Акції
                   </Button>
