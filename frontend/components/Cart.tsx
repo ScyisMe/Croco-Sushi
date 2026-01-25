@@ -286,7 +286,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-[100]" onClose={setIsOpen}>
-        {showConfetti && <Confetti />}
         {/* Overlay */}
         <Transition.Child
           as={Fragment}
@@ -409,7 +408,8 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                               </div>
                             </div>
                           ) : (
-                            <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3">
+                            <div className="relative overflow-hidden p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-3">
+                              {showConfetti && <Confetti />}
                               <span className="text-xl">🎉</span>
                               <div>
                                 <p className="text-sm font-bold text-green-400">Доставка безкоштовна!</p>
