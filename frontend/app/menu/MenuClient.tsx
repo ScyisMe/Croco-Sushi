@@ -446,7 +446,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
     return (
         <LazyMotion features={domAnimation}>
-            <div className="min-h-screen w-full overflow-x-hidden flex flex-col bg-theme-secondary transition-colors">
+            <div className="min-h-screen w-full flex flex-col bg-theme-secondary transition-colors">
                 <JsonLd schema={getBreadcrumbSchema(breadcrumbItems)} />
 
                 <Header />
@@ -567,7 +567,7 @@ export default function MenuClient({ initialCategoryName, activeCategorySlug }: 
 
                         <div className="block lg:flex lg:gap-8">
                             <aside className="hidden lg:block w-64 flex-shrink-0">
-                                <div className="sticky top-24 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 max-h-[80vh] overflow-y-auto hide-scrollbar">
+                                <div className="sticky top-28 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 max-h-[80vh] overflow-y-auto hide-scrollbar">
                                     <h3 className="font-bold text-lg text-white mb-4 pl-2 flex items-center gap-2">
                                         <Squares2X2Icon className="w-5 h-5 text-primary" />
                                         Категорії
