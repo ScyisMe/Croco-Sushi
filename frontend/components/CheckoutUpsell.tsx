@@ -26,29 +26,43 @@ export default function CheckoutUpsell({ missingAmount }: CheckoutUpsellProps) {
                 let params: any = { limit: 5 };
 
                 // Smart logic based on missing amount
-                // If amount is small (< 100), suggest cheap items (sauces, drinks)
-                // If amount is larger, suggest items up to that price + 20%
-                if (missingAmount <= 150) {
-                    // Try fetching sauces or drinks first if possible, or just cheap items
-                    // Since we don't have confident category slugs, we'll use price filter
-                    params.max_price = 150;
-                    params.min_price = 10; // Avoid 0 price items if any
-                } else {
-                    // Suggest items that can fill the gap roughly
-                    // We want items that are ideally LESS than the gap but close to it, or slightly above
-                    // Let's just say anything up to gap + 100
-                    params.max_price = missingAmount + 100;
-                    params.min_price = 50;
+                // We want to find the CHEAPEST product that COVERS the gap.
+                // So min_price = missingAmount.
+                // max_price = missingAmount + 200 (to give some range)
+
+                // If missingAmount is very small (e.g. < 40), we might not find anything >= missingAmount.
+                // In that case, we just want the cheapest item available (min_price = 0).
+
+                // Strategy:
+                // 1. Try to find items >= missingAmount first.
+                // 2. If valid items found, pick the cheapest one.
+                // 3. If no items found (maybe gap is tiny), just pick cheapest item overall.
+
+                const minPrice = Math.max(0, missingAmount);
+                const maxPrice = minPrice + 300; // Search range
+
+                // Fetch products in range
+                params.min_price = minPrice;
+                params.max_price = maxPrice;
+                params.limit = 10; // Fetch a few to sort client-side
+
+                let response = await apiClient.get<Product[]>("/products/", { params });
+                let products = response.data || [];
+
+                // If no products found in range (gap might be too small, e.g. 5 UAH),
+                // fetch generally cheap items
+                if (products.length === 0) {
+                    response = await apiClient.get<Product[]>("/products/", {
+                        params: { min_price: 10, max_price: 150, limit: 10 }
+                    });
+                    products = response.data || [];
                 }
 
-                // If gap is small, maybe prioritize "drinks" or "sauces" if we could
-                // But for now purely price based is safer as requested
+                // Client-side Sort: Price Low to High
+                // We want to recommend the item that is closest to bridging the gap (cheapest valid option).
+                products.sort((a, b) => Number(a.price) - Number(b.price));
 
-                const response = await apiClient.get<Product[]>("/products/", { params });
-
-                // Randomize or pick best fit? Backend sort is by position.
-                // Let's take the first few that match
-                setUpsellProducts(response.data || []);
+                setUpsellProducts(products);
             } catch (error) {
                 console.error("Failed to fetch upsell products:", error);
             } finally {
@@ -60,13 +74,6 @@ export default function CheckoutUpsell({ missingAmount }: CheckoutUpsellProps) {
     }, [missingAmount]);
 
     if (isLoading || upsellProducts.length === 0) return null;
-
-    // We only show one "Best Match" item for the compact view in the summary
-    // Or maybe a small list? The design in the screenshot shows a single "Add Sauce" button style
-    // But user asked for "recommend products" (plural) and "add them"
-    // The screenshot has a specific UI for "Add Unagi Sauce".
-    // Let's adapt that UI to show the *first* recommended product, and maybe a "More" option or just cycle them?
-    // For simplicity and UI match, let's show the first relevant product.
 
     const suggestedProduct = upsellProducts[0];
 
@@ -85,20 +92,16 @@ export default function CheckoutUpsell({ missingAmount }: CheckoutUpsellProps) {
                     });
                     toast.success(`${suggestedProduct.name} додано!`);
                 }}
-                className="w-full bg-[#1E1E1E] hover:bg-[#2C2C2C] border border-white/10 rounded-lg py-2 px-3 flex items-center justify-center gap-2 group transition-all active:scale-95"
+                className="w-full bg-[#1E1E1E] hover:bg-[#2C2C2C] border border-white/10 rounded-lg py-2 px-3 flex items-center justify-center gap-2 group transition-all active:scale-95 text-left h-auto min-h-[40px]"
             >
-                <div className="w-5 h-5 bg-green-500 rounded-full text-black flex items-center justify-center font-bold text-xs shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-5 h-5 flex-shrink-0 bg-green-500 rounded-full text-black flex items-center justify-center font-bold text-xs shadow-lg group-hover:scale-110 transition-transform">
                     <PlusIcon className="w-3 h-3 text-black" />
                 </div>
-                <span className="text-xs font-bold text-white uppercase tracking-wide truncate max-w-[150px]">
+                <span className="text-xs font-bold text-white uppercase tracking-wide whitespace-normal leading-tight ml-1">
                     Додати {suggestedProduct.name}
                 </span>
-                <span className="text-xs text-secondary-light">({suggestedProduct.price} ₴)</span>
+                <span className="text-xs text-secondary-light whitespace-nowrap ml-auto pl-2">({suggestedProduct.price} ₴)</span>
             </button>
-
-            {/* If we have more products, maybe allow cycling or show a small list below? 
-                For now keeping it simple to match the design requested.
-            */}
         </div>
     );
 }
