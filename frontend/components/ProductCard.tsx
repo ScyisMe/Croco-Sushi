@@ -181,12 +181,12 @@ const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQui
         <Link href={`/products/${product.slug}`} className="block w-full h-full relative">
           {product.image_url ? (
             <Image
-              src={product.image_url}
+              src={product.thumbnail_url || product.image_url}
               alt={product.name}
               width={500}
               height={625}
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1 transform-gpu will-change-transform"
-              sizes="(max-width: 640px) 45vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
               priority={priority}
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}

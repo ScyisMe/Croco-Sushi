@@ -79,6 +79,7 @@ export interface Product {
   category_id?: number;
   category?: { id: number; name: string };
   image_url?: string;
+  thumbnail_url?: string; // Computed field from backend
   images?: string[];
   price?: string;
   original_price?: string;

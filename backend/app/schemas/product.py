@@ -4,7 +4,7 @@ from typing import Optional, List
 from decimal import Decimal
 
 from app.schemas.product_size import ProductSizeResponse
-from pydantic import field_validator
+from pydantic import field_validator, computed_field
 import os
 
 
@@ -88,6 +88,28 @@ class ProductResponse(ProductBase):
                     new_list.append(img)
             return new_list
         return v
+    
+    @computed_field
+    @property
+    def thumbnail_url(self) -> Optional[str]:
+        """Generate thumbnail URL from image_url"""
+        if not self.image_url:
+            return None
+            
+        # Якщо URL вже містить thumb_, повертаємо як є
+        if "thumb_" in self.image_url:
+            return self.image_url
+            
+        # Розбиваємо шлях
+        try:
+            path_parts = self.image_url.split('/')
+            filename = path_parts[-1]
+            parent_path = "/".join(path_parts[:-1])
+            
+            # Додаємо thumb_ префікс
+            return f"{parent_path}/thumb_{filename}"
+        except Exception:
+            return self.image_url
 
 
     model_config = ConfigDict(from_attributes=True)

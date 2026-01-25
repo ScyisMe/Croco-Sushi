@@ -21,6 +21,10 @@ class CachedStaticFiles(StaticFiles):
             if full_path.endswith(".woff2"):
                 response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
             
+            # Images: Immutable, cache for 1 year (since we use unique filenames/hashes or don't change them often)
+            elif full_path.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".avif")):
+                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+
             # JSON (Lottie): Cache for 1 hour (allows updates without too long wait)
             elif full_path.endswith(".json"):
                 response.headers["Cache-Control"] = "public, max-age=3600"
