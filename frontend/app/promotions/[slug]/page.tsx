@@ -211,7 +211,7 @@ export default function PromotionDetailPage() {
                         </h3>
                         <div
                           className="prose prose-invert prose-sm max-w-none text-gray-300 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4"
-                          dangerouslySetInnerHTML={{ __html: sanitizedConditions || promotion.conditions }}
+                          dangerouslySetInnerHTML={{ __html: sanitizedConditions || promotion.conditions || "" }}
                         />
                       </div>
                     )}
