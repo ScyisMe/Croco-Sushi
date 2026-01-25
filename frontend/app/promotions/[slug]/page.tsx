@@ -149,105 +149,107 @@ export default function PromotionDetailPage() {
               </div>
 
               {/* Right Column: Info & Details */}
-              <div className="bg-[#121212]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-5 md:p-10 shadow-2xl relative overflow-hidden">
+              <div className="bg-[#121212]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col h-full bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d]">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
 
-                <h1 className="text-2xl md:text-5xl font-black text-white mb-4 md:mb-6 leading-tight tracking-tight">
-                  {promotion.name}
-                </h1>
-
-                {promotion.description && (
-                  <div className="text-gray-300 text-base md:text-lg leading-relaxed mb-6 md:mb-8 font-light border-l-2 border-primary/30 pl-4">
-                    {promotion.description}
-                  </div>
-                )}
-
-                {/* Primary Info Grid */}
-                <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-8">
-                  {promotion.discount_value && (
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors group">
-                      <p className="text-gray-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Вигода</p>
-                      <p className="text-xl md:text-2xl font-bold text-primary group-hover:scale-105 transition-transform origin-left">
-                        {promotion.discount_type === "percent" ? `${promotion.discount_value}%` : `${promotion.discount_value} ₴`}
-                      </p>
-                    </div>
-                  )}
-                  {promotion.min_order_amount && (
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors group">
-                      <p className="text-gray-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Мін. замовлення</p>
-                      <p className="text-xl md:text-2xl font-bold text-white group-hover:scale-105 transition-transform origin-left">
-                        {promotion.min_order_amount} ₴
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Usage Progress */}
-                {promotion.max_uses && promotion.current_uses !== undefined && (
-                  <div className="mb-6 md:mb-8 p-4 md:p-6 bg-gradient-to-b from-white/5 to-transparent rounded-2xl border border-white/5">
-                    <div className="flex justify-between items-end mb-3">
-                      <span className="text-gray-300 font-medium text-sm md:text-base">Залишилось пропозицій</span>
-                      <span className="text-xl md:text-2xl font-bold text-white">
-                        {promotion.max_uses - promotion.current_uses} <span className="text-sm text-gray-500 font-normal">/ {promotion.max_uses}</span>
+                <div className="flex-grow">
+                  {/* Dates Label */}
+                  {(promotion.start_date || promotion.end_date) && (
+                    <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 mb-4 font-mono tracking-wide uppercase">
+                      <CalendarIcon className="w-4 h-4 text-primary" />
+                      <span>
+                        {promotion.start_date ? new Date(promotion.start_date).toLocaleDateString("uk-UA") : ''}
+                        {promotion.start_date && promotion.end_date ? ' — ' : ''}
+                        {promotion.end_date ? new Date(promotion.end_date).toLocaleDateString("uk-UA") : ''}
                       </span>
                     </div>
-                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary shadow-[0_0_10px_rgba(34,197,94,0.5)] transition-all duration-1000 ease-out"
-                        style={{ width: `${Math.min((promotion.current_uses / promotion.max_uses) * 100, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Dates */}
-                <div className="flex flex-col gap-3 md:gap-4 mb-8 text-xs md:text-sm text-gray-400 border-t border-white/10 pt-6">
-                  {(promotion.start_date || promotion.end_date) && (
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                      {promotion.start_date && (
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4 text-primary/70" />
-                          <span>З {new Date(promotion.start_date).toLocaleDateString("uk-UA")}</span>
+                  <h1 className="text-2xl md:text-4xl font-black text-white mb-6 leading-tight tracking-tight">
+                    {promotion.name}
+                  </h1>
+
+                  {/* Stats Row (Concise) */}
+                  {(Number(promotion.discount_value) > 0 || promotion.min_order_amount) && (
+                    <div className="flex flex-wrap gap-4 mb-8">
+                      {Number(promotion.discount_value) > 0 && (
+                        <div className="inline-flex items-center gap-3 bg-primary/10 border border-primary/20 px-4 py-3 rounded-xl">
+                          <TagIcon className="w-5 h-5 text-primary" />
+                          <div>
+                            <div className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Вигода</div>
+                            <div className="text-lg font-bold text-primary leading-none mt-0.5">
+                              {promotion.discount_type === "percent" ? `${promotion.discount_value}%` : `${Math.floor(Number(promotion.discount_value))} ₴`}
+                            </div>
+                          </div>
                         </div>
                       )}
-                      {promotion.end_date && (
-                        <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4 text-primary/70" />
-                          <span>По {new Date(promotion.end_date).toLocaleDateString("uk-UA")}</span>
+                      {promotion.min_order_amount && (
+                        <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-xl">
+                          <div className="w-5 h-5 flex items-center justify-center text-gray-400">₴</div>
+                          <div>
+                            <div className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Мін. сума</div>
+                            <div className="text-lg font-bold text-white leading-none mt-0.5">
+                              {promotion.min_order_amount}
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
                   )}
+
+                  {/* Rich Description / Conditions */}
+                  <div className="space-y-6 text-gray-400 text-sm md:text-base leading-relaxed">
+                    {promotion.description && (
+                      <p>{promotion.description}</p>
+                    )}
+
+                    {(sanitizedConditions || promotion.conditions) && (
+                      <div className="bg-white/5 rounded-2xl p-5 border-l-4 border-primary">
+                        <h3 className="font-bold text-white mb-3 flex items-center gap-2 text-sm uppercase tracking-wider">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          Умови отримання
+                        </h3>
+                        <div
+                          className="prose prose-invert prose-sm max-w-none text-gray-300 [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4"
+                          dangerouslySetInnerHTML={{ __html: sanitizedConditions || promotion.conditions }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Usage Progress - Compact */}
+                  {promotion.max_uses && promotion.current_uses !== undefined && (
+                    <div className="mt-8 pt-6 border-t border-white/10">
+                      <div className="flex justify-between items-end mb-2 text-xs text-gray-500 uppercase font-medium tracking-wider">
+                        <span>Доступно купонів</span>
+                        <span className={promotion.max_uses - promotion.current_uses < 10 ? "text-red-500" : "text-white"}>
+                          {promotion.max_uses - promotion.current_uses} шт
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-primary to-emerald-400"
+                          style={{ width: `${Math.min((promotion.current_uses / promotion.max_uses) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Conditions */}
-                {promotion.conditions && (
-                  <div className="mb-10">
-                    <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
-                      <span className="w-1 h-6 bg-primary rounded-full" />
-                      Умови акції
-                    </h3>
-                    <div
-                      className="prose prose-invert prose-p:text-gray-300 prose-li:text-gray-300 max-w-none text-sm leading-relaxed opacity-90"
-                      dangerouslySetInnerHTML={{ __html: sanitizedConditions || promotion.conditions }}
-                    />
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex flex-col gap-4">
+                {/* Actions - Fixed Bottom */}
+                <div className="pt-8 mt-auto flex flex-col gap-3">
                   <Link
                     href="/menu"
-                    className="w-full bg-primary hover:bg-primary-600 text-black font-bold text-center py-4 rounded-xl text-lg transition-all transform hover:scale-[1.02] shadow-[0_0_30px_rgba(34,197,94,0.3)]"
+                    className="w-full bg-gradient-to-r from-primary to-primary-600 hover:from-primary-500 hover:to-primary-700 text-black font-extrabold uppercase tracking-wide text-center py-4 rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    Замовити зараз
+                    Замовити доставку
                   </Link>
 
                   <Link
                     href="/promotions"
-                    className="w-full bg-transparent hover:bg-white/5 border border-white/10 text-white font-semibold text-center py-4 rounded-xl transition-all"
+                    className="w-full text-gray-500 hover:text-white text-sm font-medium text-center py-2 transition-colors flex items-center justify-center gap-2 hover:gap-3"
                   >
-                    Інші акції
+                    ← Інші акції
                   </Link>
                 </div>
 

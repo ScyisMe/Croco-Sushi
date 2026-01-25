@@ -40,7 +40,7 @@ export default async function Home() {
       <main className="flex-grow">
         <Hero />
         {/* Mobile Stories */}
-        <div>
+        <div className="md:hidden">
           <Stories />
         </div>
         <h2 className="sr-only">Актуальні пропозиції</h2>
