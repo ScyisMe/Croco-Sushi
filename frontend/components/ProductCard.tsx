@@ -191,6 +191,8 @@ const ProductCard = memo(({ product, onFavoriteToggle, isFavorite = false, onQui
               loading={priority ? "eager" : "lazy"}
               fetchPriority={priority ? "high" : "auto"}
               quality={60}
+              placeholder="blur"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg=="
               onError={(e) => console.error(`Failed to load image: ${product.image_url}`, e)}
             />
           ) : (

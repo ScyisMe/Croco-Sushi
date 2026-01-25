@@ -214,9 +214,9 @@ async def save_image_with_processing(
             thumbnail_image.thumbnail(thumbnail_size, Image.Resampling.LANCZOS)
             
             if convert_to_webp:
-                thumbnail_image.save(thumbnail_path, "WEBP", quality=75, optimize=True)
+                thumbnail_image.save(thumbnail_path, "WEBP", quality=60, optimize=True)
             else:
-                thumbnail_image.save(thumbnail_path, quality=75, optimize=True)
+                thumbnail_image.save(thumbnail_path, quality=60, optimize=True)
             
             thumbnail_url = f"/static/uploads/{subdirectory}/{thumbnail_filename}"
         
