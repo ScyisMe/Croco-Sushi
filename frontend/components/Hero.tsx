@@ -74,6 +74,16 @@ export default function Hero() {
         {/* Content */}
         <div className="container mx-auto px-4 pt-20 relative z-20 text-center">
           <div className="relative z-20">
+            <div className="flex items-center justify-center gap-2 mb-6 animate-fade-in-down">
+              <div className="flex items-center gap-1.5 bg-white/5 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.2)] hover:bg-white/10 transition-colors cursor-default">
+                <div className="flex text-yellow-400 text-sm">
+                  <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                </div>
+                <span className="text-white font-bold ml-1 text-sm">4.9/5</span>
+                <span className="text-gray-400 text-xs ml-1 border-l border-white/20 pl-2">Google Rating</span>
+              </div>
+            </div>
+
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 drop-shadow-2xl tracking-tight leading-tight">
               <span className="block text-primary-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.6)]">Croco Sushi – №1 у Львові!</span>
               <span className="block text-white">

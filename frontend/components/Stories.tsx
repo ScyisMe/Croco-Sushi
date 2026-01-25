@@ -47,8 +47,8 @@ export default function Stories() {
     const router = useRouter();
     return (
         <LazyMotion features={domAnimation}>
-            <div className="w-full py-6 overflow-x-auto hide-scrollbar">
-                <div className="flex gap-4 px-4 w-max">
+            <div className="w-full py-6 overflow-x-auto hide-scrollbar md:overflow-visible">
+                <div className="flex gap-4 px-4 w-max md:w-full md:justify-center">
                     {stories.map((story, index) => {
                         const isFilter = story.link.includes('?filter=');
 

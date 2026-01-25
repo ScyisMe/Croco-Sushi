@@ -79,9 +79,9 @@ export default function PromotionDetailPage() {
 
           {promotionQuery.isLoading ? (
             <div className="max-w-5xl mx-auto space-y-8 animate-pulse">
-              <div className="h-96 bg-white/5 rounded-3xl w-full" />
+              <div className="h-64 md:h-96 bg-white/5 rounded-3xl w-full" />
               <div className="space-y-4">
-                <div className="h-10 bg-white/5 rounded-lg w-2/3" />
+                <div className="h-8 md:h-10 bg-white/5 rounded-lg w-2/3" />
                 <div className="h-4 bg-white/5 rounded-lg w-full" />
                 <div className="h-4 bg-white/5 rounded-lg w-1/2" />
               </div>
@@ -92,10 +92,9 @@ export default function PromotionDetailPage() {
               <Link href="/promotions" className="text-primary hover:underline">Повернутися до акцій</Link>
             </div>
           ) : (
-            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
-
+            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16 items-start">
               {/* Left Column: Image & Timer */}
-              <div className="space-y-6 lg:sticky lg:top-32">
+              <div className="space-y-4 md:space-y-6 lg:sticky lg:top-32">
                 <div className="relative aspect-[4/3] md:aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
                   {promotion.image_url ? (
                     <Image
@@ -112,20 +111,23 @@ export default function PromotionDetailPage() {
                     </div>
                   )}
 
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  {/* Badges - Refined */}
+                  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                     {promotion.discount_percent && (
-                      <span className="bg-red-500/90 backdrop-blur-md text-white font-bold px-4 py-2 rounded-xl text-lg shadow-lg shadow-red-500/20">
+                      <span className="bg-red-600/90 backdrop-blur-xl text-white font-bold px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-sm md:text-lg shadow-lg shadow-red-500/20 border border-white/10">
                         -{promotion.discount_percent}%
                       </span>
                     )}
                     {isActive ? (
-                      <span className="bg-green-500/90 backdrop-blur-md text-black font-bold px-4 py-2 rounded-xl shadow-lg shadow-green-500/20 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
+                      <span className="bg-black/60 backdrop-blur-xl border border-white/10 text-white font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-xl shadow-lg flex items-center gap-2 text-xs md:text-sm">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
                         Активна
                       </span>
                     ) : (
-                      <span className="bg-gray-500/90 backdrop-blur-md text-white font-bold px-4 py-2 rounded-xl">
+                      <span className="bg-gray-800/90 backdrop-blur-xl text-white font-medium px-3 py-1.5 rounded-xl text-xs md:text-sm border border-white/10">
                         Завершена
                       </span>
                     )}
@@ -134,46 +136,46 @@ export default function PromotionDetailPage() {
 
                 {/* Interactive Timer Block */}
                 {isActive && hasEndDate && (
-                  <div className="bg-gradient-to-r from-gray-900 to-black border border-white/10 p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors" />
+                  <div className="bg-[#121212]/80 backdrop-blur-md border border-white/10 p-5 md:p-6 rounded-2xl shadow-xl flex flex-col items-center justify-center relative overflow-hidden group hover:border-primary/30 transition-colors">
+                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                    <p className="text-gray-400 text-sm font-medium uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <p className="text-gray-400 text-xs md:text-sm font-medium uppercase tracking-widest mb-3 md:mb-4 flex items-center gap-2 relative z-10">
                       <ClockIcon className="w-4 h-4 text-primary" />
                       До кінця акції
                     </p>
-                    <CountdownTimer endDate={promotion.end_date!} className="scale-110" />
+                    <CountdownTimer endDate={promotion.end_date!} className="scale-90 md:scale-110 relative z-10" />
                   </div>
                 )}
               </div>
 
               {/* Right Column: Info & Details */}
-              <div className="bg-[#121212]/60 backdrop-blur-xl border border-white/5 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
+              <div className="bg-[#121212]/80 backdrop-blur-xl border border-white/5 rounded-3xl p-5 md:p-10 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
 
-                <h1 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight tracking-tight">
+                <h1 className="text-2xl md:text-5xl font-black text-white mb-4 md:mb-6 leading-tight tracking-tight">
                   {promotion.name}
                 </h1>
 
                 {promotion.description && (
-                  <div className="text-gray-300 text-lg leading-relaxed mb-8 font-light">
+                  <div className="text-gray-300 text-base md:text-lg leading-relaxed mb-6 md:mb-8 font-light border-l-2 border-primary/30 pl-4">
                     {promotion.description}
                   </div>
                 )}
 
                 {/* Primary Info Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-8">
                   {promotion.discount_value && (
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors">
-                      <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Вигода</p>
-                      <p className="text-2xl font-bold text-primary">
+                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors group">
+                      <p className="text-gray-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Вигода</p>
+                      <p className="text-xl md:text-2xl font-bold text-primary group-hover:scale-105 transition-transform origin-left">
                         {promotion.discount_type === "percent" ? `${promotion.discount_value}%` : `${promotion.discount_value} ₴`}
                       </p>
                     </div>
                   )}
                   {promotion.min_order_amount && (
-                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors">
-                      <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Мін. замовлення</p>
-                      <p className="text-2xl font-bold text-white">
+                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 hover:bg-white/10 transition-colors group">
+                      <p className="text-gray-400 text-[10px] md:text-xs uppercase tracking-wider mb-1">Мін. замовлення</p>
+                      <p className="text-xl md:text-2xl font-bold text-white group-hover:scale-105 transition-transform origin-left">
                         {promotion.min_order_amount} ₴
                       </p>
                     </div>
@@ -182,10 +184,10 @@ export default function PromotionDetailPage() {
 
                 {/* Usage Progress */}
                 {promotion.max_uses && promotion.current_uses !== undefined && (
-                  <div className="mb-8 p-6 bg-gradient-to-b from-white/5 to-transparent rounded-2xl border border-white/5">
+                  <div className="mb-6 md:mb-8 p-4 md:p-6 bg-gradient-to-b from-white/5 to-transparent rounded-2xl border border-white/5">
                     <div className="flex justify-between items-end mb-3">
-                      <span className="text-gray-300 font-medium">Залишилось пропозицій</span>
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-gray-300 font-medium text-sm md:text-base">Залишилось пропозицій</span>
+                      <span className="text-xl md:text-2xl font-bold text-white">
                         {promotion.max_uses - promotion.current_uses} <span className="text-sm text-gray-500 font-normal">/ {promotion.max_uses}</span>
                       </span>
                     </div>
@@ -199,17 +201,18 @@ export default function PromotionDetailPage() {
                 )}
 
                 {/* Dates */}
-                <div className="flex flex-col gap-4 mb-10 text-sm text-gray-400 border-t border-white/10 pt-6">
+                <div className="flex flex-col gap-3 md:gap-4 mb-8 text-xs md:text-sm text-gray-400 border-t border-white/10 pt-6">
                   {(promotion.start_date || promotion.end_date) && (
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap gap-4 items-center justify-between">
                       {promotion.start_date && (
                         <div className="flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
+                          <CalendarIcon className="w-4 h-4 text-primary/70" />
                           <span>З {new Date(promotion.start_date).toLocaleDateString("uk-UA")}</span>
                         </div>
                       )}
                       {promotion.end_date && (
                         <div className="flex items-center gap-2">
+                          <CalendarIcon className="w-4 h-4 text-primary/70" />
                           <span>По {new Date(promotion.end_date).toLocaleDateString("uk-UA")}</span>
                         </div>
                       )}
