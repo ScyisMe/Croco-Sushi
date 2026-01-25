@@ -25,6 +25,7 @@ import NumberTicker from "@/components/ui/NumberTicker";
 import { useRouter } from "next/navigation";
 import { useUiStore } from "@/store/uiStore";
 import CartUpsell from "@/components/CartUpsell";
+import Confetti from "@/components/ui/Confetti";
 
 interface CartProps {
   isOpen: boolean;
@@ -63,6 +64,9 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
   const [promoInput, setPromoInput] = useState("");
   const [isPromoOpen, setIsPromoOpen] = useState(false);
 
+  // Confetti State
+  const [showConfetti, setShowConfetti] = useState(false);
+
   // Sync input with store on mount/update
   useEffect(() => {
     if (promoCode) {
@@ -75,6 +79,21 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
   const DELIVERY_COST = 200;
   const FREE_DELIVERY_FROM = 1000;
   const MIN_ORDER_AMOUNT = 200;
+
+  // Trigger Confetti when Free Delivery is reached
+  useEffect(() => {
+    if (isOpen && totalAmount >= FREE_DELIVERY_FROM) {
+      const hasCelebrated = sessionStorage.getItem("hasCelebratedFreeDelivery");
+      if (!hasCelebrated) {
+        setShowConfetti(true);
+        sessionStorage.setItem("hasCelebratedFreeDelivery", "true");
+
+        // Hide confetti after animation
+        const timer = setTimeout(() => setShowConfetti(false), 5000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [totalAmount, isOpen]);
 
   const handleApplyPromo = async () => {
     if (!promoInput.trim()) return;
@@ -267,6 +286,7 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-[100]" onClose={setIsOpen}>
+        {showConfetti && <Confetti />}
         {/* Overlay */}
         <Transition.Child
           as={Fragment}
@@ -493,8 +513,6 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
                           {/* Промокод */}
                           {renderPromoSection()}
 
-
-
                         </div>
                       )}
                     </div>
@@ -561,6 +579,4 @@ export default function Cart({ isOpen, setIsOpen }: CartProps) {
       </Dialog>
     </Transition.Root >
   );
-
 }
-

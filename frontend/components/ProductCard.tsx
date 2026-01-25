@@ -359,23 +359,45 @@ ProductCard.displayName = "ProductCard";
 
 export default ProductCard;
 
-// Skeleton with Shimmer
+// Skeleton with Premium Shimmer and Logo
 export function ProductCardSkeleton() {
   return (
-    <div className="rounded-2xl overflow-hidden h-full relative bg-surface-card/40 border border-white/5">
-      {/* Shimmer overlay */}
-      <div className="absolute inset-0 -translate-x-full animate-[shine_1.5s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent z-10" />
+    <div className="rounded-2xl overflow-hidden h-full relative bg-[#1E1E1E]/40 border border-white/5 backdrop-blur-sm shadow-sm group">
+      {/* Shimmer effect overlay */}
+      <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 -translate-x-full animate-[shine_1.5s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </div>
 
-      {/* Edge to Edge Image Placeholder */}
-      <div className="aspect-square bg-white/5 mb-0" />
+      {/* Image Area with Pulsing Logo */}
+      <div className="relative aspect-[4/5] bg-black/20 flex items-center justify-center overflow-hidden">
+        {/* Subtle background pattern or pulse */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
 
-      <div className="p-5 space-y-4">
-        <div className="h-6 bg-white/5 rounded w-3/4" />
-        <div className="h-3 bg-white/5 rounded w-full" />
-        <div className="h-3 bg-white/5 rounded w-2/3" />
-        <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
-          <div className="h-8 bg-white/5 rounded w-20" />
-          <div className="w-10 h-10 bg-white/5 rounded-full" />
+        <div className="w-16 h-16 relative opacity-30 animate-pulse duration-1000">
+          <Image
+            src="/logo.webp"
+            alt="Loading"
+            fill
+            className="object-contain grayscale brightness-150"
+          />
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="p-4 space-y-3 relative">
+        {/* Title */}
+        <div className="h-5 bg-white/10 rounded-md w-3/4 animate-pulse" />
+
+        {/* Description Lines */}
+        <div className="space-y-2">
+          <div className="h-3 bg-white/5 rounded-md w-full animate-pulse" />
+          <div className="h-3 bg-white/5 rounded-md w-2/3 animate-pulse" />
+        </div>
+
+        {/* Footer: Price + Button */}
+        <div className="mt-4 pt-3 border-t border-white/5 flex justify-between items-center">
+          <div className="h-6 bg-white/10 rounded-md w-20 animate-pulse" />
+          <div className="w-10 h-10 bg-white/10 rounded-full animate-pulse" />
         </div>
       </div>
     </div>
