@@ -7,6 +7,7 @@ import Image from "next/image";
 import apiClient from "@/lib/api/apiClient";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, CloudArrowUpIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { transliterate } from "@/lib/utils";
 
 interface CategoryFormData {
     name: string;
@@ -51,9 +52,9 @@ export default function CategoryForm({
     }, [initialData]);
 
     const generateSlug = (name: string) => {
-        return name
+        return transliterate(name)
             .toLowerCase()
-            .replace(/[^a-z0-9а-яіїєґ\s-]/g, "") // Remove special chars
+            .replace(/[^a-z0-9\s-]/g, "") // Remove special chars
             .replace(/\s+/g, "-") // Replace spaces with dashes
             .replace(/-+/g, "-") // Prevent multiple dashes
             .trim();
