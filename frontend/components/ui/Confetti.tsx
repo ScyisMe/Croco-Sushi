@@ -32,7 +32,7 @@ export default function Confetti() {
     }, []);
 
     return (
-        <div className="fixed inset-0 pointer-events-none z-[110] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none z-[110] flex items-center justify-center overflow-hidden">
             {particles.map((p) => (
                 <motion.div
                     key={p.id}
